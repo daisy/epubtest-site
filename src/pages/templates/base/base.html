@@ -1,0 +1,63 @@
+{%- extends 'base/htmleton.html' -%}
+{%- block head -%}
+
+<title>epubtest.org{%- if title -%}: {{ title }}{%- endif -%}</title>
+{%- block script -%}
+{%- endblock -%}
+{%- endblock -%}
+
+{%- block body -%}
+<header>
+    <h1><a href="/">epubtest.org</a></h1>
+    <nav>
+        <ul id="main">
+            <li><a href='/results'>Results</a></li>
+            <li><a href='/test-books'>Test Books</a></li>
+            <li><a href='/participate'>Participate</a></li>
+            <li><a href='/about'>About</a></li>
+        </ul>
+        <ul id="user">
+        {%- if accessLevel == 'public' -%}
+            <li><a href='/login'>Login</a></li>
+        {%- else -%}
+            <li><a href='/user/dashboard'>Dashboard</a></li>
+            {# reintroduce later
+            <li><a href='/user/profile'>Profile</a></li>
+            #}
+            {%- if accessLevel == 'admin' -%}
+                <li><a href="/admin">Admin</a></li>
+            {%- endif -%}
+            <li>
+                <form method="POST" action="/forms/logout">
+                    <input type="submit" name="submit" value="Logout"/>
+                </form>
+            </li>
+        {%- endif -%}
+        </ul>
+    </nav>
+</header>
+<main class="{{mainclass}}">
+    <aside id="error"></aside>
+    {%- block content -%}
+    {%- endblock -%}
+</main>
+<footer>
+<span>© 2019 <a href="https://daisy.org">DAISY Consortium</a></span>
+</footer>
+
+<script type="text/javascript">
+
+    window.addEventListener("load", () => {
+        const params = new URLSearchParams(window.location.search);  
+        let elm = document.getElementById("error");
+        if (params.has("error")) {
+            elm.textContent = params.get("error");
+        }
+        else {
+            elm.textContent = '';
+        }
+    });
+  
+</script>
+
+{%- endblock -%}

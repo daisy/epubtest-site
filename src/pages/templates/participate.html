@@ -1,0 +1,55 @@
+{%- extends 'base/base.html' -%}
+{%- set title="Participate" -%}
+{%- set mainclass='wide split' -%}
+{%- block content -%}
+
+<ul class="side">
+    <li><a href="#becoming-a-contributor">Becoming a contributor</a></li>
+    <li><a href="#testing">Testing</a></li>
+    <li><a href="#maintaining">Maintaining</a></li>
+</ul>
+
+<article class="content">
+    <p>Welcome! We at the DAISY Consortium invite you to join us in testing the accessibility of digital reading systems, including apps and hardware devices. Your test results help developers to improve their products, and consumers and institutional purchasers to select most accessible solutions. Together we can change the world by making books and other publications accessible with eyes, ears, and fingers.</p>
+
+    <section>
+        <h2 id="becoming-a-contributor">Becoming a contributor</h2>
+        <h3>Getting started</h3>
+        <p>If you'd like to get involved, we welcome you to <a href="mailto:epubtest@daisy.org">contact us</a>. Once you have received an invitation, just follow the instructions in the email to set up your account.</p>
+    </section>
+    <section>
+        <h2 id="testing">Testing</h2>
+
+        <h3>Performing the tests</h3>
+        
+        <p>After you login, go to your dashboard. There is a table showing testing environments and test books. If you don't have anything in your table, it means our administrators are still setting up your testing. As soon as you have items listed on your dashboard, you can start testing.</p>
+        <p>To enter results, choose a testing environment and a test book, and choose <span class="cmd">Start</span> to begin, or <span class="cmd">Edit Results</span> (to continue).</p>
+        <p>This will bring you to the testing page. There, you will see a link to download the test book itself (the EPUB file), followed by a form with rows for each test in the book. Download the book and open it in the reading system that you're testing.</p>
+        <p>For each test in the book, there is a corresponding row on the testing page form. Follow the instructions in the book and record an answer for each test.</p>
+        <p>Press <span class="cmd">Save</span> when you're done, or when you want to pause testing for now. You can return later to finish.</p>
+            
+        <h3>Adding summary information</h3>
+        
+        <p>Once you have performed the tests from a book for a testing environment, you may add some summary notes about your experience in the summary field on the testing page. This summary will become part of your results when they're published.</p>
+        
+        <h3>Editing your results</h3>
+        
+        <p>You may go back at any time and edit your answers, summaries, or notes.</p>
+        
+        <h3>Publishing your results</h3>
+        
+        <p>Results are not public until they have been published. Then they appear on the main page.</p>
+        <p>To publish your results, go to your Dashboard, find the results (listed per test book), and choose the <span class="cmd">request to publish</span> option. Our administrators will review and approve your request shortly!</p>
+    </section>
+    
+    <section>
+        <h2 id="maintaining">Maintaining your results</h2>
+        
+        <p>From time to time, the test books are updated to fix bugs or expand the number of tests. When this happens, you'll receive an email notification. The next time you login, check your dashboard to see what needs your attention.</p>
+        <p>Once you've made your updates, from your Dashboard, select <span class="cmd">request to publish</span> to update your public results on the main page.</p>
+        <p>In the time between the test books being updated and you updating your results, your score for the previous version of that test book will remain on the main page, with an indication that it is not current.</p>
+    </section>
+</article>
+
+
+{%- endblock -%}

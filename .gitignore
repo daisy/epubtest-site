@@ -59,3 +59,8 @@ typings/
 
 # next.js build output
 .next
+devnotes.md
+internalnotes.md
+src/.DS_Store
+src/pages/.DS_Store
+src/pages/templates/.DS_Store

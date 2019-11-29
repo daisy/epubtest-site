@@ -1,0 +1,24 @@
+{%- extends 'base/base.html' -%}
+
+{%- set title = "Profile" -%}
+{%- block content -%}
+<h1>Profile</h1>
+
+<table summary="User profile information">
+    <tr>
+        <th>Name</th>
+        <td>{{user.name}}</td>
+    </tr>
+    <tr>
+        <th>Organization</th>
+        <td>{{user.organization}}</td>
+    </tr>
+    <tr>
+        <th>Website</th>
+        <td>{{user.website}}</td>
+    </tr>
+</table>
+
+<p><a href="/set-password">Change your password</a></p>
+
+{%- endblock -%}

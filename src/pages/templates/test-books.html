@@ -1,0 +1,16 @@
+{%- extends 'base/base.html' -%}
+{%- set title="Test Books" -%}
+{%- set mainclass='wide' -%}
+{%- block content -%}
+    <h1>Test books</h1>
+
+    <p>Evaluations are completed with the same set of EPUB test books to ensure consistency. The test books are known to be accessible and free of errors. The different titles are described below, along with a link to download each.</p>
+    
+    {%- for testBook in testBooks -%}
+    <h2>{{testBook.title}}</h2>
+    <p>{{testBook.description}}</p>
+    <a href="/books/{{testBook.filename}}" title="{{testBook.title}}">Download</a>
+    {%- endfor -%}
+    
+
+{%- endblock -%}

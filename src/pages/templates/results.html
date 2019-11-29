@@ -1,0 +1,83 @@
+{%- extends 'base/base.html' -%}
+{%- set mainclass="wide" -%}
+{%- set title="Results" -%}
+{%- block script -%}
+<script type="module" src="/js/table.js"></script>
+
+<script type="module">
+        import { table } from '/js/table.js';
+        let smarttable = new table();
+        window.addEventListener("load", () => {
+            let data = [
+                {%- for testenv in testingEnvironments -%}
+                    {
+                        testingEnvironment: {
+                            id: {{testenv.id}},
+                            readingSystem: "{{testenv.readingSystem.name}} {{testenv.readingSystem.version}}",
+                            assistiveTechnology: 
+                                {%-if testenv.assistiveTechnology.name != "None" and testenv.assistiveTechnology.name != "-" -%}
+                                "{{testenv.assistiveTechnology.name}}"
+                                {%- else -%}
+                                "N/A"
+                                {%- endif -%}
+                                ,
+                            operatingSystem: "{{testenv.os.name}} {{testenv.os.version}}"
+                        },
+                        results: [
+                            {%- for topic in topics -%}
+                            {%- set score=getfortopic(testenv.answerSetsByTestingEnvironmentId.nodes, topic).score -%}                
+                            {%-if score > 0 -%}{{score | round(1)}}{%- else -%} -1 {%- endif -%},
+                            {%- endfor -%}
+                        ]
+                    },
+                {%- endfor -%}
+            ];
+
+            let tableElm = document.getElementById("results-table");
+            let tbody = tableElm.getElementsByTagName("tbody")[0];
+            smarttable.init(
+                tbody, data, 0, 'asc'
+            );
+        });
+
+        function sortby(idx) {
+            smarttable.sortBy(idx);
+        }
+        function headerKeypress(event, idx) {
+            if (event.keycode ==13) {
+                smarttable.sortBy(idx);
+            }
+        }
+        window.sortby = sortby;
+        window.headerKeypress = headerKeypress;
+    </script>
+{%- endblock -%}
+
+{%- block content -%}
+
+
+<table class="wide striped" id="results-table">
+    <thead>
+        <tr>
+            <th title="press enter to sort"
+                onkeydown="headerKeypress(event, 0)" 
+                onclick="sortby(0)"
+                tabindex="0">
+                Testing Environment
+            </th>
+            {%- for topic in topics -%}
+            {# loop.index is 1-based but it works here because the header row is "0" #}
+            <th title="press enter to sort"
+                onkeydown="headerKeypress(event, {{loop.index}})" 
+                onclick="sortby({{loop.index}})"
+                tabindex="0">
+                {{getTopicName(topic.id)}}
+            </th>
+            {%- endfor -%}
+        </tr>
+    </thead>
+    <tbody>
+    </tbody>
+</table>
+
+{%- endblock -%}

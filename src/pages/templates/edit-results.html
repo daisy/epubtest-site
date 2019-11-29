@@ -1,0 +1,17 @@
+{%- extends 'base/base.html' -%}
+{%- import "components/edit-answer-set.html" as EditAnswerSet -%}
+{%- set title = "Edit Answers" -%}
+{%- set mainclass="wide" -%}
+
+{%- block content -%}
+
+<h1>Edit Results</h1>
+
+<p><b>Testing Environment:</b>
+<span>{{answerSet.testingEnvironment.readingSystem.name}} {{answerSet.testingEnvironment.readingSystem.version}}, 
+{{answerSet.testingEnvironment.assistiveTechnology.name}} {{answerSet.testingEnvironment.readingSystem.version}},
+{{answerSet.testingEnvironment.os.name}} {{answerSet.testingEnvironment.os.version}}</span></p>
+<p><b>Topic:</b> <span>{{answerSet.testBook.title}}</span></p>
+{{ EditAnswerSet.EditAnswerSet(answerSet) }}
+
+{%- endblock -%}
