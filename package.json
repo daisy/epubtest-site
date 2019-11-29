@@ -1,14 +1,21 @@
 {
   "name": "epubtest-site",
   "version": "1.0.0",
-  "description": "",
+  "description": "EPUB reading experience testing site",
   "main": "index.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/daisy/epubtest-site"
+  },
   "scripts": {
     "start": "node src/index.js",
     "dev": "nodemon --inspect  -e js,html src/index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "author": "",
+  "author": {
+    "name": "Marisa DeMeglio",
+    "email": "marisa.demeglio@gmail.com"
+  },
   "license": "ISC",
   "dependencies": {
     "@graphile-contrib/pg-simplify-inflector": "^5.0.0-beta.1",

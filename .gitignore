@@ -61,6 +61,6 @@ typings/
 .next
 devnotes.md
 internalnotes.md
-src/.DS_Store
-src/pages/.DS_Store
-src/pages/templates/.DS_Store
+.DS_Store
+
+*.swp
