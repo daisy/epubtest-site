@@ -31,7 +31,7 @@
             <td>{{request.created | date("YYYY-MM-DD")}}</td>
             <td>{{request.answerSet.user.name}}</td>
             <td>
-                <form method="POST" action="/forms/approve-request">
+                <form method="POST" action="/admin/forms/approve-request">
                     <input type="hidden" name="requestId" value="{{request.id}}"></input>
                     <input type="hidden" name="answerSetId" value="{{request.answerSet.id}}"></input>
                     <input type="submit" name="submit" value="Approve"></input>

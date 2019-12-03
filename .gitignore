@@ -64,3 +64,4 @@ internalnotes.md
 .DS_Store
 
 *.swp
+.vscode/

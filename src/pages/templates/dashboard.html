@@ -48,7 +48,7 @@
                     {%- elif requestToPublish != null -%}
                     <span>Request pending</span>
                     {%- else -%}
-                    <form method="POST" action="/forms/request-to-publish">
+                    <form method="POST" action="/user/forms/request-to-publish">
                         <input type="hidden" name="answerSetId" value="{{answerSet.id}}"/>
                         <input type="submit" name="submit" value="Request to publish"/>
                     </form>

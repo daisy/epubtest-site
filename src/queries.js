@@ -298,7 +298,7 @@ module.exports = {
             answerIds:[${answers.map(a=>a.id)}]
             answerValues:[${answers.map(a=>a.value)}],
             notes:[${answers.map(a=>a.notes ? `"${rmquotes(a.notes)}"` : '""')}],
-            notesArePublic:[${answers.map(a=>a.publishNotes ? 'true' : 'false')}],
+            notesArePublic:[${answers.map(a=>a.publishNotes === 'on' ? 'true' : 'false')}],
             score: "${score}"
           }){
           clientMutationId

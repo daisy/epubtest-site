@@ -14,8 +14,6 @@ const userFormRoutes = require('./routes/user-forms');
 const adminFormRoutes = require('./routes/admin-forms');
 const middleware = require('./middleware');
 
-const { body,validationResult, sanitizeBody } = require('express-validator');
-
 const app = express()
 
 require('dotenv').config({path: path.join(__dirname, '../.env')});
@@ -41,8 +39,8 @@ app.use('/', publicRoutes);
 app.use('/user', middleware.isAuthenticated, userRoutes);
 app.use('/admin', middleware.isAuthenticated, middleware.isAdmin, adminRoutes);
 app.use('/forms', publicFormRoutes);
-app.use('/forms', middleware.isAuthenticated, userFormRoutes);
-app.use('/forms', middleware.isAuthenticated, middleware.isAdmin, adminFormRoutes);
+app.use('/user/forms', middleware.isAuthenticated, userFormRoutes);
+app.use('/admin/forms', middleware.isAuthenticated, middleware.isAdmin, adminFormRoutes);
 
 const port = process.env.PORT || 8000;
 app.listen(port, () => console.log(`epubtest.org listening on port ${port}!`))
