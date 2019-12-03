@@ -70,7 +70,7 @@
                 <td>
                     {%- set requestToPublish=getRequestToPublish(answerSet.id) -%}
                     {%- if answerSet.isPublic -%}
-                    <a href="/results/{{testingEnvironment.id}}">Published</a>
+                    <a href="/results/{{testingEnvironment.id}}#{{answerSet.id}}">Published</a>
 
                     {%- elif requestToPublish != null -%}
                     <span>Request pending</span>

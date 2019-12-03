@@ -401,6 +401,7 @@ module.exports = {
                id
                flag
                score
+               isPublic
                testBook {
                  title
                  topic {id}
