@@ -14,32 +14,28 @@
 /* main areas */
 body {
   display: grid;
-  grid-template-columns: 20% auto 20%;
-  grid-template-rows: 12vh auto 3vh; 
-  column-gap: 4vw;
+  grid-template-rows: 12vh 2vh auto 3vh; 
+  grid-template-columns: 100%;
+  /*! column-gap: 4vw; */
   font-family: Verdana;
 }
 
 header {
   grid-row: 1;
-  grid-column: 1 / 4;
   display: grid;
-  grid-template-columns: subgrid;
+  grid-template-columns: 20% auto;
   align-items: center;
   border-bottom: 1vh solid var(--primary);
-
 }
 
 main {
-  grid-row: 2;
-  grid-column: 2;
+  grid-row: 3;
   padding-top: 2vh;
 }
 
 footer {
+  grid-row: 4;
   font-style: italic;
-  grid-column: 1 / 4;
-  grid-row: 3;
   text-align: center;
   margin-top: 10vh;
   padding-bottom: 5vh;
@@ -57,48 +53,58 @@ header h1 a {
 }
 
 header nav {
-  grid-column: 2/4;
-  grid-row: 1;
+  grid-column: 2;
   display: grid;
-  grid-template-columns: 60% 40%;
+  grid-template-columns: 50% auto;
   align-items: center;
 }
 
-header nav ul {
+nav ul {
   margin: 0;
   padding: 0;
   display: flex;
   flex-wrap: wrap;
   list-style: none;
   line-height: 2em;
-
 }
 
 header nav ul#main {
   justify-content: flex-start;
   grid-column: 1;
-  padding-left: 1vw;
-  border-top-left-radius: 10px;
-  border-bottom-left-radius: 10px;
-  
 }
 
 header nav ul#user {
   grid-column: 2;
   justify-content: flex-end;
-  border-top-right-radius: 10px;
-  border-bottom-right-radius: 10px;
 }
 
-header nav li {
+nav li {
   flex: 0 1;
   margin-right: 2vw;
   white-space: nowrap;
   text-decoration: none;
 }
+
 footer > * {
   font-size: smaller;
 }
+
+/* admin nav */
+nav#admin-nav {
+  grid-row: 2;
+  display: grid;
+  grid-template-columns: 10% auto;
+}
+nav#admin-nav h1 {
+  font-size: medium;
+  grid-column: 1;
+  margin: 0;
+  line-height: 2em;
+}
+nav#admin-nav ul {
+  grid-column: 2;
+}
+
 
 /* errors, messages */
 aside.message {
@@ -164,27 +170,33 @@ main h1 {
 /*   font-size: 2em; */
 }
   
-main .login {
+main .simple-form {
   display: grid;
-  grid-template-columns: 50%;
   grid-gap: 3vh;
-  align-content: center;
-  align-items: stretch;    
-  
+  width: 30%;
+}
+main .login {
+  margin: auto;
 }
 
-main .login > div {
+main .simple-form > div {
   display: grid;
   grid-template-columns: 1fr;
   grid-gap: 1vh;
   align-items: center;
 }
+
+main .simple-form > div.actions {
+  grid-template-columns: 50% auto;
+}
+
+main .simple-form > div.actions input {
+  width: 10vh;
+}
+
 textarea#summary {
   margin-top: 2vh;
   margin-bottom: 2vh;
-}
-main .login .actions * {
-  width: 10vh;
 }
 
 main.wide {
