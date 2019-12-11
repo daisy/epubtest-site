@@ -1,28 +1,22 @@
 const nodemailer = require("nodemailer");
 
 var transporter = () => {
-  let auth =  {
-      auth: {
-        user: process.env.MAILUSER,
-        pass: process.env.MAILPASS
-      }
-  };
-  let tls = {
+  let localOpts = {
+    host: process.env.MAILHOST,
+    port: process.env.MAILPORT,
+    secure: false, 
     tls: {
       rejectUnauthorized: false
     }
   };
-  let opts = {
-    host: process.env.MAILHOST,
-    port: process.env.MAILPORT,
-    secure: false, 
+  let sendmailOpts = {
+    sendmail: true,
+    newline: 'unix',
+    path: '/usr/sbin/sendmail'
   };
-  if (process.env.MODE == 'LOCALDEV') {
-    opts = {...opts, ...tls};
-  }
-  else {
-    opts = {...opts, ...auth};
-  }
+  
+  let opts = process.env.MODE == 'LOCALDEV' ? localOpts: sendmailOpts;
+  
   return nodemailer.createTransport(opts);
 }
 
