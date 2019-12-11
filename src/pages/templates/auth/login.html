@@ -1,6 +1,6 @@
 {%- extends 'base/base.html' -%}
 {%- block content -%}
-<form method="POST" action="/forms/login" class="login">
+<form method="POST" action="/forms/login" class="login simple-form">
   <div>
     <label for="email">Email</label>
     <input type="email" name="email" required/>
@@ -13,7 +13,7 @@
 
   <div class="actions">
     <input type="submit" name="submit" value="Login" />
-    {#<a href="/forgot-password">Forgot password?</a>#}
+    <a href="/forgot-password">Forgot password?</a>
   </div>
 </form>
 {%- endblock -%}

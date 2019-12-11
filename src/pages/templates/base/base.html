@@ -9,7 +9,7 @@
 {%- block body -%}
 <header>
     <h1><a href="/">epubtest.org</a></h1>
-    <nav>
+    <nav {% if accessLevel == 'admin' %}aria-label="Main"{% endif %}>
         <ul id="main">
             <li><a href='/results'>Results</a></li>
             <li><a href='/test-books'>Test Books</a></li>
@@ -24,9 +24,6 @@
             {# reintroduce later
             <li><a href='/user/profile'>Profile</a></li>
             #}
-            {%- if accessLevel == 'admin' -%}
-                <li><a href="/admin">Admin</a></li>
-            {%- endif -%}
             <li>
                 <form method="POST" action="/forms/logout">
                     <input type="submit" name="submit" value="Logout"/>
@@ -35,9 +32,24 @@
         {%- endif -%}
         </ul>
     </nav>
+    
 </header>
+{%- if accessLevel == 'admin' -%}
+    <nav id="admin-nav" aria-labelledby="admin-nav-title">
+        <h1 id="admin-nav-title">Admin:</h1>
+        <ul> 
+            <li><a href="/admin/requests">Manage Requests</a></li>
+            <li><a href="/admin/testing">Manage Testing</a></li>
+            <li><a href="/admin/test-books">Manage Test Books</a></li>
+            <li><a href="/admin/users">Manage Users</a></li>
+        </ul>
+    </nav>
+{%- endif -%}
 <main class="{{mainclass}}">
+    
+
     <aside id="error"></aside>
+
     {%- block content -%}
     {%- endblock -%}
 </main>
