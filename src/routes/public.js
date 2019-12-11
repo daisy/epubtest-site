@@ -7,7 +7,7 @@ const utils = require('../utils');
 const axios = require('axios');
 
 const mail = require('../mail.js');
-require('dotenv').config({path: path.join(__dirname, '../../.env')});
+//require('dotenv').config({path: path.join(__dirname, '../../.env')});
 
 console.log(process.env.MODE);
 if (process.env.MODE == 'DEV' || process.env.mode == 'LOCALDEV') {
