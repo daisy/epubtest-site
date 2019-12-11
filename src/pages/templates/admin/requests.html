@@ -1,0 +1,41 @@
+{%- extends '../base/base.html' -%}
+{%- set title = "Admin: Home" -%}
+{%- set mainclass = "wide" -%}
+
+
+{%- block content -%}
+
+<h1>Manage Requests</h1>
+
+<table>
+    <thead>
+        <tr>
+            <td>Reading System</td>
+            <td>Assistive Technology</td>
+            <td>Operating System</td>
+            <td>Topic</td>
+            <td>Requested on</td>
+            <td>User</td>
+            <td>Approve</td>
+        </tr>
+    </thead>
+    <tbody>
+        {%- for request in requests -%}
+        <tr>
+            <td>{{request.answerSet.testingEnvironment.readingSystem.name}} {{request.answerSet.testingEnvironment.readingSystem.version}}</td>
+            <td>{{request.answerSet.testingEnvironment.assistiveTechnology.name}}</td>
+            <td>{{request.answerSet.testingEnvironment.os.name}} {{request.answerSet.testingEnvironment.os.version}}</td>
+            <td>{{request.answerSet.testBook.topic.id}}</td>
+            <td>{{request.created | date("YYYY-MM-DD")}}</td>
+            <td>{{request.answerSet.user.name}}</td>
+            <td>
+                <form method="POST" action="/admin/forms/approve-request">
+                    <input type="hidden" name="requestId" value="{{request.id}}"></input>
+                    <input type="hidden" name="answerSetId" value="{{request.answerSet.id}}"></input>
+                    <input type="submit" name="submit" value="Approve"></input>
+                </form>
+            </td>
+        {%- endfor -%}
+    </tbody>
+</table>
+{%- endblock -%}
