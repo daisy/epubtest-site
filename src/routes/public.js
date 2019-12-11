@@ -7,15 +7,11 @@ const utils = require('../utils');
 const axios = require('axios');
 
 const mail = require('../mail.js');
-//require('dotenv').config({path: path.join(__dirname, '../../.env')});
 
-console.log(process.env.MODE);
-if (process.env.MODE == 'DEV' || process.env.mode == 'LOCALDEV') {
-    router.get('/test', async (req, res) => {
-        await mail.emailInvitation("xyz");
-        return res.redirect('/');
-    });
-}
+router.get('/test', async (req, res) => {
+    await mail.emailInvitation("xyz");
+    return res.redirect('/');
+});
 
 // home page
 router.get('/', (req, res) => res.render('index.html', { accessLevel: req.accessLevel}));
