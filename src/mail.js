@@ -1,34 +1,35 @@
 const nodemailer = require("nodemailer");
+const aws = require('aws-sdk');
 
-var transporter = () => {
-  let localOpts = {
-    host: process.env.MAILHOST,
-    port: process.env.MAILPORT,
-    secure: false, 
-    tls: {
-      rejectUnauthorized: false
-    }
-  };
-  let sendmailOpts = {
-    sendmail: true,
-    newline: 'unix',
-    path: '/usr/sbin/sendmail'
-  };
-  
-  let opts = process.env.MODE == 'LOCALDEV' ? localOpts: sendmailOpts;
-  
-  return nodemailer.createTransport(opts);
+if (process.env.MODE == 'LOCALDEV') {
+    // can test locally with mailserver running e.g. npx aws-ses-local
+    aws.config.update({ region: 'us-east-1', endpoint: 'http://localhost:9001' });
+}
+else {
+    aws.config.update({ region: 'us-east-1'});
 }
 
 async function emailInvitation(userId) {
-    let info = await transporter().sendMail({
-        from: '"epubtest.org" <epubtest@daisy.org>',
-        to: "Marisa DeMeglio <marisa.demeglio@gmail.com>",
-        subject: "Hello ✔", 
-        text: "Hello world?"
-    });
+    try {
+        let opts = {
+            SES: new aws.SES({
+                apiVersion: '2010-12-01'
+            })
+        };
+        let transport = nodemailer.createTransport(opts);
+        let info = await transporter().sendMail({
+            from: '"epubtest.org" <epubtest@daisy.org>',
+            to: '"aws test" <success@simulator.amazonses.com>',
+            subject: "Hello ✔",
+            text: "Hello world?"
+        });
 
-    console.log("Message sent", info.messageId);   
+        console.log("Message sent", info.messageId);
+    }
+    catch (err) {
+        console.log("Error sending email ", err);
+    }
+
 }
 
 function emailPasswordReset(userId) {
