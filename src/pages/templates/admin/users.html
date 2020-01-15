@@ -1,22 +1,76 @@
 {%- extends '../base/base.html' -%}
 {%- set title = "Admin: Manage Users" -%}
-{%- set mainclass = "wide" -%}
+{%- set mainclass = "split" -%}
 
 
 {%- block content -%}
 
 <h1>Manage Users</h1>
 
-{#
+<nav class="side" aria-label="User management links">
+    <ul>
+        <li><a href="#active-users">Active Users</a></li>
+        <li><a href="#pending-invitations">Pending Invitations</a></li>
+        <li><a href="#invite-users">Invite Users</a></li>
+    </ul>
+</nav>
 
-On this page
+<div class="content">
+    {# TODO
+        <h2>Add user</h2> 
+    #}
 
-List of active users. Sort by name, last active, number of answer sets
 
-Option to invite new user
+    <h2>Active Users</h2>
+    <ul>
+        {%- for user in activeUsers -%}
+        <li>{{user.name}}</li>
+        {%- endfor -%}
+    </ul>
 
-Link to => "Inactive" users. Option to reinvite. View list of pending invitations.
+    <h2>Pending invitations</h2>
+    <p>These users have been invited but have not yet accepted the invitation. You may re-send it below.</p>
+    <table>
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Date of invitation</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {%- for user in invitedUsers -%}
+            <tr>
+                <td>{{user.name}}</td>
+                <td>{{user.invitationDate}}</td>
+                <td>
+                    <form action="/admin/forms/invite-user">
+                        <input type="hidden" value="{{user.id}}"/>
+                        <input type="button" value="Re-send invitation" type="submit"/>
+                    </form>
+                </td>
+            </tr>
+            {%- endfor -%}
+        </tbody>
+    </table>
 
-#}
+
+    <h2>Invite users</h2>
+    <p>These users were registered with the previous version of this website. You may re-invite them below.</p>
+
+    <form action="/admin/forms/invite-user">
+    
+        <ul class="cols">
+            {%- for user in inactiveUsers -%}
+            <li>
+                <input type="checkbox" name="users[{{loop.index}}][id]" value="{{user.id}}" aria-label="Select {{user.name}}" onselect="inviteUserSelect">{{user.name}}</input></li>
+            </li>
+            {%- endfor -%}
+        </ul>    
+           
+        <p id="selected">Selected: none</p>
+        <input type="button" value="Invite" type="submit"/>
+    </form>
+</div>
 
 {%- endblock -%}

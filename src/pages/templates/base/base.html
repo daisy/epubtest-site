@@ -9,14 +9,14 @@
 {%- block body -%}
 <header>
     <h1><a href="/">epubtest.org</a></h1>
-    <nav {% if accessLevel == 'admin' %}aria-label="Main"{% endif %}>
-        <ul id="main">
+    <nav aria-label="Main">
+        <ul id="main" class="horizontal">
             <li><a href='/results'>Results</a></li>
             <li><a href='/test-books'>Test Books</a></li>
             <li><a href='/participate'>Participate</a></li>
             <li><a href='/about'>About</a></li>
         </ul>
-        <ul id="user">
+        <ul id="user" class="horizontal">
         {%- if accessLevel == 'public' -%}
             <li><a href='/login'>Login</a></li>
         {%- else -%}
@@ -34,17 +34,6 @@
     </nav>
     
 </header>
-{%- if accessLevel == 'admin' -%}
-    <nav id="admin-nav" aria-labelledby="admin-nav-title">
-        <h1 id="admin-nav-title">Admin:</h1>
-        <ul> 
-            <li><a href="/admin/requests">Manage Requests</a></li>
-            <li><a href="/admin/testing">Manage Testing</a></li>
-            <li><a href="/admin/test-books">Manage Test Books</a></li>
-            <li><a href="/admin/users">Manage Users</a></li>
-        </ul>
-    </nav>
-{%- endif -%}
 <main class="{{mainclass}}">
     
 

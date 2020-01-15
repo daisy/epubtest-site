@@ -1,20 +1,17 @@
 const axios = require('axios');
 
-module.exports = {
-    query: (queryString, jwt=null) => {
-        let request = makeRequest(queryString, jwt);
-        // return a promise
-        return axios(request);
-    },
-
-    // multiQuery: (queryStrings, jwt=null) => {
-    //     let requests = queryStrings.map(q => makeRequest(q, jwt));
-    //     return axios.all(requests.map(r => axios.get(r)));
-    // },
-
-    makeRequest
+async function query(queryString, jwt=null) {
+    let request = makeRequest(queryString, jwt);
+    // return a promise
+    let retval = await axios(request);
+    return retval;
 }
 
+async function queries(queryStringArray, jwt=null) {
+    let retval = await Promise.all(queryStringArray.map(q => axios(makeRequest(q, jwt))));
+    return retval;
+}
+ 
 // create request object
 function makeRequest(queryString, jwt=null) {
     let request = {
@@ -28,4 +25,8 @@ function makeRequest(queryString, jwt=null) {
         request.headers = {'Authorization': `bearer ${jwt}`};            
     }
     return request;
+}
+
+module.exports = {
+    query, queries
 }

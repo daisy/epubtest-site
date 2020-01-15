@@ -13,7 +13,9 @@ const publicFormRoutes = require('./routes/public-forms');
 const userFormRoutes = require('./routes/user-forms');
 const adminFormRoutes = require('./routes/admin-forms');
 const middleware = require('./middleware');
+const rateLimit = require("express-rate-limit");
 
+const apiLimiter = rateLimit();
 const app = express()
 
 require('dotenv').config({path: path.join(__dirname, '../.env')});
@@ -24,6 +26,10 @@ var env = nunjucks.configure('src/pages/templates', {
 });
 nunjucksDate.setDefaultFormat("MMMM Do YYYY");
 nunjucksDate.install(env);
+
+// Enable if you're behind a reverse proxy (Heroku, Bluemix, AWS ELB, Nginx, etc)
+// see https://expressjs.com/en/guide/behind-proxies.html
+app.set('trust proxy', 1);
 
 app.use(cors());
 app.use(cookieParser());
@@ -38,7 +44,7 @@ app.use('/books', express.static(path.join(__dirname, `./pages/books`)));
 app.use('/', publicRoutes);
 app.use('/user', middleware.isAuthenticated, userRoutes);
 app.use('/admin', middleware.isAuthenticated, middleware.isAdmin, adminRoutes);
-app.use('/forms', publicFormRoutes);
+app.use('/forms', apiLimiter, publicFormRoutes);
 app.use('/user/forms', middleware.isAuthenticated, userFormRoutes);
 app.use('/admin/forms', middleware.isAuthenticated, middleware.isAdmin, adminFormRoutes);
 

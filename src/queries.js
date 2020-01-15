@@ -18,7 +18,7 @@ module.exports = {
       }
     }`,
 
-    USERS_OWN_SELF: userId => `query {
+    USER_PROFILE: userId => `query {
         user (id: ${userId}) {
             name
             organization
@@ -26,7 +26,16 @@ module.exports = {
         }
     }`,
 
-    USERS_OWN_ANSWERSETS: userId => `query {
+    USER_PROFILE_EXTENDED: userId => `query {
+      user (id: ${userId}) {
+        name
+        login {
+          email
+        }
+      }
+    }`,
+
+    USER_ANSWERSETS: userId => `query {
       getUserTestingEnvironments(userId: ${userId}){
         nodes {
           id
@@ -416,9 +425,34 @@ module.exports = {
        }
        }`,
 
+       INACTIVE_USERS: `query {
+        getInactiveUsers {
+          nodes{
+            id
+            name
+          }
+        }
+       }`,
 
-      
+       ACTIVE_USERS: `query {
+        getActiveUsers {
+          nodes{
+            id
+            name
+          }
+        }
+      }`,
 
-
+      INVITED_USERS: `query {
+        invitations {
+          nodes {
+            user{
+              id
+              name
+            }
+            dateInvited
+          }
+        }
+      }`
     
 };
