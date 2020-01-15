@@ -10,7 +10,7 @@ const { validationResult, body } = require('express-validator');
 var router = express.Router()
 
 router.post('/mail', [body('email').isEmail()], async(req, res) => {
-    await mail.testEmail(body('email'));
+    await mail.testEmail(req.body.email);
     return res.redirect('/test?error=Message%20sent');
 });
 

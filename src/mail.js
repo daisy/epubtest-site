@@ -1,65 +1,4 @@
 const nodemailer = require("nodemailer");
-const aws = require('aws-sdk');
-
-async function testEmail(emailAddress) {
-    try {
-        await sendEmail(
-            "Someone",
-            emailAddress, 
-            "Test message from epubtest.org",
-            "This is a test message from epubtest.org. "
-            
-        );
-        console.log("Message sent");
-    }
-    catch(err) {
-        console.log("Error sending invitation ", err);
-        return res.redirect('/server-error');
-    };
-}
-
-async function emailInvitation(userId) {
-    try {
-        let userData = await db.query(Q.USER_PROFILE_EXTENDED(userId));
-        await sendEmail(
-            userData.email, 
-            "Invitation to contribute to epubtest.org",
-            
-        );
-        console.log("Message sent");
-    }
-    catch(err) {
-        console.log("Error sending invitation ", err);
-        return res.redirect('/server-error');
-    };
-}
-
-function emailPasswordReset(userId) {
-
-}
-
-async function sendEmail(name, toAddress, subject, messageBody) {
-    if (process.env.MODE == 'LOCALDEV') {
-        // can test locally with mailserver running e.g. npx aws-ses-local
-        aws.config.update({ region: 'us-east-1', endpoint: 'http://localhost:9001' });
-    }
-    else {
-        aws.config.update({ region: 'us-east-1'});
-    }
-
-    let opts = {
-        SES: new aws.SES({
-            apiVersion: '2010-12-01'
-        })
-    };
-    let transport = nodemailer.createTransport(opts);
-    let info = await transport.sendMail({
-        from: '"epubtest.org" <epubtest@daisy.org>',
-        to: `"${name}" <${toAddress}>`,
-        subject: subject,
-        text: messageBody
-    });    
-}
 
 const plainTextInviteMessage = (linkTokenUrl) => `
 Greetings!
@@ -140,6 +79,71 @@ If it was not you, then please disregard this message.</p>
 <a href="http://inclusivepublishing.org">inclusivepublishing.org</a>
 `;
 
+
+async function testEmail(emailAddress) {
+    try {
+        await sendEmail(
+            "Someone",
+            emailAddress, 
+            "Test message from epubtest.org",
+            "This is a test message from epubtest.org. ",
+            "<p>This is a test message from epubtest.org. </p>"
+        );
+        console.log("Message sent");
+    }
+    catch(err) {
+        console.log("Error sending invitation ", err);
+    };
+}
+
+async function emailInvitation(userId) {
+    try {
+        let userData = await db.query(Q.USER_PROFILE_EXTENDED(userId));
+        await sendEmail(
+            userData.name,
+            userData.email, 
+            "Invitation to contribute to epubtest.org",
+            plainTextInviteMessage,
+            htmlInviteMessage
+        );
+        console.log("Message sent");
+    }
+    catch(err) {
+        console.log("Error sending invitation ", err);
+        return res.redirect('/server-error');
+    };
+}
+
+function emailPasswordReset(userId) {
+
+}
+
+async function sendEmail(name, toAddress, subject, messageBodyText, messageBodyHtml) {
+    let opts = {
+        sendmail: true,
+        newline: 'unix',
+        path: '/usr/sbin/sendmail'
+    };
+    if (process.env.MODE == 'LOCALDEV') {
+        opts = {
+            host: process.env.MAILHOST,
+            port: process.env.MAILPORT,
+            secure: false, 
+            tls: {
+                rejectUnauthorized: false
+            }
+        };
+    }
+    
+    let transport = nodemailer.createTransport(opts);
+    let info = await transport.sendMail({
+        from: '"epubtest.org" <epubtest@daisy.org>',
+        to: `"${name}" <${toAddress}>`,
+        subject: subject,
+        text: messageBodyText,
+        html: messageBodyHtml
+    });    
+}
 
 module.exports = {
     emailInvitation,

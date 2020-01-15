@@ -65,3 +65,4 @@ internalnotes.md
 
 *.swp
 .vscode/
+output/

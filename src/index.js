@@ -44,7 +44,7 @@ app.use('/books', express.static(path.join(__dirname, `./pages/books`)));
 app.use('/', publicRoutes);
 app.use('/user', middleware.isAuthenticated, userRoutes);
 app.use('/admin', middleware.isAuthenticated, middleware.isAdmin, adminRoutes);
-app.use('/forms', apiLimiter, publicFormRoutes);
+app.use('/forms'/*, apiLimiter*/, publicFormRoutes);
 app.use('/user/forms', middleware.isAuthenticated, userFormRoutes);
 app.use('/admin/forms', middleware.isAuthenticated, middleware.isAdmin, adminFormRoutes);
 
