@@ -5,6 +5,10 @@ const axios = require('axios');
 
 var router = express.Router()
 
+router.get('/', async(req, res) => {
+    return res.redirect('/admin/requests');
+});
+
 // admin requests
 router.get('/requests', async (req, res) => {
     try {
@@ -20,19 +24,6 @@ router.get('/requests', async (req, res) => {
         console.log(err);
         return res.redirect('/server-error');
     }
-    // db.query(Q.REQUESTS, req.cookies.jwt)
-    // .then(results => {
-    //     let requests = results.data.data.requests.nodes;
-    //     return res.render('./admin/requests.html', 
-    //         {
-    //             accessLevel: req.accessLevel,
-    //             requests: requests
-    //         });
-    // })  
-    // .catch(err => {
-    //     console.log(err);
-    //     return res.redirect('/server-error');
-    // });
 });
 
 // admin testing
@@ -55,27 +46,6 @@ router.get('/testing', async (req, res) => {
         console.log(err);
         return res.redirect('/server-error');
     }
-    // axios.all([
-    //     axios(db.makeRequest(Q.REQUESTS, req.cookies.jwt)), 
-    //     axios(db.makeRequest(Q.ALL_TESTING_ENVIRONMENTS, req.cookies.jwt))
-    // ])
-    // .then(results => {
-    //     let requests = results[0].data.data.requests.nodes;
-    //     let testenvs = results[1].data.data.testingEnvironments.nodes;
-    //     return res.render('./admin/testing.html', 
-    //         {
-    //             accessLevel: req.accessLevel,
-    //             testingEnvironments: testenvs,
-    //             getRequestToPublish: answerSetId => {
-    //                 let retval = requests.find(r => r.answerSetId === answerSetId);
-    //                 return retval;
-    //             }
-    //         });
-    // })  
-    // .catch(err => {
-    //     console.log(err);
-    //     return res.redirect('/server-error');
-    // });
 });
 
 
@@ -99,31 +69,11 @@ router.get('/test-books', async (req, res) => {
         console.log(err);
         return res.redirect('/server-error');
     }
-    // axios.all([
-    //     axios(db.makeRequest(Q.REQUESTS, req.cookies.jwt)), 
-    //     axios(db.makeRequest(Q.ALL_TESTING_ENVIRONMENTS, req.cookies.jwt))
-    // ])
-    // .then(results => {
-    //     let requests = results[0].data.data.requests.nodes;
-    //     let testenvs = results[1].data.data.testingEnvironments.nodes;
-    //     return res.render('./admin/testing.html', 
-    //         {
-    //             accessLevel: req.accessLevel,
-    //             testingEnvironments: testenvs,
-    //             getRequestToPublish: answerSetId => {
-    //                 let retval = requests.find(r => r.answerSetId === answerSetId);
-    //                 return retval;
-    //             }
-    //         });
-    // })  
-    // .catch(err => {
-    //     console.log(err);
-    //     return res.redirect('/server-error');
-    // });
 });
 
 // admin users
 router.get('/users', async (req, res) => {
+    let alpha = (a,b) => a.name > b.name ? 1 : a.name == b.name ? 0 : -1;
     try {
         let results = await db.queries([
             Q.INACTIVE_USERS, 
@@ -133,9 +83,9 @@ router.get('/users', async (req, res) => {
         return res.render('./admin/users.html', 
             {
                 accessLevel: req.accessLevel,
-                invitedUsers: results[1].data.data.invitations.nodes,
-                inactiveUsers: results[0].data.data.getInactiveUsers.nodes,
-                activeUsers: results[2].data.data.getActiveUsers.nodes,
+                invitedUsers: results[1].data.data.invitations.nodes.sort(alpha),
+                inactiveUsers: results[0].data.data.getInactiveUsers.nodes.sort(alpha),
+                activeUsers: results[2].data.data.getActiveUsers.nodes.sort(alpha),
             });
     }
     catch(err) {

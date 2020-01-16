@@ -20,6 +20,9 @@
         {%- if accessLevel == 'public' -%}
             <li><a href='/login'>Login</a></li>
         {%- else -%}
+            {%- if accessLevel == 'admin' -%}
+            <li><a href="/admin">Admin</a></li>
+            {%- endif -%}
             <li><a href='/user/dashboard'>Dashboard</a></li>
             {# reintroduce later
             <li><a href='/user/profile'>Profile</a></li>

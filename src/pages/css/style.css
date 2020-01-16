@@ -107,7 +107,7 @@ ul.horizontal {
   flex-wrap: wrap;
 }
 ul.cols {
-
+  columns: 3;
 }
 
 
@@ -196,7 +196,7 @@ main .simple-form > div.actions {
 }
 
 main .simple-form > div.actions input {
-  width: 10vh;
+  width: 12vh;
 }
 
 textarea#summary {
@@ -256,6 +256,12 @@ a.big {
     display: block;
     text-align: center !important;
     line-height: 3vh;
+}
+
+.highlight {
+  border: solid .5vh var(--soft);
+  padding: 1vh;
+  margin: 1vh;
 }
 
 /* table */

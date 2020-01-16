@@ -142,8 +142,7 @@ router.get('/accept-invitation', (req, res) => {
                         pageTitle: "Welcome",
                         pageMessage: `Thank you for participating in EPUB Accessibility Testing! 
                         Because you'll login to contribute to this site, please set a password. 
-                        Then after you've logged in, don't forget to update your profile.`,
-                        redirectErr: '/accept-invitation'
+                        Then after you've logged in, don't forget to update your profile.`
                     });
         }
         else {

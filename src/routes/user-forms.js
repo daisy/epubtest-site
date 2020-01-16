@@ -38,29 +38,6 @@ router.post('/set-password',
             console.log(err);
             return res.redirect('/set-password?error=Error%20setting%20password');
         }
-        
-        // db.query(Q.SET_PASSWORD(req.userId, req.body.password))
-        // .then(result => {
-        //     if (result.data.data.setPassword) {
-        //         return res
-        //                 .status(200)
-        //                 // clear the temporary cookie
-        //                 .clearCookie('jwt', {
-        //                     path: '/'
-        //                 })
-        //                 .redirect('/login?error=Success.%20Login%20with%20your%20new%20password');
-        //     }
-        //     else {
-        //         return res
-        //                 .status(401)
-        //                 .redirect('/set-password?error=Set%20password%20error');
-        //     }
-            
-        // })
-        // .catch(err => {
-        //     console.log(err);
-        //     return res.redirect('/set-password?error=Error%20setting%20password');
-        // });
     }
 );
 
@@ -74,14 +51,6 @@ router.post('/request-to-publish', async (req, res) => {
         console.log(err);
         return res.redirect('/server-error');
     }
-//    db.query(Q.CREATE_REQUEST(req.body.answerSetId), req.cookies.jwt)
-//    .then(result => {
-//        res.redirect('/user/dashboard');
-//    })
-//    .catch(err => {
-//         console.log(err);
-//         return res.redirect('/server-error');
-//     });
 });
 
 // submit results
@@ -103,17 +72,6 @@ router.post('/results',
             console.log(err);
             return res.redirect('/server-error');
         }
-        
-        // let q = Q.UPDATE_ANSWER_SET(answerSetId, summary, req.body.answers);
-        // db.query(q, req.cookies.jwt)
-        // .then(result => {
-        //     return res.redirect('/user/dashboard');
-        // })
-        // .catch(err => {
-        //     console.log(err);
-        //     return res.redirect('/server-error');
-        // });
-        
     }
 );
 module.exports = router;

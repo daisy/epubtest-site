@@ -1,24 +1,13 @@
 {%- extends 'base/base.html' -%}
 {%- set title = "Dashboard" -%}
-{%- set mainclass="wide" -%}
 {%- block content -%}
 
 <h1>Dashboard</h1>
-    
+<p>Your dashboard shows what you've been working on.</p>
+
 <div class="split">
     <div class="side">
-    {%- if accessLevel == 'admin' -%}
-    <nav id="admin-nav" aria-labelledby="admin-nav-title">
-        <h2 id="admin-nav-title">Admin</h2>
-        <ul> 
-            <li><a href="/admin/requests">Manage Requests</a></li>
-            <li><a href="/admin/testing">Manage Testing</a></li>
-            <li><a href="/admin/test-books">Manage Test Books</a></li>
-            <li><a href="/admin/users">Manage Users</a></li>
-        </ul>
-    </nav>
-    {%- endif -%}
-
+    
     <nav class="side" id="pagenav" aria-labelled-by="testing-environments-title">
         <h2 id="testing-environments-title">Testing Environments</h2>
         <ul>

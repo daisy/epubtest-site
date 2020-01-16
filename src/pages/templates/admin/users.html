@@ -1,7 +1,7 @@
-{%- extends '../base/base.html' -%}
+{%- extends '../base/admin-base.html' -%}
 {%- set title = "Admin: Manage Users" -%}
 {%- set mainclass = "split" -%}
-{%- block content -%}
+{%- block section -%}
 
 <h1>Manage Users</h1>
 
@@ -61,21 +61,46 @@
         <ul class="cols" id="inactiveUsersList">
             {%- for user in inactiveUsers -%}
             <li>
-                <input type="checkbox" name="users[{{loop.index}}][id]" value="{{user.id}}" aria-label="Select {{user.name}}">{{user.name}}</input></li>
+                <input type="checkbox" 
+                    name="users[{{loop.index}}][id]" 
+                    value="{{user.id}}" 
+                    aria-label="Select user">
+                    {{user.name}}
+                </input>
             </li>
             {%- endfor -%}
         </ul>    
            
-        <p id="selected">Selected: none</p>
-        <input type="button" value="Invite" type="submit"/>
+        <div class="highlight">
+            <h3>Selected</h3>
+            <p id="selected"></p>
+        </div>
+        <input type="button" value="Clear selections" id="clearSelected"/>
+        <input type="button" value="Invite All" type="submit"/>
     </form>
 </div>
 
 <script type="text/javascript">
 
+    function clearSelected() {
+        let users = Array.from(document.querySelectorAll("#inactiveUsersList input"));
+        users.map(u=>u.checked = false);
+        document.querySelector("#selected").textContent = '';
+    }
+
     window.addEventListener("load", () => {
-        document.querySelectorAll("#inactiveUsersList input").addEventListener("select", e => {
-            console.log("SEL", e);
+        clearSelected();
+
+        Array.from(document.querySelectorAll("#inactiveUsersList input")).map(elm => {
+            addEventListener("change", e => {
+                let users = Array.from(document.querySelectorAll("#inactiveUsersList input"));
+                let checkedUsers = users.filter(u => u.checked);
+                document.querySelector("#selected").textContent = 
+                    checkedUsers.map(u=>u.parentElement.textContent.trim()).join(', ');
+            });
+        });
+        document.querySelector("#clearSelected").addEventListener("click", e=> {
+            clearSelected();
         });
     });
   

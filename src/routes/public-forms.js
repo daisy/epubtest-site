@@ -75,7 +75,11 @@ router.post('/forgot-password',
             let jwt = result.data.data.createTemporaryToken.jwtToken;
             let token = utils.parseToken(jwt);
             if (token) {
-                mail.emailPasswordReset(req.body.email, `http://epubtest.org/set-password?token=${jwt}`);   
+                let resetUrl = process.env.MODE === 'LOCALDEV' ? 
+                    `http://localhost:${process.env.PORT}/set-password?token=${jwt}`
+                    : 
+                    `http://epubtest.org/set-password?token=${jwt}`;
+                mail.emailPasswordReset(req.body.email, resetUrl);   
                 res
                     .status(200)
                     .redirect('/check-your-email');

@@ -1,0 +1,20 @@
+{%- extends 'base/base.html' -%}
+{%- set mainclass="wide" -%}
+{%- block content -%}
+
+    {%- if accessLevel == 'admin' -%}
+    <nav id="admin-nav" aria-labelledby="admin-nav-title">
+        <h1 id="admin-nav-title">Admin</h1>
+        <ul class="horizontal"> 
+            <li><a href="/admin/requests">Manage Requests</a></li>
+            <li><a href="/admin/testing">Manage Testing</a></li>
+            <li><a href="/admin/test-books">Manage Test Books</a></li>
+            <li><a href="/admin/users">Manage Users</a></li>
+        </ul>
+    </nav>
+    {%- endif -%}
+
+    {%- block section -%}
+    {%- endblock -%}
+
+{%- endblock -%}
