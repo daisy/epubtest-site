@@ -4,8 +4,6 @@ const router = express.Router()
 const db = require('../database');
 const Q = require('../queries');
 const utils = require('../utils');
-const axios = require('axios');
-
 
 router.get('/test', (req, res) => {
     return res.render('test.html', { accessLevel: req.accessLevel });
@@ -34,18 +32,6 @@ router.get('/results/:testingEnvironmentId', async (req, res) => {
         console.log(err);
         return res.redirect('/server-error');
     }
-    // db.query(Q.TESTING_ENVIRONMENT(req.params.testingEnvironmentId))
-    // .then(results => {
-    //     return res.render('./testing-environment.html', {
-    //         accessLevel: req.accessLevel,
-    //         testingEnvironment: results.data.data.testingEnvironment,
-    //         getTopicName: utils.getTopicName
-    //     });
-    // })
-    // .catch(err => {
-    //     console.log(err);
-    //     return res.redirect('/server-error');
-    // });
 });
 
 // results grid
@@ -66,25 +52,6 @@ router.get('/results', async (req, res) => {
         console.log(err);
         return res.redirect('/server-error');
     }
-    // axios.all([
-    //     axios(db.makeRequest(Q.TOPICS)), 
-    //     axios(db.makeRequest(Q.PUBLIC_RESULTS))
-    // ])
-    // .then(results => {
-    //     return res.render('./results.html', {
-    //         accessLevel: req.accessLevel,
-    //         testingEnvironments: results[1].data.data.getPublishedTestingEnvironments.nodes,
-    //         topics: results[0].data.data.topics.nodes,
-    //         getfortopic: (answerSets, topic) => {
-    //             return answerSets.find(a => a.testBook.topic.id === topic.id)
-    //         },
-    //         getTopicName: utils.getTopicName
-    //     });
-    // })
-    // .catch(err => {
-    //     console.log(err);
-    //     return res.redirect('/server-error');
-    // });
 });
 
 // about page
@@ -104,18 +71,6 @@ router.get('/test-books', async (req, res) => {
         console.log(err);
         return res.redirect('/server-error');
     }
-    // db.query(Q.TEST_BOOKS)
-    // .then(result => {
-    //     return res.render('./test-books.html', 
-    //         {
-    //             accessLevel: req.accessLevel,
-    //             testBooks: result.data.data.getLatestTestBooks.nodes
-    //         });
-    // })
-    // .catch(err => {
-    //     console.log(err);
-    //     return res.redirect('/server-error');
-    // });
 });
 
 // participate page

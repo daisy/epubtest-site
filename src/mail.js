@@ -1,5 +1,90 @@
 const nodemailer = require("nodemailer");
 
+async function testEmail(emailAddress) {
+    try {
+        await sendEmail(
+            emailAddress, 
+            "Test message from epubtest.org",
+            "This is a test message from epubtest.org. ",
+            "<p>This is a test message from epubtest.org. </p>"
+        );
+        console.log("Message sent");
+    }
+    catch(err) {
+        console.log("Error sending test email", err);
+    };
+}
+
+async function emailInvitation(userEmail, link) {
+    try {
+        await sendEmail(
+            userEmail,
+            "Invitation to contribute to epubtest.org",
+            plainTextInviteMessage(link),
+            htmlInviteMessage(link)
+        );
+        console.log("Message sent");
+    }
+    catch(err) {
+        console.log("Error sending invitation email", err);
+        return res.redirect('/server-error');
+    };
+}
+
+async function emailPasswordReset(userEmail, link) {
+    try {
+        await sendEmail(
+            userEmail, 
+            "Password reset requested for epubtest.org",
+            plainTextResetMessage(link),
+            htmlResetMessage(link)
+        );
+        console.log("Message sent");
+    }
+    catch(err) {
+        console.log("Error sending password reset email ", err);
+        return res.redirect('/server-error');
+    };
+}
+
+async function sendEmail(toAddress, subject, messageBodyText, messageBodyHtml) {
+    // can test locally with nodemailer server on port 1025
+    let opts = process.env.MODE === 'LOCALDEV' ? 
+        {
+            host: 'localhost',
+            port: 1025,
+            secure: false, 
+            tls: {
+                rejectUnauthorized: false
+            }
+        } 
+        : 
+        {
+            host: process.env.MAILHOST,
+            port: process.env.MAILPORT,
+            secure: false, 
+            auth: {
+                user: process.env.MAILUSER,
+                pass: process.env.MAILPASS
+            }
+        };
+    
+    let transport = nodemailer.createTransport(opts);
+    let info = await transport.sendMail({
+        from: '"epubtest.org" <epubtest@daisy.org>',
+        to: toAddress,
+        subject: subject,
+        text: messageBodyText,
+        html: messageBodyHtml
+    });    
+}
+
+module.exports = {
+    emailInvitation,
+    emailPasswordReset,
+    testEmail
+};
+
 const plainTextInviteMessage = (linkTokenUrl) => `
 Greetings!
 
@@ -78,75 +163,3 @@ If it was not you, then please disregard this message.</p>
 <br/>
 <a href="http://inclusivepublishing.org">inclusivepublishing.org</a>
 `;
-
-
-async function testEmail(emailAddress) {
-    try {
-        await sendEmail(
-            "Someone",
-            emailAddress, 
-            "Test message from epubtest.org",
-            "This is a test message from epubtest.org. ",
-            "<p>This is a test message from epubtest.org. </p>"
-        );
-        console.log("Message sent");
-    }
-    catch(err) {
-        console.log("Error sending invitation ", err);
-    };
-}
-
-async function emailInvitation(userId) {
-    try {
-        let userData = await db.query(Q.USER_PROFILE_EXTENDED(userId));
-        await sendEmail(
-            userData.name,
-            userData.email, 
-            "Invitation to contribute to epubtest.org",
-            plainTextInviteMessage,
-            htmlInviteMessage
-        );
-        console.log("Message sent");
-    }
-    catch(err) {
-        console.log("Error sending invitation ", err);
-        return res.redirect('/server-error');
-    };
-}
-
-function emailPasswordReset(userId) {
-
-}
-
-async function sendEmail(name, toAddress, subject, messageBodyText, messageBodyHtml) {
-    let opts = {
-        sendmail: true,
-        newline: 'unix',
-        path: '/usr/sbin/sendmail'
-    };
-    if (process.env.MODE == 'LOCALDEV') {
-        opts = {
-            host: process.env.MAILHOST,
-            port: process.env.MAILPORT,
-            secure: false, 
-            tls: {
-                rejectUnauthorized: false
-            }
-        };
-    }
-    
-    let transport = nodemailer.createTransport(opts);
-    let info = await transport.sendMail({
-        from: '"epubtest.org" <epubtest@daisy.org>',
-        to: `"${name}" <${toAddress}>`,
-        subject: subject,
-        text: messageBodyText,
-        html: messageBodyHtml
-    });    
-}
-
-module.exports = {
-    emailInvitation,
-    emailPasswordReset,
-    testEmail
-};

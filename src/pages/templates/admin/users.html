@@ -1,8 +1,6 @@
 {%- extends '../base/base.html' -%}
 {%- set title = "Admin: Manage Users" -%}
 {%- set mainclass = "split" -%}
-
-
 {%- block content -%}
 
 <h1>Manage Users</h1>
@@ -29,7 +27,7 @@
     </ul>
 
     <h2>Pending invitations</h2>
-    <p>These users have been invited but have not yet accepted the invitation. You may re-send it below.</p>
+    <p>These users have been invited but have not yet accepted the invitation. You may re-send invites.</p>
     <table>
         <thead>
             <tr>
@@ -60,10 +58,10 @@
 
     <form action="/admin/forms/invite-user">
     
-        <ul class="cols">
+        <ul class="cols" id="inactiveUsersList">
             {%- for user in inactiveUsers -%}
             <li>
-                <input type="checkbox" name="users[{{loop.index}}][id]" value="{{user.id}}" aria-label="Select {{user.name}}" onselect="inviteUserSelect">{{user.name}}</input></li>
+                <input type="checkbox" name="users[{{loop.index}}][id]" value="{{user.id}}" aria-label="Select {{user.name}}">{{user.name}}</input></li>
             </li>
             {%- endfor -%}
         </ul>    
@@ -73,4 +71,17 @@
     </form>
 </div>
 
+<script type="text/javascript">
+
+    window.addEventListener("load", () => {
+        document.querySelectorAll("#inactiveUsersList input").addEventListener("select", e => {
+            console.log("SEL", e);
+        });
+    });
+  
+</script>
+
+
+
 {%- endblock -%}
+
