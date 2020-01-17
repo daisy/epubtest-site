@@ -103,7 +103,7 @@ module.exports = {
         }
     }`,
 
-    INVITED_USERS: 
+    INVITATIONS: 
     `query {
         invitations {
             nodes {
@@ -116,9 +116,10 @@ module.exports = {
         }
     }`,
 
-    PUBLISH_ANSWER_SET: answerSetId => `mutation {
+    PUBLISH_ANSWER_SET: 
+    `mutation ($answerSetId: Int!) {
         updateAnswerSet(input:{
-            id: ${answerSetId},
+            id: $answerSetId,
             patch: {
               isPublic:true
             }
@@ -128,13 +129,20 @@ module.exports = {
           }
       }`,
 
-    DELETE_REQUEST: requestId => `mutation {
-      deleteRequest(input:{
-        id:${requestId}
-      }){
-        clientMutationId
-      }
+    DELETE_REQUEST: 
+    `mutation ($requestId: Int!) {
+        deleteRequest(input:{
+            id: $requestId
+        }){
+            clientMutationId
+        }
     }`,
 
+    CREATE_INVITATION: 
+    `mutation ($input: CreateInvitationInput!) {
+        createInvitation(input: $input) {
+            clientMutationId
+        }
+    }`
 
 }

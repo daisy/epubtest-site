@@ -19,32 +19,32 @@
         #}
 
 
-        <h2>Active Users</h2>
+        <h2 id="active-users">Active Users</h2>
         <ul class="cols">
             {%- for user in activeUsers -%}
             <li>{{user.name}}</li>
             {%- endfor -%}
         </ul>
 
-        <h2>Pending invitations</h2>
+        <h2 id="pending-invitations">Pending invitations</h2>
         <p>These users have been invited but have not yet accepted the invitation. You may re-send invites.</p>
         <table>
             <thead>
                 <tr>
                     <th>Name</th>
-                    <th>Date of invitation</th>
+                    <th>Date invited</th>
                     <th>Action</th>
                 </tr>
             </thead>
             <tbody>
-                {%- for user in invitedUsers -%}
+                {%- for invite in invitations -%}
                 <tr>
-                    <td>{{user.name}}</td>
-                    <td>{{user.invitationDate}}</td>
+                    <td>{{invite.user.name}}</td>
+                    <td>{{invite.dateInvited | date("YYYY-MM-DD")}}</td>
                     <td>
                         <form action="/admin/forms/invite-user">
-                            <input type="hidden" value="{{user.id}}"/>
-                            <input type="button" value="Re-send invitation" type="submit"/>
+                            <input type="button" name="resend" value="Re-send invitation" type="submit"/>
+                            <input type="button" name="cancel" value="Cancel invitation" type="submit"/>
                         </form>
                     </td>
                 </tr>
@@ -53,7 +53,7 @@
         </table>
 
 
-        <h2>Invite users</h2>
+        <h2 id="invite-users">Invite users</h2>
         <p>These users were registered with the previous version of this website. You may re-invite them below.</p>
 
         <form action="/admin/forms/reinvite-users" method="POST">

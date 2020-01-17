@@ -3,7 +3,7 @@ const db = require('../database');
 const QAUTH = require('../queries/auth');
 const utils = require('../utils');
 const mail = require('../mail.js');
-
+const emails = require('../emails.js');
 const { validationResult, body } = require('express-validator');
 
 var router = express.Router()
@@ -92,7 +92,10 @@ router.post('/forgot-password',
                     `http://localhost:${process.env.PORT}/set-password?token=${jwt}`
                     : 
                     `http://epubtest.org/set-password?token=${jwt}`;
-                await mail.emailPasswordReset(req.body.email, resetUrl);   
+                await mail.emailPasswordReset(req.body.email, 
+                    emails.reset.subject,
+                    emails.reset.text(resetUrl),
+                    emails.reset.html(resetUrl));   
                 res
                     .status(200)
                     .redirect('/check-your-email');
