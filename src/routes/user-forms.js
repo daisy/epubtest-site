@@ -1,7 +1,7 @@
 var express = require('express')
 const db = require('../database');
-const Q = require('../queries');
-const axios = require('axios');
+const Q = require('../queries/queries');
+const QAUTH = require('../queries/auth');
 const { validator, validationResult, body } = require('express-validator');
 var router = express.Router()
 
@@ -17,7 +17,15 @@ router.post('/set-password',
         }
 
         try {
-            let result = await db.query(Q.SET_PASSWORD(req.userId, req.body.password));
+            let result = await db.query(
+                QAUTH.SET_PASSWORD, 
+                {
+                    input: {
+                        userId: req.userId, 
+                        newPassword: req.body.password
+                    }
+                }
+                , req.cookies.jwt);
             if (result.data.data.setPassword) {
                 return res
                         .status(200)
@@ -44,7 +52,10 @@ router.post('/set-password',
 // submit request to publish
 router.post('/request-to-publish', async (req, res) => {
     try {
-        await db.query(Q.CREATE_REQUEST(req.body.answerSetId), req.cookies.jwt);
+        await db.query(
+            Q.CREATE_REQUEST, 
+            { answerSetId: parseInt(req.body.answerSetId) }, 
+            req.cookies.jwt);
         res.redirect('/user/dashboard');
     }
     catch(err) {
@@ -57,20 +68,66 @@ router.post('/request-to-publish', async (req, res) => {
 router.post('/results', 
     [
         body('answerSetId').isNumeric(),
-        body('summary').trim().escape(),
-        body('answers.*.notes').trim().escape()
+        body('summary').trim(),
+        body('answers.*.notes').trim()
     ],
     async (req, res) => {
-        let answerSetId = req.body.answerSetId;
         let summary = req.body.summary;
-        
+        let answers = req.body.answers;
+        let passed = answers.filter(a=>a.value === 'PASS');
+        let score = passed.length / answers.length * 100;
+        let data = {
+            answerSetId: parseInt(req.body.answerSetId),
+            summary,
+            answerIds: answers.map(a=>parseInt(a.id)),
+            answerValues: answers.map(a=>a.value),
+            notes: answers.map(a=>a.notes),
+            notesArePublic: answers.map(a=>a.publishNotes === 'on'),
+            score: String(score)
+        }
         try {
-            await db.query(Q.UPDATE_ANSWER_SET(answerSetId, summary, req.body.answers), req.cookies.jwt);
+            
+            await db.query(Q.UPDATE_ANSWER_SET, {input: data}, req.cookies.jwt);
             return res.redirect('/user/dashboard');
         }
         catch(err) {
             console.log(err);
             return res.redirect('/server-error');
+        }
+    }
+);
+
+// submit profile
+router.post('/profile', 
+    async (req, res) => {
+        try {
+            let data = {
+                name: req.body.name,
+                organization: req.body.organization,
+                website: req.body.website.indexOf("http://") === -1 ? 
+                    `http://${req.body.website}` : req.body.website
+            };
+            await db.query(Q.UPDATE_USER_PROFILE, {id: req.userId, data}, req.cookies.jwt);
+            
+            if (req.body.password != "") {
+                if (req.body.password.length < 8) {
+                    return res.status(422).redirect('/user/profile?error=Password%30must%20be%20at%20least%208-20%20characters%20long.');
+                }
+                await db.query(
+                    QAUTH.SET_PASSWORD,
+                    {
+                        input: {
+                            userId: req.userId, 
+                            newPassword: req.body.password
+                        }
+                    },
+                    req.cookies.jwt);
+            }
+            return res.redirect('/user/profile');
+        }
+        catch(err) {
+            console.log(err);
+            return res.redirect('/user/profile?error=Error%20updating%20profile');
         }
     }
 );

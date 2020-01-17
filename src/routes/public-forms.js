@@ -1,6 +1,6 @@
 var express = require('express')
 const db = require('../database');
-const Q = require('../queries');
+const QAUTH = require('../queries/auth');
 const utils = require('../utils');
 const mail = require('../mail.js');
 
@@ -27,7 +27,14 @@ router.post('/login',
         }
 
         try {
-            let result = await db.query(Q.LOGIN(req.body.email, req.body.password));
+            let result = await db.query(
+                QAUTH.LOGIN, 
+                {   
+                    input: {
+                        email: req.body.email, 
+                        password: req.body.password
+                    }
+                });
             let jwt = result.data.data.authenticate.jwtToken;
             let token = utils.parseToken(jwt);
             if (token) {
@@ -71,7 +78,13 @@ router.post('/forgot-password',
         }
 
         try {
-            let result = await db.query(Q.TEMPORARY_TOKEN(req.body.email));
+            let result = await db.query(
+                QAUTH.TEMPORARY_TOKEN,
+                {
+                    input: {
+                        email: req.body.email
+                    }
+                });
             let jwt = result.data.data.createTemporaryToken.jwtToken;
             let token = utils.parseToken(jwt);
             if (token) {
@@ -79,7 +92,7 @@ router.post('/forgot-password',
                     `http://localhost:${process.env.PORT}/set-password?token=${jwt}`
                     : 
                     `http://epubtest.org/set-password?token=${jwt}`;
-                mail.emailPasswordReset(req.body.email, resetUrl);   
+                await mail.emailPasswordReset(req.body.email, resetUrl);   
                 res
                     .status(200)
                     .redirect('/check-your-email');
