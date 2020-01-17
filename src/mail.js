@@ -16,35 +16,23 @@ async function testEmail(emailAddress) {
 }
 
 async function emailInvitation(userEmail, link) {
-    try {
-        await sendEmail(
-            userEmail,
-            "Invitation to contribute to epubtest.org",
-            plainTextInviteMessage(link),
-            htmlInviteMessage(link)
-        );
-        console.log("Message sent");
-    }
-    catch(err) {
-        console.log("Error sending invitation email", err);
-        return res.redirect('/server-error');
-    };
+    await sendEmail(
+        userEmail,
+        "Invitation to contribute to epubtest.org",
+        plainTextInviteMessage(link),
+        htmlInviteMessage(link)
+    );
+    console.log("Message sent");
 }
 
 async function emailPasswordReset(userEmail, link) {
-    try {
-        await sendEmail(
-            userEmail, 
-            "Password reset requested for epubtest.org",
-            plainTextResetMessage(link),
-            htmlResetMessage(link)
-        );
-        console.log("Message sent");
-    }
-    catch(err) {
-        console.log("Error sending password reset email ", err);
-        return res.redirect('/server-error');
-    };
+    await sendEmail(
+        userEmail, 
+        "Password reset requested for epubtest.org",
+        plainTextResetMessage(link),
+        htmlResetMessage(link)
+    );
+    console.log("Message sent");
 }
 
 async function sendEmail(toAddress, subject, messageBodyText, messageBodyHtml) {
