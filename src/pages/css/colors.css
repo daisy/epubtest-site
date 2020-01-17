@@ -1,0 +1,13 @@
+:root {
+    --pink: 155, 68, 86;
+    --brightgreen: 158, 183, 132;
+    --yellowgreen: 189, 192, 151;
+  
+    --primary: rgba(var(--pink), 1);
+    --soft: rgba(var(--pink), .6);
+    --comp: rgba(var(--brightgreen), .2);
+    --softcomp: rgba(var(--yellowgreen), .2);
+  
+    --grayed-out: rgba(0, 0, 0, .6);
+  }
+  

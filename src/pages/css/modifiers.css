@@ -1,0 +1,131 @@
+@import url("colors.css");
+
+/* errors, messages */
+aside.message {
+    border-radius: 10px;
+    vertical-align: middle;
+    text-align: center;
+    line-height: 2em;
+    margin-bottom: 1vh;
+}
+aside.error {
+    background-color: rgba(255, 4, 4, 0.253);
+}
+
+aside.info { 
+    background-color: rgba(251, 255, 0, 0.2);
+}
+
+input#save {
+    margin-left: 50%;
+    margin-right: 50%;
+    margin-top: 2vh;
+}
+
+/* forms */
+
+form.simple {
+    display: grid;
+    grid-gap: 3vh;
+    width: 30%;
+}
+form.login {
+    margin: auto;
+}
+
+form.simple > div {
+    display: grid;
+    grid-template-columns: 1fr;
+    grid-gap: 1vh;
+    align-items: center;
+}
+
+form.simple > .actions {
+    grid-template-columns: 50% auto;
+}
+
+form.simple > input[type=submit] {
+    width: 12vh;
+}
+
+textarea.summary {
+    margin-top: 2vh;
+    margin-bottom: 2vh;
+}
+
+/* testing environment page */
+
+/* div.testenv ul {
+    display: flex;
+    margin-top: 4vh;
+    margin-bottom: 4vh;
+}
+div.testenv li {
+    flex: 0 1;
+    margin-right: 2vw;
+    white-space: nowrap;
+    text-decoration: none;
+} */
+
+div.twocol {
+    display: grid;
+    grid-template-columns: 30% auto;
+}
+
+/* table */
+
+table.striped thead th:first-child {
+    border-bottom: 1px var(--primary);
+}
+
+table.striped tbody tr:nth-child(even) {
+    background-color: var(--softcomp);
+}
+
+/* random modifiers */
+
+.big {
+    background-color: var(--softcomp);
+    margin: auto;
+    margin-top: 5vh;
+    width: 40%;
+    padding: 1rem;
+    display: block;
+    text-align: center !important;
+    line-height: 3vh;
+}
+
+.highlight {
+    border: solid .5vh var(--soft);
+    padding: 1vh;
+    
+}
+.inset {
+    margin: 1vh;
+}
+.notTested {
+    font-style: italic;
+    font-weight: lighter;
+    color: var(--grayed-out);
+}
+.fit {
+    width: min-content;
+    white-space: nowrap;
+}
+.spaced {
+    margin-top: 2rem;
+    margin-bottom: 2rem;
+}
+.limit {
+    max-width: 50vw;
+    overflow: scroll;
+}
+/* list styles */
+
+ul.horizontal {
+    display: flex;
+    flex-wrap: wrap;
+}
+ul.cols {
+    columns: 3;
+}
