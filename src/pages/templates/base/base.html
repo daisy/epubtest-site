@@ -1,12 +1,9 @@
 {%- extends 'base/htmleton.html' -%}
 {%- block head -%}
-
 <title>epubtest.org{%- if title -%}: {{ title }}{%- endif -%}</title>
-{%- block script -%}
 {%- endblock -%}
-{%- endblock -%}
-
 {%- block body -%}
+
 <header>
     <h1><a href="/">epubtest.org</a></h1>
     <nav aria-label="Main">
@@ -24,9 +21,7 @@
             <li><a href="/admin">Admin</a></li>
             {%- endif -%}
             <li><a href='/user/dashboard'>Dashboard</a></li>
-            {# reintroduce later
             <li><a href='/user/profile'>Profile</a></li>
-            #}
             <li>
                 <form method="POST" action="/forms/logout">
                     <input type="submit" name="submit" value="Logout"/>
@@ -37,9 +32,7 @@
     </nav>
     
 </header>
-<main class="{{mainclass}}">
-    
-
+<main>
     <aside id="error"></aside>
 
     {%- block content -%}
@@ -56,9 +49,11 @@
         let elm = document.getElementById("error");
         if (params.has("error")) {
             elm.textContent = params.get("error");
+            elm.style.display = "block";
         }
         else {
             elm.textContent = '';
+            elm.style.display = "none";
         }
     });
   

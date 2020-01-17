@@ -1,7 +1,5 @@
 {%- extends 'base/base.html' -%}
-{%- import "components/edit-answer-set.html" as EditAnswerSet -%}
 {%- set title = "Edit Answers" -%}
-{%- set mainclass="wide" -%}
 
 {%- block content -%}
 
@@ -11,7 +9,58 @@
 <span>{{answerSet.testingEnvironment.readingSystem.name}} {{answerSet.testingEnvironment.readingSystem.version}}, 
 {{answerSet.testingEnvironment.assistiveTechnology.name}} {{answerSet.testingEnvironment.readingSystem.version}},
 {{answerSet.testingEnvironment.os.name}} {{answerSet.testingEnvironment.os.version}}</span></p>
+
 <p><b>Topic:</b> <span>{{answerSet.testBook.title}}</span></p>
-{{ EditAnswerSet.EditAnswerSet(answerSet) }}
+
+<form method="POST" action="/user/forms/results">
+    <h2>Summary</h2>
+    <label for="summary">Give a summary of your testing experience:</label>
+    <textarea id="summary" rows="10" cols="50" name="summary">{{answerSet.summary}}</textarea>
+
+    <h2>Results</h2>
+    <p>Enter individual test results:</p>
+    <table class="striped">
+        <thead>
+            <tr>
+                <td>Test ID</td>
+                <td>Name</td>
+                <td>Description</td>
+                <td>Result</td>
+                <td>Notes</td>
+                {#<td>Status</td>#}
+            </tr>
+        </thead>
+        <tbody>
+            {%- for answer in answerSet.answersByAnswerSetId.nodes -%}
+            <tr>
+                <td>{{answer.test.testId}}<input type="hidden" value="{{answer.id}}" name="answers[{{loop.index}}][id]"></input></td>
+                <td><label for="answer-{{answer.id}}">{{answer.test.name}}</label></td>
+                <td>{{answer.test.description}}</td>
+                <td>
+                    <select id="answer-{{answer.id}}" name="answers[{{loop.index}}][value]">
+                        <option value="PASS" {%- if answer.value == 'PASS' -%}selected{%- endif -%}>Pass</option>
+                        <option value="FAIL" {%- if answer.value == 'FAIL' -%}selected{%- endif -%}>Fail</option>
+                        <option value="NA" {%- if answer.value == 'NA' -%}selected{%- endif -%}>Not applicable</option>
+                        <option value="NOANSWER" {%- if answer.value == 'NOANSWER' -%}selected{%- endif -%}>No answer</option>
+                    </select>
+                </td>
+                <td>
+                    <textarea rows="5" cols="20" name="answers[{{loop.index}}][notes]">{%- if answer.notes != "null" -%}
+                    {{answer.notes}}{%- endif -%}</textarea>
+                    <input type="checkbox" name="answers[{{loop.index}}][publishNotes]" 
+                        {%- if answer.notesArePublic -%}checked{%- endif -%}>
+                        Publish Notes
+                    </input>
+                </td>
+                {#<td>{%- if answer.flag -%} Needs update {%- endif -%}</td>#}
+            </tr>
+            {%- endfor -%}
+        </tbody>
+    </table>
+    <input type="hidden" name="answerSetId" value="{{answerSet.id}}"></input>
+    <input type="submit" name="submit" value="Save" id="save"></input>
+</form>
+
+
 
 {%- endblock -%}

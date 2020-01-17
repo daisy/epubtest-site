@@ -1,52 +1,57 @@
 {%- extends 'base/base.html' -%}
 {%- import "components/answer-set.html" as answerSetComponent -%}
-{%- set mainclass="wide" -%}
 {%- block content -%}
 
-    <div class="testenv">
     <h1>{{testingEnvironment.readingSystem.name}} {{testingEnvironment.readingSystem.version}}</h1>
-    <ul>
-        <li>
-            <b>Assistive Technology</b>: 
-            {{testingEnvironment.assistiveTechnology.name}} 
-            {%- if testingEnvironment.assistiveTechnology.version != 'undefined' -%}
-                {{testingEnvironment.assistiveTechnology.version}}
-            {%- endif -%}
-        </li>
-        <li>
-            <b>OS</b>: 
-            {{testingEnvironment.os.name}} {{testingEnvironment.os.version}}
-        </li>
-    
-        <li>
-            <b>Tested with Braille</b>:&nbsp;
-            {%- if testingEnvironment.testedWithBraille -%}Yes{%-else-%}No{%-endif-%}
-        </li>
-        <li>
-            <b>Tested with Screenreader</b>:&nbsp;
-            {%- if testingEnvironment.testedWithScreenreader -%}Yes{%-else-%}No{%-endif-%}
-        </li>
-        <li>
-            <b>Input type</b>:&nbsp;
-            {%- if testingEnvironment.input == 'KEYBOARD' -%} Keyboard
-            {%- elif testingEnvironment.input == 'MOUSE' -%} Mouse
-            {%- elif testingEnvironment.input == 'TOUCH' -%} Touch
-            {%-endif-%}
-        </li>
-    </ul>
-    </div>
-    <div class="split">
-        <ul id="pagenav">
-        {%- for answerSet in testingEnvironment.answerSetsByTestingEnvironmentId.nodes -%}
-            <li><a href="#{{answerSet.id}}">{{getTopicName(answerSet.testBook.topic.id)}}</a></li>
-        {%- endfor -%}
+    <div class="twocol spaced">
+        <ul>
+            <li>
+                <b>Assistive Technology</b>: 
+                {{testingEnvironment.assistiveTechnology.name}} 
+                {%- if testingEnvironment.assistiveTechnology.version != 'undefined' -%}
+                    {{testingEnvironment.assistiveTechnology.version}}
+                {%- endif -%}
+            </li>
+            <li>
+                <b>OS</b>: 
+                {{testingEnvironment.os.name}} {{testingEnvironment.os.version}}
+            </li>
+        
         </ul>
-
-        <div>
-        {%- for answerSet in testingEnvironment.answerSetsByTestingEnvironmentId.nodes -%}
+        <ul>
+        
+            <li>
+                <b>Tested with Braille</b>:&nbsp;
+                {%- if testingEnvironment.testedWithBraille -%}Yes{%-else-%}No{%-endif-%}
+            </li>
+            <li>
+                <b>Tested with Screenreader</b>:&nbsp;
+                {%- if testingEnvironment.testedWithScreenreader -%}Yes{%-else-%}No{%-endif-%}
+            </li>
+            <li>
+                <b>Input type</b>:&nbsp;
+                {%- if testingEnvironment.input == 'KEYBOARD' -%} Keyboard
+                {%- elif testingEnvironment.input == 'MOUSE' -%} Mouse
+                {%- elif testingEnvironment.input == 'TOUCH' -%} Touch
+                {%-endif-%}
+            </li>
+        </ul>
+    </div>
+    
+    <div class="split">
+        <nav class="side" aria-labelled-by="topics-title">
+            <h2>Topics</h2>
+            <ul>
+                {%- for answerSet in testingEnvironment.answerSetsByTestingEnvironmentId.nodes -%}
+                <li><a href="#{{answerSet.id}}">{{getTopicName(answerSet.testBook.topic.id)}}</a></li>
+                {%- endfor -%}
+            </ul>        
+        </nav>
+        
+        <div class="content">
+            {%- for answerSet in testingEnvironment.answerSetsByTestingEnvironmentId.nodes -%}
             {{ answerSetComponent.AnswerSet(answerSet) }}
-        {%- endfor -%}
-        <p><a href="#pagenav">Back to index</a></p>
+            {%- endfor -%}
         </div>
     </div>
 {%- endblock -%}

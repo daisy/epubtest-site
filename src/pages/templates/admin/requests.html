@@ -1,8 +1,5 @@
 {%- extends '../base/admin-base.html' -%}
-{%- set title = "Admin: Home" -%}
-{%- set mainclass = "wide" -%}
-
-
+{%- set title = "Admin: Requests" -%}
 {%- block section -%}
 
 <h1>Manage Requests</h1>
@@ -23,10 +20,11 @@
     </thead>
     <tbody>
         {%- for request in requests -%}
+        {%- set testenv = request.answerSet.testingEnvironment -%}
         <tr>
-            <td>{{request.answerSet.testingEnvironment.readingSystem.name}} {{request.answerSet.testingEnvironment.readingSystem.version}}</td>
-            <td>{{request.answerSet.testingEnvironment.assistiveTechnology.name}}</td>
-            <td>{{request.answerSet.testingEnvironment.os.name}} {{request.answerSet.testingEnvironment.os.version}}</td>
+            <td>{{testenv.readingSystem.name}} {{testenv.readingSystem.version}}</td>
+            <td>{{testenv.assistiveTechnology.name}}</td>
+            <td>{{testenv.os.name}} {{testenv.os.version}}</td>
             <td>{{request.answerSet.testBook.topic.id}}</td>
             <td>{{request.created | date("YYYY-MM-DD")}}</td>
             <td>{{request.answerSet.user.name}}</td>
@@ -42,4 +40,5 @@
     </tbody>
 </table>
 {%- endif -%}
+
 {%- endblock -%}

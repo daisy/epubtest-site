@@ -1,10 +1,8 @@
 {%- extends '../base/admin-base.html' -%}
-{%- set title = "Admin: Testing Environments" -%}
-{%- set mainclass = "wide" -%}
-
-
+{%- set title = "Admin: Testing" -%}
 {%- block section -%}
 
+<h1>Manage Testing</h1>
 {# 
 This page should have:
 
@@ -17,51 +15,50 @@ Add testing environment => "Create" page
 
 #}
 
-<h1>All Testing Environments</h1>
+<h2>All Testing Environments</h2>
 {%- for testingEnvironment in testingEnvironments -%}
 
-        <h2 id="{{testingEnvironment.id}}"><span>{{testingEnvironment.readingSystem.name}} {{testingEnvironment.readingSystem.version}}</span>,
-            <span>{{testingEnvironment.assistiveTechnology.name}} </span>,
-            <span>{{testingEnvironment.os.name}} {{testingEnvironment.os.version}}</span>
-        </h2>
+<h3 id="{{testingEnvironment.id}}"><span>{{testingEnvironment.readingSystem.name}} {{testingEnvironment.readingSystem.version}}</span>,
+    <span>{{testingEnvironment.assistiveTechnology.name}} </span>,
+    <span>{{testingEnvironment.os.name}} {{testingEnvironment.os.version}}</span>
+</h3>
 
-        <table class="striped">
-            <thead>
-                <tr>
-                    <th>Topic</th>
-                    {#<th>Status</th>#}
-                    <th>Score</th>
-                    <th>Edit</th>
+<table class="striped">
+    <thead>
+        <tr>
+            <th>Topic</th>
+            {#<th>Status</th>#}
+            <th>Score</th>
+            <th>Edit</th>
 
-                    <th>Publish</th>
-                </tr>
-            </thead>
-            <tbody>
-            {%- for answerSet in testingEnvironment.answerSetsByTestingEnvironmentId.nodes -%}
-            <tr>
-                <td>{{answerSet.testBook.topic.id}}</td>
-                {#<td>Up to date</td>#}
-                <td>{%-if answerSet.score -%}{{answerSet.score | round(1)}}{%- endif -%}</td>
-                <td><a href="/user/edit-results/{{answerSet.id}}">Edit</td>
-                <td>
-                    {%- set requestToPublish=getRequestToPublish(answerSet.id) -%}
-                    {%- if answerSet.isPublic -%}
-                    <a href="/results/{{testingEnvironment.id}}#{{answerSet.id}}">Published</a>
+            <th>Publish</th>
+        </tr>
+    </thead>
+    <tbody>
+    {%- for answerSet in testingEnvironment.answerSetsByTestingEnvironmentId.nodes -%}
+    <tr>
+        <td>{{answerSet.testBook.topic.id}}</td>
+        {#<td>Up to date</td>#}
+        <td>{%-if answerSet.score -%}{{answerSet.score | round(1)}}{%- endif -%}</td>
+        <td><a href="/user/edit-results/{{answerSet.id}}">Edit</td>
+        <td>
+            {%- set requestToPublish=getRequestToPublish(answerSet.id) -%}
+            {%- if answerSet.isPublic -%}
+            <a href="/results/{{testingEnvironment.id}}#{{answerSet.id}}">Published</a>
 
-                    {%- elif requestToPublish != null -%}
-                    <span>Request pending</span>
-                    {%- else -%}
-                    <form method="POST" action="/forms/request-to-publish">
-                        <input type="hidden" name="answerSetId" value="{{answerSet.id}}"/>
-                        <input type="submit" name="submit" value="Request to publish"/>
-                    </form>
-                    {%- endif -%}
-                </td>
-            </tr>
-            {%- endfor -%}
-            </tbody>
-        </table>
-        
-        
+            {%- elif requestToPublish != null -%}
+            <span>Request pending</span>
+            {%- else -%}
+            <form method="POST" action="/forms/request-to-publish">
+                <input type="hidden" name="answerSetId" value="{{answerSet.id}}"/>
+                <input type="submit" name="submit" value="Request to publish"/>
+            </form>
+            {%- endif -%}
+        </td>
+    </tr>
+    {%- endfor -%}
+    </tbody>
+</table>
 {%- endfor -%}
+
 {%- endblock -%}

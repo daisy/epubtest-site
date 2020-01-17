@@ -1,24 +1,60 @@
 {%- extends 'base/base.html' -%}
-
 {%- set title = "Profile" -%}
 {%- block content -%}
+
 <h1>Profile</h1>
+<p>View and edit your profile below. You may also change your password.</p>
 
-<table summary="User profile information">
-    <tr>
-        <th>Name</th>
-        <td>{{user.name}}</td>
-    </tr>
-    <tr>
-        <th>Organization</th>
-        <td>{{user.organization}}</td>
-    </tr>
-    <tr>
-        <th>Website</th>
-        <td>{{user.website}}</td>
-    </tr>
-</table>
+<div class="spaced">
+    <h2>Your profile</h2>
+    {%- if not user.organization and user.website -%}
+    <p><a href="{{user.website}}">{{user.name}}</a></p>
+    {%- else -%}
+    <p>{{user.name}}</p>
+    {%- endif -%}
+    {%- if user.organization -%}
+        {%- if user.website -%}
+        <p><a href="{{user.website}}">{{user.organization}}</a></p>
+        {%- else -%}
+        <p>{{user.organization}}</p>
+        {%- endif -%}
+    {%- endif -%}
+</div>
 
-<p><a href="/set-password">Change your password</a></p>
+<div class="spaced">
+    <h2>Edit Profile</h2>
+    <p id="local-error" aria-live="polite"></p>
+    <form action="/user/forms/profile" method="POST" id="profile-form" class="simple">
+        <div>
+            <label for="name">Name</label>
+            <input type="text" name="name" value="{{user.name}}" required>
+        </div>
+        <div>
+            <label for="organization">Organization</label>
+            <input type="text" name="organization" value="{{user.organization}}">
+        </div>
+        <div>
+            <label for="website">Website</label>
+            <input type="text" name="website" value="{{user.website}}">
+        </div>
+        <div>
+            <label for="password">Password</label>
+            <input type="password" name="password">
+        </div>
+        <div>
+            <label for="passwordmatch">Password (again)</label>
+            <input type="password" name="passwordmatch">
+        </div>
+        <input type="submit" name="save" value="Save changes">
+    </form>
+</div>
+<script type="module" src="/js/passwordMatch.js"></script>
+<script type="module">
+    import { initCheckPasswordsMatch } from '/js/passwordMatch.js';
+    window.addEventListener("load", () => {
+        initCheckPasswordsMatch("profile-form");   
+    });
+    
+</script>
 
 {%- endblock -%}

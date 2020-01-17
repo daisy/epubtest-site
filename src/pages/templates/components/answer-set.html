@@ -2,7 +2,7 @@
 
 <h2 id="{{answerSet.id}}">{{answerSet.testBook.title}}</h2>
 
-{%- if summary -%}<p class="summary"><b>Summary</b>: {{answerSet.summary}}</p>{%-endif-%}
+{%- if answerSet.summary != "" -%}<p class="limit spaced"><b>Summary</b>: {{answerSet.summary}}</p>{%-endif-%}
 
 <table class="striped">
     <thead>

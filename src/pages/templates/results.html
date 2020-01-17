@@ -1,9 +1,8 @@
 {%- extends 'base/base.html' -%}
-{%- set mainclass="wide" -%}
 {%- set title="Results" -%}
-{%- block script -%}
-<script type="module" src="/js/table.js"></script>
+{%- block content -%}
 
+<script type="module" src="/js/table.js"></script>
 <script type="module">
         import { table } from '/js/table.js';
         let smarttable = new table();
@@ -51,12 +50,9 @@
         window.sortby = sortby;
         window.headerKeypress = headerKeypress;
     </script>
-{%- endblock -%}
 
-{%- block content -%}
-
-
-<table class="wide striped" id="results-table">
+<h1>Results</h1>
+<table class="wide striped" id="results-table" summary="Reading system testing results">
     <thead>
         <tr>
             <th title="press enter to sort"
