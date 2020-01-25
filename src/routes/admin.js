@@ -35,10 +35,13 @@ router.get('/testing', async (req, res) => {
             req.cookies.jwt);
         let requests = results[0].data.data.requests.nodes;
         let testenvs = results[1].data.data.testingEnvironments.nodes;
+        let currentTestingEnvironments = testenvs.filter(tenv => !tenv.isArchived);
+        let archivedTestingEnvironments = testenvs.filter(tenv => tenv.isArchived);
         return res.render('./admin/testing.html', 
             {
                 accessLevel: req.accessLevel,
-                testingEnvironments: testenvs,
+                currentTestingEnvironments,
+                archivedTestingEnvironments,
                 getRequestToPublish: answerSetId => {
                     let retval = requests.find(r => r.answerSetId === answerSetId);
                     return retval;
@@ -51,6 +54,33 @@ router.get('/testing', async (req, res) => {
     }
 });
 
+router.get('/testing-environment/:id', async (req, res) => {
+
+    try {
+        let id = req.params.id;
+        let testenv = await db.query(Q.TESTING_ENVIRONMENT, { id: parseInt(id) }, req.cookies.jwt);
+        testenv = testenv.data.data.testingEnvironment;
+        let requests = await db.query(
+            Q.REQUESTS_FOR_ANSWERSETS, 
+            { ids: testenv.answerSetsByTestingEnvironmentId.nodes.map(ans => ans.id)},
+            req.cookies.jwt
+        );
+        requests = requests.data.data.requests.nodes;
+        return res.render('./admin/testing-environment.html', 
+            {
+                accessLevel: req.accessLevel,
+                testingEnvironment: testenv,
+                getRequestToPublish: answerSetId => {
+                    let retval = requests.find(r => r.answerSetId === answerSetId);
+                    return retval;
+                }
+            });
+    }
+    catch (err) {
+        console.log(err);
+        return res.redirect('/server-error');
+    }
+});
 
 // admin test books
 router.get('/test-books', async (req, res) => {
@@ -89,6 +119,7 @@ router.get('/users', async (req, res) => {
                 invitations: invitations.sort(alpha2),
                 inactiveUsers: inactiveUsers.sort(alpha),
                 activeUsers: activeUsers.sort(alpha),
+                duplicateName: name => inactiveUsers.filter(u => u.name === name).length > 1
             });
     }
     catch(err) {

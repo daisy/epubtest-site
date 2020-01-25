@@ -129,6 +129,49 @@ module.exports = {
         }
     }`,
 
+    // get all archived public results
+    ARCHIVED_RESULTS: 
+    `query {
+        getArchivedTestingEnvironments {
+            nodes {
+                id
+                readingSystem {
+                    name
+                    version
+                }
+                assistiveTechnology {
+                    name
+                    version
+                }
+                os {
+                    name
+                    version
+                }
+                device {
+                    name
+                    version
+                }
+                browser {
+                    name
+                    version
+                }
+                answerSetsByTestingEnvironmentId {
+                    nodes {
+                        score
+                        testBook {
+                            title
+                            topic {
+                                id
+                                order
+                                type
+                            }  
+                        }
+                    }
+                }
+            }
+        }
+    }`,
+
     // get all topics, in order
     TOPICS: 
     `query {
@@ -149,6 +192,7 @@ module.exports = {
             testedWithBraille
             testedWithScreenreader
             input
+            isArchived
             readingSystem {
                 name
                 version
@@ -175,6 +219,7 @@ module.exports = {
                     score
                     summary
                     flag
+                    isPublic
                     testBook {
                         title
                         filename
@@ -183,6 +228,10 @@ module.exports = {
                             order
                             type
                         }  
+                        lang {
+                            id
+                            label
+                        }
                         version
                     }
                     answersByAnswerSetId {

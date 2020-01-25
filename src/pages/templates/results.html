@@ -1,5 +1,4 @@
 {%- extends 'base/base.html' -%}
-{%- set title="Results" -%}
 {%- block content -%}
 
 <script type="module" src="/js/table.js"></script>
@@ -51,7 +50,7 @@
         window.headerKeypress = headerKeypress;
     </script>
 
-<h1>Results</h1>
+<h1>{{title}}</h1>
 <table class="wide striped" id="results-table" summary="Reading system testing results">
     <thead>
         <tr>
@@ -76,4 +75,7 @@
     </tbody>
 </table>
 
+{%- if linkToArchive -%}
+<p><a href="/archive">Archived Results</a></p>
+{%- endif -%}
 {%- endblock -%}

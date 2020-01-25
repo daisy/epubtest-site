@@ -46,10 +46,35 @@ router.get('/results', async (req, res) => {
             accessLevel: req.accessLevel,
             testingEnvironments: results[1].data.data.getPublishedTestingEnvironments.nodes,
             topics: results[0].data.data.topics.nodes,
+            title: 'Results',
             getfortopic: (answerSets, topic) => {
                 return answerSets.find(a => a.testBook.topic.id === topic.id)
             },
-            getTopicName: utils.getTopicName
+            getTopicName: utils.getTopicName,
+            linkToArchive: true
+        });
+    }
+    catch(err) {
+        console.log(err);
+        return res.redirect('/server-error');
+    }
+});
+
+router.get('/archive', async (req, res) => {
+    try {
+        let results = await db.queries(
+            [Q.TOPICS, Q.ARCHIVED_RESULTS],
+            []);
+        return res.render('./results.html', {
+            accessLevel: req.accessLevel,
+            testingEnvironments: results[1].data.data.getPublishedTestingEnvironments.nodes,
+            topics: results[0].data.data.topics.nodes,
+            title: 'Archived Results',
+            getfortopic: (answerSets, topic) => {
+                return answerSets.find(a => a.testBook.topic.id === topic.id)
+            },
+            getTopicName: utils.getTopicName,
+            linkToArchive: false
         });
     }
     catch(err) {

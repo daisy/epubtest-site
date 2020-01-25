@@ -1,0 +1,53 @@
+{%- macro TestingEnvironmentDetails(testingEnvironment) -%}
+{%- set rs = testingEnvironment.readingSystem -%}
+{%- set at = testingEnvironment.assistiveTechnology -%}
+{%- set os = testingEnvironment.os -%}
+{%- set dev = testingEnvironment.device -%}
+{%- set brw = testingEnvironment.browser -%}
+
+<ul>
+    <li>
+        <b>Assistive Technology</b>: &nbsp;
+        {%- if at.vendor -%}
+        {{ at.vendor }}&nbsp;
+        {%- endif -%}
+        {%- if at.name -%}
+        {{ at.name }}&nbsp;
+        {%- endif -%}
+        {%- if at.version -%}
+        {{ at.version }}
+        {%- endif -%}
+    </li>
+    <li>
+        <b>OS</b>: &nbsp;
+        {%- if os.vendor -%}
+        {{ os.vendor }}&nbsp;
+        {%- endif -%}
+        {%- if os.name -%}
+        {{ os.name }}&nbsp;
+        {%- endif -%}
+        {%- if os.version -%}
+        {{ os.version }}
+        {%- endif -%}
+    </li>
+
+</ul>
+<ul>
+
+    <li>
+        <b>Tested with Braille</b>:&nbsp;
+        {%- if testingEnvironment.testedWithBraille -%}Yes{%-else-%}No{%-endif-%}
+    </li>
+    <li>
+        <b>Tested with Screenreader</b>:&nbsp;
+        {%- if testingEnvironment.testedWithScreenreader -%}Yes{%-else-%}No{%-endif-%}
+    </li>
+    <li>
+        <b>Input type</b>:&nbsp;
+        {%- if testingEnvironment.input == 'KEYBOARD' -%} Keyboard
+        {%- elif testingEnvironment.input == 'MOUSE' -%} Mouse
+        {%- elif testingEnvironment.input == 'TOUCH' -%} Touch
+        {%-endif-%}
+    </li>
+</ul>
+{%- endmacro -%}

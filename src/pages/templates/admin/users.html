@@ -62,10 +62,15 @@
                 {%- for user in inactiveUsers -%}
                 <li>
                     <input type="checkbox" 
-                        name="users[{{loop.index}}][id]" 
+                        name="users[]" 
                         value="{{user.id}}" 
                         aria-label="Select user">
-                        {{user.name}}
+                        {{user.id}} <br/>
+                        {{user.name}} 
+                        <span style="font-style: italic">({{user.email}})</span> 
+                        {%- if duplicateName(user.name) -%}<br/> 
+                        <span style="font-style: italic">({{user.email}})</span> 
+                        {%- endif -%}
                     </input>
                 </li>
                 {%- endfor -%}

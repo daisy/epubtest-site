@@ -1,41 +1,14 @@
 {%- extends 'base/base.html' -%}
 {%- import "components/answer-set.html" as answerSetComponent -%}
+{%- import "components/testing-environment-details.html" as testingEnvironmentDetails -%}
+{%- import "components/reading-system-name.html" as readingSystemName -%}
 {%- block content -%}
 
-    <h1>{{testingEnvironment.readingSystem.name}} {{testingEnvironment.readingSystem.version}}</h1>
+    <h1>
+        {{ readingSystemName.ReadingSystemName(testingEnvironment.readingSystem) }}
+    </h1>
     <div class="twocol spaced">
-        <ul>
-            <li>
-                <b>Assistive Technology</b>: 
-                {{testingEnvironment.assistiveTechnology.name}} 
-                {%- if testingEnvironment.assistiveTechnology.version != 'undefined' -%}
-                    {{testingEnvironment.assistiveTechnology.version}}
-                {%- endif -%}
-            </li>
-            <li>
-                <b>OS</b>: 
-                {{testingEnvironment.os.name}} {{testingEnvironment.os.version}}
-            </li>
-        
-        </ul>
-        <ul>
-        
-            <li>
-                <b>Tested with Braille</b>:&nbsp;
-                {%- if testingEnvironment.testedWithBraille -%}Yes{%-else-%}No{%-endif-%}
-            </li>
-            <li>
-                <b>Tested with Screenreader</b>:&nbsp;
-                {%- if testingEnvironment.testedWithScreenreader -%}Yes{%-else-%}No{%-endif-%}
-            </li>
-            <li>
-                <b>Input type</b>:&nbsp;
-                {%- if testingEnvironment.input == 'KEYBOARD' -%} Keyboard
-                {%- elif testingEnvironment.input == 'MOUSE' -%} Mouse
-                {%- elif testingEnvironment.input == 'TOUCH' -%} Touch
-                {%-endif-%}
-            </li>
-        </ul>
+        {{ testingEnvironmentDetails.TestingEnvironmentDetails(testingEnvironment) }}
     </div>
     
     <div class="split">

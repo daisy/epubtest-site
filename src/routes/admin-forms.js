@@ -33,16 +33,63 @@ router.post('/handle-request', async (req, res) => {
     }
 });
 
+router.post('/publish', async (req, res) => {
+
+    await db.query(
+        QADMIN.PUBLISH_ANSWER_SET,
+        { answerSetId: parseInt(req.body.answerSetId) },
+        req.cookies.jwt);
+    
+    // also clear any requests for publishing that this answer set might have had
+    let requests = await db.query(
+        Q.REQUESTS_FOR_ANSWERSETS, 
+        { ids: [parseInt(req.body.answerSetId)]},
+        req.cookies.jwt
+    );
+
+    if (requests && requests.data.data.requests.nodes.length > 0) {
+        await db.query(
+            QADMIN.DELETE_REQUEST, 
+            { requestId: requests.data.data.requests.nodes[0].id }, 
+            req.cookies.jwt);
+    }
+
+    return res.redirect('/admin/testing');
+});
+
+router.post('/unpublish', async (req, res) => {
+    await db.query(
+        QADMIN.UNPUBLISH_ANSWER_SET,
+        { answerSetId: parseInt(req.body.answerSetId) },
+        req.cookies.jwt);
+    
+    return res.redirect('/admin/testing');
+});
+
+router.post('/archive', async (req, res) => {
+    await db.query(
+        QADMIN.ARCHIVE_TESTING_ENVIRONMENT,
+        { answerSetId: parseInt(req.body.testingEnvironmentId) },
+        req.cookies.jwt);
+    
+    return res.redirect('/admin/testing');
+});
+
+router.post ('/unarchive', async (req, res) => {
+    await db.query(
+        QADMIN.UNARCHIVE_TESTING_ENVIRONMENT,
+        { id: parseInt(req.body.testingEnvironmentId) },
+        req.cookies.jwt);
+    
+    return res.redirect('/admin/testing');
+});
+
 router.post('/reinvite-users', async (req, res) => {
     try {
-        console.log(req.body.users);
-        // await Promise.all(req.body.users.map(async u => {
-        //     await invite.inviteUser(u);
-        // }));
-        req.body.users.reduce( async (previousPromise, nextValue) => {
-            await previousPromise;
-            return invite.inviteUser(nextValue.id, req.cookies.jwt);
-        }, Promise.resolve());
+        let i;
+        for (i = 0; i<req.body.users.length; i++) {
+            await invite.inviteUser(req.body.users[i], req.cookies.jwt);
+        }
 
         return res.redirect('/admin/users');
     }

@@ -1,0 +1,33 @@
+{%- macro TestingEnvironmentTitle(testingEnvironment) -%}
+{%- set rs = testingEnvironment.readingSystem -%}
+{%- set at = testingEnvironment.assistiveTechnology -%}
+{%- set os = testingEnvironment.os -%}
+{%- set dev = testingEnvironment.device -%}
+{%- set brw = testingEnvironment.browser -%}
+
+<span>
+    {%- if rs.name -%}
+    {{ rs.name }}&nbsp;
+    {%- endif -%}
+    {%- if rs.version -%}
+    {{ rs.version }}
+    {%- endif -%}
+</span>,
+<span>
+    {%- if at.name -%}
+    {{ at.name }}&nbsp;
+    {%- endif -%}
+    {%- if at.version -%}
+    {{ at.version }}
+    {%- endif -%}
+</span>,
+<span>
+    {%- if os.name -%}
+    {{ os.name }}&nbsp;
+    {%- endif -%}
+    {%- if os.version -%}
+    {{ os.version }}
+    {%- endif -%}
+</span>
+
+{%- endmacro -%}

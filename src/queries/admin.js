@@ -41,6 +41,7 @@ module.exports = {
         testingEnvironments {
             nodes {
                 id
+                isArchived
                 readingSystem {
                     name
                     version
@@ -89,6 +90,7 @@ module.exports = {
             nodes {
                 id
                 name
+                email
             }
         }
     }`,
@@ -129,6 +131,20 @@ module.exports = {
           }
       }`,
 
+      UNPUBLISH_ANSWER_SET: 
+      `mutation ($answerSetId: Int!) {
+          updateAnswerSet(input:{
+              id: $answerSetId,
+              patch: {
+                isPublic:false
+              }
+            })
+            {
+              clientMutationId
+            }
+        }`,
+  
+
     DELETE_REQUEST: 
     `mutation ($requestId: Int!) {
         deleteRequest(input:{
@@ -143,6 +159,31 @@ module.exports = {
         createInvitation(input: $input) {
             clientMutationId
         }
-    }`
+    }`,
+
+    ARCHIVE_TESTING_ENVIRONMENT: 
+      `mutation ($id: Int!) {
+          updateTestingEnvironment(input:{
+              id: $id,
+              patch: {
+                isArchived:true
+              }
+            })
+            {
+              clientMutationId
+            }
+        }`,
+    UNARCHIVE_TESTING_ENVIRONMENT: 
+    `mutation ($id: Int!) {
+        updateTestingEnvironment(input:{
+            id: $id,
+            patch: {
+                isArchived:false
+            }
+            })
+            {
+            clientMutationId
+            }
+        }`,
 
 }

@@ -1,14 +1,15 @@
 {%- extends 'base/base.html' -%}
+{%- import "components/testing-environment-title.html" as testingEnvironmentTitle -%}
 {%- set title = "Edit Answers" -%}
 
 {%- block content -%}
 
 <h1>Edit Results</h1>
 
-<p><b>Testing Environment:</b>
-<span>{{answerSet.testingEnvironment.readingSystem.name}} {{answerSet.testingEnvironment.readingSystem.version}}, 
-{{answerSet.testingEnvironment.assistiveTechnology.name}} {{answerSet.testingEnvironment.readingSystem.version}},
-{{answerSet.testingEnvironment.os.name}} {{answerSet.testingEnvironment.os.version}}</span></p>
+<p>
+    <b>Testing Environment:</b>
+    {{ testingEnvironmentTitle.TestingEnvironmentTitle(answerSet.testingEnvironment) }}
+</p>
 
 <p><b>Topic:</b> <span>{{answerSet.testBook.title}}</span></p>
 

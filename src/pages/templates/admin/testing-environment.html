@@ -1,0 +1,75 @@
+{%- extends '../base/admin-base.html' -%}
+{%- import "components/testing-environment-details.html" as testingEnvironmentDetails -%}
+{%- import "components/reading-system-name.html" as readingSystemName -%}
+{%- set title = "Admin: Testing Environment" -%}
+{%- block section -%}
+
+<h1>Testing Environment</h1>
+<h2>{{ readingSystemName.ReadingSystemName (testingEnvironment.readingSystem) }}</h2>
+<div class="twocol spaced">
+    {{ testingEnvironmentDetails.TestingEnvironmentDetails(testingEnvironment) }}
+</div>
+{%- if answerSet.isPublic -%}
+    <p><a href="/results/{{testingEnvironment.id}}#{{answerSet.id}}">Public link</a></p>
+{%- endif -%}
+
+<p><a href="TODO">Edit testing environment details</a></p>
+{%- if testingEnvironment.isArchived -%}
+<p>This testing environment has been archived. You may unarchive it.</p>
+<form method="POST" action="/admin/forms/unarchive">
+    <input type="hidden" name="testingEnvironmentId" value="{{testingEnvironment.id}}"/>
+    <input type="submit" name="submit" value="Unarchive"/>
+</form>
+{%- else -%}
+<p>This testing environment is not archived. You may archive it.</p>
+<form method="POST" action="/admin/forms/archive">
+    <input type="hidden" name="testingEnvironmentId" value="{{testingEnvironment.id}}"/>
+    <input type="submit" name="submit" value="Archive"/>
+</form>
+{%- endif -%}
+
+<h3>Answer Sets</h3>
+<table class="striped">
+    <thead>
+        <tr>
+            <th>Topic</th>
+            <th>Test Book</th>
+            <th>Score</th>
+            <th>Edit</th>
+            <th>Publish</th>
+        </tr>
+    </thead>
+    <tbody>
+    {%- for answerSet in testingEnvironment.answerSetsByTestingEnvironmentId.nodes -%}
+    {%- set requestToPublish=getRequestToPublish(answerSet.id) -%}
+            
+    <tr>
+        <td>{{answerSet.testBook.topic.id}}</td>
+        <td><a href="/books/{{answerSet.testBook.filename}}">
+            v{{ answerSet.testBook.version }} ({{ answerSet.testBook.lang.id }})
+            </a>
+        </td>
+        <td>{%-if answerSet.score -%}{{answerSet.score | round(1)}}{%- endif -%}</td>
+        <td><a href="/user/edit-results/{{answerSet.id}}">Edit</td>
+        <td>
+            {%- if answerSet.isPublic -%}
+            <form method="POST" action="/admin/forms/unpublish">
+                <input type="hidden" name="answerSetId" value="{{answerSet.id}}"/>
+                <input type="submit" name="submit" value="Unpublish"/>
+            </form>
+            {%- else -%}
+            <form method="POST" action="/admin/forms/publish">
+                <input type="hidden" name="answerSetId" value="{{answerSet.id}}"/>
+                <input type="submit" name="submit" value="Publish"/>
+            </form>
+            {%- if requestToPublish != null -%}
+            <span style="font-style: italic">(Publishing requested by user)</span>
+            {%- endif -%}
+            {%- endif -%}
+        </td>
+    </tr>
+    {%- endfor -%}
+    </tbody>
+</table>
+
+{%- endblock -%}
