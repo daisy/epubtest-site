@@ -92,7 +92,7 @@ router.post('/forgot-password',
                     `http://localhost:${process.env.PORT}/set-password?token=${jwt}`
                     : 
                     `http://epubtest.org/set-password?token=${jwt}`;
-                await mail.emailPasswordReset(req.body.email, 
+                await mail.sendEmail(req.body.email, 
                     emails.reset.subject,
                     emails.reset.text(resetUrl),
                     emails.reset.html(resetUrl));   
