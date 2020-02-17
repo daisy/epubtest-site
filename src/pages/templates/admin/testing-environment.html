@@ -4,7 +4,7 @@
 {%- set title = "Admin: Testing Environment" -%}
 {%- block section -%}
 
-<h1>Testing Environment</h1>
+<h1>Manage Testing Environment</h1>
 <h2>{{ readingSystemName.ReadingSystemName (testingEnvironment.readingSystem) }}</h2>
 <div class="twocol spaced">
     {{ testingEnvironmentDetails.TestingEnvironmentDetails(testingEnvironment) }}
@@ -28,12 +28,24 @@
 </form>
 {%- endif -%}
 
+{%- set hasPublic = false -%}
+{%- for answerSet in testingEnvironment.answerSetsByTestingEnvironmentId.nodes -%}
+    {%- if answerSet.isPublic -%}
+        {%- set hasPublic = true -%}
+    {%- endif -%}
+{%- endfor -%}
+
 <h3>Answer Sets</h3>
+<p>This testing environment has 
+    {% if hasPublic %} one or more {% else %} no {% endif %} 
+    public answer sets. All answer sets are shown below.
+</p>
 <table class="striped">
     <thead>
         <tr>
             <th>Topic</th>
             <th>Test Book</th>
+            <th>Assigned to</th>
             <th>Score</th>
             <th>Edit</th>
             <th>Publish</th>
@@ -48,6 +60,22 @@
         <td><a href="/books/{{answerSet.testBook.filename}}">
             v{{ answerSet.testBook.version }} ({{ answerSet.testBook.lang.id }})
             </a>
+        </td>
+        <td>
+            <form method="POST" action="/admin/forms/set-user">
+                <select name="user">
+                    {%- for user in users -%}
+                    {%- if user.id == answerSet.user.id -%}
+                    <option value="{{user.id}}" selected="true">
+                    {%- else -%}
+                    <option value="{{user.id}}">
+                    {%- endif -%}
+                    {{user.name}}
+                    </option>
+                    {%- endfor -%}
+                </select>
+                <input type="submit" value="Set user">  
+            </form>
         </td>
         <td>{%-if answerSet.score -%}{{answerSet.score | round(1)}}{%- endif -%}</td>
         <td><a href="/user/edit-results/{{answerSet.id}}">Edit</td>

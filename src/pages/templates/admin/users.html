@@ -7,16 +7,19 @@
 <div class="split">
     <nav class="side" aria-label="User management links">
         <ul>
+            <li><a href="#invite-users">Invite Users</a></li>
             <li><a href="#active-users">Active Users</a></li>
             <li><a href="#pending-invitations">Pending Invitations</a></li>
-            <li><a href="#invite-users">Invite Users</a></li>
+            <li><a href="#reinvite-users">Re-invite Users</a></li>
         </ul>
     </nav>
 
     <div class="content">
-        {# TODO
-            <h2>Add user</h2> 
-        #}
+        <h2>Invite User</h2>
+        <form method="POST" action="/admin/forms/new-user">
+            <input type="text" name="email" type="email" required placeholder="Email address">
+            <input type="submit" value="Invite">
+        </form>
 
 
         <h2 id="active-users">Active Users</h2>
@@ -53,7 +56,7 @@
         </table>
 
 
-        <h2 id="invite-users">Invite users</h2>
+        <h2 id="reinvite-users">Re-invite users</h2>
         <p>These users were registered with the previous version of this website. You may re-invite them below.</p>
 
         <form action="/admin/forms/reinvite-users" method="POST">
@@ -65,9 +68,7 @@
                         name="users[]" 
                         value="{{user.id}}" 
                         aria-label="Select user">
-                        {{user.id}} <br/>
                         {{user.name}} 
-                        <span style="font-style: italic">({{user.email}})</span> 
                         {%- if duplicateName(user.name) -%}<br/> 
                         <span style="font-style: italic">({{user.email}})</span> 
                         {%- endif -%}

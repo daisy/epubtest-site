@@ -1,44 +1,71 @@
 {%- extends '../base/admin-base.html' -%}
 {%- import "components/testing-environment-title.html" as testingEnvironmentTitle -%}
 {%- set title = "Admin: Testing" -%}
+
+
 {%- block section -%}
 
 <h1>Manage Testing</h1>
-{# 
-This page should have:
 
-List of testenvs:
-- View testenv => "View" page with options: Edit details, assign topics, publish topic
-- Archive testenv
+<div class="split">
+    <nav class="side" aria-label="Testing navigation">
+        <ul>
+            <li><a href="#add">Add new testing environment</a></li>
+            <li><a href="#current">Current Testing Environments</a>
+                <ul>
+                    <li><a href="#current-published">Published</a></li>
+                    <li><a href="#current-unpublished">Unpublished</a></li>
+                </ul>
+            </li>
+            <li><a href="#archived">Archived Testing Environments</a>
+                <ul>
+                    <li><a href="#archived-published">Published</a></li>
+                    <li><a href="#archived-unpublished">Unpublished</a></li>
+                </ul>
+            </li>
+        </ul>
+    </nav>
+    <div class="content">
+        <section id="add">
+            <h2>Add new testing environment</h2>
+            <p>TODO</p>
+        </section>
+        <section id="current">
+            <h2>Current testing environments</h2>
+            <section id="current-published">
+                <h3>Published</h3>
+                {{ TestingEnvironmentList (publicTestingEnvironments) }}
+            </section>
+            <section id="current-unpublished">
+                <h3>Unpublished</h3>
+                {{ TestingEnvironmentList (unpublishedTestingEnvironments) }}
+            </section>
+        </section>
 
-Add testing environment => "Create" page
-
-
-#}
-
-<h2>Current Testing Environments</h2>
-<ul>
-{%- for testingEnvironment in currentTestingEnvironments -%}
-
-<li id="{{testingEnvironment.id}}">
-    <a href="/admin/testing-environment/{{testingEnvironment.id}}">
-        {{ testingEnvironmentTitle.TestingEnvironmentTitle (testingEnvironment) }}
-    </a>
-</li>
-
-{%- endfor -%}
-
-<h2>Archived Testing Environments</h2>
-<ul>
-{%- for testingEnvironment in archivedTestingEnvironments -%}
-
-<li id="{{testingEnvironment.id}}">
-    <a href="/admin/testing-environment/{{testingEnvironment.id}}">
-        {{ testingEnvironmentTitle.TestingEnvironmentTitle (testingEnvironment) }}
-    </a>
-</li>
-
-{%- endfor -%}
-
-
+        <section id="archived">
+            <h2>Archived</h2>
+            <section id="archived-published">
+                <h3>Published</h3>
+                {{ TestingEnvironmentList (publicArchivedTestingEnvironments) }}
+            </section>
+    
+            <section id="archived-unpublished">
+                <h3>Unpublished</h3>
+                {{ TestingEnvironmentList (unpublishedArchivedTestingEnvironments) }}
+            </section>
+        </section>
+    </div>
+</div>
 {%- endblock -%}
+
+{%- macro TestingEnvironmentList(testingEnvironments) -%}
+<ul>
+    {%- for testingEnvironment in testingEnvironments -%}
+    <li id="{{testingEnvironment.id}}">
+        <a href="/admin/testing-environment/{{testingEnvironment.id}}">
+            {{ testingEnvironmentTitle.TestingEnvironmentTitle (testingEnvironment) }}
+        </a>
+    </li>
+    {%- endfor -%}
+</ul>
+{%- endmacro -%}

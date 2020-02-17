@@ -2,6 +2,7 @@ var express = require('express');
 const db = require('../database');
 const Q = require('../queries/queries');
 const QADMIN = require('../queries/admin');
+const utils = require('../utils');
 
 var router = express.Router()
 
@@ -29,19 +30,34 @@ router.get('/requests', async (req, res) => {
 // admin testing
 router.get('/testing', async (req, res) => {
     try {
+        let makeName = rs => `${rs.name}${rs.version != 'undefined' && rs.version != 'null' ? rs.version : ''}`;
+        let alpha = (a,b) => makeName(a.readingSystem) > makeName(b.readingSystem) ? 1 
+            : makeName(a.readingSystem) === makeName(b.readingSystem) ? 0 : -1;
         let results = await db.queries(
-            [QADMIN.REQUESTS, QADMIN.ALL_TESTING_ENVIRONMENTS], 
-            {}, 
+            [QADMIN.REQUESTS, QADMIN.ALL_TESTING_ENVIRONMENTS, Q.PUBLIC_RESULTS, Q.ARCHIVED_RESULTS], 
+            [], 
             req.cookies.jwt);
+        
         let requests = results[0].data.data.requests.nodes;
-        let testenvs = results[1].data.data.testingEnvironments.nodes;
-        let currentTestingEnvironments = testenvs.filter(tenv => !tenv.isArchived);
-        let archivedTestingEnvironments = testenvs.filter(tenv => tenv.isArchived);
+        let publicTestingEnvironments = results[2].data.data.getPublishedTestingEnvironments.nodes
+            .sort(alpha);
+        let publicArchivedTestingEnvironments = results[3].data.data.getArchivedTestingEnvironments.nodes
+            .sort(alpha);
+        let unpublishedTestingEnvironments = results[1].data.data.testingEnvironments.nodes
+            .filter(tenv => !tenv.isArchived
+                && publicTestingEnvironments.find(n=>n.id === tenv.id) == undefined )
+            .sort(alpha);
+        let unpublishedArchivedTestingEnvironments = results[1].data.data.testingEnvironments.nodes
+            .filter(tenv => tenv.isArchived 
+                && publicArchivedTestingEnvironments.find(n=>n.id === tenv.id) == undefined )
+            .sort(alpha);
         return res.render('./admin/testing.html', 
             {
                 accessLevel: req.accessLevel,
-                currentTestingEnvironments,
-                archivedTestingEnvironments,
+                publicTestingEnvironments,
+                publicArchivedTestingEnvironments,
+                unpublishedTestingEnvironments,
+                unpublishedArchivedTestingEnvironments,
                 getRequestToPublish: answerSetId => {
                     let retval = requests.find(r => r.answerSetId === answerSetId);
                     return retval;
@@ -58,8 +74,12 @@ router.get('/testing-environment/:id', async (req, res) => {
 
     try {
         let id = req.params.id;
-        let testenv = await db.query(Q.TESTING_ENVIRONMENT, { id: parseInt(id) }, req.cookies.jwt);
-        testenv = testenv.data.data.testingEnvironment;
+        let results = await db.queries(
+            [Q.TESTING_ENVIRONMENT, QADMIN.ACTIVE_USERS], 
+            [{ id: parseInt(id) }, {}], 
+            req.cookies.jwt);
+        testenv = results[0].data.data.testingEnvironment;
+        users = results[1].data.data.getActiveUsers.nodes;
         let requests = await db.query(
             Q.REQUESTS_FOR_ANSWERSETS, 
             { ids: testenv.answerSetsByTestingEnvironmentId.nodes.map(ans => ans.id)},
@@ -70,6 +90,7 @@ router.get('/testing-environment/:id', async (req, res) => {
             {
                 accessLevel: req.accessLevel,
                 testingEnvironment: testenv,
+                users,
                 getRequestToPublish: answerSetId => {
                     let retval = requests.find(r => r.answerSetId === answerSetId);
                     return retval;
@@ -85,9 +106,12 @@ router.get('/testing-environment/:id', async (req, res) => {
 // admin test books
 router.get('/test-books', async (req, res) => {
     try {
+        let result = await db.query(Q.TEST_BOOKS, {});
         return res.render('./admin/test-books.html', 
             {
-                accessLevel: req.accessLevel
+                accessLevel: req.accessLevel,
+                testBooks: result.data.data.getLatestTestBooks.nodes,
+                getTopicName: utils.getTopicName
             });
     }
     catch(err) {
