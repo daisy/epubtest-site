@@ -68,6 +68,14 @@ module.exports = {
                         flag
                         score
                         isPublic
+                        user {
+                            id
+                            name
+                            organization
+                            website
+                            includeCredit
+                            creditAs
+                        }
                         testBook {
                             title
                             topic {
@@ -186,4 +194,36 @@ module.exports = {
             }
         }`,
 
+    ADD_TEST_BOOK: 
+    `mutation ($topicId: String!, $langId: String!, $version: String!, $title: String!, $filename: String!, $description: String) {
+        createTestBook(input:{
+            testBook:{
+              topicId: $topicId
+              title: $title
+              langId: $langId
+              version: $version
+              filename: $filename
+              description: $description
+            }
+          }){
+            clientMutationId
+          }
+    }`,
+
+    ADD_TEST:
+    `mutation ($testId: String!, $testBookId: Int!, $name: String!, $description: String, $xhtml: String!, $order: Int!, $flag: Boolean) {
+        createTest(input:{
+            test:{
+                testId: $testId
+                testBookId: $testBookId
+                name: $name
+                description: $description
+                xhtml: $xhtml
+                order: $order
+                flag: $flag
+            }
+        }) {
+            clientMutationId
+        }
+    }`
 }

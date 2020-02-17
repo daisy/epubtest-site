@@ -77,9 +77,11 @@ module.exports = {
     `query {
         getLatestTestBooks{
             nodes{
+                id
                 title
                 topicId
-                langId
+                langId 
+                version
                 filename
                 description
             }
@@ -115,6 +117,14 @@ module.exports = {
                 answerSetsByTestingEnvironmentId {
                     nodes {
                         score
+                        user {
+                            id
+                            name
+                            organization
+                            website
+                            includeCredit
+                            creditAs
+                        }
                         testBook {
                             title
                             topic {
@@ -158,6 +168,14 @@ module.exports = {
                 answerSetsByTestingEnvironmentId {
                     nodes {
                         score
+                        user {
+                            id
+                            name
+                            organization
+                            website
+                            includeCredit
+                            creditAs
+                        }
                         testBook {
                             title
                             topic {
@@ -220,6 +238,14 @@ module.exports = {
                     summary
                     flag
                     isPublic
+                    user {
+                        id
+                        name
+                        organization
+                        website
+                        includeCredit
+                        creditAs
+                    }
                     testBook {
                         title
                         filename
@@ -355,4 +381,27 @@ module.exports = {
             clientMutationId
         }
       }`,
+    
+    TESTS_IN_BOOK: 
+    `query ($testBookId: Int!) {
+        tests (condition: {testBookId: $testBookId}) {
+          nodes {
+            id
+            testId
+            name
+            description
+          }
+        }
+      }`,
+
+    GET_TEST_BOOK_ID_BY_EPUBID:
+    `query ($epubId: String!) {
+        testBooks(condition:{
+            epubId: $epubId
+          }) {
+            nodes{
+              id
+            }
+          }
+        }`
 };
