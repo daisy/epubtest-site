@@ -28,23 +28,6 @@ header nav ul#user {
     justify-content: flex-end;
 }
 
-/* main split view */
-main .split {
-    display: grid;
-    grid-gap: 2vw;
-    grid-auto-columns: 20% auto;
-}
-main .split  > .side {
-    grid-column: 1;
-}
-main .split  > .content {
-    grid-column: 2;
-}
-main .split > img.side {
-    margin: auto;
-}
-
-
 /* Footer detail */
 footer > * {
     font-size: smaller;
@@ -61,7 +44,22 @@ nav li {
 /* Admin nav */
 nav#admin-nav {
     line-height: .5rem;
+    display: grid;
+    grid-template-columns: 20% auto;
+    align-items: center;
 }
+nav#admin-nav p {
+    font-weight: bold;
+    font-size: larger;
+    margin: 0;
+    
+}
+
+/* nest sections */
+main section {
+    margin-left: 2rem;
+}
+
 
 /* Elements in tables */
 tbody ul {

@@ -1,5 +1,26 @@
 @import url("colors.css");
 
+/* main split view */
+.split {
+    display: grid;
+    grid-gap: 2vw;
+    grid-auto-columns: 20% auto;
+}
+.split  > .side {
+    grid-column: 1;
+    overflow: scroll; /*TODO*/
+}
+.split  > .content {
+    grid-column: 2;
+}
+.split .side, .content > *:first-child, .content > section *:first-child {
+    padding-top: 0;
+    margin-top: 0;
+}
+.split > img.side {
+    margin: auto;
+}
+
 /* errors, messages */
 aside.message {
     border-radius: 10px;
@@ -129,3 +150,4 @@ ul.horizontal {
 ul.cols {
     columns: 3;
 }
+
