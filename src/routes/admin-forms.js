@@ -75,7 +75,7 @@ router.post('/archive', async (req, res) => {
         { id: parseInt(req.body.testingEnvironmentId) },
         req.cookies.jwt);
     
-    return res.redirect('/admin/testing');
+    return res.redirect(`/admin/testing-environment/${req.body.testingEnvironmentId}`);
 });
 
 router.post ('/unarchive', async (req, res) => {
@@ -84,7 +84,7 @@ router.post ('/unarchive', async (req, res) => {
         { id: parseInt(req.body.testingEnvironmentId) },
         req.cookies.jwt);
     
-    return res.redirect('/admin/testing');
+    return res.redirect(`/admin/testing-environment/${req.body.testingEnvironmentId}`);
 });
 
 router.post('/reinvite-users', async (req, res) => {
@@ -329,65 +329,81 @@ router.post('/add-testing-environment', async(req, res) => {
     }
 });
 
-router.post("/confirm-delete-testing-environment/:testingEnvironmentId", async (req, res) => {
-    let results = await db.query(
-        Q.TESTING_ENVIRONMENT, 
-        { id: parseInt(req.params.testingEnvironmentId) });
-    let testenv = results.data.data.testingEnvironment;
-
-    let testingEnvironmentTitle = `
-    ${testenv.readingSystem.name} ${testenv.readingSystem.version}
-    ${testenv.assistiveTechnology.name ? `${testenv.assistiveTechnology.name} ${testenv.assistiveTechnology.version}` : ''}
-    ${testenv.os.name} ${testenv.os.version}`;
-
-    return res.render('./confirm.html', {
-        accessLevel: req.accessLevel,
-        title: "Confirm deletion",
-        content: `Please confirm that you would like to delete ${testingEnvironmentTitle}`,
-        redirectUrl: '/admin/testing',
-        actionUrl: `/admin/forms/delete-testing-environment/${parseInt(req.params.testingEnvironmentId)}`
-    });
-});
-
-router.post('/delete-testing-environment/:testingEnvironmentId', async (req, res) => {
-    let redirect = req.body.redirectUrl;
-
-    if (req.body.hasOwnProperty("yes")) {
-        // get testing environment
+router.post("/confirm-delete-testing-environment/:id", async (req, res) => {
+    try {
         let results = await db.query(
             Q.TESTING_ENVIRONMENT, 
-            { id: parseInt(req.params.testingEnvironmentId) });
+            { id: parseInt(req.params.id) }, 
+            req.cookies.jwt);
         let testenv = results.data.data.testingEnvironment;
 
-        // delete answers and answer sets
-        let i, j;
-        let answerSets = testenv.answerSetsByTestingEnvironmentId.nodes;
-        for (i=0; i<answerSets.length; i++) {
-            let answers = answerSets[i].answersByAnswerSetId.nodes;
-            for (j=0; j<answers.length; j++) {
-                await db.query(QADMIN.DELETE_ANSWER, 
-                    {id: answers[j].id}, 
+        let testingEnvironmentTitle = `
+        ${testenv.readingSystem.name} ${testenv.readingSystem.version}
+        ${testenv.assistiveTechnology.name ? `${testenv.assistiveTechnology.name} ${testenv.assistiveTechnology.version}` : ''}
+        ${testenv.os.name} ${testenv.os.version}`;
+
+        return res.render('./confirm.html', {
+            accessLevel: req.accessLevel,
+            title: "Confirm deletion",
+            content: `Please confirm that you would like to delete ${testingEnvironmentTitle}`,
+            redirectUrlYes: '/admin/testing',
+            redirectUrlNo: `/admin/testing-environment/${parseInt(req.params.id)}`,
+            actionUrl: `/admin/forms/delete-testing-environment/${parseInt(req.params.id)}`
+        });
+    }
+    catch (err) {
+        console.log(err);
+        return res.redirect('/server-error');
+    }
+});
+
+router.post('/delete-testing-environment/:id', async (req, res) => {
+    try {    
+        let redirect;
+
+        if (req.body.hasOwnProperty("yes")) {
+            // get testing environment
+            let results = await db.query(
+                Q.TESTING_ENVIRONMENT, 
+                { id: parseInt(req.params.id) }, 
+                req.cookies.jwt);
+            let testenv = results.data.data.testingEnvironment;
+
+            // delete answers and answer sets
+            let i, j;
+            let answerSets = testenv.answerSetsByTestingEnvironmentId.nodes;
+            for (i=0; i<answerSets.length; i++) {
+                let answers = answerSets[i].answersByAnswerSetId.nodes;
+                for (j=0; j<answers.length; j++) {
+                    await db.query(QADMIN.DELETE_ANSWER, 
+                        {id: answers[j].id}, 
+                        req.cookies.jwt);
+                }
+                await db.query(QADMIN.DELETE_ANSWER_SET, 
+                    {id: answerSets[i].id}, 
                     req.cookies.jwt);
             }
-            await db.query(QADMIN.DELETE_ANSWER_SET, 
-                {id: answerSets[i].id}, 
+            
+            // delete testing environment
+            await db.query(QADMIN.DELETE_TESTING_ENVIRONMENT,
+                {id: testenv.id},
                 req.cookies.jwt);
+
+            let message = encodeURIComponent("Testing environment deleted");
+            redirect = req.body.redirectUrlYes + "?message=" + message;
         }
-        
-        // delete testing environment
-        await db.query(QADMIN.DELETE_TESTING_ENVIRONMENT,
-            {id: testenv.id},
-            req.cookies.jwt);
+        else {
+            // else cancel was pressed: do nothing
+            redirect = req.body.redirectUrlNo;
+        }
 
-        let message = encodeURIComponent("Testing environment deleted");
-        redirect = redirect + "?message=" + message;
+        // redirect
+        return res.redirect(redirect);
     }
-    else {
-        // else cancel was pressed: do nothing
+    catch (err) {
+        console.log(err);
+        return res.redirect('/server-error');
     }
-
-    // redirect
-    return res.redirect(redirect);
 });
 
 module.exports = router;
