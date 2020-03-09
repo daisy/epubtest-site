@@ -1,87 +1,281 @@
 @import url("colors.css");
 
+html {
+    height: 100%;
+}
 body {
     display: grid;
-    grid-template-rows: 4rem auto 4rem; 
-    grid-template-columns: 100%;
-    font-family: Verdana;
+    height: 100%;
+    grid-template-areas: 
+    "header header header"
+    "nav main main"
+    "footer footer footer";
+    grid-template-columns: minmax(min-content, 20rem) auto minmax(min-content, 20rem);
+    grid-template-rows: auto 1fr auto;
+    font-family: Helvetica Neue, Helvetica, Arial, Verdana, Geneva, sans-serif;
+    letter-spacing: -0.00278rem;
+    line-height: 1.6;
+    margin-left: 1rem;
+    margin-right: 1rem;
 }
-
+a, a:visited {
+    color: var(--primary);  
+}
+a:hover {
+    text-decoration: underline !important;
+}
+a:link, a:visited, a:hover {
+    text-decoration: none;
+}
 header {
-    grid-row: 1;
+    grid-area: header;
     display: grid;
-    grid-template-columns: 20% auto;
+    grid-template-areas: "title nav login";
+    grid-template-columns: 20rem auto 20rem;
     align-items: center;
     border-bottom: 1vh solid var(--primary);
+    margin-bottom: 1rem;
 }
-
+header h1 {
+    grid-area: title;
+    padding: 0;
+    margin: 0;
+    font-size: 1.5rem;
+}
+header h1 a {
+    text-decoration: none;
+    color: black !important;
+}
+header nav ul {
+    display: flex;
+    list-style-type: none;
+    padding: 0;
+}
+header nav li {
+    flex: 0 1;
+    margin-right: 2vw;
+    white-space: nowrap;
+    text-decoration: none;
+}
+header nav.main {
+    grid-area: nav;
+}
+header nav.user {
+    grid-area: login
+}
+header nav.user ul {
+    justify-content: right;
+}
 main {
-    grid-row: 2;
-    grid-column: 1/4;
+    grid-area: main;
 }
-
+main.landing {
+    display: grid;
+    grid-template-rows: 10rem 10rem;
+    margin-top: 3rem;
+}
+main.wide {
+    grid-column-start: 1;
+}
+main.inset {
+    margin-left: 5rem;
+    margin-right: 5rem;
+}
 footer {
-    grid-row: 4;
+    grid-area: footer;
     font-style: italic;
     text-align: center;
     margin-top: 10vh;
     padding-bottom: 5vh;
 }
-h1 {
-    font-size: 1.5rem;
+footer > * {
+    font-size: smaller;
 }
-h2 {
+main > div {
+    margin-bottom: 2rem;
+}
+div.center {
+    display: flex;
+    justify-content: center;
+    align-content: center;
+}
+
+p.message {
+    border-radius: 10px;
+    vertical-align: middle;
+    text-align: center;
+    line-height: 2em;
+    margin-bottom: 1vh;
+    background-color: rgba(251, 255, 0, 0.2);
+    grid-column-start: 1;
+    grid-column-end: 4;
+}
+
+div.twocol {
+    display: grid;
+    grid-template-columns: 30% auto;
+}
+
+.big {
+    margin: auto;
+    display: block;
+    background-color: var(--softcomp);
+    box-shadow: 0 0 5px darkgray;
+    padding: 1rem;
+    width: min-content;
+    white-space: nowrap;
+    line-height: 2; 
+    border-bottom: none !important;  
+    text-align: center !important;
+    margin-top: 3rem;
+    
+}
+
+div.selection {
+    border: solid .5vh var(--soft);
+    padding: 1vh;
+    margin: 1vh;   
+}
+span.notTested {
+    font-style: italic;
+    font-weight: lighter;
+    color: var(--grayed-out);
+}
+.spaced {
+    margin-top: 2rem;
+    margin-bottom: 2rem;
+}
+.limit {
+    max-width: 50vw;
+    overflow: scroll;
+}
+
+ul.cols {
+    columns: 3;
+}
+body > nav {
+    margin-right: 2rem;
+}
+body > nav > h1 {
     font-size: 1.3rem;
 }
-h3 {
-    font-size: 1.1rem;
-}
-ul {
-    margin: 0;
-    padding:0;
-    padding-left: 0.75rem;
+body > nav ul {
     list-style-type: none;
-    line-height: 2em;
+    padding: 0;
 }
-a, a:visited {
-    color: var(--primary);  
+body > nav li {
+    margin-bottom: 2rem;
+}
+body > nav li li {
+    margin-top: 2rem;
+    padding-left: 1rem;
 }
 
-/* form controls */
-input, button, textarea {
-    padding: .5vh;
-    border-radius: 4px;
+/* make the local navigation and main body line up */
+main > *:first-child, body > nav > :first-child {
+    margin-top: 0;
 }
-textarea {
+div.testenv-title.inline {
+    display: inline;
+}
+div.testenv-title:not(.inline) {
+    display: grid;
+    grid-template-columns: min-content;
+    grid-template-rows: auto;
+}
+div.testenv-title.inline span:not(:first-child) {
+    /* display: grid;
+    grid-template-columns: auto;
+    grid-template-rows: 1fr; */
+    /* margin-left: 1rem; */
+}
+div.testenv-title:not(.inline) span {
     display: block;
 }
-
-/* table */
-table {
-    border-collapse: collapse;
-    table-layout: fixed;
-    width: 100%;
+div.testenv-title:not(.inline) span.rs {
+    
+}
+div.testenv-title:not(.inline) span:not(.rs) {
+    padding-left: 4px;
+    font-size: smaller;
+}
+div.testenv-title:not(.inline) span:not(.rs)::before {
+    content: "∙ ";
+}
+div.testenv-title:not(.inline) span.at {
+    font-style: italic;
+}
+div.testenv-title:not(.inline) span.os {
+    font-style: italic;
 }
 
-th, td {
-    text-align: left;
-    font-size: smaller;
+.deemph {
+    /* font-style: italic; */
     font-weight: normal;
-    vertical-align: top;
-    padding: 2vh;
 }
-colgroup {
-    border: 1px solid var(--primary);
-    width: 10rem;
-}
-thead {
-    border: 1px solid var(--primary);
-    background: var(--comp);
-}
-th {
-    vertical-align: bottom;
-    font-size: smaller;
-    font-weight: bolder;
-    cursor: pointer;
+
+/*****************************/
+/* MOBILE                    */
+/*****************************/
+@media (max-width: 768px) {
+    body {
+        grid-template-areas:
+            "header"
+            "main"
+            "nav"
+            "footer";
+        grid-template-columns: 100%; 
+        grid-template-rows:
+            auto
+            1fr
+            auto
+            auto;
+        grid-gap: 5vh;
+    }
+    nav {
+      margin: 0;
+    }
+    header {
+        grid-template-areas:
+        "message"
+        "title"
+        "nav"
+        "login"
+        "search";
+        grid-row-gap: 1vh;
+        grid-column-gap: inherit;
+        grid-template-columns: 1fr;
+        grid-template-rows: minmax(0, min-content) auto auto auto;  
+        border-bottom: none;
+        justify-content: center;
+        padding-bottom: 1rem;
+    }
+    header nav ul {
+        justify-content: center !important;
+    }
+    header h1 {
+        font-size: inherit;
+        padding-left: inherit;
+        justify-self: center;
+    }
+    main {
+        grid-template-columns: 1fr;
+    }
+    main.landing {
+        grid-template-rows: inherit;
+    }
+    body > nav {
+        width: inherit;
+        grid-template-columns: 1fr;
+    }
+    footer {
+        border-top: none;
+    }
+    .message {
+        grid-area: message;
+    }
+    th, td {
+        word-wrap: break-word;
+    }
 }
 

@@ -1,0 +1,59 @@
+@import url("colors.css");
+
+/* forms */
+
+input, button, textarea {
+    padding: .5vh;
+    border-radius: 4px;
+}
+textarea {
+    display: block;
+}
+
+input#save {
+    margin-left: 50%;
+    margin-right: 50%;
+    margin-top: 2vh;
+}
+
+form.simple {
+    display: grid;
+    grid-gap: 3vh;
+    width: 30%;
+}
+
+form.simple > div {
+    margin-top: 2vh;
+    display: grid;
+    grid-template-columns: 1fr;
+    grid-gap: 1vh;
+    align-items: center;
+}
+
+form.simple > .actions {
+    grid-template-columns: 50% auto;
+}
+
+form.simple > input[type=submit] {
+    width: 12vh;
+}
+
+textarea.summary {
+    margin-top: 2vh;
+    margin-bottom: 2vh;
+}
+
+/* testing environment page */
+
+/* div.testenv ul {
+    display: flex;
+    margin-top: 4vh;
+    margin-bottom: 4vh;
+}
+div.testenv li {
+    flex: 0 1;
+    margin-right: 2vw;
+    white-space: nowrap;
+    text-decoration: none;
+} */
+

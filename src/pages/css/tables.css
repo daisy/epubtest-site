@@ -1,0 +1,44 @@
+@import url("colors.css");
+
+table {
+    border-collapse: collapse;
+    table-layout: fixed;
+    width: 100%;
+}
+th, td {
+    text-align: left;
+    font-size: smaller;
+    font-weight: normal;
+    vertical-align: top;
+    padding: 2vh;
+}
+colgroup {
+    border: 1px solid var(--primary);
+    width: 10rem;
+}
+thead {
+    border: 1px solid var(--primary);
+    background: var(--comp);
+}
+th {
+    vertical-align: bottom;
+    font-size: smaller;
+    font-weight: bolder;
+    cursor: pointer;
+}
+tbody ul {
+    line-height: 1.5rem;
+}
+tbody span {
+    display: inline-block;
+}
+table .testenv a {
+    display: block;
+    padding-bottom:1vh;
+}
+table.striped thead th:first-child {
+    border-bottom: 1px var(--primary);
+}
+table.striped tbody tr:nth-child(even) {
+    background-color: var(--softcomp);
+}
