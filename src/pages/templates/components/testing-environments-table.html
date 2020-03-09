@@ -1,0 +1,42 @@
+{%- macro TestingEnvironmentsTable(testingEnvironments) -%}
+
+<table class="striped"
+    summary="Testing environments, listed by reading system, AT, device, OS, and browser. Link to manage.">
+    <thead>
+        <tr>
+            <th>Reading System</th>
+            <th>Assistive Technology</th>
+            <th>Device</th>
+            <th>OS</th>
+            <th>Browser</th>
+            <th>Manage</th>
+        </tr>
+    </thead>
+    <tbody>
+        {%- for testingEnvironment in testingEnvironments -%}
+        {%- set rs = testingEnvironment.readingSystem -%}
+        {%- set at = testingEnvironment.assistiveTechnology -%}
+        {%- set os = testingEnvironment.os -%}
+        {%- set dev = testingEnvironment.device -%}
+        {%- set brw = testingEnvironment.browser -%}
+        <tr>
+            <td>{{ Name(rs.name, rs.version, rs.vendor) }}</td>
+            <td>{{ Name(at.name, at.version) }}</td>
+            <td>{{ Name(dev.name, dev.version) }}</td>
+            <td>{{ Name(os.name, os.version) }}</td>
+            <td>{{ Name(brw.name, brw.version) }}</td>
+            <td><a href="/admin/testing-environment/{{testingEnvironment.id}}">Link</a></td>
+        </tr>
+        {%- endfor -%}
+    </tbody>
+</table>
+
+{%- endmacro -%}
+
+{%- macro Name(name, version, vendor) -%}
+    <span>{%- if name -%}{{name}} 
+        {%- if version -%}{{version}}{%- endif -%}
+        {% if vendor %} by {{vendor}} {%- endif -%}
+        {%- endif -%}
+    </span>
+{%- endmacro -%}
