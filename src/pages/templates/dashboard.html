@@ -8,9 +8,7 @@
 
     
 {%- for testingEnvironment in testingEnvironments -%}
-<h2 id="{{testingEnvironment.id}}">
-    {{ testingEnvironmentTitle.TestingEnvironmentTitle (testingEnvironment, true) }}
-</h2>
+{{ testingEnvironmentTitle.TestingEnvironmentTitle (testingEnvironment, 'h2') }}
 
 <table class="striped">
     <thead>
@@ -53,14 +51,6 @@
 {%- block nav -%}
 <nav aria-labelled-by="testing-environments-title">
     <h1 id="testing-environments-title">Testing Environments</h2>
-    <ul>
-        {%- for testingEnvironment in testingEnvironments -%}
-        <li>
-            <a href="#{{testingEnvironment.id}}">
-                {{ testingEnvironmentTitle.TestingEnvironmentTitle(testingEnvironment) }}
-            </a>
-        </li>
-        {%- endfor -%}
-    </ul>
+    {{ testingEnvironmentTitle.TestingEnvironmentList(testingEnvironments) }}
 </nav>
 {%- endblock -%}

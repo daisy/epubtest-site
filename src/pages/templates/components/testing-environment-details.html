@@ -9,14 +9,16 @@
     {%- if at.name -%}
     <li>
         <b>Assistive Technology</b>: &nbsp;
-        {%- if at.vendor -%}
-        {{ at.vendor }}&nbsp;
-        {%- endif -%}
         {%- if at.name -%}
-        {{ at.name }}&nbsp;
-        {%- endif -%}
-        {%- if at.version -%}
-        {{ at.version }}
+            {%- if at.vendor -%}
+            {{ at.vendor }}&nbsp;
+            {%- endif -%}
+            
+            {{ at.name }}&nbsp;
+            
+            {%- if at.version -%}
+            {{ at.version }}
+            {%- endif -%},&nbsp;
         {%- endif -%}
         {%- if dev -%}
         {%- if dev.vendor -%}

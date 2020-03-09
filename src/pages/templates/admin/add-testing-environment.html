@@ -7,7 +7,7 @@
 
     <select name="readingSystemId">
         {%- for rs in readingSystems -%}
-        <option value="{{rs.id}}">{{rs.vendor}} {{rs.name}} {{rs.version}}</option>
+        <option value="{{rs.id}}">{{rs.name}} {{rs.version}} {%- if rs.vendor %} by {{rs.vendor}} {%- endif -%}</option>
         {%- endfor -%}
     </select>
 
@@ -17,7 +17,7 @@
     <select name="assistiveTechnologyId">
         <option value="none">None</option>
         {%- for at in assistiveTechnologies -%}
-        <option value="{{at.id}}">{{at.vendor}} {{at.name}} {{at.version}}</option>
+        <option value="{{at.id}}">{{at.name}} {{at.version}}</option>
         {%- endfor -%}
     </select>
 
@@ -28,7 +28,7 @@
 
     <select name="operatingSystemId">
         {%- for os in operatingSystems -%}
-        <option value="{{os.id}}">{{os.vendor}} {{os.name}} {{os.version}}</option>
+        <option value="{{os.id}}">{{os.name}} {{os.version}}</option>
         {%- endfor -%}
     </select>
 
@@ -39,7 +39,7 @@
     <select name="browserId">
         <option value="none">None</option>
         {%- for brw in browsers -%}
-        <option value="{{brw.id}}">{{brw.vendor}} {{brw.name}} {{brw.version}}</option>
+        <option value="{{brw.id}}">{{brw.name}} {{brw.version}}</option>
         {%- endfor -%}
     </select>
 
@@ -75,6 +75,18 @@
     {%- endfor -%}
     </ul>
 
+    <h1>Assign a user</h1>
+    <p>
+        <label for="user">Select a user to assign testing to:</label>
+        <select name="user">
+            {%- for user in users -%}
+            <option value="{{user.id}}">{{user.name}}</option>
+            {%- endfor -%}
+        </select>
+    </p>
+        
+        
+    </ul>
     
     <input type="submit" value="Save">
 

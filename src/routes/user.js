@@ -1,6 +1,7 @@
 var express = require('express');
 const db = require('../database');
 const Q = require('../queries/queries');
+const utils = require('../utils');
 var router = express.Router()
 
 // user dashboard page
@@ -15,7 +16,7 @@ router.get('/dashboard', async (req, res) => {
         return res.render('./dashboard.html', 
             {
                 accessLevel: req.accessLevel,
-                testingEnvironments: answersets.data.data.getUserTestingEnvironments.nodes,
+                testingEnvironments: answersets.data.data.getUserTestingEnvironments.nodes.sort(utils.sortAlphaTestEnv),
                 getRequestToPublish: answerSetId => {
                     let retval = requests.find(r => r.answerSetId === answerSetId);
                     return retval;

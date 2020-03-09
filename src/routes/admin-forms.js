@@ -283,7 +283,7 @@ router.post('/add-testing-environment', async(req, res) => {
                 let book = testBooks.find(tb => tb.topicId === topicId);
 
                 // assign it to the logged-in user
-                let userId = req.userId;
+                let userId = parseInt(req.body.user);
 
                 response = await db.query(QADMIN.ADD_ANSWER_SET, {
                     newAnswerSetInput: {

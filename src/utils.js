@@ -41,6 +41,7 @@ let makeName = rs => `${rs.name}${rs.version != 'undefined' && rs.version != 'nu
 let sortAlpha = (a,b) => makeName(a) > makeName(b) ? 1 : makeName(a) === makeName(b) ? 0 : -1;
 let sortAlphaTestEnv = (a,b) => makeName(a.readingSystem) > makeName(b.readingSystem) ? 1 
     : makeName(a.readingSystem) === makeName(b.readingSystem) ? 0 : -1;
+let sortAlphaUsers = (a,b) => a.name > b.name ? 1 : a.name === b.name ? 0 : -1;
 
 let sortTopicOrder = (a,b) => a.order > b.order ? 1 : -1;
 module.exports = {
@@ -48,5 +49,6 @@ module.exports = {
     getTopicName,
     sortAlpha,
     sortAlphaTestEnv,
-    sortTopicOrder
+    sortTopicOrder,
+    sortAlphaUsers
 }

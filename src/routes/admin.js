@@ -32,9 +32,6 @@ router.get('/requests', async (req, res) => {
 // admin testing
 router.get('/testing', async (req, res) => {
     try {
-        // let makeName = rs => `${rs.name}${rs.version != 'undefined' && rs.version != 'null' ? rs.version : ''}`;
-        // let alpha = (a,b) => makeName(a.readingSystem) > makeName(b.readingSystem) ? 1 
-        //     : makeName(a.readingSystem) === makeName(b.readingSystem) ? 0 : -1;
         let results = await db.queries(
             [QADMIN.REQUESTS, QADMIN.ALL_TESTING_ENVIRONMENTS, Q.PUBLIC_RESULTS, Q.ARCHIVED_RESULTS], 
             [], 
@@ -202,7 +199,8 @@ router.get('/add-testing-environment', async (req, res) => {
             QADMIN.ASSISTIVE_TECHNOLOGIES,
             QADMIN.OPERATING_SYSTEMS,
             QADMIN.BROWSERS,
-            Q.TOPICS],
+            Q.TOPICS,
+            QADMIN.ACTIVE_USERS],
             [],
             req.cookies.jwt
         );
@@ -214,7 +212,8 @@ router.get('/add-testing-environment', async (req, res) => {
             operatingSystems: results[2].data.data.softwares.nodes.sort(utils.sortAlpha),
             browsers: results[3].data.data.softwares.nodes.sort(utils.sortAlpha),
             getTopicName: utils.getTopicName,
-            topics: results[4].data.data.topics.nodes.sort(utils.sortTopicOrder)
+            topics: results[4].data.data.topics.nodes.sort(utils.sortTopicOrder),
+            users: results[5].data.data.getActiveUsers.nodes.sort(utils.sortAlphaUsers)
         });
     }
     catch (err) {

@@ -1,6 +1,7 @@
 {%- extends 'base/base.html' -%}
 
 {%- import "components/testing-environment-title.html" as testingEnvironmentTitle -%}
+{%- import "components/testing-environments-table.html" as testingEnvironmentsTable -%}
 {%- set title = "Admin: Testing" -%}
 
 
@@ -14,11 +15,12 @@
     <h2>Current testing environments</h2>
     <div id="current-published">
         <h3>With published results</h3>
-        {{ TestingEnvironmentList (publicTestingEnvironments) }}
+        {{ testingEnvironmentsTable.TestingEnvironmentsTable (publicTestingEnvironments) }}
+        
     </div>
     <div id="current-unpublished">
         <h3>With unpublished results</h3>
-        {{ TestingEnvironmentList (unpublishedTestingEnvironments) }}
+        {{ testingEnvironmentsTable.TestingEnvironmentsTable (unpublishedTestingEnvironments) }}
     </div>
 </div>
 
@@ -26,12 +28,13 @@
     <h2>Archived</h2>
     <div id="archived-published">
         <h3>With published results</h3>
-        {{ TestingEnvironmentList (publicArchivedTestingEnvironments) }}
+        {{ testingEnvironmentsTable.TestingEnvironmentsTable (publicArchivedTestingEnvironments) }}
+        
     </div>
 
     <div id="archived-unpublished">
         <h3>With unpublished results</h3>
-        {{ TestingEnvironmentList (unpublishedArchivedTestingEnvironments) }}
+        {{ testingEnvironmentsTable.TestingEnvironmentsTable (unpublishedArchivedTestingEnvironments) }}
     </div>
 </div>
 

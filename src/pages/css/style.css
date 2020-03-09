@@ -171,42 +171,14 @@ body > nav li li {
     padding-left: 1rem;
 }
 
+body > nav ul li {
+    margin-top: inherit;
+    margin-bottom: inherit;
+}
+
 /* make the local navigation and main body line up */
 main > *:first-child, body > nav > :first-child {
     margin-top: 0;
-}
-div.testenv-title.inline {
-    display: inline;
-}
-div.testenv-title:not(.inline) {
-    display: grid;
-    grid-template-columns: min-content;
-    grid-template-rows: auto;
-}
-div.testenv-title.inline span:not(:first-child) {
-    /* display: grid;
-    grid-template-columns: auto;
-    grid-template-rows: 1fr; */
-    /* margin-left: 1rem; */
-}
-div.testenv-title:not(.inline) span {
-    display: block;
-}
-div.testenv-title:not(.inline) span.rs {
-    
-}
-div.testenv-title:not(.inline) span:not(.rs) {
-    padding-left: 4px;
-    font-size: smaller;
-}
-div.testenv-title:not(.inline) span:not(.rs)::before {
-    content: "∙ ";
-}
-div.testenv-title:not(.inline) span.at {
-    font-style: italic;
-}
-div.testenv-title:not(.inline) span.os {
-    font-style: italic;
 }
 
 .deemph {

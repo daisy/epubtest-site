@@ -1,73 +1,51 @@
-{%- macro TestingEnvironmentTitle(testingEnvironment, inline=false) -%}
+{%- macro TestingEnvironmentList(testingEnvironments) -%}
+    <ul>    
+        {%- for testingEnvironment in testingEnvironments -%}
+        {%- set rs = testingEnvironment.readingSystem -%}
+        <li>
+            <a href="#{{testingEnvironment.id}}">{{ SoftwareTitle (rs.name, rs.version )}}</a>
+            {{ TestingEnvironmentDetails (testingEnvironment) }}
+        </li>
+        {%- endfor -%}
+    </ul>
+{%- endmacro -%}
+
+{%- macro TestingEnvironmentTitle(testingEnvironment, tagname) -%}
+    {%- set rs = testingEnvironment.readingSystem -%}
+    <{{tagname}} id="{{testingEnvironment.id}}">{{ SoftwareTitle (rs.name, rs.version) }}</{{tagname}}>
+    {{ TestingEnvironmentDetails (testingEnvironment) }}
+
+{%- endmacro -%}
+
+{%- macro TestingEnvironmentDetails(testingEnvironment) -%}
 {%- set rs = testingEnvironment.readingSystem -%}
 {%- set at = testingEnvironment.assistiveTechnology -%}
 {%- set os = testingEnvironment.os -%}
 {%- set dev = testingEnvironment.device -%}
 {%- set brw = testingEnvironment.browser -%}
 
-<div class="testenv-title {% if inline %} inline {% endif %}">
-    <span class="rs">
-        {%- if rs.vendor -%}
-        {{ rs.vendor }}&nbsp;
-        {%- endif -%}
-        {%- if rs.name -%}
-        {{ rs.name }}&nbsp;
-        {%- endif -%}
-        {%- if rs.version -%}
-        {{ rs.version }}
-        {%- endif -%}
-    </span>
-    {%- if at.name -%}
-    {% if inline %}
-    <span class="deemph">with</span>
-    {% endif %}
-    <span class="at">
+    
+    <ul class="details">
         {%- if at.name -%}
-        {{ at.name }}&nbsp;
+        <li>{{ SoftwareTitle (at.name, at.version) }}</li>
         {%- endif -%}
-        {%- if at.version -%}
-        {{ at.version }}
+        {%- if dev -%}
+        <li>{{ SoftwareTitle (dev.name, dev.version) }}</li>
         {%- endif -%}
-    </span>
-    {%- endif -%}
-    {% if dev -%}
-    {% if inline %}
-    <span class="deemph">and</span>
-    {% endif %}
-    <span class="at">
-        {%- if dev.name -%}
-        {{ dev.name }}&nbsp;
+        <li>{{ SoftwareTitle (os.name, os.version) }}</li>
+        {%- if brw -%}
+        <li>{{ SoftwareTitle (brw.name, brw.version) }}</li>
         {%- endif -%}
-        {%- if dev.version -%}
-        {{ dev.version }}
+    </ul>
+
+{%- endmacro -%}
+
+
+{%- macro SoftwareTitle(name, version) -%}
+    {%- if name -%}
+        {{name}} 
+        {%- if version -%}
+            &nbsp;{{version}}
         {%- endif -%}
-    </span>
-    {%- endif -%}
-    
-    {% if inline %}
-    <span class="deemph">on</span>
-    {% endif %}
-    <span class="os">
-        {%- if os.name -%}
-        {{ os.name }}&nbsp;
-        {%- endif -%}
-        {%- if os.version -%}
-        {{ os.version }}
-        {%- endif -%}
-    </span>
-    {%- if brw -%}
-    {% if inline %}
-    <span class="deemph">and</span>
-    {% endif %}
-    <span class="at">
-        {%- if brw.name -%}
-        {{ brw.name }}&nbsp;
-        {%- endif -%}
-        {%- if brw.version -%}
-        {{ brw.version }}
-        {%- endif -%}
-    </span>
-    {%- endif -%}
-    
-</div>
+    {%- endif -%}    
 {%- endmacro -%}
