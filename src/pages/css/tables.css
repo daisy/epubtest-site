@@ -24,7 +24,6 @@ th {
     vertical-align: bottom;
     font-size: smaller;
     font-weight: bolder;
-    cursor: pointer;
 }
 tbody ul {
     line-height: 1.5rem;
@@ -41,4 +40,7 @@ table.striped thead th:first-child {
 }
 table.striped tbody tr:nth-child(even) {
     background-color: var(--softcomp);
+}
+table.sortable th {
+    cursor: pointer;
 }
