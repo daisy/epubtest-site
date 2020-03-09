@@ -67,9 +67,10 @@ router.get('/archive', async (req, res) => {
             []);
         return res.render('./results.html', {
             accessLevel: req.accessLevel,
-            testingEnvironments: results[1].data.data.getPublishedTestingEnvironments.nodes,
+            testingEnvironments: results[1].data.data.getArchivedTestingEnvironments.nodes,
             topics: results[0].data.data.topics.nodes,
             title: 'Archived Results',
+            isArchive: true,
             getfortopic: (answerSets, topic) => {
                 return answerSets.find(a => a.testBook.topic.id === topic.id)
             },
@@ -140,9 +141,10 @@ router.get('/set-password', (req, res) => {
                     });
     }
     else {
+        let message = "Please try again";
         return res
                 .status(401)
-                .redirect('/forgot-password?error=Please%20try%20again.');
+                .redirect('/forgot-password?message=' + encodeURIComponent(message));
     }
 });
 
@@ -171,6 +173,5 @@ router.get('/accept-invitation', (req, res) => {
         }
     }
 );
-
 
 module.exports = router;
