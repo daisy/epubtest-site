@@ -11,7 +11,8 @@ var router = express.Router()
 // test mail sending
 router.post('/mail', [body('email').isEmail()], async(req, res) => {
     await mail.testEmail(req.body.email);
-    return res.redirect('/test?error=Message%20sent');
+    let message = "Message sent";
+    return res.redirect('/test?message=' + encodeURIComponent(message));
 });
 
 // submit login
@@ -23,7 +24,8 @@ router.post('/login',
     async (req, res) => {
         const errors = validationResult(req);
         if (!errors.isEmpty()) {
-            return res.status(422).redirect('/login?error=Login%20error');
+            let message = "Login error";
+            return res.status(422).redirect('/login?message=' + encodeURIComponent(message));
         }
 
         try {
@@ -44,14 +46,16 @@ router.post('/login',
                     .redirect('/user/dashboard');
             }
             else {
+                let message = "Login error";
                 res
                     .status(401)
-                    .redirect('/login?error=Login%20error');
+                    .redirect('/login?message=' + encodeURIComponent(message));
             }
         }
         catch(err) {
             console.log(err);
-            res.redirect('/login?error=Login%20error');
+            let message = "Login error";
+            res.redirect('/login?message=' + encodeURIComponent(message));
         }
     }
 );
@@ -74,7 +78,8 @@ router.post('/forgot-password',
     async (req, res) => {
         const errors = validationResult(req);
         if (!errors.isEmpty()) {
-            return res.status(422).redirect('/forgot-password?error=Reset%20password%20error');
+            let message = 'Reset password error';
+            return res.status(422).redirect('/forgot-password?message=' + encodeURIComponent(message));
         }
 
         try {
@@ -103,7 +108,8 @@ router.post('/forgot-password',
         }
         catch(err) {
             console.log(err);
-            res.redirect('/forgot-password?error=Reset%20password%20error');
+            let message = "Reset password error";
+            res.redirect('/forgot-password?message=' + encodeURIComponent(message));
         }
     }
 );

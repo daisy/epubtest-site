@@ -6,14 +6,16 @@
 
 <header>
     <h1><a href="/">epubtest.org</a></h1>
-    <nav aria-label="Main">
-        <ul id="main" class="horizontal">
+    <nav aria-label="Main navigation" class="main">
+        <ul>
             <li><a href='/results'>Results</a></li>
             <li><a href='/test-books'>Test Books</a></li>
             <li><a href='/participate'>Participate</a></li>
             <li><a href='/about'>About</a></li>
         </ul>
-        <ul id="user" class="horizontal">
+    </nav>
+    <nav aria-label="User navigation" class="user">
+        <ul>
         {%- if accessLevel == 'public' -%}
             <li><a href='/login'>Login</a></li>
         {%- else -%}
@@ -32,30 +34,33 @@
     </nav>
     
 </header>
-<main>
-    <aside id="error"></aside>
-
+<main class="{{mainclass}}">
     {%- block content -%}
     {%- endblock -%}
 </main>
+
+{%- block nav -%}
+{%- endblock -%}
+
 <footer>
 <span>© 2019 <a href="https://daisy.org">DAISY Consortium</a></span>
 </footer>
 
 <script type="text/javascript">
 
-    window.addEventListener("load", () => {
+    window.addEventListener("DOMContentLoaded", () => {
         const params = new URLSearchParams(window.location.search);  
-        let elm = document.getElementById("error");
-        if (params.has("error")) {
-            elm.textContent = params.get("error");
-            elm.style.display = "block";
-        }
-        else {
-            elm.textContent = '';
-            elm.style.display = "none";
+        if (params.has("message")) {
+            showMessage(params.get("message"));
         }
     });
+    function showMessage(messageText) {
+        let message = document.createElement("p");
+        message.classList.add("message");
+        message.textContent = messageText;
+        let parent = document.querySelector("main");
+        parent.prepend(message);
+    }
   
 </script>
 
