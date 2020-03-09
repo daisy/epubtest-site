@@ -1,0 +1,10 @@
+{%- extends 'base/base.html' -%}
+{%- block content -%}
+<h1>{{title}}</h1>
+<p>{{content}}</p>
+<form method="POST" action="{{actionUrl}}">
+    <input type="hidden" name="redirectUrl" value="{{redirectUrl}}"/>
+    <input type="submit" name="no" value="No"/>
+    <input type="submit" name="yes" value="Yes"/>
+</form>
+{%- endblock -%}
