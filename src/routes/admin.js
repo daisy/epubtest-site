@@ -252,7 +252,7 @@ router.get('/add-operating-system', (req, res) => {
     try {
         return res.render('./admin/add-software.html', {
             title: "Add Operating System",
-            type: "OPERATING_SYSTEM"
+            type: "OS"
         });
     }
     catch (err) {
