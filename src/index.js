@@ -6,6 +6,8 @@ const cookieParser = require('cookie-parser');
 const nunjucks = require('nunjucks');
 const nunjucksDate = require("nunjucks-date");
 
+const rateLimit = require("express-rate-limit");  
+
 const publicRoutes = require('./routes/public');
 const userRoutes = require('./routes/user');
 const adminRoutes = require('./routes/admin');
@@ -13,7 +15,6 @@ const publicFormRoutes = require('./routes/public-forms');
 const userFormRoutes = require('./routes/user-forms');
 const adminFormRoutes = require('./routes/admin-forms');
 const middleware = require('./middleware');
-const rateLimit = require("express-rate-limit");
 
 const apiLimiter = rateLimit();
 const app = express()
