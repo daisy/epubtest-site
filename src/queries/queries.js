@@ -30,22 +30,27 @@ module.exports = {
             readingSystem {
                 name
                 version
+                vendor
             }
             assistiveTechnology {
                 name
                 version
+                vendor
             }
             os {
                 name
                 version
+                vendor
             }
             device {
                 name
                 version
+                vendor
             }
             browser {
                 name
                 version
+                vendor
             }
             answerSetsByTestingEnvironmentId(
                 condition: { 
@@ -97,22 +102,27 @@ module.exports = {
                 readingSystem {
                     name
                     version
+                    vendor
                 }
                 assistiveTechnology {
                     name
                     version
+                    vendor
                 }
                 os {
                     name
                     version
+                    vendor
                 }
                 device {
                     name
                     version
+                    vendor
                 }
                 browser {
                     name
                     version
+                    vendor
                 }
                 answerSetsByTestingEnvironmentId {
                     nodes {
@@ -148,22 +158,27 @@ module.exports = {
                 readingSystem {
                     name
                     version
+                    vendor
                 }
                 assistiveTechnology {
                     name
                     version
+                    vendor
                 }
                 os {
                     name
                     version
+                    vendor
                 }
                 device {
                     name
                     version
+                    vendor
                 }
                 browser {
                     name
                     version
+                    vendor
                 }
                 answerSetsByTestingEnvironmentId {
                     nodes {
@@ -214,22 +229,27 @@ module.exports = {
             readingSystem {
                 name
                 version
+                vendor
             }
             assistiveTechnology {
                 name
                 version
+                vendor
             }
             os {
                 name
                 version
+                vendor
             }
             browser {
                 name
                 version
+                vendor
             }
             device {
                 name
                 version
+                vendor
             }
             answerSetsByTestingEnvironmentId {
                 nodes {
@@ -262,6 +282,7 @@ module.exports = {
                     }
                     answersByAnswerSetId {
                         nodes {
+                            id
                             test {
                                 testId
                                 description
@@ -305,22 +326,27 @@ module.exports = {
                 readingSystem {
                     name
                     version
+                    vendor
                 }
                 assistiveTechnology {
                     name
                     version
+                    vendor
                 }
                 os {
                     name
                     version
+                    vendor
                 }
                 device {
                     name
                     version
+                    vendor
                 }
                 browser {
                     name
                     version
+                    vendor
                 }
             }
             testBook {

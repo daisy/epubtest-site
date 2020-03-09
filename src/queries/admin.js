@@ -13,14 +13,17 @@ module.exports = {
                 readingSystem {
                   name
                   version
+                  vendor
                 }
                 assistiveTechnology {
                   name
                   version
+                  vendor
                 }
                 os {
                   name
                   version
+                  vendor
                 }
               }
               user {
@@ -45,22 +48,27 @@ module.exports = {
                 readingSystem {
                     name
                     version
+                    vendor
                 }
                 assistiveTechnology{
                     name
                     version
+                    vendor
                 }
                 os {
                     name
                     version
+                    vendor
                 }
                 device {
                     name
                     version
+                    vendor
                 }
                 browser {
                     name
                     version
+                    vendor
                 }
                 answerSetsByTestingEnvironmentId {
                     nodes {
@@ -207,6 +215,9 @@ module.exports = {
             }
           }){
             clientMutationId
+            testBook {
+                id
+            }
           }
     }`,
 
@@ -223,6 +234,112 @@ module.exports = {
                 flag: $flag
             }
         }) {
+            clientMutationId
+        }
+    }`,    
+    
+    READING_SYSTEMS: 
+    `query {
+        softwares(condition: {type: READING_SYSTEM}) {
+            nodes{
+                id
+                name
+            	version
+            	vendor
+            }
+        }
+    }`,
+
+    ASSISTIVE_TECHNOLOGIES:
+    `query {
+        softwares(condition: {type: ASSISTIVE_TECHNOLOGY}) {
+            nodes{
+                id
+                name
+            	version
+            	vendor
+            }
+        }
+    }`,
+
+    OPERATING_SYSTEMS:
+    `query {
+        softwares(condition: {type: OS}) {
+            nodes{
+                id
+                name
+            	version
+            	vendor
+            }
+        }
+    }`,
+
+    BROWSERS:
+    `query {
+        softwares(condition: {type: BROWSER}) {
+            nodes{
+                id
+                name
+            	version
+            	vendor
+            }
+        }
+    }`,
+
+    ADD_SOFTWARE:
+    `mutation ($newSoftwareInput: CreateSoftwareInput!) {
+        createSoftware(input:$newSoftwareInput) {
+            clientMutationId
+        }
+    }`,
+
+    ADD_TESTING_ENVIRONMENT: 
+    `mutation ($newTestingEnvironmentInput: CreateTestingEnvironmentInput!) {
+        createTestingEnvironment(input: $newTestingEnvironmentInput) {
+            clientMutationId
+            testingEnvironment {
+                id
+            }
+        }
+    }`,
+
+    ADD_ANSWER_SET: 
+    `mutation ($newAnswerSetInput: CreateAnswerSetInput!) {
+        createAnswerSet(input: $newAnswerSetInput) {
+            clientMutationId
+            answerSet {
+                id
+            }
+        }
+    }`,
+
+    ADD_ANSWER: 
+    `mutation ($newAnswerInput: CreateAnswerInput!) {
+        createAnswer(input: $newAnswerInput) {
+            clientMutationId
+            answer {
+                id
+            }
+        }
+    }`,
+
+    DELETE_TESTING_ENVIRONMENT: 
+    `mutation ($id: Int!) {
+        deleteTestingEnvironment(input:{ id:$id}) {
+          clientMutationId
+        }
+    }`,
+
+    DELETE_ANSWER: 
+    `mutation ($id:Int!) {
+        deleteAnswer(input:{id:$id}) {
+            clientMutationId
+        }
+    }`,
+
+    DELETE_ANSWER_SET:
+    `mutation ($id:Int!) {
+        deleteAnswerSet(input:{id:$id}) {
             clientMutationId
         }
     }`
