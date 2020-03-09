@@ -24,14 +24,33 @@ class table  {
             tdTestenv.classList.add("testenv");
             tdTestenv.innerHTML = 
                 `<a href="/results/${d.testingEnvironment.id}">
-                    ${d.testingEnvironment.readingSystem}
+                    ${d.testingEnvironment.readingSystem.name}
+                    ${d.testingEnvironment.readingSystem.version}
+                    <br>
+                    by
+                    ${d.testingEnvironment.readingSystem.vendor}
                 </a>
                 <a href="/results/${d.testingEnvironment.id}">
-                    ${d.testingEnvironment.assistiveTechnology}
+                    ${d.testingEnvironment.assistiveTechnology.name}
+                    ${d.testingEnvironment.assistiveTechnology.version}
                 </a>
+                ${d.testingEnvironment.device ? `
+                    <a href="/results/${d.testingEnvironment.id}">
+                        ${d.testingEnvironment.device.name}
+                        ${d.testingEnvironment.device.version}
+                    </a>` : ''
+                }
                 <a href="/results/${d.testingEnvironment.id}">
-                    ${d.testingEnvironment.operatingSystem}
-                </a>`;
+                    ${d.testingEnvironment.operatingSystem.name}
+                    ${d.testingEnvironment.operatingSystem.version}
+                </a>
+                ${d.testingEnvironment.browser ? `
+                    <a href="/results/${d.testingEnvironment.id}">
+                        ${d.testingEnvironment.browser.name}
+                        ${d.testingEnvironment.browser.version}
+                    </a>` : ''
+                }
+                `;
             tr.appendChild(tdTestenv);
 
             // add the score cells
@@ -61,8 +80,8 @@ class table  {
         this.data = this.data.sort((a,b) => {
             let aVal, bVal;
             if (idx == 0) {
-                aVal = a.testingEnvironment.readingSystem;
-                bVal = b.testingEnvironment.readingSystem;
+                aVal = a.testingEnvironment.readingSystem.name;
+                bVal = b.testingEnvironment.readingSystem.name;
             }
             else {
                 aVal = a.results[idx-1];
