@@ -11,20 +11,19 @@
         {{ testingEnvironmentDetails.TestingEnvironmentDetails(testingEnvironment) }}
     </div>
     
-    <div class="split">
-        <nav class="side" aria-labelled-by="topics-title">
-            <h2>Topics</h2>
-            <ul>
-                {%- for answerSet in testingEnvironment.answerSetsByTestingEnvironmentId.nodes -%}
-                <li><a href="#{{answerSet.id}}">{{getTopicName(answerSet.testBook.topic.id)}}</a></li>
-                {%- endfor -%}
-            </ul>        
-        </nav>
-        
-        <div class="content">
-            {%- for answerSet in testingEnvironment.answerSetsByTestingEnvironmentId.nodes -%}
-            {{ answerSetComponent.AnswerSet(answerSet) }}
-            {%- endfor -%}
-        </div>
-    </div>
+    {%- for answerSet in testingEnvironment.answerSetsByTestingEnvironmentId.nodes -%}
+    {{ answerSetComponent.AnswerSet(answerSet) }}
+    {%- endfor -%}
+    
+{%- endblock -%}
+
+{%- block nav -%}
+<nav aria-labelled-by="topics-title">
+    <h1 id="topics-title">Topics</h1>
+    <ul>
+        {%- for answerSet in testingEnvironment.answerSetsByTestingEnvironmentId.nodes -%}
+        <li><a href="#{{answerSet.id}}">{{getTopicName(answerSet.testBook.topic.id)}}</a></li>
+        {%- endfor -%}
+    </ul>        
+</nav>
 {%- endblock -%}
