@@ -34,7 +34,7 @@
 {%- endmacro -%}
 
 {%- macro Name(name, version, vendor) -%}
-    <span>{%- if name -%}{{name}} 
+    <span>{%- if name -%}{{name}}  &nbsp;
         {%- if version -%}{{version}}{%- endif -%}
         {% if vendor %} by {{vendor}} {%- endif -%}
         {%- endif -%}
