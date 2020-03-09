@@ -1,6 +1,7 @@
-{%- extends '../base/admin-base.html' -%}
+{%- extends 'base/base.html' -%}
+{%- set mainclass="wide inset" -%}
 {%- set title = "Admin: Requests" -%}
-{%- block section -%}
+{%- block content -%}
 
 <h1>Manage Requests</h1>
 {%- if requests.length == 0 -%}

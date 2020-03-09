@@ -1,0 +1,13 @@
+{%- extends 'base/base.html'-%}
+{%- set mainclass="wide inset" -%}
+{%- block content -%}
+<h1>Admin</h1>
+<ul> 
+    <li><a href="/admin/requests">Requests</a>: Approve or deny requests to publish</li>
+    <li><a href="/admin/testing">Testing</a>: View all testing environments; edit results.</li>
+    {#<li><a href="/admin/test-books">Test Books</a></li>
+    <li><a href="/admin/users">Users</a></li>#}
+    <li><a href="/admin/software">View all software</a>: Lists of all software in the system</li>
+    <li><a href="/admin/add-testing-environment">Add testing environment</a>: Add new software and new testing environments</li>
+</ul>
+{%- endblock -%}

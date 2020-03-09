@@ -17,15 +17,15 @@ router.post('/handle-request', async (req, res) => {
                 QADMIN.DELETE_REQUEST
             ], 
             [
-                { answerSetId: req.body.answerSetId },
-                { requestId: req.body.requestId }
+                { answerSetId: parseInt(req.body.answerSetId) },
+                { requestId: parseInt(req.body.requestId) }
             ], 
             req.cookies.jwt);
         }
         else if (req.body.hasOwnProperty("deny")) {
             await db.query(
                 QADMIN.DELETE_REQUEST, 
-                { requestId: req.body.requestId }, 
+                { requestId: parseInt(req.body.requestId) }, 
                 req.cookies.jwt);
         }
         return res.redirect('/admin/requests');
@@ -57,7 +57,7 @@ router.post('/publish', async (req, res) => {
             req.cookies.jwt);
     }
 
-    return res.redirect('/admin/testing');
+    return res.redirect(`/admin/testing-environment/${req.body.testingEnvironmentId}`);
 });
 
 router.post('/unpublish', async (req, res) => {
@@ -66,13 +66,13 @@ router.post('/unpublish', async (req, res) => {
         { answerSetId: parseInt(req.body.answerSetId) },
         req.cookies.jwt);
     
-    return res.redirect('/admin/testing');
+    return res.redirect(`/admin/testing-environment/${req.body.testingEnvironmentId}`);
 });
 
 router.post('/archive', async (req, res) => {
     await db.query(
         QADMIN.ARCHIVE_TESTING_ENVIRONMENT,
-        { answerSetId: parseInt(req.body.testingEnvironmentId) },
+        { id: parseInt(req.body.testingEnvironmentId) },
         req.cookies.jwt);
     
     return res.redirect('/admin/testing');
@@ -218,4 +218,176 @@ router.post("/add-test-book", async (req, res) => {
         return res.redirect('/server-error');
     }
 });
+router.post('/add-software', async (req, res) => {
+    try {
+        let name = req.body.name;
+        let version = req.body.version;
+        let vendor = req.body.vendor;
+        let type=req.body.type;
+
+        let response = await(db.query(QADMIN.ADD_SOFTWARE, {
+            newSoftwareInput: {
+                software: {
+                    name,
+                    version,
+                    vendor,
+                    type
+                }
+            }
+            
+        }, req.cookies.jwt));
+
+        return res.redirect('/admin/add-testing-environment');
+    }
+    catch (err) {
+        console.log(err);
+        return res.redirect('/server-error');
+    }
+});
+
+router.post('/add-testing-environment', async(req, res) => {
+
+    try {
+        let input = {
+            readingSystemId: parseInt(req.body.readingSystemId),
+            osId: parseInt(req.body.operatingSystemId),
+            testedWithBraille: req.body.testedWithBraille === "on",
+            testedWithScreenreader: req.body.testedWithScreenreader === "on",
+            input: req.body.input
+        };
+        if (req.body.browserId != 'none') {
+            input = {...input, browserId: parseInt(req.body.browserId)};
+        }
+        if (req.body.assistiveTechnologyId != 'none') {
+            input = {...input, assistiveTechnologyId: parseInt(req.body.assistiveTechnologyId)};
+        }
+        let response = await db.query(QADMIN.ADD_TESTING_ENVIRONMENT, {
+            newTestingEnvironmentInput: {
+                testingEnvironment: input
+            }
+        }, req.cookies.jwt);
+
+        let testingEnvironmentId = response.data.data.createTestingEnvironment.testingEnvironment.id;
+
+        let topics = await db.query(Q.TOPICS, {});
+        topics = topics.data.data.topics.nodes;
+
+        let testBooks = await db.query(Q.TEST_BOOKS, {});
+        testBooks = testBooks.data.data.getLatestTestBooks.nodes;
+
+        let i;
+        for (i=0; i<topics.length; i++) {
+            let topicId = topics[i].id;
+            if (req.body.hasOwnProperty(topicId) && req.body[topicId] === "on") {
+                // get latest test book for this topic
+                let book = testBooks.find(tb => tb.topicId === topicId);
+
+                // assign it to the logged-in user
+                let userId = req.userId;
+
+                response = await db.query(QADMIN.ADD_ANSWER_SET, {
+                    newAnswerSetInput: {
+                        answerSet:{
+                            testBookId: book.id,
+                            userId,
+                            isPublic: false,
+                            testingEnvironmentId,
+                            score: 0
+                        }
+                    }
+                }, req.cookies.jwt);
+
+                let answerSetId = response.data.data.createAnswerSet.answerSet.id;
+
+                let testsInBook = await db.query(Q.TESTS_IN_BOOK, {
+                    testBookId: book.id
+                });
+
+                testsInBook = testsInBook.data.data.tests.nodes;
+
+                let j;
+                for (j = 0; j<testsInBook.length; j++) {
+                        response = await db.query(QADMIN.ADD_ANSWER, {
+                        newAnswerInput: {
+                            answer: {
+                                testId: parseInt(testsInBook[j].id),
+                                answerSetId: parseInt(answerSetId)
+                            }
+                        }
+                    }, req.cookies.jwt);
+                }
+            }
+        }
+
+        let message = "Testing environment created";
+        return res.redirect('/admin?message=' + encodeURIComponent(message));
+    }
+
+    catch (err) {
+        console.log(err);
+        return res.redirect('/server-error');
+    }
+});
+
+router.post("/confirm-delete-testing-environment/:testingEnvironmentId", async (req, res) => {
+    let results = await db.query(
+        Q.TESTING_ENVIRONMENT, 
+        { id: parseInt(req.params.testingEnvironmentId) });
+    let testenv = results.data.data.testingEnvironment;
+
+    let testingEnvironmentTitle = `
+    ${testenv.readingSystem.name} ${testenv.readingSystem.version}
+    ${testenv.assistiveTechnology.name ? `${testenv.assistiveTechnology.name} ${testenv.assistiveTechnology.version}` : ''}
+    ${testenv.os.name} ${testenv.os.version}`;
+
+    return res.render('./confirm.html', {
+        accessLevel: req.accessLevel,
+        title: "Confirm deletion",
+        content: `Please confirm that you would like to delete ${testingEnvironmentTitle}`,
+        redirectUrl: '/admin/testing',
+        actionUrl: `/admin/forms/delete-testing-environment/${parseInt(req.params.testingEnvironmentId)}`
+    });
+});
+
+router.post('/delete-testing-environment/:testingEnvironmentId', async (req, res) => {
+    let redirect = req.body.redirectUrl;
+
+    if (req.body.hasOwnProperty("yes")) {
+        // get testing environment
+        let results = await db.query(
+            Q.TESTING_ENVIRONMENT, 
+            { id: parseInt(req.params.testingEnvironmentId) });
+        let testenv = results.data.data.testingEnvironment;
+
+        // delete answers and answer sets
+        let i, j;
+        let answerSets = testenv.answerSetsByTestingEnvironmentId.nodes;
+        for (i=0; i<answerSets.length; i++) {
+            let answers = answerSets[i].answersByAnswerSetId.nodes;
+            for (j=0; j<answers.length; j++) {
+                await db.query(QADMIN.DELETE_ANSWER, 
+                    {id: answers[j].id}, 
+                    req.cookies.jwt);
+            }
+            await db.query(QADMIN.DELETE_ANSWER_SET, 
+                {id: answerSets[i].id}, 
+                req.cookies.jwt);
+        }
+        
+        // delete testing environment
+        await db.query(QADMIN.DELETE_TESTING_ENVIRONMENT,
+            {id: testenv.id},
+            req.cookies.jwt);
+
+        let message = encodeURIComponent("Testing environment deleted");
+        redirect = redirect + "?message=" + message;
+    }
+    else {
+        // else cancel was pressed: do nothing
+    }
+
+    // redirect
+    return res.redirect(redirect);
+});
+
 module.exports = router;

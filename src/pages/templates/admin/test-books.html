@@ -1,6 +1,7 @@
-{%- extends '../base/admin-base.html' -%}
+{%- extends 'base/base.html' -%}
 {%- set title = "Admin: Test Books" -%}
-{%- block section -%}
+{%- set mainclass="wide inset" -%}
+{%- block content -%}
 
 <h1>Manage Test Books</h1>
 
@@ -16,7 +17,7 @@ By Topic
 
 #}
 
-<h2>Add Test Book</h2>
+{#<h2>Add Test Book</h2>
 
 <p>Please ensure the book conforms to the <a href="#TODO">Guidelines</a> and that it passes EPUBCheck.</p>
 
@@ -24,7 +25,7 @@ By Topic
     <input type="file" name="epub">
     <input type="submit" value="Add book">
 </form>
-
+#}
 
 <h2>Latest Test Books</h2>
 <table class="wide striped">
@@ -52,7 +53,7 @@ By Topic
     </tbody>
 </table>
 
-<h2>All Test Books</h2>
+{#<h2>All Test Books</h2>
 <table class="wide striped">
     <thead>
         <tr>
@@ -79,5 +80,5 @@ By Topic
         {%- endfor -%}  
     </tbody>
 </table>
-
+#}
 {%- endblock -%}

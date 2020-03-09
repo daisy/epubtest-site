@@ -1,0 +1,136 @@
+{%- extends 'base/base.html' -%}
+{%- set title = "Admin: Software" -%}
+{%- block content -%}
+
+<h1 id="reading-systems">Reading Systems</h1>
+<table>
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Vendor</th>
+            <th>Name</th>
+            <th>Version</th>
+        </tr>
+    </thead>
+    <tbody>
+        {%- for rs in readingSystems -%}
+            <tr>
+                <td>
+                    {{rs.id}}
+                </td>
+                <td>
+                    {{rs.vendor}}
+                </td>
+                <td>
+                    {{rs.name}}
+                </td>
+                <td>
+                    {{rs.version}}
+                </td>
+            </tr>
+        {%- endfor -%}
+    </tbody>
+</table>
+
+
+<h1 id="assistive-technologies">Assistive Technologies</h1>
+<table>
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Vendor</th>
+            <th>Name</th>
+            <th>Version</th>
+        </tr>
+    </thead>
+    <tbody>
+        {%- for at in assistiveTechnologies -%}
+            <tr>
+                <td>
+                    {{at.id}}
+                </td>
+                <td>
+                    {{at.vendor}}
+                </td>
+                <td>
+                    {{at.name}}
+                </td>
+                <td>
+                    {{at.version}}
+                </td>
+            </tr>
+        {%- endfor -%}
+    </tbody>
+</table>
+
+<h1 id="operating-systems">Operating Systems</h1>
+<table>
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Vendor</th>
+            <th>Name</th>
+            <th>Version</th>
+        </tr>
+    </thead>
+    <tbody>
+        {%- for os in operatingSystems -%}
+            <tr>
+                <td>
+                    {{os.id}}
+                </td>
+                <td>
+                    {{os.vendor}}
+                </td>
+                <td>
+                    {{os.name}}
+                </td>
+                <td>
+                    {{os.version}}
+                </td>
+            </tr>
+        {%- endfor -%}
+    </tbody>
+</table>
+
+<h2 id="browsers">Browsers</h2>
+<table>
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Vendor</th>
+            <th>Name</th>
+            <th>Version</th>
+        </tr>
+    </thead>
+    <tbody>
+        {%- for brw in browsers -%}
+            <tr>
+                <td>
+                    {{brw.id}}
+                </td>
+                <td>
+                    {{brw.vendor}}
+                </td>
+                <td>
+                    {{brw.name}}
+                </td>
+                <td>
+                    {{brw.version}}
+                </td>
+            </tr>
+        {%- endfor -%}
+    </tbody>
+</table>
+{% endblock %}  
+
+{%- block nav -%}
+<nav>
+    <h1>All Software</h1>
+    <ul>
+        <li><a href="#reading-systems">Reading Systems</a></li>
+        <li><a href="#assistive-technologies">Assistive Technologies</a></li>
+        <li><a href="#operating-systems">Operating Systems</a></li>
+    </ul>
+</nav>
+{%- endblock -%}

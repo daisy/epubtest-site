@@ -7,7 +7,9 @@ const utils = require('../utils');
 var router = express.Router()
 
 router.get('/', async(req, res) => {
-    return res.redirect('/admin/requests');
+    return res.render('./admin/index.html', {
+        accessLevel: req.accessLevel
+    });
 });
 
 // admin requests
@@ -30,9 +32,9 @@ router.get('/requests', async (req, res) => {
 // admin testing
 router.get('/testing', async (req, res) => {
     try {
-        let makeName = rs => `${rs.name}${rs.version != 'undefined' && rs.version != 'null' ? rs.version : ''}`;
-        let alpha = (a,b) => makeName(a.readingSystem) > makeName(b.readingSystem) ? 1 
-            : makeName(a.readingSystem) === makeName(b.readingSystem) ? 0 : -1;
+        // let makeName = rs => `${rs.name}${rs.version != 'undefined' && rs.version != 'null' ? rs.version : ''}`;
+        // let alpha = (a,b) => makeName(a.readingSystem) > makeName(b.readingSystem) ? 1 
+        //     : makeName(a.readingSystem) === makeName(b.readingSystem) ? 0 : -1;
         let results = await db.queries(
             [QADMIN.REQUESTS, QADMIN.ALL_TESTING_ENVIRONMENTS, Q.PUBLIC_RESULTS, Q.ARCHIVED_RESULTS], 
             [], 
@@ -40,17 +42,29 @@ router.get('/testing', async (req, res) => {
         
         let requests = results[0].data.data.requests.nodes;
         let publicTestingEnvironments = results[2].data.data.getPublishedTestingEnvironments.nodes
-            .sort(alpha);
+            .sort(utils.sortAlphaTestEnv);
         let publicArchivedTestingEnvironments = results[3].data.data.getArchivedTestingEnvironments.nodes
-            .sort(alpha);
+            .sort(utils.sortAlphaTestEnv);
         let unpublishedTestingEnvironments = results[1].data.data.testingEnvironments.nodes
             .filter(tenv => !tenv.isArchived
                 && publicTestingEnvironments.find(n=>n.id === tenv.id) == undefined )
-            .sort(alpha);
+            .sort(utils.sortAlphaTestEnv);
         let unpublishedArchivedTestingEnvironments = results[1].data.data.testingEnvironments.nodes
             .filter(tenv => tenv.isArchived 
                 && publicArchivedTestingEnvironments.find(n=>n.id === tenv.id) == undefined )
-            .sort(alpha);
+            .sort(utils.sortAlphaTestEnv);
+        // too slow
+        // TODO write pgsql function
+        /*let noResultsTestingEnvironments = results[1].data.data.testingEnvironments.nodes
+            .filter(tenv => {
+                let answerSets = tenv.answerSetsByTestingEnvironmentId.nodes;
+                let completedAnswerSets = answerSets.filter(aset => {
+                    let answered = aset.answersByAnswerSetId.nodes
+                        .filter(ans => ans.value != 'NOANSWER');
+                    return answered.length !== 0;
+                });
+                return completedAnswerSets.length === 0;
+            });*/
         return res.render('./admin/testing.html', 
             {
                 accessLevel: req.accessLevel,
@@ -58,6 +72,7 @@ router.get('/testing', async (req, res) => {
                 publicArchivedTestingEnvironments,
                 unpublishedTestingEnvironments,
                 unpublishedArchivedTestingEnvironments,
+                // noResultsTestingEnvironments,
                 getRequestToPublish: answerSetId => {
                     let retval = requests.find(r => r.answerSetId === answerSetId);
                     return retval;
@@ -147,6 +162,101 @@ router.get('/users', async (req, res) => {
             });
     }
     catch(err) {
+        console.log(err);
+        return res.redirect('/server-error');
+    }
+});
+
+router.get("/software", async (req, res) => {
+    try {
+        let results = await db.queries(
+            [QADMIN.READING_SYSTEMS,
+            QADMIN.ASSISTIVE_TECHNOLOGIES,
+            QADMIN.OPERATING_SYSTEMS,
+            QADMIN.BROWSERS],
+            [],
+            req.cookies.jwt
+        );
+        
+        return res.render('./admin/all-software.html', {
+            accessLevel: req.accessLevel,
+            readingSystems: results[0].data.data.softwares.nodes.sort(utils.sortAlpha),
+            assistiveTechnologies: results[1].data.data.softwares.nodes.sort(utils.sortAlpha),
+            operatingSystems: results[2].data.data.softwares.nodes.sort(utils.sortAlpha),
+            browsers: results[3].data.data.softwares.nodes.sort(utils.sortAlpha)
+        });
+    }
+    catch (err) {
+        console.log(err);
+        return res.redirect('/server-error');
+    }
+
+
+    
+});
+
+router.get('/add-testing-environment', async (req, res) => {
+     try {
+        let results = await db.queries(
+            [QADMIN.READING_SYSTEMS,
+            QADMIN.ASSISTIVE_TECHNOLOGIES,
+            QADMIN.OPERATING_SYSTEMS,
+            QADMIN.BROWSERS,
+            Q.TOPICS],
+            [],
+            req.cookies.jwt
+        );
+
+        return res.render("./admin/add-testing-environment.html", {
+            accessLevel: req.accessLevel,
+            readingSystems: results[0].data.data.softwares.nodes.sort(utils.sortAlpha),
+            assistiveTechnologies: results[1].data.data.softwares.nodes.sort(utils.sortAlpha),
+            operatingSystems: results[2].data.data.softwares.nodes.sort(utils.sortAlpha),
+            browsers: results[3].data.data.softwares.nodes.sort(utils.sortAlpha),
+            getTopicName: utils.getTopicName,
+            topics: results[4].data.data.topics.nodes.sort(utils.sortTopicOrder)
+        });
+    }
+    catch (err) {
+        console.log(err);
+        return res.redirect('/server-error');
+    }
+});
+
+router.get('/add-reading-system', (req, res) => {
+    try {
+        return res.render('./admin/add-software.html', {
+            title: "Add Reading System",
+            type: "READING_SYSTEM"
+        });
+    }
+    catch (err) {
+        console.log(err);
+        return res.redirect('/server-error');
+    }
+});
+
+router.get('/add-assistive-technology', (req, res) => {
+    try {
+        return res.render('./admin/add-software.html', {
+            title: "Add Assistive Technology",
+            type: "ASSISTIVE_TECHNOLOGY"
+        });
+    }
+    catch (err) {
+        console.log(err);
+        return res.redirect('/server-error');
+    }
+});
+
+router.get('/add-operating-system', (req, res) => {
+    try {
+        return res.render('./admin/add-software.html', {
+            title: "Add Operating System",
+            type: "OPERATING_SYSTEM"
+        });
+    }
+    catch (err) {
         console.log(err);
         return res.redirect('/server-error');
     }
