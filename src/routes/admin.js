@@ -261,4 +261,18 @@ router.get('/add-operating-system', (req, res) => {
     }
 });
 
+router.get('/add-browser', (req, res) => {
+    try {
+        return res.render('./admin/add-software.html', {
+            title: "Add Browser",
+            type: "BROWSER"
+        });
+    }
+    catch (err) {
+        console.log(err);
+        return res.redirect('/server-error');
+    }
+});
+
+
 module.exports = router;
