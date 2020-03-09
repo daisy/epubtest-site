@@ -1,33 +1,73 @@
-{%- macro TestingEnvironmentTitle(testingEnvironment) -%}
+{%- macro TestingEnvironmentTitle(testingEnvironment, inline=false) -%}
 {%- set rs = testingEnvironment.readingSystem -%}
 {%- set at = testingEnvironment.assistiveTechnology -%}
 {%- set os = testingEnvironment.os -%}
 {%- set dev = testingEnvironment.device -%}
 {%- set brw = testingEnvironment.browser -%}
 
-<span>
-    {%- if rs.name -%}
-    {{ rs.name }}&nbsp;
-    {%- endif -%}
-    {%- if rs.version -%}
-    {{ rs.version }}
-    {%- endif -%}
-</span>,
-<span>
+<div class="testenv-title {% if inline %} inline {% endif %}">
+    <span class="rs">
+        {%- if rs.vendor -%}
+        {{ rs.vendor }}&nbsp;
+        {%- endif -%}
+        {%- if rs.name -%}
+        {{ rs.name }}&nbsp;
+        {%- endif -%}
+        {%- if rs.version -%}
+        {{ rs.version }}
+        {%- endif -%}
+    </span>
     {%- if at.name -%}
-    {{ at.name }}&nbsp;
+    {% if inline %}
+    <span class="deemph">with</span>
+    {% endif %}
+    <span class="at">
+        {%- if at.name -%}
+        {{ at.name }}&nbsp;
+        {%- endif -%}
+        {%- if at.version -%}
+        {{ at.version }}
+        {%- endif -%}
+    </span>
     {%- endif -%}
-    {%- if at.version -%}
-    {{ at.version }}
+    {% if dev -%}
+    {% if inline %}
+    <span class="deemph">and</span>
+    {% endif %}
+    <span class="at">
+        {%- if dev.name -%}
+        {{ dev.name }}&nbsp;
+        {%- endif -%}
+        {%- if dev.version -%}
+        {{ dev.version }}
+        {%- endif -%}
+    </span>
     {%- endif -%}
-</span>,
-<span>
-    {%- if os.name -%}
-    {{ os.name }}&nbsp;
+    
+    {% if inline %}
+    <span class="deemph">on</span>
+    {% endif %}
+    <span class="os">
+        {%- if os.name -%}
+        {{ os.name }}&nbsp;
+        {%- endif -%}
+        {%- if os.version -%}
+        {{ os.version }}
+        {%- endif -%}
+    </span>
+    {%- if brw -%}
+    {% if inline %}
+    <span class="deemph">and</span>
+    {% endif %}
+    <span class="at">
+        {%- if brw.name -%}
+        {{ brw.name }}&nbsp;
+        {%- endif -%}
+        {%- if brw.version -%}
+        {{ brw.version }}
+        {%- endif -%}
+    </span>
     {%- endif -%}
-    {%- if os.version -%}
-    {{ os.version }}
-    {%- endif -%}
-</span>
-
+    
+</div>
 {%- endmacro -%}

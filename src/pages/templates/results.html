@@ -1,4 +1,5 @@
 {%- extends 'base/base.html' -%}
+{%- set mainclass="wide" -%}
 {%- block content -%}
 
 <script type="module" src="/js/table.js"></script>
@@ -11,15 +12,35 @@
                     {
                         testingEnvironment: {
                             id: {{testenv.id}},
-                            readingSystem: "{{testenv.readingSystem.name}} {{testenv.readingSystem.version}}",
-                            assistiveTechnology: 
-                                {%-if testenv.assistiveTechnology.name != "None" and testenv.assistiveTechnology.name != "-" -%}
-                                "{{testenv.assistiveTechnology.name}}"
-                                {%- else -%}
-                                "N/A"
-                                {%- endif -%}
-                                ,
-                            operatingSystem: "{{testenv.os.name}} {{testenv.os.version}}"
+                            readingSystem: {
+                                name: "{{testenv.readingSystem.name }}",
+                                version: "{{testenv.readingSystem.version}}",
+                                vendor: "{{testenv.readingSystem.vendor}}"
+                            },
+                            assistiveTechnology: {
+                                name: "{{testenv.assistiveTechnology.name }}",
+                                version: "{{testenv.assistiveTechnology.version}}",
+                                vendor: "{{testenv.assistiveTechnology.vendor}}"
+                            },
+                            operatingSystem: {
+                                name: "{{testenv.os.name }}",
+                                version: "{{testenv.os.version}}",
+                                vendor: "{{testenv.os.vendor}}"
+                            },
+                            {%- if testenv.device -%}
+                            device: {
+                                name: "{{testenv.device.name }}",
+                                version: "{{testenv.device.version}}",
+                                vendor: "{{testenv.device.vendor}}"
+                            },
+                            {%- endif -%}
+                            {%- if testenv.browser -%}
+                            browser: {
+                                name: "{{testenv.browser.name }}",
+                                version: "{{testenv.browser.version}}",
+                                vendor: "{{testenv.browser.vendor}}"
+                            }
+                            {%- endif -%}
                         },
                         results: [
                             {%- for topic in topics -%}
@@ -49,12 +70,18 @@
         window.sortby = sortby;
         window.headerKeypress = headerKeypress;
     </script>
+{%- if isArchive -%}
+<p>The following Testing Environments have been archived.</p>
+{%- else -%}
+<p>The following represents how well each Testing Environment (Reading System or Reading System + Assistive Technology 
+    combination) performed in a series of tests, organized by topic. Learn more about the tests on 
+    the <a href="/test-books">test books page</a>.</p>
+{%- endif -%}
 
-<h1>{{title}}</h1>
 <table class="wide striped" id="results-table" summary="Reading system testing results">
     <thead>
         <tr>
-            <th title="press enter to sort"
+            <th title="Select to sort"
                 onkeydown="headerKeypress(event, 0)" 
                 onclick="sortby(0)"
                 tabindex="0">
@@ -62,7 +89,7 @@
             </th>
             {%- for topic in topics -%}
             {# loop.index is 1-based but it works here because the header row is "0" #}
-            <th title="press enter to sort"
+            <th title="Select to sort"
                 onkeydown="headerKeypress(event, {{loop.index}})" 
                 onclick="sortby({{loop.index}})"
                 tabindex="0">

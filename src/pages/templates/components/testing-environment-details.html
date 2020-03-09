@@ -6,6 +6,7 @@
 {%- set brw = testingEnvironment.browser -%}
 
 <ul>
+    {%- if at.name -%}
     <li>
         <b>Assistive Technology</b>: &nbsp;
         {%- if at.vendor -%}
@@ -17,7 +18,19 @@
         {%- if at.version -%}
         {{ at.version }}
         {%- endif -%}
+        {%- if dev -%}
+        {%- if dev.vendor -%}
+        {{ dev.vendor }}&nbsp;
+        {%- endif -%}
+        {%- if dev.name -%}
+        {{ dev.name }}&nbsp;
+        {%- endif -%}
+        {%- if dev.version -%}
+        {{ dev.version }}
+        {%- endif -%}
+        {%- endif -%}
     </li>
+    {%- endif -%}
     <li>
         <b>OS</b>: &nbsp;
         {%- if os.vendor -%}
@@ -30,6 +43,20 @@
         {{ os.version }}
         {%- endif -%}
     </li>
+    {%- if brw -%}
+    <li>
+        <b>Browser</b>: &nbsp;
+        {%- if brw.vendor -%}
+        {{ brw.vendor }}&nbsp;
+        {%- endif -%}
+        {%- if brw.name -%}
+        {{ brw.name }}&nbsp;
+        {%- endif -%}
+        {%- if brw.version -%}
+        {{ brw.version }}
+        {%- endif -%}
+    </li>
+    {%- endif -%}
 
 </ul>
 <ul>
