@@ -319,7 +319,7 @@ router.post('/add-testing-environment', async(req, res) => {
             }
         }
 
-        let message = "Testing environment created";
+        let message = `Testing environment created (ID=${testingEnvironmentId})`;
         return res.redirect('/admin?message=' + encodeURIComponent(message));
     }
 
