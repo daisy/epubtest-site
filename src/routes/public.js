@@ -118,7 +118,10 @@ router.get('/instructions', (req, res) => {
 });
 
 // login page
-router.get('/login', (req, res) => res.render('./auth/login.html', {accessLevel: req.accessLevel}));
+router.get('/login', (req, res) => res.render('./auth/login.html', {
+    accessLevel: req.accessLevel,
+    next: req.query.hasOwnProperty('next') ? req.query.next : ''
+}));
 
 // forgot password page
 router.get('/forgot-password', (req, res) => res.render('./auth/forgot-password.html', {accessLevel: req.accessLevel}));

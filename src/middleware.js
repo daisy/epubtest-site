@@ -6,7 +6,7 @@ function isAuthenticated (req, res, next) {
     if (token) {
         return next();
     }
-    return res.redirect('/login');
+    return res.redirect(`/login?next=${req.originalUrl}`);
 }
 
 function isAdmin(req, res, next) {
@@ -14,7 +14,7 @@ function isAdmin(req, res, next) {
     if (token.accessLevel == 'admin') {
         return next();
     }
-    return res.redirect('/login');
+    return res.redirect(`/login?next=${req.originalUrl}`);
 }
 
 function accessLevel (req, res, next) {

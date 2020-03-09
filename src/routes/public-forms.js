@@ -43,7 +43,7 @@ router.post('/login',
                 res
                     .status(200)
                     .cookie('jwt', jwt, { httpOnly: true/*, secure: true */ , maxAge: token.expires})
-                    .redirect('/user/dashboard');
+                    .redirect(req.body.next ? req.body.next : '/user/dashboard');
             }
             else {
                 let message = "Login error";
