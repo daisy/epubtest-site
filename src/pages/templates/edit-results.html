@@ -6,12 +6,9 @@
 
 <h1>Edit Results</h1>
 
-<p>
-    <b>Testing Environment:</b>
-    {{ testingEnvironmentTitle.TestingEnvironmentTitle(answerSet.testingEnvironment) }}
-</p>
+{{ testingEnvironmentTitle.TestingEnvironmentTitle(answerSet.testingEnvironment, 'h2') }}
 
-<p><b>Topic:</b> <span>{{answerSet.testBook.title}}</span></p>
+<p><b>Topic:</b> <a href="/books/{{answerSet.testBook.filename}}">{{answerSet.testBook.title}}</a></p>
 
 <form method="POST" action="/user/forms/results">
     <h2>Summary</h2>

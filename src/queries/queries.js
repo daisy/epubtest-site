@@ -352,6 +352,7 @@ module.exports = {
             testBook {
                 title
                 version
+                filename
                 lang {
                     id
                     label
