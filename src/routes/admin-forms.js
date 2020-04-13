@@ -339,7 +339,7 @@ router.post("/confirm-delete-testing-environment/:id", async (req, res) => {
 
         let testingEnvironmentTitle = `
         ${testenv.readingSystem.name} ${testenv.readingSystem.version}
-        ${testenv.assistiveTechnology.name ? `${testenv.assistiveTechnology.name} ${testenv.assistiveTechnology.version}` : ''}
+        ${testenv.assistiveTechnology ? testenv.assistiveTechnology.name ? `${testenv.assistiveTechnology.name} ${testenv.assistiveTechnology.version}` : '' : ''}
         ${testenv.os.name} ${testenv.os.version}`;
 
         return res.render('./confirm.html', {
