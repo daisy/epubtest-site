@@ -3,7 +3,7 @@
         {%- for testingEnvironment in testingEnvironments -%}
         {%- set rs = testingEnvironment.readingSystem -%}
         <li>
-            <a href="#{{testingEnvironment.id}}">{{ SoftwareTitle (rs.name, rs.version )}}</a>
+            <a href="#{{testingEnvironment.id}}">{{ SoftwareTitlePlusVendor (rs.name, rs.version, rs.vendor )}}</a>
             {{ TestingEnvironmentDetails (testingEnvironment) }}
         </li>
         {%- endfor -%}
@@ -12,7 +12,7 @@
 
 {%- macro TestingEnvironmentTitle(testingEnvironment, tagname) -%}
     {%- set rs = testingEnvironment.readingSystem -%}
-    <{{tagname}} id="{{testingEnvironment.id}}">{{ SoftwareTitle (rs.name, rs.version) }}</{{tagname}}>
+    <{{tagname}} id="{{testingEnvironment.id}}">{{ SoftwareTitlePlusVendor (rs.name, rs.version, rs.vendor) }}</{{tagname}}>
     {{ TestingEnvironmentDetails (testingEnvironment) }}
 
 {%- endmacro -%}
@@ -46,6 +46,18 @@
         {{name}} 
         {%- if version -%}
             &nbsp;{{version}}
+        {%- endif -%}
+    {%- endif -%}    
+{%- endmacro -%}
+
+{%- macro SoftwareTitlePlusVendor(name, version, vendor) -%}
+    {%- if name -%}
+        {{name}} 
+        {%- if version -%}
+            &nbsp;{{version}}
+        {%- endif -%}
+        {%- if vendor -%}
+        &nbsp;by {{vendor}}
         {%- endif -%}
     {%- endif -%}    
 {%- endmacro -%}
