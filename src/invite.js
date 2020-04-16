@@ -1,7 +1,5 @@
 const db = require('./database');
-const Q = require('./queries/queries');
-const QAUTH = require('./queries/auth');
-const QADMIN = require('./queries/admin');
+const Q = require('./queries');
 const utils = require('./utils');
 const emails = require('./emails');
 const mail = require('./mail');
@@ -11,7 +9,7 @@ async function inviteUser(userId, adminJwt) {
     let userEmail = user.data.data.user.login.email;
             
     let result = await db.query(
-        QAUTH.TEMPORARY_TOKEN,
+        Q.AUTH.TEMPORARY_TOKEN,
         {
             input: {
                 email: userEmail
@@ -30,7 +28,7 @@ async function inviteUser(userId, adminJwt) {
             emails.reinvite.html(inviteUrl));   
         
         await db.query(
-            QADMIN.CREATE_INVITATION, 
+            Q.INVITATIONS.ADD, 
             { 
                 input: {
                     invitation: {

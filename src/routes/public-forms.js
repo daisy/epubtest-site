@@ -1,6 +1,6 @@
 var express = require('express')
 const db = require('../database');
-const QAUTH = require('../queries/auth');
+const Q = require('../queries');
 const utils = require('../utils');
 const mail = require('../mail.js');
 const emails = require('../emails.js');
@@ -30,7 +30,7 @@ router.post('/login',
 
         try {
             let result = await db.query(
-                QAUTH.LOGIN, 
+                Q.AUTH.LOGIN, 
                 {   
                     input: {
                         email: req.body.email, 
@@ -84,7 +84,7 @@ router.post('/forgot-password',
 
         try {
             let result = await db.query(
-                QAUTH.TEMPORARY_TOKEN,
+                Q.AUTH.TEMPORARY_TOKEN,
                 {
                     input: {
                         email: req.body.email

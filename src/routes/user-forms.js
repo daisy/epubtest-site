@@ -1,7 +1,6 @@
 var express = require('express')
 const db = require('../database');
-const Q = require('../queries/queries');
-const QAUTH = require('../queries/auth');
+const Q = require('../queries');
 const { validator, validationResult, body } = require('express-validator');
 var router = express.Router()
 
@@ -19,7 +18,7 @@ router.post('/set-password',
 
         try {
             let result = await db.query(
-                QAUTH.SET_PASSWORD, 
+                Q.AUTH.SET_PASSWORD, 
                 {
                     input: {
                         userId: req.userId, 
@@ -57,7 +56,7 @@ router.post('/set-password',
 router.post('/request-to-publish', async (req, res) => {
     try {
         await db.query(
-            Q.CREATE_REQUEST, 
+            Q.REQUESTS.ADD, 
             { answerSetId: parseInt(req.body.answerSetId) }, 
             req.cookies.jwt);
         res.redirect('/user/dashboard');
@@ -91,7 +90,7 @@ router.post('/results',
         }
         try {
             
-            await db.query(Q.UPDATE_ANSWER_SET, {input: data}, req.cookies.jwt);
+            await db.query(Q.ANSWER_SETS.UPDATE, {input: data}, req.cookies.jwt);
             return res.redirect('/user/dashboard');
         }
         catch(err) {
@@ -111,7 +110,7 @@ router.post('/profile',
                 website: req.body.website.indexOf("http://") === -1 ? 
                     `http://${req.body.website}` : req.body.website
             };
-            await db.query(Q.UPDATE_USER_PROFILE, {id: req.userId, data}, req.cookies.jwt);
+            await db.query(Q.USERS.UPDATE, {id: req.userId, data}, req.cookies.jwt);
             
             if (req.body.password != "") {
                 if (req.body.password.length < 8) {
@@ -119,7 +118,7 @@ router.post('/profile',
                     return res.status(422).redirect('/user/profile?message=' + encodeURIComponent(message));
                 }
                 await db.query(
-                    QAUTH.SET_PASSWORD,
+                    Q.AUTH.SET_PASSWORD,
                     {
                         input: {
                             userId: req.userId, 

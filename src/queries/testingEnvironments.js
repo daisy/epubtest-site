@@ -1,66 +1,50 @@
 module.exports = {
 
-    // get the profile for a given user
-    USER_PROFILE: 
-    `query($id: Int!) {
-        user (id: $id) {
-            name
-            organization
-            website
-            includeCredit
-            creditAs
-        }
-    }`,
-
-    USER_EMAIL: 
-    `query($id: Int!) {
-        user (id: $id) {
-            login{
-                email
-            }
-        }
-    }`,
-
-    // get answer sets for a given user
-    USER_ANSWERSETS: 
-    `query($userId: Int!) {
-        getUserTestingEnvironments(userId: $userId) {
+    GET_ALL: 
+    `query {
+        testingEnvironments {
             nodes {
-            id
-            readingSystem {
-                name
-                version
-                vendor
-            }
-            assistiveTechnology {
-                name
-                version
-                vendor
-            }
-            os {
-                name
-                version
-                vendor
-            }
-            device {
-                name
-                version
-                vendor
-            }
-            browser {
-                name
-                version
-                vendor
-            }
-            answerSetsByTestingEnvironmentId(
-                condition: { 
-                    userId: $userId 
-                }) {
-                    nodes{
+                id
+                isArchived
+                readingSystem {
+                    name
+                    version
+                    vendor
+                }
+                assistiveTechnology{
+                    name
+                    version
+                    vendor
+                }
+                os {
+                    name
+                    version
+                    vendor
+                }
+                device {
+                    name
+                    version
+                    vendor
+                }
+                browser {
+                    name
+                    version
+                    vendor
+                }
+                answerSetsByTestingEnvironmentId {
+                    nodes {
                         id
                         flag
                         score
                         isPublic
+                        user {
+                            id
+                            name
+                            organization
+                            website
+                            includeCredit
+                            creditAs
+                        }
                         testBook {
                             title
                             topic {
@@ -75,26 +59,52 @@ module.exports = {
                 }
             }
         }
-     }`,
+    }`,
 
-    // get all the latest test books
-    TEST_BOOKS: 
-    `query {
-        getLatestTestBooks{
-            nodes{
+    ARCHIVE: 
+      `mutation ($id: Int!) {
+          updateTestingEnvironment(input:{
+              id: $id,
+              patch: {
+                isArchived:true
+              }
+            })
+            {
+              clientMutationId
+            }
+        }`,
+    UNARCHIVE: 
+    `mutation ($id: Int!) {
+        updateTestingEnvironment(input:{
+            id: $id,
+            patch: {
+                isArchived:false
+            }
+            })
+            {
+            clientMutationId
+            }
+    }`,
+
+    ADD: 
+    `mutation ($newTestingEnvironmentInput: CreateTestingEnvironmentInput!) {
+        createTestingEnvironment(input: $newTestingEnvironmentInput) {
+            clientMutationId
+            testingEnvironment {
                 id
-                title
-                topicId
-                langId 
-                version
-                filename
-                description
             }
         }
     }`,
 
+    DELETE: 
+    `mutation ($id: Int!) {
+        deleteTestingEnvironment(input:{ id:$id}) {
+          clientMutationId
+        }
+    }`,
+    
     // get all public results
-    PUBLIC_RESULTS: 
+    GET_PUBLISHED: 
     `query {
         getPublishedTestingEnvironments {
             nodes {
@@ -150,7 +160,7 @@ module.exports = {
     }`,
 
     // get all archived public results
-    ARCHIVED_RESULTS: 
+    GET_ARCHIVED: 
     `query {
         getArchivedTestingEnvironments {
             nodes {
@@ -205,20 +215,8 @@ module.exports = {
         }
     }`,
 
-    // get all topics, in order
-    TOPICS: 
-    `query {
-        topics(orderBy:ORDER_ASC) {
-            nodes {
-                id
-                order
-                type
-            }
-        }
-    }`,
-
     // get a single testing environment with its results
-    TESTING_ENVIRONMENT: 
+    GET_BY_ID: 
     `query($id: Int!) {
         testingEnvironment(id: $id) {
             id
@@ -298,137 +296,4 @@ module.exports = {
             }
         }
     }`,
-
-    // get requests for publishing for the given answer sets
-    REQUESTS_FOR_ANSWERSETS: 
-    `query($ids: [Int!]) {
-        requests(filter:{answerSetId:{in: $ids}}) {
-            nodes {
-                id
-                type
-                answerSetId
-                created
-            }
-        }
-    }`,
-
-    // get an answer set by ID
-    ANSWER_SET: 
-    `query($id: Int!) {
-        answerSet(id: $id) {
-            id
-            summary
-            userId
-            flag
-            score
-            testingEnvironment {
-                id
-                readingSystem {
-                    name
-                    version
-                    vendor
-                }
-                assistiveTechnology {
-                    name
-                    version
-                    vendor
-                }
-                os {
-                    name
-                    version
-                    vendor
-                }
-                device {
-                    name
-                    version
-                    vendor
-                }
-                browser {
-                    name
-                    version
-                    vendor
-                }
-            }
-            testBook {
-                title
-                version
-                filename
-                lang {
-                    id
-                    label
-                }
-                topic {
-                    id
-                }
-            }
-            answersByAnswerSetId {
-                nodes {
-                    id
-                    test {
-                        id
-                        testId
-                        description
-                        name
-                    }
-                    value
-                    flag
-                    notes
-                    notesArePublic
-                }
-            }
-        }
-    }`,
-
-
-    UPDATE_USER_PROFILE: 
-    `mutation ($id: Int!, $data: UserPatch!) {
-        updateUser(input: {
-            id: $id,
-            patch: $data
-        }) {
-            clientMutationId
-        }
-    }`,
-
-    UPDATE_ANSWER_SET: 
-    `mutation ($input: UpdateAnswersetAndAnswersInput!) {
-        updateAnswersetAndAnswers(input: $input){
-            clientMutationId
-        }
-    }`,
-
-    CREATE_REQUEST: 
-    `mutation ($answerSetId: Int!) {
-        createRequest(input:{
-            request: {
-                type: PUBLISH,
-                answerSetId: $answerSetId
-            }
-        }) {
-            clientMutationId
-        }
-      }`,
-    
-    TESTS_IN_BOOK: 
-    `query ($testBookId: Int!) {
-        tests (condition: {testBookId: $testBookId}) {
-          nodes {
-            id
-            testId
-            name
-            description
-          }
-        }
-      }`,
-
-    GET_TEST_BOOK_ID_BY_EPUBID:
-    `query ($epubId: String!) {
-        testBooks(condition:{
-            epubId: $epubId
-          }) {
-            nodes{
-              id
-            }
-          }
-        }`
 };

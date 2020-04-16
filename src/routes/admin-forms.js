@@ -1,7 +1,6 @@
 const express = require('express');
 const db = require('../database');
-const Q = require('../queries/queries');
-const QADMIN = require('../queries/admin');
+const Q = require('../queries');
 const router = express.Router()
 const invite = require('../invite');
 const EPUB = require('../epub-parser/epub');
@@ -13,8 +12,8 @@ router.post('/handle-request', async (req, res) => {
     try {
         if (req.body.hasOwnProperty("approve")) {
             await db.queries([
-                QADMIN.PUBLISH_ANSWER_SET, 
-                QADMIN.DELETE_REQUEST
+                Q.ANSWER_SETS.PUBLISH, 
+                Q.REQUESTS.DELETE
             ], 
             [
                 { answerSetId: parseInt(req.body.answerSetId) },
@@ -24,7 +23,7 @@ router.post('/handle-request', async (req, res) => {
         }
         else if (req.body.hasOwnProperty("deny")) {
             await db.query(
-                QADMIN.DELETE_REQUEST, 
+                Q.REQUESTS.DELETE, 
                 { requestId: parseInt(req.body.requestId) }, 
                 req.cookies.jwt);
         }
@@ -39,20 +38,20 @@ router.post('/handle-request', async (req, res) => {
 router.post('/publish', async (req, res) => {
 
     await db.query(
-        QADMIN.PUBLISH_ANSWER_SET,
+        Q.ANSWER_SETS.PUBLISH,
         { answerSetId: parseInt(req.body.answerSetId) },
         req.cookies.jwt);
     
     // also clear any requests for publishing that this answer set might have had
     let requests = await db.query(
-        Q.REQUESTS_FOR_ANSWERSETS, 
+        Q.REQUESTS.GET_FOR_ANSWERSETS, 
         { ids: [parseInt(req.body.answerSetId)]},
         req.cookies.jwt
     );
 
     if (requests && requests.data.data.requests.nodes.length > 0) {
         await db.query(
-            QADMIN.DELETE_REQUEST, 
+            Q.REQUESTS.DELETE, 
             { requestId: requests.data.data.requests.nodes[0].id }, 
             req.cookies.jwt);
     }
@@ -62,7 +61,7 @@ router.post('/publish', async (req, res) => {
 
 router.post('/unpublish', async (req, res) => {
     await db.query(
-        QADMIN.UNPUBLISH_ANSWER_SET,
+        Q.ANSWER_SETS.UNPUBLISH,
         { answerSetId: parseInt(req.body.answerSetId) },
         req.cookies.jwt);
     
@@ -71,7 +70,7 @@ router.post('/unpublish', async (req, res) => {
 
 router.post('/archive', async (req, res) => {
     await db.query(
-        QADMIN.ARCHIVE_TESTING_ENVIRONMENT,
+        Q.TESTING_ENVIRONMENTS.ARCHIVE,
         { id: parseInt(req.body.testingEnvironmentId) },
         req.cookies.jwt);
     
@@ -80,7 +79,7 @@ router.post('/archive', async (req, res) => {
 
 router.post ('/unarchive', async (req, res) => {
     await db.query(
-        QADMIN.UNARCHIVE_TESTING_ENVIRONMENT,
+        Q.TESTING_ENVIRONMENTS.UNARCHIVE,
         { id: parseInt(req.body.testingEnvironmentId) },
         req.cookies.jwt);
     
@@ -137,10 +136,10 @@ router.post("/upload-test-book", async (req, res) => {
             
             // TODO compare versions
             /*
-            let result = await db.query(Q.TEST_BOOKS, {});
+            let result = await db.query(Q.TEST_BOOKS.GET_LATEST, {});
             let currentLatestForTopic = result.data.data.getLatestTestBooks.nodes
                 .find(book => book.topicId === bookdata.metadata['dc:subject']);
-            let testsInCurrent = await db.query(Q.TESTS_IN_BOOK, 
+            let testsInCurrent = await db.query(Q.TESTS.GET_FOR_BOOK, 
             {testBookId: parseInt(currentLatestForTopic.id)});
             testsInCurrent = testsInCurrent.data.data.tests;
         
@@ -172,7 +171,7 @@ router.post("/add-test-book", async (req, res) => {
             testInBook.flag = test.flag === 'on';
         });
         
-        let addBookResult = await db.query(QADMIN.ADD_TEST_BOOK, {
+        let addBookResult = await db.query(Q.TEST_BOOKS.ADD, {
             topicId: testBook.topicId,
             langId: testBook.langId,
             version: testBook.version,
@@ -187,16 +186,17 @@ router.post("/add-test-book", async (req, res) => {
             return res.redirect('/server-error');
         }
 
-        let getBookResult = await db.query(Q.GET_TEST_BOOK_ID_BY_EPUBID, {
-            epubId: testBook.epubId
-        });
+        
+        // let getBookResult = await db.query(Q.GET_TEST_BOOK_ID_BY_EPUBID, {
+        //     epubId: testBook.epubId
+        // });
 
         let i;
         for (i=0; i<testBook.tests.length; i++) {
             let test = testBook.tests[i];
-            let addTestResult = await db.query(QADMIN.ADD_TEST, {
+            let addTestResult = await db.query(Q.TESTS.ADD, {
                 testId: test.testId,
-                testBookId: parseInt(getBookResult.data.data.testBooks.nodes[0].id),
+                testBookId: parseInt(addBookResult.id),
                 name: test.name,
                 description: test.description,
                 xhtml: test.xhtml,
@@ -218,6 +218,65 @@ router.post("/add-test-book", async (req, res) => {
         return res.redirect('/server-error');
     }
 });
+
+router.post("/confirm-delete-test-book/:id", async (req, res) => {
+    try {
+        let results = await db.query(
+            Q.TEST_BOOKS.GET_BY_ID, 
+            { id: parseInt(req.params.id) }, 
+            req.cookies.jwt);
+        let testBook = results.data.data.testBook;
+
+        // TODO: check if there are any answersets which use this book
+        
+
+        // if they have answers filled in (e.g. not  NOANSWER), don't allow deletion
+        
+
+        // else delete the answers, answersets, and also the testbook
+
+        return res.render('./confirm.html', {
+            accessLevel: req.accessLevel,
+            title: "Confirm deletion",
+            content: `Please confirm that you would like to delete ${testBook.title} (${testBook.langId}, v. ${testBook.version})`,
+            redirectUrlYes: '/admin/test-books',
+            redirectUrlNo: `/admin/test-books`,
+            actionUrl: `/admin/forms/delete-test-book/${parseInt(req.params.id)}`
+        });
+    }
+    catch (err) {
+        console.log(err);
+        return res.redirect('/server-error');
+    }
+});
+
+router.post('/delete-test-book/:id', async (req, res) => {
+    try {    
+        let redirect;
+
+        if (req.body.hasOwnProperty("yes")) {
+            // delete test book
+            await db.query(Q.TEST_BOOKS.DELETE,
+                {id: parseInt(req.params.id)},
+                req.cookies.jwt);
+
+            let message = encodeURIComponent("Test book deleted");
+            redirect = req.body.redirectUrlYes + "?message=" + message;
+        }
+        else {
+            // else cancel was pressed: do nothing
+            redirect = req.body.redirectUrlNo;
+        }
+
+        // redirect
+        return res.redirect(redirect);
+    }
+    catch (err) {
+        console.log(err);
+        return res.redirect('/server-error');
+    }
+});
+
 router.post('/add-software', async (req, res) => {
     try {
         let name = req.body.name;
@@ -225,7 +284,7 @@ router.post('/add-software', async (req, res) => {
         let vendor = req.body.vendor;
         let type=req.body.type;
 
-        let response = await(db.query(QADMIN.ADD_SOFTWARE, {
+        let response = await(db.query(Q.SOFTWARE.ADD, {
             newSoftwareInput: {
                 software: {
                     name,
@@ -261,7 +320,7 @@ router.post('/add-testing-environment', async(req, res) => {
         if (req.body.assistiveTechnologyId != 'none') {
             input = {...input, assistiveTechnologyId: parseInt(req.body.assistiveTechnologyId)};
         }
-        let response = await db.query(QADMIN.ADD_TESTING_ENVIRONMENT, {
+        let response = await db.query(Q.TESTING_ENVIRONMENTS.ADD, {
             newTestingEnvironmentInput: {
                 testingEnvironment: input
             }
@@ -269,10 +328,10 @@ router.post('/add-testing-environment', async(req, res) => {
 
         let testingEnvironmentId = response.data.data.createTestingEnvironment.testingEnvironment.id;
 
-        let topics = await db.query(Q.TOPICS, {});
+        let topics = await db.query(Q.TOPICS.GET_ALL, {});
         topics = topics.data.data.topics.nodes;
 
-        let testBooks = await db.query(Q.TEST_BOOKS, {});
+        let testBooks = await db.query(Q.TEST_BOOKS.GET_LATEST, {});
         testBooks = testBooks.data.data.getLatestTestBooks.nodes;
 
         let i;
@@ -285,7 +344,7 @@ router.post('/add-testing-environment', async(req, res) => {
                 // assign it to the logged-in user
                 let userId = parseInt(req.body.user);
 
-                response = await db.query(QADMIN.ADD_ANSWER_SET, {
+                response = await db.query(Q.ANSWER_SETS.ADD, {
                     newAnswerSetInput: {
                         answerSet:{
                             testBookId: book.id,
@@ -299,7 +358,7 @@ router.post('/add-testing-environment', async(req, res) => {
 
                 let answerSetId = response.data.data.createAnswerSet.answerSet.id;
 
-                let testsInBook = await db.query(Q.TESTS_IN_BOOK, {
+                let testsInBook = await db.query(Q.TESTS.GET_FOR_BOOK, {
                     testBookId: book.id
                 });
 
@@ -307,7 +366,7 @@ router.post('/add-testing-environment', async(req, res) => {
 
                 let j;
                 for (j = 0; j<testsInBook.length; j++) {
-                        response = await db.query(QADMIN.ADD_ANSWER, {
+                        response = await db.query(Q.ANSWERS.ADD, {
                         newAnswerInput: {
                             answer: {
                                 testId: parseInt(testsInBook[j].id),
@@ -332,7 +391,7 @@ router.post('/add-testing-environment', async(req, res) => {
 router.post("/confirm-delete-testing-environment/:id", async (req, res) => {
     try {
         let results = await db.query(
-            Q.TESTING_ENVIRONMENT, 
+            Q.TESTING_ENVIRONMENTS.GET_BY_ID, 
             { id: parseInt(req.params.id) }, 
             req.cookies.jwt);
         let testenv = results.data.data.testingEnvironment;
@@ -364,7 +423,7 @@ router.post('/delete-testing-environment/:id', async (req, res) => {
         if (req.body.hasOwnProperty("yes")) {
             // get testing environment
             let results = await db.query(
-                Q.TESTING_ENVIRONMENT, 
+                Q.TESTING_ENVIRONMENTS.GET_BY_ID, 
                 { id: parseInt(req.params.id) }, 
                 req.cookies.jwt);
             let testenv = results.data.data.testingEnvironment;
@@ -375,17 +434,17 @@ router.post('/delete-testing-environment/:id', async (req, res) => {
             for (i=0; i<answerSets.length; i++) {
                 let answers = answerSets[i].answersByAnswerSetId.nodes;
                 for (j=0; j<answers.length; j++) {
-                    await db.query(QADMIN.DELETE_ANSWER, 
+                    await db.query(Q.ANSWERS.DELETE, 
                         {id: answers[j].id}, 
                         req.cookies.jwt);
                 }
-                await db.query(QADMIN.DELETE_ANSWER_SET, 
+                await db.query(Q.ANSWER_SETS.DELETE, 
                     {id: answerSets[i].id}, 
                     req.cookies.jwt);
             }
             
             // delete testing environment
-            await db.query(QADMIN.DELETE_TESTING_ENVIRONMENT,
+            await db.query(Q.TESTING_ENVIRONMENTS.DELETE,
                 {id: testenv.id},
                 req.cookies.jwt);
 

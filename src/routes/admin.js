@@ -1,7 +1,6 @@
 var express = require('express');
 const db = require('../database');
-const Q = require('../queries/queries');
-const QADMIN = require('../queries/admin');
+const Q = require('../queries');
 const utils = require('../utils');
 
 var router = express.Router()
@@ -15,7 +14,7 @@ router.get('/', async(req, res) => {
 // admin requests
 router.get('/requests', async (req, res) => {
     try {
-        let results = await db.query(QADMIN.REQUESTS, {}, req.cookies.jwt);
+        let results = await db.query(Q.REQUESTS.GET_ALL, {}, req.cookies.jwt);
         let requests = results.data.data.requests.nodes;
         return res.render('./admin/requests.html', 
             {
@@ -33,7 +32,10 @@ router.get('/requests', async (req, res) => {
 router.get('/testing', async (req, res) => {
     try {
         let results = await db.queries(
-            [QADMIN.REQUESTS, QADMIN.ALL_TESTING_ENVIRONMENTS, Q.PUBLIC_RESULTS, Q.ARCHIVED_RESULTS], 
+            [Q.REQUESTS.GET_ALL, 
+                Q.TESTING_ENVIRONMENTS.GET_ALL, 
+                Q.TESTING_ENVIRONMENTS.GET_PUBLISHED, 
+                Q.TESTING_ENVIRONMENTS.GET_ARCHIVED], 
             [], 
             req.cookies.jwt);
         
@@ -87,13 +89,13 @@ router.get('/testing-environment/:id', async (req, res) => {
     try {
         let id = req.params.id;
         let results = await db.queries(
-            [Q.TESTING_ENVIRONMENT, QADMIN.ACTIVE_USERS], 
+            [Q.TESTING_ENVIRONMENTS.GET_BY_ID, Q.USERS.GET_ACTIVE], 
             [{ id: parseInt(id) }, {}], 
             req.cookies.jwt);
         testenv = results[0].data.data.testingEnvironment;
         users = results[1].data.data.getActiveUsers.nodes;
         let requests = await db.query(
-            Q.REQUESTS_FOR_ANSWERSETS, 
+            Q.REQUESTS.GET_FOR_ANSWERSETS, 
             { ids: testenv.answerSetsByTestingEnvironmentId.nodes.map(ans => ans.id)},
             req.cookies.jwt
         );
@@ -118,7 +120,7 @@ router.get('/testing-environment/:id', async (req, res) => {
 // admin test books
 router.get('/test-books', async (req, res) => {
     try {
-        let result = await db.query(Q.TEST_BOOKS, {});
+        let result = await db.query(Q.TEST_BOOKS.GET_LATEST, {});
         return res.render('./admin/test-books.html', 
             {
                 accessLevel: req.accessLevel,
@@ -138,9 +140,9 @@ router.get('/users', async (req, res) => {
     let alpha2 = (a,b) => a.user.name > b.user.name ? 1 : a.user.name == b.user.name ? 0 : -1;
     try {
         let results = await db.queries([
-            QADMIN.INACTIVE_USERS, 
-            QADMIN.INVITATIONS,
-            QADMIN.ACTIVE_USERS],
+            Q.USERS.GET_INACTIVE, 
+            Q.INVITATIONS.GET_ALL,
+            Q.USERS.GET_ACTIVE],
             [],
             req.cookies.jwt);
         let invitations = results[1].data.data.invitations.nodes;
@@ -167,11 +169,14 @@ router.get('/users', async (req, res) => {
 router.get("/software", async (req, res) => {
     try {
         let results = await db.queries(
-            [QADMIN.READING_SYSTEMS,
-            QADMIN.ASSISTIVE_TECHNOLOGIES,
-            QADMIN.OPERATING_SYSTEMS,
-            QADMIN.BROWSERS],
-            [],
+            [Q.SOFTWARE.GET_BY_TYPE,
+            Q.SOFTWARE.GET_BY_TYPE,
+            Q.SOFTWARE.GET_BY_TYPE,
+            Q.SOFTWARE.GET_BY_TYPE],
+            [{type: 'READING_SYSTEM'},
+            {type: 'ASSISTIVE_TECHNOLOGY'},
+            {type: 'OS'},
+            {type: 'BROWSER'}],
             req.cookies.jwt
         );
         
@@ -195,13 +200,18 @@ router.get("/software", async (req, res) => {
 router.get('/add-testing-environment', async (req, res) => {
      try {
         let results = await db.queries(
-            [QADMIN.READING_SYSTEMS,
-            QADMIN.ASSISTIVE_TECHNOLOGIES,
-            QADMIN.OPERATING_SYSTEMS,
-            QADMIN.BROWSERS,
-            Q.TOPICS,
-            QADMIN.ACTIVE_USERS],
-            [],
+            [Q.SOFTWARE.GET_BY_TYPE,
+            Q.SOFTWARE.GET_BY_TYPE,
+            Q.SOFTWARE.GET_BY_TYPE,
+            Q.SOFTWARE.GET_BY_TYPE,
+            Q.TOPICS.GET_ALL,
+            Q.USERS.GET_ACTIVE],
+            [{type: 'READING_SYSTEM'},
+            {type: 'ASSISTIVE_TECHNOLOGY'},
+            {type: 'OS'},
+            {type: 'BROWSER'}, 
+            {}, 
+            {}],
             req.cookies.jwt
         );
 

@@ -2,7 +2,7 @@ const path = require('path');
 const express = require('express')
 const router = express.Router()
 const db = require('../database');
-const Q = require('../queries/queries');
+const Q = require('../queries');
 const utils = require('../utils');
 
 router.get('/test', (req, res) => {
@@ -22,7 +22,7 @@ router.get('/request-error', (req, res) => res.render('request-error.html', { ac
 router.get('/results/:testingEnvironmentId', async (req, res) => {
     try {
         let results = await db.query(
-            Q.TESTING_ENVIRONMENT, 
+            Q.TESTING_ENVIRONMENTS.GET_BY_ID, 
             { id: parseInt(req.params.testingEnvironmentId) });
         return res.render('./testing-environment.html', {
             accessLevel: req.accessLevel,
@@ -40,7 +40,7 @@ router.get('/results/:testingEnvironmentId', async (req, res) => {
 router.get('/results', async (req, res) => {
     try {
         let results = await db.queries(
-            [Q.TOPICS, Q.PUBLIC_RESULTS],
+            [Q.TOPICS.GET_ALL, Q.TESTING_ENVIRONMENTS.GET_PUBLISHED],
             []);
         return res.render('./results.html', {
             accessLevel: req.accessLevel,
@@ -63,7 +63,7 @@ router.get('/results', async (req, res) => {
 router.get('/archive', async (req, res) => {
     try {
         let results = await db.queries(
-            [Q.TOPICS, Q.ARCHIVED_RESULTS],
+            [Q.TOPICS.GET_ALL, Q.TESTING_ENVIRONMENTS.GET_ARCHIVED],
             []);
         return res.render('./results.html', {
             accessLevel: req.accessLevel,
@@ -90,7 +90,7 @@ router.get('/about', (req, res) => res.render('./about.html', {accessLevel: req.
 // test books page
 router.get('/test-books', async (req, res) => {
     try {
-        let result = await db.query(Q.TEST_BOOKS, {});
+        let result = await db.query(Q.TEST_BOOKS.GET_LATEST, {});
         return res.render('./test-books.html', 
             {
                 accessLevel: req.accessLevel,

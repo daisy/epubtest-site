@@ -1,17 +1,17 @@
 var express = require('express');
 const db = require('../database');
-const Q = require('../queries/queries');
+const Q = require('../queries');
 const utils = require('../utils');
 var router = express.Router()
 
 // user dashboard page
 router.get('/dashboard', async (req, res) => {
     try {
-        let answersets = await db.query(Q.USER_ANSWERSETS, {userId: req.userId}, req.cookies.jwt);
+        let answersets = await db.query(Q.ANSWER_SETS.GET_BY_USER, {userId: req.userId}, req.cookies.jwt);
         let ids = answersets.data.data.getUserTestingEnvironments.nodes.map(tenv => 
             tenv.answerSetsByTestingEnvironmentId.nodes.map(ans => ans.id))
             .reduce((acc, curr) => acc.concat(curr), []);
-        let requests = await db.query(Q.REQUESTS_FOR_ANSWERSETS, {ids: ids}, req.cookies.jwt);
+        let requests = await db.query(Q.REQUESTS.GET_FOR_ANSWERSETS, {ids: ids}, req.cookies.jwt);
         requests = requests.data.data.requests.nodes;
         return res.render('./dashboard.html', 
             {
@@ -32,7 +32,7 @@ router.get('/dashboard', async (req, res) => {
 // user profile page
 router.get('/profile', async (req, res) => {
     try {
-        let result = await db.query(Q.USER_PROFILE, { id: req.userId }, req.cookies.jwt);
+        let result = await db.query(Q.USERS.GET_BY_ID, { id: req.userId }, req.cookies.jwt);
         return res.render('./profile.html', 
             {
                 accessLevel: req.accessLevel,
@@ -49,7 +49,7 @@ router.get('/profile', async (req, res) => {
 router.get('/edit-results/:answerSetId', async (req, res) => {
     try {
         let results = await db.query(
-            Q.ANSWER_SET,
+            Q.ANSWER_SETS.GET_BY_ID,
             { id: parseInt(req.params.answerSetId) },
             req.cookies.jwt);
         return res.render('./edit-results.html', {
