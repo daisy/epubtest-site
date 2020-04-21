@@ -7,7 +7,7 @@
 
 <div class="spaced">
     <h2>Your profile</h2>
-    {%- if not user.organization and user.website -%}
+    {%- if not user.organization and user.website and user.website != 'http://' -%}
     <p><a href="{{user.website}}">{{user.name}}</a></p>
     {%- else -%}
     <p>{{user.name}}</p>

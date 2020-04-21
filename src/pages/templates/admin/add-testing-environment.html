@@ -69,7 +69,7 @@
     <ul>
     {%- for topic in topics -%}
     <li>
-        <input type="checkbox" name="{{topic.id}}">
+        <input type="checkbox" value="{{topic.id}}" name="topics[{{loop.index}}]">
         <label for="{{topicId}}">{{getTopicName(topic.id)}}</label>
     </li>
     {%- endfor -%}

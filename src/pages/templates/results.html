@@ -1,5 +1,13 @@
 {%- extends 'base/base.html' -%}
+
 {%- set mainclass="wide" -%}
+
+{%- if isArchivesPage -%}
+{%- set title="Archived Results" -%}
+{%- else -%}
+{%- set title="Results" -%}
+{%- endif -%}
+
 {%- block content -%}
 
 <script type="module" src="/js/table.js"></script>
@@ -70,7 +78,7 @@
         window.sortby = sortby;
         window.headerKeypress = headerKeypress;
     </script>
-{%- if isArchive -%}
+{%- if isArchivesPage -%}
 <p>The following Testing Environments have been archived.</p>
 {%- else -%}
 <p>The following represents how well each Testing Environment (Reading System or Reading System + Assistive Technology 
@@ -102,7 +110,7 @@
     </tbody>
 </table>
 
-{%- if linkToArchive -%}
+{%- if isArchivesPage == false -%}
 <p><a href="/archive">Archived Results</a></p>
 {%- endif -%}
 {%- endblock -%}

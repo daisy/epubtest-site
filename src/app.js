@@ -49,5 +49,15 @@ app.use('/forms', apiLimiter, publicFormRoutes);
 app.use('/user/forms', middleware.isAuthenticated, userFormRoutes);
 app.use('/admin/forms', middleware.isAuthenticated, middleware.isAdmin, adminFormRoutes);
 
-const port = process.env.PORT || 8000;
-app.listen(port, () => console.log(`epubtest.org listening on port ${port}!`))
+
+// catch-all for unrecognized routes
+app.get('*', (req, res, next) => {
+    let err = new Error('Page Not Found');
+    err.statusCode = 404;
+    next(err);
+});
+
+// error middleware goes here at the end
+app.use(middleware.error);
+
+module.exports = app;

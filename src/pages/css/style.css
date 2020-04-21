@@ -186,6 +186,12 @@ main > *:first-child, body > nav > :first-child {
     font-weight: normal;
 }
 
+#err em {
+    font-size: larger;
+    font-weight: bold;
+    font-style: normal;
+    display: block;
+}
 /*****************************/
 /* MOBILE                    */
 /*****************************/

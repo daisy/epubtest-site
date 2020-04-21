@@ -5,284 +5,307 @@ const utils = require('../utils');
 
 var router = express.Router()
 
-router.get('/', async(req, res) => {
-    return res.render('./admin/index.html', {
-        accessLevel: req.accessLevel
-    });
-});
+router.get('/', async(req, res) => res.render('admin/index.html'));
 
 // admin requests
-router.get('/requests', async (req, res) => {
-    try {
-        let results = await db.query(Q.REQUESTS.GET_ALL, {}, req.cookies.jwt);
-        let requests = results.data.data.requests.nodes;
-        return res.render('./admin/requests.html', 
-            {
-                accessLevel: req.accessLevel,
-                requests: requests
-            });
+router.get('/requests', async (req, res, next) => {
+    let dbres = await db.query(Q.REQUESTS.GET_ALL, {}, req.cookies.jwt);
+    
+    if (!dbres.success) {
+        let err = new Error("Could not get requests.");
+        return next(err);
     }
-    catch(err) {
-        console.log(err);
-        return res.redirect('/server-error');
-    }
+    
+    return res.render('./admin/requests.html', 
+        { 
+            requests: dbres.data.requests.nodes 
+        }
+    );
 });
 
 // admin testing
-router.get('/testing', async (req, res) => {
-    try {
-        let results = await db.queries(
-            [Q.REQUESTS.GET_ALL, 
-                Q.TESTING_ENVIRONMENTS.GET_ALL, 
-                Q.TESTING_ENVIRONMENTS.GET_PUBLISHED, 
-                Q.TESTING_ENVIRONMENTS.GET_ARCHIVED], 
-            [], 
-            req.cookies.jwt);
-        
-        let requests = results[0].data.data.requests.nodes;
-        let publicTestingEnvironments = results[2].data.data.getPublishedTestingEnvironments.nodes
+router.get('/testing', async (req, res, next) => {
+    let dbres = await db.query(Q.REQUESTS.GET_ALL, {}, req.cookies.jwt);
+    if (!dbres.success) {
+        let err = new Error("Could not get requests.");
+        return next(err);
+    }
+    let requests = dbres.data.requests.nodes;
+    dbres = await db.query(Q.TESTING_ENVIRONMENTS.GET_ALL, {}, req.cookies.jwt);
+    if (!dbres.success) {
+        let err = new Error("Could not get testing environments.");
+        return next(err);
+    }
+    let allTestEnvs = dbres.data.testingEnvironments.nodes;
+
+    // the following two are public datasets so no jwt required
+    dbres = await db.query(Q.TESTING_ENVIRONMENTS.GET_PUBLISHED);
+    if (!dbres.success) {
+        let err = new Error("Could not get published testing environments.");
+        return next(err);
+    }
+    let publishedTestEnvs = dbres.data.getPublishedTestingEnvironments.nodes;
+    dbres = await db.query(Q.TESTING_ENVIRONMENTS.GET_ARCHIVED);
+    if (!dbres.success) {
+        let err = new Error("Could not get archived testing environments.");
+        return next(err);
+    }
+    let archivedTestEnvs = dbres.data.getArchivedTestingEnvironments.nodes;
+
+    let publicTestingEnvironments = publishedTestEnvs.sort(utils.sortAlphaTestEnv);
+    let publicArchivedTestingEnvironments = archivedTestEnvs.sort(utils.sortAlphaTestEnv);
+    let unpublishedTestingEnvironments = allTestEnvs.filter(tenv => !tenv.isArchived
+            && publicTestingEnvironments.find(n=>n.id === tenv.id) == undefined )
             .sort(utils.sortAlphaTestEnv);
-        let publicArchivedTestingEnvironments = results[3].data.data.getArchivedTestingEnvironments.nodes
+    let unpublishedArchivedTestingEnvironments = allTestEnvs.filter(tenv => tenv.isArchived 
+            && publicArchivedTestingEnvironments.find(n=>n.id === tenv.id) == undefined )
             .sort(utils.sortAlphaTestEnv);
-        let unpublishedTestingEnvironments = results[1].data.data.testingEnvironments.nodes
-            .filter(tenv => !tenv.isArchived
-                && publicTestingEnvironments.find(n=>n.id === tenv.id) == undefined )
-            .sort(utils.sortAlphaTestEnv);
-        let unpublishedArchivedTestingEnvironments = results[1].data.data.testingEnvironments.nodes
-            .filter(tenv => tenv.isArchived 
-                && publicArchivedTestingEnvironments.find(n=>n.id === tenv.id) == undefined )
-            .sort(utils.sortAlphaTestEnv);
-        // too slow
-        // TODO write pgsql function
-        /*let noResultsTestingEnvironments = results[1].data.data.testingEnvironments.nodes
-            .filter(tenv => {
-                let answerSets = tenv.answerSetsByTestingEnvironmentId.nodes;
-                let completedAnswerSets = answerSets.filter(aset => {
-                    let answered = aset.answersByAnswerSetId.nodes
-                        .filter(ans => ans.value != 'NOANSWER');
-                    return answered.length !== 0;
-                });
-                return completedAnswerSets.length === 0;
-            });*/
-        return res.render('./admin/testing.html', 
-            {
-                accessLevel: req.accessLevel,
-                publicTestingEnvironments,
-                publicArchivedTestingEnvironments,
-                unpublishedTestingEnvironments,
-                unpublishedArchivedTestingEnvironments,
-                // noResultsTestingEnvironments,
-                getRequestToPublish: answerSetId => {
-                    let retval = requests.find(r => r.answerSetId === answerSetId);
-                    return retval;
-                }
+    // too slow
+    // TODO write pgsql function
+    /*let noResultsTestingEnvironments = results[1].data.data.testingEnvironments.nodes
+        .filter(tenv => {
+            let answerSets = tenv.answerSetsByTestingEnvironmentId.nodes;
+            let completedAnswerSets = answerSets.filter(aset => {
+                let answered = aset.answersByAnswerSetId.nodes
+                    .filter(ans => ans.value != 'NOANSWER');
+                return answered.length !== 0;
             });
-    }
-    catch(err) {
-        console.log(err);
-        return res.redirect('/server-error');
-    }
+            return completedAnswerSets.length === 0;
+        });*/
+    return res.render('admin/testing.html', 
+        {
+            publicTestingEnvironments,
+            publicArchivedTestingEnvironments,
+            unpublishedTestingEnvironments,
+            unpublishedArchivedTestingEnvironments,
+            // noResultsTestingEnvironments,
+            getRequestToPublish: answerSetId => {
+                let retval = requests.find(r => r.answerSetId === answerSetId);
+                return retval;
+            }
+        }
+    );
 });
 
-router.get('/testing-environment/:id', async (req, res) => {
+router.get('/testing-environment/:id', async (req, res, next) => {
+    let dbres = await db.query(Q.TESTING_ENVIRONMENTS.GET_BY_ID, 
+        { id: parseInt(req.params.id) }, 
+        req.cookies.jwt);
+    if (!dbres.success) {
+        let err = new Error(`Could not get testing environment (${req.params.id}).`);
+        return next(err);
+    }
+    let testingEnvironment = dbres.data.testingEnvironment;
 
-    try {
-        let id = req.params.id;
-        let results = await db.queries(
-            [Q.TESTING_ENVIRONMENTS.GET_BY_ID, Q.USERS.GET_ACTIVE], 
-            [{ id: parseInt(id) }, {}], 
-            req.cookies.jwt);
-        testenv = results[0].data.data.testingEnvironment;
-        users = results[1].data.data.getActiveUsers.nodes;
-        let requests = await db.query(
-            Q.REQUESTS.GET_FOR_ANSWERSETS, 
-            { ids: testenv.answerSetsByTestingEnvironmentId.nodes.map(ans => ans.id)},
-            req.cookies.jwt
-        );
-        requests = requests.data.data.requests.nodes;
-        return res.render('./admin/testing-environment.html', 
-            {
-                accessLevel: req.accessLevel,
-                testingEnvironment: testenv,
-                users,
-                getRequestToPublish: answerSetId => {
-                    let retval = requests.find(r => r.answerSetId === answerSetId);
-                    return retval;
-                }
-            });
+    dbres = await db.query(Q.USERS.GET_ACTIVE, {}, req.cookies.jwt);
+    if (!dbres.success) {
+        let err = new Error(`Could not get active users.`);
+        return next(err);
     }
-    catch (err) {
-        console.log(err);
-        return res.redirect('/server-error');
+    let users = dbres.data.getActiveUsers.nodes;
+    
+    dbres = await db.query(
+        Q.REQUESTS.GET_FOR_ANSWERSETS, 
+        { ids: testingEnvironment.answerSetsByTestingEnvironmentId.nodes.map(ans => ans.id)},
+        req.cookies.jwt
+    );
+    if (!dbres.success) {
+        let err = new Error(`Could not get requests.`);
+        return next(err);
     }
+    let requests = dbres.data.requests.nodes;
+    return res.render('admin/testing-environment.html', 
+        {
+            testingEnvironment,
+            users,
+            getRequestToPublish: answerSetId => {
+                let retval = requests.find(r => r.answerSetId === answerSetId);
+                return retval;
+            }
+        }
+    );
 });
 
 // admin test books
-router.get('/test-books', async (req, res) => {
-    try {
-        let result = await db.query(Q.TEST_BOOKS.GET_LATEST, {});
-        return res.render('./admin/test-books.html', 
-            {
-                accessLevel: req.accessLevel,
-                testBooks: result.data.data.getLatestTestBooks.nodes,
-                getTopicName: utils.getTopicName
-            });
+router.get('/test-books', async (req, res, next) => {
+    let dbres = await db.query(Q.TEST_BOOKS.GET_LATEST, {});
+    if (!dbres.success) {
+        let err = new Error(`Could not get test books.`);
+        return next(err);
     }
-    catch(err) {
-        console.log(err);
-        return res.redirect('/server-error');
-    }
+    
+    return res.render('admin/test-books.html', 
+        {
+            testBooks: dbres.data.getLatestTestBooks.nodes,
+            getTopicName: utils.getTopicName
+        }
+    );
 });
 
 // admin users
-router.get('/users', async (req, res) => {
+router.get('/users', async (req, res, next) => {
     let alpha = (a,b) => a.name > b.name ? 1 : a.name == b.name ? 0 : -1;
     let alpha2 = (a,b) => a.user.name > b.user.name ? 1 : a.user.name == b.user.name ? 0 : -1;
-    try {
-        let results = await db.queries([
-            Q.USERS.GET_INACTIVE, 
-            Q.INVITATIONS.GET_ALL,
-            Q.USERS.GET_ACTIVE],
-            [],
-            req.cookies.jwt);
-        let invitations = results[1].data.data.invitations.nodes;
-        let activeUsers = results[2].data.data.getActiveUsers.nodes;
-        // filter out users who've been invited
-        let inactiveUsers = results[0].data.data.getInactiveUsers.nodes;
-        inactiveUsers = inactiveUsers.filter(u => invitations.find(a => a.user.id === u.id) === undefined);
-        
-        return res.render('./admin/users.html', 
-            {
-                accessLevel: req.accessLevel,
-                invitations: invitations.sort(alpha2),
-                inactiveUsers: inactiveUsers.sort(alpha),
-                activeUsers: activeUsers.sort(alpha),
-                duplicateName: name => inactiveUsers.filter(u => u.name === name).length > 1
-            });
-    }
-    catch(err) {
-        console.log(err);
-        return res.redirect('/server-error');
-    }
-});
-
-router.get("/software", async (req, res) => {
-    try {
-        let results = await db.queries(
-            [Q.SOFTWARE.GET_BY_TYPE,
-            Q.SOFTWARE.GET_BY_TYPE,
-            Q.SOFTWARE.GET_BY_TYPE,
-            Q.SOFTWARE.GET_BY_TYPE],
-            [{type: 'READING_SYSTEM'},
-            {type: 'ASSISTIVE_TECHNOLOGY'},
-            {type: 'OS'},
-            {type: 'BROWSER'}],
-            req.cookies.jwt
-        );
-        
-        return res.render('./admin/all-software.html', {
-            accessLevel: req.accessLevel,
-            readingSystems: results[0].data.data.softwares.nodes.sort(utils.sortAlpha),
-            assistiveTechnologies: results[1].data.data.softwares.nodes.sort(utils.sortAlpha),
-            operatingSystems: results[2].data.data.softwares.nodes.sort(utils.sortAlpha),
-            browsers: results[3].data.data.softwares.nodes.sort(utils.sortAlpha)
-        });
-    }
-    catch (err) {
-        console.log(err);
-        return res.redirect('/server-error');
-    }
-
-
     
+    let dbres = await db.query(Q.USERS.GET_INACTIVE, {}, req.cookies.jwt);
+    if (!dbres.success) {
+        let err = new Error(`Could not get inactive users.`);
+        return next(err);
+    }
+    let inactiveUsers = dbres.data.getInactiveUsers.nodes;
+
+    dbres = await db.query(Q.INVITATIONS.GET_ALL, {}, req.cookies.jwt);
+    if (!dbres.success) {
+        let err = new Error(`Could not get invitations.`);
+        return next(err);
+    }
+    let invitations = dbres.data.invitations.nodes;
+
+    dbres = await db.query(Q.USERS.GET_ACTIVE, {}, req.cookies.jwt);
+    if (!dbres.success) {
+        let err = new Error(`Could not get active users.`);
+        return next(err);
+    }
+    let activeUsers = dbres.data.getActiveUsers.nodes;
+
+    // filter out users who've been invited
+    inactiveUsers = inactiveUsers.filter(u => invitations.find(a => a.user.id === u.id) === undefined);
+    
+    return res.render('admin/users.html', 
+        {
+            invitations: invitations.sort(alpha2),
+            inactiveUsers: inactiveUsers.sort(alpha),
+            activeUsers: activeUsers.sort(alpha),
+            duplicateName: name => inactiveUsers.filter(u => u.name === name).length > 1
+        }
+    );
 });
 
-router.get('/add-testing-environment', async (req, res) => {
-     try {
-        let results = await db.queries(
-            [Q.SOFTWARE.GET_BY_TYPE,
-            Q.SOFTWARE.GET_BY_TYPE,
-            Q.SOFTWARE.GET_BY_TYPE,
-            Q.SOFTWARE.GET_BY_TYPE,
-            Q.TOPICS.GET_ALL,
-            Q.USERS.GET_ACTIVE],
-            [{type: 'READING_SYSTEM'},
-            {type: 'ASSISTIVE_TECHNOLOGY'},
-            {type: 'OS'},
-            {type: 'BROWSER'}, 
-            {}, 
-            {}],
-            req.cookies.jwt
-        );
-
-        return res.render("./admin/add-testing-environment.html", {
-            accessLevel: req.accessLevel,
-            readingSystems: results[0].data.data.softwares.nodes.sort(utils.sortAlpha),
-            assistiveTechnologies: results[1].data.data.softwares.nodes.sort(utils.sortAlpha),
-            operatingSystems: results[2].data.data.softwares.nodes.sort(utils.sortAlpha),
-            browsers: results[3].data.data.softwares.nodes.sort(utils.sortAlpha),
-            getTopicName: utils.getTopicName,
-            topics: results[4].data.data.topics.nodes.sort(utils.sortTopicOrder),
-            users: results[5].data.data.getActiveUsers.nodes.sort(utils.sortAlphaUsers)
-        });
+router.get("/software", async (req, res, next) => {
+    let allSw = await getAllSoftware(req.cookies.jwt);
+    if (!allSw.success) {
+        return next(allSw.error);
     }
-    catch (err) {
-        console.log(err);
-        return res.redirect('/server-error');
-    }
+    
+    return res.render('admin/all-software.html', {
+        readingSystems: allSw.readingSystems.sort(utils.sortAlpha),
+        assistiveTechnologies: allSw.assistiveTechnologies.sort(utils.sortAlpha),
+        operatingSystems: allSw.operatingSystems.sort(utils.sortAlpha),
+        browsers: allSw.browsers.sort(utils.sortAlpha)
+    });
 });
 
-router.get('/add-reading-system', (req, res) => {
+router.get('/add-testing-environment', async (req, res, next) => {
+    let allSw = await getAllSoftware(req.cookies.jwt);
+    if (!allSw.success) {
+        return next(allSw.error);
+    }
+
+    let dbres = await db.query(Q.TOPICS.GET_ALL);
+    if (!dbres.success) {
+        let err = new Error("Could not get topics");
+        return next(err);
+    }
+    let topics = dbres.data.topics.nodes;
+    
+    dbres = await db.query(Q.USERS.GET_ACTIVE, {}, req.cookies.jwt);
+    if (!dbres.success) {
+        let err = new Error("Could not get active users");
+        return next(err);
+    }
+    let users = dbres.data.getActiveUsers.nodes;
+
+    return res.render("admin/add-testing-environment.html", {
+        readingSystems: allSw.readingSystems.sort(utils.sortAlpha),
+        assistiveTechnologies: allSw.assistiveTechnologies.sort(utils.sortAlpha),
+        operatingSystems: allSw.operatingSystems.sort(utils.sortAlpha),
+        browsers: allSw.browsers.sort(utils.sortAlpha),
+        getTopicName: utils.getTopicName,
+        topics: topics.sort(utils.sortTopicOrder),
+        users: users.sort(utils.sortAlphaUsers)
+    });
+});
+
+router.get('/add-reading-system', (req, res) => res.render(
+    'admin/add-software.html', 
+    {
+        title: "Add Reading System",
+        type: "READING_SYSTEM"
+    })
+);
+
+router.get('/add-assistive-technology', (req, res) => res.render(
+    'admin/add-software.html', 
+    {
+        title: "Add Assistive Technology",
+        type: "ASSISTIVE_TECHNOLOGY"
+    })
+);
+
+router.get('/add-operating-system', (req, res) => res.render(
+    'admin/add-software.html', 
+    {
+        title: "Add Operating System",
+        type: "OS"
+    })
+);
+
+router.get('/add-browser', (req, res) => res.render(
+    './admin/add-software.html', 
+    {
+        title: "Add Browser",
+        type: "BROWSER"
+    })
+);
+
+
+async function getAllSoftware(jwt) {
     try {
-        return res.render('./admin/add-software.html', {
-            title: "Add Reading System",
-            type: "READING_SYSTEM"
-        });
-    }
-    catch (err) {
-        console.log(err);
-        return res.redirect('/server-error');
-    }
-});
+        let dbres = await db.query(Q.SOFTWARE.GET_BY_TYPE, 
+            { type: 'READING_SYSTEM'}, jwt);
+        if (!dbres.success) {
+            throw new Error(`Could not get reading systems`);
+        }
+        let readingSystems = dbres.data.softwares.nodes;
+        
+        dbres = await db.query(Q.SOFTWARE.GET_BY_TYPE, 
+            { type: 'ASSISTIVE_TECHNOLOGY'}, jwt);
+        if (!dbres.success) {
+            throw new Error(`Could not get assistive technologies`);
+        }
+        let assistiveTechnologies = dbres.data.softwares.nodes;
 
-router.get('/add-assistive-technology', (req, res) => {
-    try {
-        return res.render('./admin/add-software.html', {
-            title: "Add Assistive Technology",
-            type: "ASSISTIVE_TECHNOLOGY"
-        });
-    }
-    catch (err) {
-        console.log(err);
-        return res.redirect('/server-error');
-    }
-});
+        dbres = await db.query(Q.SOFTWARE.GET_BY_TYPE, 
+            { type: 'OS'}, jwt);
+        if (!dbres.success) {
+            throw new Error(`Could not get operating systems`);
+        }
+        let operatingSystems = dbres.data.softwares.nodes;
+        
+        dbres = await db.query(Q.SOFTWARE.GET_BY_TYPE, 
+            { type: 'BROWSER'}, jwt);
+        if (!dbres.success) {
+            throw new Error(`Could not get browsers`);
+        }
+        let browsers = dbres.data.softwares.nodes;
 
-router.get('/add-operating-system', (req, res) => {
-    try {
-        return res.render('./admin/add-software.html', {
-            title: "Add Operating System",
-            type: "OS"
-        });
+        return {
+            success: true, 
+            error: null, 
+            operatingSystems, 
+            browsers, 
+            readingSystems, 
+            assistiveTechnologies};
     }
-    catch (err) {
-        console.log(err);
-        return res.redirect('/server-error');
+    catch(error) {
+        return {
+            success: false, 
+            error, 
+            operatingSystems: [], 
+            browsers: [], 
+            readingSystems: [], 
+            assistiveTechnologies: []};
     }
-});
-
-router.get('/add-browser', (req, res) => {
-    try {
-        return res.render('./admin/add-software.html', {
-            title: "Add Browser",
-            type: "BROWSER"
-        });
-    }
-    catch (err) {
-        console.log(err);
-        return res.redirect('/server-error');
-    }
-});
-
+}
 
 module.exports = router;

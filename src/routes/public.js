@@ -5,129 +5,122 @@ const db = require('../database');
 const Q = require('../queries');
 const utils = require('../utils');
 
-router.get('/test', (req, res) => {
-    return res.render('test.html', { accessLevel: req.accessLevel });
-});
+router.get('/test', (req, res) => res.render('test.html'));
 
 // home page
-router.get('/', (req, res) => res.render('index.html', { accessLevel: req.accessLevel}));
+router.get('/', (req, res) => res.render('index.html'));
+
+// about page
+router.get('/about', (req, res) => res.render('about.html'));
+
+// participate page
+router.get('/participate', (req, res) => res.render('participate.html'));
+
+// instructions page
+router.get('/instructions', (req, res) => 
+    res.redirect('https://dl.daisy.org/Notes_on_Testing_EPUB_reading_systems.docx'));
 
 // server error
-router.get('/server-error', (req, res) => res.render('server-error.html', { accessLevel: req.accessLevel}));
+router.get('/error', (req, res) => res.render('error.html'));
 
-// request error
-router.get('/request-error', (req, res) => res.render('request-error.html', { accessLevel: req.accessLevel}));
+// forgot password page
+router.get('/forgot-password', (req, res) => res.render('auth/forgot-password.html'));
+
+// check your email (for a reset password link) page
+//router.get('/check-your-email', (req, res) => res.render('auth/check-your-email.html'));
 
 // testing environment results
-router.get('/results/:testingEnvironmentId', async (req, res) => {
-    try {
-        let results = await db.query(
-            Q.TESTING_ENVIRONMENTS.GET_BY_ID, 
-            { id: parseInt(req.params.testingEnvironmentId) });
-        return res.render('./testing-environment.html', {
-            accessLevel: req.accessLevel,
-            testingEnvironment: results.data.data.testingEnvironment,
-            getTopicName: utils.getTopicName
-        });
+router.get('/results/:testingEnvironmentId', async (req, res, next) => {
+    let dbres = await db.query(
+        Q.TESTING_ENVIRONMENTS.GET_BY_ID, 
+        { id: parseInt(req.params.testingEnvironmentId) }); 
+    if (!dbres.success) {
+        let err = new Error(`Could not get testing environment (${req.params.testingEnvironmentId})`);
+        return next(err);
     }
-    catch(err) {
-        console.log(err);
-        return res.redirect('/server-error');
-    }
+
+    return res.render('testing-environment.html', {
+        testingEnvironment: dbres.data.testingEnvironment,
+        getTopicName: utils.getTopicName
+    });
 });
 
 // results grid
-router.get('/results', async (req, res) => {
-    try {
-        let results = await db.queries(
-            [Q.TOPICS.GET_ALL, Q.TESTING_ENVIRONMENTS.GET_PUBLISHED],
-            []);
-        return res.render('./results.html', {
-            accessLevel: req.accessLevel,
-            testingEnvironments: results[1].data.data.getPublishedTestingEnvironments.nodes,
-            topics: results[0].data.data.topics.nodes,
-            title: 'Results',
-            getfortopic: (answerSets, topic) => {
-                return answerSets.find(a => a.testBook.topic.id === topic.id)
-            },
-            getTopicName: utils.getTopicName,
-            linkToArchive: true
-        });
+router.get('/results', async (req, res, next) => {
+    let dbres = await db.query(Q.TOPICS.GET_ALL);
+    if (!dbres.success) {
+        let err = new Error("Could not get topics.");
+        return next(err);
     }
-    catch(err) {
-        console.log(err);
-        return res.redirect('/server-error');
+    let topics = dbres.data.topics.nodes;
+    
+    dbres = await db.query(Q.TESTING_ENVIRONMENTS.GET_PUBLISHED);
+    if (!dbres.success) {
+        let err = new Error("Could not get published testing environments");
+        return next(err);
     }
+    let testingEnvironments = dbres.data.getPublishedTestingEnvironments.nodes;
+    
+    return res.render('results.html', {
+        testingEnvironments,
+        topics,
+        getfortopic: (answerSets, topic) => {
+            return answerSets.find(a => a.testBook.topic.id === topic.id)
+        },
+        getTopicName: utils.getTopicName,
+        isArchivesPage: false,
+    });
 });
 
-router.get('/archive', async (req, res) => {
-    try {
-        let results = await db.queries(
-            [Q.TOPICS.GET_ALL, Q.TESTING_ENVIRONMENTS.GET_ARCHIVED],
-            []);
-        return res.render('./results.html', {
-            accessLevel: req.accessLevel,
-            testingEnvironments: results[1].data.data.getArchivedTestingEnvironments.nodes,
-            topics: results[0].data.data.topics.nodes,
-            title: 'Archived Results',
-            isArchive: true,
-            getfortopic: (answerSets, topic) => {
-                return answerSets.find(a => a.testBook.topic.id === topic.id)
-            },
-            getTopicName: utils.getTopicName,
-            linkToArchive: false
-        });
+router.get('/archive', async (req, res, next) => {
+    let dbres = await db.query(Q.TOPICS.GET_ALL);
+    if (!dbres.success) {
+        let err = new Error("Could not get topics.");
+        return next(err);
     }
-    catch(err) {
-        console.log(err);
-        return res.redirect('/server-error');
+    let topics = dbres.data.topics.nodes;
+    
+    dbres = await db.query(Q.TESTING_ENVIRONMENTS.GET_ARCHIVED);
+    if (!dbres.success) {
+        let err = new Error("Could not get archived testing environments");
+        return next(err);
     }
+    let testingEnvironments = dbres.data.getArchivedTestingEnvironments.nodes;
+    
+    return res.render('results.html', {
+        testingEnvironments,
+        topics: topics.data.data.topics.nodes,
+        isArchivesPage: true,
+        getfortopic: (answerSets, topic) => {
+            return answerSets.find(a => a.testBook.topic.id === topic.id)
+        },
+        getTopicName: utils.getTopicName
+    });
 });
 
-// about page
-router.get('/about', (req, res) => res.render('./about.html', {accessLevel: req.accessLevel}));
 
 // test books page
-router.get('/test-books', async (req, res) => {
-    try {
-        let result = await db.query(Q.TEST_BOOKS.GET_LATEST, {});
-        return res.render('./test-books.html', 
-            {
-                accessLevel: req.accessLevel,
-                testBooks: result.data.data.getLatestTestBooks.nodes,
-                getTopicName: utils.getTopicName
-            });
+router.get('/test-books', async (req, res, next) => {
+    let dbres = await db.query(Q.TEST_BOOKS.GET_LATEST);
+    
+    if (!dbres.success) {
+        let err = new Error("Could not get test books.");
+        return next(err);
     }
-    catch(err) {
-        console.log(err);
-        return res.redirect('/server-error');
-    }
-});
 
-// participate page
-router.get('/participate', (req, res) => {
-    return res.render('./participate.html',
+    return res.render('test-books.html', 
         {
-            accessLevel: req.accessLevel
-        });
-});
-
-// instructions page
-router.get('/instructions', (req, res) => {
-    return res.redirect('https://dl.daisy.org/Notes_on_Testing_EPUB_reading_systems.docx');
+            testBooks: dbres.data.getLatestTestBooks.nodes,
+            getTopicName: utils.getTopicName
+        }
+    );
 });
 
 // login page
-router.get('/login', (req, res) => res.render('./auth/login.html', {
-    accessLevel: req.accessLevel,
+router.get('/login', (req, res) => res.render('auth/login.html', {
     next: req.query.hasOwnProperty('next') ? req.query.next : ''
 }));
 
-// forgot password page
-router.get('/forgot-password', (req, res) => res.render('./auth/forgot-password.html', {accessLevel: req.accessLevel}));
-
-// check your email (for a reset password link) page
-router.get('/check-your-email', (req, res) => res.render('./auth/check-your-email.html', {accessLevel: req.accessLevel}));
 
 // reset password page
 router.get('/set-password', (req, res) => {
@@ -138,10 +131,7 @@ router.get('/set-password', (req, res) => {
         return res
                 .status(200)
                 .cookie('jwt', jwt, { httpOnly: true/*, secure: true */ , maxAge: token.expires})
-                .render('./auth/set-password.html',
-                    {
-                        accessLevel: req.accessLevel
-                    });
+                .render('auth/set-password.html');
     }
     else {
         let message = "Please try again";
@@ -160,9 +150,8 @@ router.get('/accept-invitation', (req, res) => {
         return res
                 .status(200)
                 .cookie('jwt', jwt, { httpOnly: true/*, secure: true */ , maxAge: token.expires})
-                .render('./auth/set-password.html',
+                .render('auth/set-password.html',
                     {
-                        accessLevel: req.accessLevel,
                         pageTitle: "Welcome",
                         pageMessage: `Thank you for participating in EPUB Accessibility Testing! 
                         Because you'll login to contribute to this site, please set a password. 

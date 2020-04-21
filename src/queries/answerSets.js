@@ -42,66 +42,14 @@ module.exports = {
             clientMutationId
         }
     }`,
-  
-    
-
-    // get answer sets for a given user
-    GET_BY_USER: 
-    `query($userId: Int!) {
-        getUserTestingEnvironments(userId: $userId) {
-            nodes {
-            id
-            readingSystem {
-                name
-                version
-                vendor
-            }
-            assistiveTechnology {
-                name
-                version
-                vendor
-            }
-            os {
-                name
-                version
-                vendor
-            }
-            device {
-                name
-                version
-                vendor
-            }
-            browser {
-                name
-                version
-                vendor
-            }
-            answerSetsByTestingEnvironmentId(
-                condition: { 
-                    userId: $userId 
-                }) {
-                    nodes{
-                        id
-                        flag
-                        score
-                        isPublic
-                        testBook {
-                            title
-                            topic {
-                                id
-                            }
-                            lang {
-                                id
-                                label
-                            }
-                        }
-                    }
-                }
-            }
+        
+    UPDATE: 
+    `mutation ($input: UpdateAnswersetAndAnswersInput!) {
+        updateAnswersetAndAnswers(input: $input){
+            clientMutationId
         }
-     }`,
+    }`,
 
-    
     // get an answer set by ID
     GET_BY_ID: 
     `query($id: Int!) {
@@ -168,13 +116,5 @@ module.exports = {
             }
         }
     }`,
-    
-    UPDATE: 
-    `mutation ($input: UpdateAnswersetAndAnswersInput!) {
-        updateAnswersetAndAnswers(input: $input){
-            clientMutationId
-        }
-    }`,
-
 
 };

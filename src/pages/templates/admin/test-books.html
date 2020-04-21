@@ -17,17 +17,17 @@ By Topic
 
 #}
 
-{#<h2>Add Test Book</h2>
+<h2>Add Test Book</h2>
 
 <p>Please ensure the book conforms to the <a href="#TODO">Guidelines</a> and that it passes EPUBCheck.</p>
 
 <form method="POST" action="/admin/forms/upload-test-book" enctype="multipart/form-data">
-    <input type="file" name="epub">
+    <input type="file" name="epub" required>
     <input type="submit" value="Add book">
 </form>
-#}
 
-<h2>Latest Test Books</h2>
+
+{# <h2>Latest Test Books</h2>
 <table class="wide striped">
     <thead>
         <tr>
@@ -51,9 +51,9 @@ By Topic
         </tr>    
         {%- endfor -%}  
     </tbody>
-</table>
+</table> #}
 
-{#<h2>All Test Books</h2>
+<h2>All Test Books</h2>
 <table class="wide striped">
     <thead>
         <tr>
@@ -64,6 +64,7 @@ By Topic
             <th>Title</th>
             <th>Description</th>
             <th>Download</th>
+            <th>Delete</th>
         </tr>
     </thead>
     <tbody>
@@ -76,9 +77,13 @@ By Topic
             <td>{{testBook.title}}</td>
             <td>{{testBook.description}}</td>
             <td><a href="/books/{{testBook.filename}}" title="{{testBook.title}}">Download</a></td>
+            <td><form action="/admin/forms/confirm-delete-test-book/{{testBook.id}}" method="post">
+                    <input type="submit" value="Delete"></input>
+                </form>
+            </td>
         </tr>    
         {%- endfor -%}  
     </tbody>
 </table>
-#}
+
 {%- endblock -%}

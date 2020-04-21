@@ -8,9 +8,9 @@
     "url": "https://github.com/daisy/epubtest-site"
   },
   "scripts": {
-    "start": "node src/index.js",
-    "dev": "nodemon --inspect  -e js,html src/index.js",
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node src/start.js",
+    "dev": "nodemon --inspect  -e js,html src/start.js",
+    "test": "mocha",
     "gulp": "./node_modules/.bin/gulp"
   },
   "author": {
@@ -45,6 +45,8 @@
     "xpath": "0.0.27"
   },
   "devDependencies": {
-    "nodemon": "^1.19.4"
+    "mocha": "^7.1.1",
+    "nodemon": "^1.19.4",
+    "supertest": "^4.0.2"
   }
 }

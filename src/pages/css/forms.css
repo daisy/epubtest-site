@@ -20,6 +20,7 @@ form.simple {
     display: grid;
     grid-gap: 3vh;
     width: 30%;
+    margin: auto;
 }
 
 form.simple > div {
@@ -34,8 +35,8 @@ form.simple > .actions {
     grid-template-columns: 50% auto;
 }
 
-form.simple > input[type=submit] {
-    width: 12vh;
+form.simple input[type=submit] {
+    max-width: 5rem;
 }
 
 textarea.summary {

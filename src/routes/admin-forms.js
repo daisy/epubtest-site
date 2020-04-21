@@ -1,468 +1,322 @@
 const express = require('express');
+const router = express.Router()
 const db = require('../database');
 const Q = require('../queries');
-const router = express.Router()
-const invite = require('../invite');
-const EPUB = require('../epub-parser/epub');
+const invite = require('../actions/invite');
+const testBooks = require('../actions/testBooks');
+const testingEnvironments = require('../actions/testingEnvironments');
 const formidable = require('formidable')
 const utils = require('../utils');
 
-// submit approve request to publish
-router.post('/handle-request', async (req, res) => {
-    try {
-        if (req.body.hasOwnProperty("approve")) {
-            await db.queries([
-                Q.ANSWER_SETS.PUBLISH, 
-                Q.REQUESTS.DELETE
-            ], 
-            [
-                { answerSetId: parseInt(req.body.answerSetId) },
-                { requestId: parseInt(req.body.requestId) }
-            ], 
+// approve or deny request to publish
+router.post('/handle-request', async (req, res, next) => {
+    if (req.body.hasOwnProperty("approve")) {
+        let dbres = await db.query(Q.ANSWER_SETS.PUBLISH,
+            { answerSetId: parseInt(req.body.answerSetId)},
             req.cookies.jwt);
+        
+        if (!dbres.success) {
+            let err = new Error("Could not publish answer set.");
+            return next(err);
         }
-        else if (req.body.hasOwnProperty("deny")) {
-            await db.query(
-                Q.REQUESTS.DELETE, 
-                { requestId: parseInt(req.body.requestId) }, 
-                req.cookies.jwt);
-        }
-        return res.redirect('/admin/requests');
     }
-    catch (err) {
-        console.log(err);
-        return res.redirect('/server-error');
+    
+    if (req.body.hasOwnProperty("approve") || req.body.hasOwnProperty("deny")) {
+        let dbres = await db.query(Q.REQUESTS.DELETE,
+            { requestId: parseInt(req.body.requestId) },
+            req.cookies.jwt);
+        
+        if (!dbres.success) {
+            let err = new Error("Could not delete request to publish.");
+            return next(err);
+        }    
     }
+    return res.redirect('/admin/requests');
 });
 
-router.post('/publish', async (req, res) => {
+// publish an answer set
+router.post('/publish', async (req, res, next) => {
 
-    await db.query(
-        Q.ANSWER_SETS.PUBLISH,
-        { answerSetId: parseInt(req.body.answerSetId) },
+    let dbres = await db.query(Q.ANSWER_SETS.PUBLISH,
+        { answerSetId: parseInt(req.body.answerSetId)},
         req.cookies.jwt);
     
+    if (!dbres.success) {
+        let err = new Error("Could not publish answer set.");
+        return next(err);
+    }
+    
     // also clear any requests for publishing that this answer set might have had
-    let requests = await db.query(
+    dbres = await db.query(
         Q.REQUESTS.GET_FOR_ANSWERSETS, 
         { ids: [parseInt(req.body.answerSetId)]},
         req.cookies.jwt
     );
 
-    if (requests && requests.data.data.requests.nodes.length > 0) {
-        await db.query(
-            Q.REQUESTS.DELETE, 
-            { requestId: requests.data.data.requests.nodes[0].id }, 
+    if (!dbres.success) {
+        let err = new Error("Could not get requests.");
+        return next(err);
+    }
+
+    if (dbres.data && dbres.data.requests.nodes.length > 0) {
+        dbres = await db.query(Q.REQUESTS.DELETE,
+            { requestId: requests.data.data.nodes[0].id },
             req.cookies.jwt);
+        
+        if (!dbres.success) {
+            let err = new Error("Could not delete request to publish.");
+            return next(err);
+        }
     }
 
     return res.redirect(`/admin/testing-environment/${req.body.testingEnvironmentId}`);
 });
 
-router.post('/unpublish', async (req, res) => {
-    await db.query(
+// unpublish an answer set
+router.post('/unpublish', async (req, res, next) => {
+    let dbres = await db.query(
         Q.ANSWER_SETS.UNPUBLISH,
         { answerSetId: parseInt(req.body.answerSetId) },
         req.cookies.jwt);
     
+    if (!dbres.success) {
+        let err = new Error("Could not unpublish answer set.");
+        return next(err);
+    }
+
     return res.redirect(`/admin/testing-environment/${req.body.testingEnvironmentId}`);
 });
 
-router.post('/archive', async (req, res) => {
-    await db.query(
+router.post('/archive', async (req, res, next) => {
+    let dbres = await db.query(
         Q.TESTING_ENVIRONMENTS.ARCHIVE,
         { id: parseInt(req.body.testingEnvironmentId) },
         req.cookies.jwt);
     
+    if (!dbres.success) {
+        let err = new Error("Could not archive testing environment.");
+        return next(err);
+    }
+
     return res.redirect(`/admin/testing-environment/${req.body.testingEnvironmentId}`);
 });
 
 router.post ('/unarchive', async (req, res) => {
-    await db.query(
+    let dbres = await db.query(
         Q.TESTING_ENVIRONMENTS.UNARCHIVE,
         { id: parseInt(req.body.testingEnvironmentId) },
         req.cookies.jwt);
+    
+    if (!dbres.success) {
+        let err = new Error("Could not unarchive testing environment.");
+        return next(err);
+    }
     
     return res.redirect(`/admin/testing-environment/${req.body.testingEnvironmentId}`);
 });
 
 router.post('/reinvite-users', async (req, res) => {
-    try {
-        let i;
-        for (i = 0; i<req.body.users.length; i++) {
-            await invite.inviteUser(req.body.users[i], req.cookies.jwt);
+    let i;
+    for (i = 0; i<req.body.users.length; i++) {
+        let dbres = await invite.inviteUser(req.body.users[i], req.cookies.jwt);
+        if (!dbres.success) {
+            let err = new Error(`Could not invite one or more user(s) (${req.body.users[i]}).`);
+            return next(err);
         }
-
-        return res.redirect('/admin/users');
     }
-    catch(err) {
-        console.log(err);
-        return res.redirect('/server-error');
-    }
+    return res.redirect('/admin/users');
 });
 
-router.post("/upload-test-book", async (req, res) => {
-    try {
-        new formidable.IncomingForm().parse(req, async (err, fields, files) => {
-            if (err) {
-                console.log(err);
-                return res.redirect('/server-error');
-            }
-            if (files.epub.path == '') {
-                console.log(err);
-                return res.redirect('/request-error');
-            }
-            let epub = new EPUB(files.epub.path);
-            let epubx = await epub.extract();
-            let bookdata = await epubx.parse();
-            let testBook = {
-                title: bookdata.metadata['dc:title'],
-                topicId: bookdata.metadata['dc:subject'],
-                description: bookdata.metadata['dc:description'],
-                langId: bookdata.metadata['dc:language'],
-                epubId: bookdata.metadata['dc:identifier'],
-                version: bookdata.metadata['schema:version'],
-                filename: files.epub.name,
-                path: files.epub.path,
-                tests: bookdata.navDoc.testsData.map((t, idx)=>({
-                    testId: t.id,
-                    xhtml: t.xhtml,
-                    order: idx,
-                    flag: false,
-                    name: t.name,
-                    description: t.description
-                })),
-            }
-            
-            // TODO compare versions
-            /*
-            let result = await db.query(Q.TEST_BOOKS.GET_LATEST, {});
-            let currentLatestForTopic = result.data.data.getLatestTestBooks.nodes
-                .find(book => book.topicId === bookdata.metadata['dc:subject']);
-            let testsInCurrent = await db.query(Q.TESTS.GET_FOR_BOOK, 
-            {testBookId: parseInt(currentLatestForTopic.id)});
-            testsInCurrent = testsInCurrent.data.data.tests;
+router.post("/upload-test-book", async (req, res, next) => {
+    new formidable.IncomingForm().parse(req, async (err, fields, files) => {
+        if (err) {
+            console.log(err);
+            let err = new Error("Upload error");
+            return next(err);
+        }
         
-            */
-            // if MAJ + MIN are the same, do not suggest any flags
-            // if MIN is different, suggest some as flagged
-            // if MAJ is different, suggest all as flagged
+        testBook = await testBooks.parse(files.epub.path, files.epub.name);
 
-            // show page where admin can set own flags
-            return res.render('./admin/add-test-book.html', 
-            {
-                accessLevel: req.accessLevel,
-                testBook,
-                getTopicName: utils.getTopicName
-            });
-          });
-    }
-    catch(err) {
-        console.log(err);
-        return res.redirect('/server-error');
-    }
-});
-
-router.post("/add-test-book", async (req, res) => {
-    try {
-        let testBook = JSON.parse(req.body.testBook);
-        req.body.tests.map(test => {
-            let testInBook = testBook.tests.find(t=>t.testId == test.testId);
-            testInBook.flag = test.flag === 'on';
-        });
-        
-        let addBookResult = await db.query(Q.TEST_BOOKS.ADD, {
-            topicId: testBook.topicId,
-            langId: testBook.langId,
-            version: testBook.version,
-            title: testBook.title,
-            description: testBook.description,
-            filename: testBook.filename,
-            epubId: testBook.epubId
-        }, req.cookies.jwt);
-
-        if (addBookResult.data.hasOwnProperty('errors')) {
-            console.log("ERRORS importing book: ", addBookResult.data.errors.map(e=>e.message).join(', '));
-            return res.redirect('/server-error');
+        if (!testBook) {
+            return next(new Error("Could not parse test book EPUB file."));
         }
 
-        
-        // let getBookResult = await db.query(Q.GET_TEST_BOOK_ID_BY_EPUBID, {
-        //     epubId: testBook.epubId
-        // });
-
-        let i;
-        for (i=0; i<testBook.tests.length; i++) {
-            let test = testBook.tests[i];
-            let addTestResult = await db.query(Q.TESTS.ADD, {
-                testId: test.testId,
-                testBookId: parseInt(addBookResult.id),
-                name: test.name,
-                description: test.description,
-                xhtml: test.xhtml,
-                order: i,
-                flag: test.flag
-            }, req.cookies.jwt);
-            if (addTestResult.data.hasOwnProperty('errors')) {
-                console.log("ERRORS importing book: ", addTestResult.data.errors.map(e=>e.message).join(', '));
-            }
-        }
-
-        // TODO add tests not working
-        // TODO copy EPUB file to downloads dir
-        // TODO plan for upgrade of results
-
-    }
-    catch(err) {
-        console.log(err);
-        return res.redirect('/server-error');
-    }
-});
-
-router.post("/confirm-delete-test-book/:id", async (req, res) => {
-    try {
-        let results = await db.query(
-            Q.TEST_BOOKS.GET_BY_ID, 
-            { id: parseInt(req.params.id) }, 
-            req.cookies.jwt);
-        let testBook = results.data.data.testBook;
-
-        // TODO: check if there are any answersets which use this book
-        
-
-        // if they have answers filled in (e.g. not  NOANSWER), don't allow deletion
-        
-
-        // else delete the answers, answersets, and also the testbook
-
-        return res.render('./confirm.html', {
+        // show page where admin can set own flags
+        return res.render('./admin/add-test-book.html', 
+        {
             accessLevel: req.accessLevel,
-            title: "Confirm deletion",
-            content: `Please confirm that you would like to delete ${testBook.title} (${testBook.langId}, v. ${testBook.version})`,
-            redirectUrlYes: '/admin/test-books',
-            redirectUrlNo: `/admin/test-books`,
-            actionUrl: `/admin/forms/delete-test-book/${parseInt(req.params.id)}`
+            testBook,
+            getTopicName: utils.getTopicName
         });
-    }
-    catch (err) {
-        console.log(err);
-        return res.redirect('/server-error');
+    });
+});
+
+router.post("/add-test-book", async (req, res, next) => {
+    let testBook = JSON.parse(req.body.testBook);
+    req.body.tests.map(test => {
+        let testInBook = testBook.tests.find(t=>t.testId == test.testId);
+        testInBook.flag = test.flag === 'on';
+    });
+
+    let result = await testBooks.add(testBook, req.cookies.jwt);
+    
+    if (!result.success) {
+        let err = new Error(`ERRORS importing book: \n ${result.errors.map(e=>e.message).join(', ')}`);
+        return next(err);
     }
 });
 
-router.post('/delete-test-book/:id', async (req, res) => {
-    try {    
-        let redirect;
-
-        if (req.body.hasOwnProperty("yes")) {
-            // delete test book
-            await db.query(Q.TEST_BOOKS.DELETE,
-                {id: parseInt(req.params.id)},
-                req.cookies.jwt);
-
-            let message = encodeURIComponent("Test book deleted");
-            redirect = req.body.redirectUrlYes + "?message=" + message;
-        }
-        else {
-            // else cancel was pressed: do nothing
-            redirect = req.body.redirectUrlNo;
-        }
-
-        // redirect
-        return res.redirect(redirect);
+router.post("/confirm-delete-test-book/:id", async (req, res, next) => {
+    let dbres = await db.query(
+        Q.TEST_BOOKS.GET_BY_ID, 
+        { id: parseInt(req.params.id) }, 
+        req.cookies.jwt);
+    if (!dbres.success) {
+        let err = new Error(`Error retrieving test book (${req.params.id}).`);
+        return next(err);
     }
-    catch (err) {
-        console.log(err);
-        return res.redirect('/server-error');
+    let testBook = dbres.data.testBook;
+
+    if (!testBooks.canRemove(testBook)) {
+        let err = new Error("Test book is in use and cannot be removed.");
+        err.statusCode = 403;
+        return next(err);
     }
+        
+    return res.render('./confirm.html', {
+        title: "Confirm deletion",
+        content: `Please confirm that you would like to delete ${testBook.title} (${testBook.langId}, v. ${testBook.version})`,
+        redirectUrlYes: '/admin/test-books',
+        redirectUrlNo: `/admin/test-books`,
+        actionUrl: `/admin/forms/delete-test-book/${parseInt(req.params.id)}`
+    });
 });
 
-router.post('/add-software', async (req, res) => {
-    try {
-        let name = req.body.name;
-        let version = req.body.version;
-        let vendor = req.body.vendor;
-        let type=req.body.type;
+router.post('/delete-test-book/:id', async (req, res, next) => {
+    let redirect;
 
-        let response = await(db.query(Q.SOFTWARE.ADD, {
-            newSoftwareInput: {
-                software: {
-                    name,
-                    version,
-                    vendor,
-                    type
-                }
-            }
-            
-        }, req.cookies.jwt));
+    if (req.body.hasOwnProperty("yes")) {
+        // delete test book
+        let dbres = await db.query(Q.TEST_BOOKS.DELETE,
+            {id: parseInt(req.params.id)},
+            req.cookies.jwt);
+        
+        if (!dbres.success) {
+            let err = new Error("Could not delete test book.");
+            return next(err);
+        }
 
-        return res.redirect('/admin/add-testing-environment');
+        let message = encodeURIComponent("Test book deleted.");
+        redirect = req.body.redirectUrlYes + "?message=" + message;
     }
-    catch (err) {
-        console.log(err);
-        return res.redirect('/server-error');
+    else {
+        // else cancel was pressed: do nothing
+        redirect = req.body.redirectUrlNo;
     }
+
+    // redirect
+    return res.redirect(redirect);
 });
 
-router.post('/add-testing-environment', async(req, res) => {
-
-    try {
-        let input = {
-            readingSystemId: parseInt(req.body.readingSystemId),
-            osId: parseInt(req.body.operatingSystemId),
-            testedWithBraille: req.body.testedWithBraille === "on",
-            testedWithScreenreader: req.body.testedWithScreenreader === "on",
-            input: req.body.input
-        };
-        if (req.body.browserId != 'none') {
-            input = {...input, browserId: parseInt(req.body.browserId)};
-        }
-        if (req.body.assistiveTechnologyId != 'none') {
-            input = {...input, assistiveTechnologyId: parseInt(req.body.assistiveTechnologyId)};
-        }
-        let response = await db.query(Q.TESTING_ENVIRONMENTS.ADD, {
-            newTestingEnvironmentInput: {
-                testingEnvironment: input
-            }
-        }, req.cookies.jwt);
-
-        let testingEnvironmentId = response.data.data.createTestingEnvironment.testingEnvironment.id;
-
-        let topics = await db.query(Q.TOPICS.GET_ALL, {});
-        topics = topics.data.data.topics.nodes;
-
-        let testBooks = await db.query(Q.TEST_BOOKS.GET_LATEST, {});
-        testBooks = testBooks.data.data.getLatestTestBooks.nodes;
-
-        let i;
-        for (i=0; i<topics.length; i++) {
-            let topicId = topics[i].id;
-            if (req.body.hasOwnProperty(topicId) && req.body[topicId] === "on") {
-                // get latest test book for this topic
-                let book = testBooks.find(tb => tb.topicId === topicId);
-
-                // assign it to the logged-in user
-                let userId = parseInt(req.body.user);
-
-                response = await db.query(Q.ANSWER_SETS.ADD, {
-                    newAnswerSetInput: {
-                        answerSet:{
-                            testBookId: book.id,
-                            userId,
-                            isPublic: false,
-                            testingEnvironmentId,
-                            score: 0
-                        }
-                    }
-                }, req.cookies.jwt);
-
-                let answerSetId = response.data.data.createAnswerSet.answerSet.id;
-
-                let testsInBook = await db.query(Q.TESTS.GET_FOR_BOOK, {
-                    testBookId: book.id
-                });
-
-                testsInBook = testsInBook.data.data.tests.nodes;
-
-                let j;
-                for (j = 0; j<testsInBook.length; j++) {
-                        response = await db.query(Q.ANSWERS.ADD, {
-                        newAnswerInput: {
-                            answer: {
-                                testId: parseInt(testsInBook[j].id),
-                                answerSetId: parseInt(answerSetId)
-                            }
-                        }
-                    }, req.cookies.jwt);
-                }
+router.post('/add-software', async (req, res, next) => {
+    let dbres = await(db.query(Q.SOFTWARE.ADD, {
+        newSoftwareInput: {
+            software: {
+                name: req.body.name,
+                version: req.body.version,
+                vendor: req.body.vendor,
+                type: req.body.type
             }
         }
+    }, req.cookies.jwt));
 
-        let message = `Testing environment created (ID=${testingEnvironmentId})`;
+    if (!dbres.success) {
+        let err = new Error("Could not add software.");
+        return next(err);
+    }
+
+    return res.redirect('/admin/add-testing-environment');
+});
+
+router.post('/add-testing-environment', async(req, res, next) => {
+    let input = {
+        readingSystemId: parseInt(req.body.readingSystemId),
+        osId: parseInt(req.body.operatingSystemId),
+        testedWithBraille: req.body.testedWithBraille === "on",
+        testedWithScreenreader: req.body.testedWithScreenreader === "on",
+        input: req.body.input
+    };
+    if (req.body.browserId != 'none') {
+        input = {...input, browserId: parseInt(req.body.browserId)};
+    }
+    if (req.body.assistiveTechnologyId != 'none') {
+        input = {...input, assistiveTechnologyId: parseInt(req.body.assistiveTechnologyId)};
+    }
+
+    let topicsUsers = [];
+    let user = parseInt(req.body.user);
+    if (req.body.hasOwnProperty("topics")) {    
+        topicsUsers = req.body.topics.map(t=>({topic: t, user}));
+    }
+    let result = await testingEnvironments.add(input, topicsUsers, req.cookies.jwt);
+
+    if (!result.success) {
+        let err = new Error("Could not create testing environment.");
+        return next(err);
+    }
+    else {
+        let message = `Testing environment created (${result.testingEnvironmentId}).`;
         return res.redirect('/admin?message=' + encodeURIComponent(message));
     }
-
-    catch (err) {
-        console.log(err);
-        return res.redirect('/server-error');
-    }
 });
 
-router.post("/confirm-delete-testing-environment/:id", async (req, res) => {
-    try {
-        let results = await db.query(
-            Q.TESTING_ENVIRONMENTS.GET_BY_ID, 
-            { id: parseInt(req.params.id) }, 
-            req.cookies.jwt);
-        let testenv = results.data.data.testingEnvironment;
-
-        let testingEnvironmentTitle = `
-        ${testenv.readingSystem.name} ${testenv.readingSystem.version}
-        ${testenv.assistiveTechnology ? testenv.assistiveTechnology.name ? `${testenv.assistiveTechnology.name} ${testenv.assistiveTechnology.version}` : '' : ''}
-        ${testenv.os.name} ${testenv.os.version}`;
-
-        return res.render('./confirm.html', {
-            accessLevel: req.accessLevel,
-            title: "Confirm deletion",
-            content: `Please confirm that you would like to delete ${testingEnvironmentTitle}`,
-            redirectUrlYes: '/admin/testing',
-            redirectUrlNo: `/admin/testing-environment/${parseInt(req.params.id)}`,
-            actionUrl: `/admin/forms/delete-testing-environment/${parseInt(req.params.id)}`
-        });
+router.post("/confirm-delete-testing-environment/:id", async (req, res, next) => {
+    let dbres = await db.query(
+        Q.TESTING_ENVIRONMENTS.GET_BY_ID, 
+        { id: parseInt(req.params.id) }, 
+        req.cookies.jwt);
+    
+    if (!dbres.success) {
+        let err = new Error(`Could not get testing environment (${req.params.id}).`);
+        return next(err);
     }
-    catch (err) {
-        console.log(err);
-        return res.redirect('/server-error');
-    }
+    let testenv = dbres.data.testingEnvironment;
+
+    let testingEnvironmentTitle = `
+    ${testenv.readingSystem.name} ${testenv.readingSystem.version}
+    ${testenv.assistiveTechnology ? testenv.assistiveTechnology.name ? `${testenv.assistiveTechnology.name} ${testenv.assistiveTechnology.version}` : '' : ''}
+    ${testenv.os.name} ${testenv.os.version}`;
+
+    return res.render('./confirm.html', {
+        title: "Confirm deletion",
+        content: `Please confirm that you would like to delete ${testingEnvironmentTitle}`,
+        redirectUrlYes: '/admin/testing',
+        redirectUrlNo: `/admin/testing-environment/${parseInt(req.params.id)}`,
+        actionUrl: `/admin/forms/delete-testing-environment/${parseInt(req.params.id)}`
+    });
 });
 
-router.post('/delete-testing-environment/:id', async (req, res) => {
-    try {    
-        let redirect;
+router.post('/delete-testing-environment/:id', async (req, res, next) => {
+    let redirect;
 
-        if (req.body.hasOwnProperty("yes")) {
-            // get testing environment
-            let results = await db.query(
-                Q.TESTING_ENVIRONMENTS.GET_BY_ID, 
-                { id: parseInt(req.params.id) }, 
-                req.cookies.jwt);
-            let testenv = results.data.data.testingEnvironment;
-
-            // delete answers and answer sets
-            let i, j;
-            let answerSets = testenv.answerSetsByTestingEnvironmentId.nodes;
-            for (i=0; i<answerSets.length; i++) {
-                let answers = answerSets[i].answersByAnswerSetId.nodes;
-                for (j=0; j<answers.length; j++) {
-                    await db.query(Q.ANSWERS.DELETE, 
-                        {id: answers[j].id}, 
-                        req.cookies.jwt);
-                }
-                await db.query(Q.ANSWER_SETS.DELETE, 
-                    {id: answerSets[i].id}, 
-                    req.cookies.jwt);
-            }
-            
-            // delete testing environment
-            await db.query(Q.TESTING_ENVIRONMENTS.DELETE,
-                {id: testenv.id},
-                req.cookies.jwt);
-
+    if (req.body.hasOwnProperty("yes")) {
+        let result = await testingEnvironments.remove(parseInt(req.params.id), req.cookies.jwt);
+        if (!result.success) {
+            let err = new Error("Could not remove testing environment.");
+            return next(err);
+        }
+        else {
             let message = encodeURIComponent("Testing environment deleted");
             redirect = req.body.redirectUrlYes + "?message=" + message;
         }
-        else {
-            // else cancel was pressed: do nothing
-            redirect = req.body.redirectUrlNo;
-        }
+    }
+    else {
+        // else cancel was pressed: do nothing
+        redirect = req.body.redirectUrlNo;
+    }
 
-        // redirect
-        return res.redirect(redirect);
-    }
-    catch (err) {
-        console.log(err);
-        return res.redirect('/server-error');
-    }
+    // redirect
+    return res.redirect(redirect);
 });
 
 module.exports = router;
