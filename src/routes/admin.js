@@ -312,6 +312,10 @@ async function getAllSoftware(jwt) {
     }
 }
 
+router.get('/etc', (req, res) => {
+    return res.status(200).render('./admin/etc.html');
+});
+
 router.get('/version', async (req, res, next) => {
     let dbres = await db.query(Q.ETC.DBVERSION, {}, req.cookies.jwt);
     
