@@ -44,3 +44,11 @@ table.striped tbody tr:nth-child(even) {
 table.sortable th {
     cursor: pointer;
 }
+table.narrow {
+    width: unset;
+    line-height: 0.5;
+}
+table.narrow th, table.narrow td {
+    width: min-content;
+    white-space: nowrap;
+}

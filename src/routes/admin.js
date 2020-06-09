@@ -127,6 +127,10 @@ router.get('/testing-environment/:id', async (req, res, next) => {
 });
 
 // admin test books
+router.get('/upload-test-book', async (req, res, next) => {
+    return res.render('admin/upload-test-book.html');
+});
+
 router.get('/test-books', async (req, res, next) => {
     let dbres = await db.query(Q.TEST_BOOKS.GET_LATEST, {});
     if (!dbres.success) {
@@ -307,5 +311,16 @@ async function getAllSoftware(jwt) {
             assistiveTechnologies: []};
     }
 }
+
+router.get('/version', async (req, res, next) => {
+    let dbres = await db.query(Q.ETC.DBVERSION, {}, req.cookies.jwt);
+    
+    if (!dbres.success) {
+        let err = new Error("Error getting database version.");
+        return next(err);
+    }
+    return res.status(200).send(`Database migration version: ${dbres.data.dbInfo.value}`);
+});
+
 
 module.exports = router;

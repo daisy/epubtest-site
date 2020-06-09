@@ -21,5 +21,6 @@ module.exports = {
     TESTING_ENVIRONMENTS: testingEnvironments,
     TESTS: tests,
     TOPICS: topics,
-    USERS: users
+    USERS: users, 
+    ETC: require('./etc')
 };

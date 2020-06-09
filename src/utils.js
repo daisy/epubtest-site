@@ -36,7 +36,17 @@ function getTopicName(id) {
     let retval = topicNames.hasOwnProperty(id) ? topicNames[id] : '';
     return retval;
 }
-
+// returns true if maj and min are the same (disregards patch)
+function compareVersions(v1, v2) {
+    let v1Maj = parseInt(semver.major(v1));
+    let v1Min = parseInt(semver.minor(v1));
+    //let v1Patch = parseInt(semver.patch(v1));
+    let v2Maj = parseInt(semver.major(v2));
+    let v2Min = parseInt(semver.minor(v2));
+    //let v2Patch = parseInt(semver.patch(v2));
+    
+    return !(v1Maj != v2Maj || v1Min != v2Min);
+}
 let makeName = rs => `${rs.name}${rs.version != 'undefined' && rs.version != 'null' ? rs.version : ''}`;
 let sortAlpha = (a,b) => makeName(a) > makeName(b) ? 1 : makeName(a) === makeName(b) ? 0 : -1;
 let sortAlphaTestEnv = (a,b) => makeName(a.readingSystem) > makeName(b.readingSystem) ? 1 
@@ -50,5 +60,6 @@ module.exports = {
     sortAlpha,
     sortAlphaTestEnv,
     sortTopicOrder,
-    sortAlphaUsers
+    sortAlphaUsers,
+    compareVersions
 }

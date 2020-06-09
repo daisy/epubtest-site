@@ -15,6 +15,13 @@ module.exports = {
             clientMutationId
         }
     }`,   
+    
+    DELETE: 
+    `mutation($id: Int!) {
+        deleteTest(input: {id: $id}) {
+            clientMutationId
+        }
+    }`,
 
     GET_FOR_BOOK: 
     `query ($testBookId: Int!) {
@@ -24,6 +31,7 @@ module.exports = {
             testId
             name
             description
+            xhtml
           }
         }
     }`,

@@ -1,11 +1,12 @@
 const db = require('../database');
 const Q = require('../queries');
+const answerSets = require('./answerSets');
 
 // add a new testing environment and create answer sets for the topics 
 // assign the answer sets to the specified users
 // topicsUsers should look like [{topic, user}...] where each value is a topic ID or user ID
 async function add(testingEnvironmentInput, topicsUsers, jwt) {
-    let errors;
+    let errors = [];
     let testingEnvironmentId = -1;
     try {
         let dbres = await db.query(Q.TEST_BOOKS.GET_LATEST);
@@ -30,48 +31,12 @@ async function add(testingEnvironmentInput, topicsUsers, jwt) {
         for (i=0; i<topicsUsers.length; i++) {
             let topicId = topicsUsers[i].topic;
             let book = testBooks.find(tb => tb.topicId === topicId);
+            let result = await answerSets.add(book.id, topicsUsers[i].user, testingEnvironmentId, jwt);
 
-            dbres = await db.query(Q.ANSWER_SETS.ADD, {
-                newAnswerSetInput: {
-                    answerSet:{
-                        testBookId: book.id,
-                        userId: topicsUsers[i].user,
-                        isPublic: false,
-                        testingEnvironmentId,
-                        score: 0
-                    }
-                }
-            }, jwt);
-
-            if (!dbres.success) {
-                errors = dbres.errors;
+            if (!result.success) {
+                errors = result.errors;
                 throw new Error();
             }
-            let answerSetId = dbres.data.createAnswerSet.answerSet.id;
-
-            dbres = await db.query(Q.TESTS.GET_FOR_BOOK, {
-                testBookId: book.id
-            });
-            if (!dbres.success) {
-                errors = dbres.errors;
-                throw new Error();
-            }
-            let testsForBook = dbres.data.tests.nodes;
-            let j;
-            for (j = 0; j<testsForBook.length; j++) {
-                dbres = await db.query(Q.ANSWERS.ADD, {
-                    newAnswerInput: {
-                        answer: {
-                            testId: parseInt(testsForBook[j].id),
-                            answerSetId: parseInt(answerSetId)
-                        }
-                    }}, 
-                    jwt);
-                if (!dbres.success) {
-                    errors = dbres.errors;
-                    throw new Error();
-                }
-            }  
         }   
     }
     catch(err) {

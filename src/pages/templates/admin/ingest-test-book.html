@@ -1,0 +1,115 @@
+{%- extends 'base/base.html' -%}
+{%- set mainclass="wide inset" -%}
+{%- set title = "Admin: Import Tests" -%}
+{%- block content -%}
+
+<h1>Import Tests</h1>
+<p>Below are all the tests for the new test book. 
+    New tests have been noted as such. 
+    Please mark any changed tests by checking the box in the righthand column.</p>
+
+<p>When tests are new or have changed, users will be given the option to upgrade their answer set to the latest test book. 
+    The answer set now requires partial re-testing. Upon completion of re-testing, 
+    the user may request to publish the new results. 
+    Until then, the previous version of the results appears in the public-facing table, with an indication that 
+    it was done with an older test book.
+</p>
+
+<h2>Test book information</h2>
+
+<table summary="Test book properties" class="narrow">
+    <tbody>
+        <tr>
+            <th>Topic</th>
+            <td>{{testBook.topicId}}</td>
+        </tr>
+        <tr>
+            <th>Version</th>
+            <td>{{testBook.version}}</td>
+        </tr>
+        <tr>
+            <th>Language</th>
+            <td>{{testBook.langId}}</td>
+        </tr>
+        <tr>
+            <th>Title</th>
+            <td>{{testBook.title}}</td>
+        </tr>
+        <tr>
+            <th>Description</th>
+            <td>{{testBook.description}}</td></tr>
+        <tr>
+            <th>Filename</th>
+            <td>{{testBook.filename}}</td>
+        </tr>
+    </tbody>
+</table>
+
+<h2>Tests in this book</h2>
+
+<form action="/admin/forms/ingest-test-book" method="POST">
+    <input type="hidden" name="testBook" value="{{testBook | dump}}">
+    
+    <table class="wide striped" id="tests">
+        <thead>
+            <tr>
+                <th>Test ID</th>
+                <th>Name</th>
+                <th>Description</th>
+                <th>New test</th>
+                <th>Mark as changed</th>
+            </tr>
+        </thead>
+        <tbody>
+            {%- for test in testBook.tests -%}
+            <tr>
+                <td>{{test.testId}}</td>
+                <td>{{test.name}}</td>
+                <td>{{test.description}}</td>   
+                <td>{%- if test.flagNew -%}
+                    Yes
+                    {%- else -%}
+                    No
+                    {%- endif -%}
+                </td>
+                <td> 
+                    {%- if test.flagNew == false -%}
+                        <input type="checkbox" name="tests[{{loop.index}}][flagChanged]" 
+                        {%- if test.flagChanged -%}checked{%- endif -%}>
+                        <input type="hidden" name="tests[{{loop.index}}][testId]" value="{{test.testId}}">
+                    {%- endif -%}
+                </td>
+            </tr>
+            {%- endfor -%}
+        </tbody>
+    </table>
+
+    {%- set testvar = [1] -%}
+    <p>You are about to add this <em>{{testBook.topicId}}</em> book, which contains <em>{{testBook.tests.length}}</em> tests. 
+        <em><span id="numFlagged">0</span></em> <span id="numFlaggedVerb">are</span> marked as changed. 
+        <em>{{newTestIds | length}}</em> {% if newTestIds | length == 1 %} is {% else %} are {% endif %} new tests.</p>
+    <p><em>{{affectedAnswerSets | length}}</em> answer sets will require upgrading.</p>
+
+    <input type="submit" value="Add book" name="addBook">
+    <input type="submit" value="Cancel" name="cancel">
+</form>
+
+<script type="text/javascript">
+
+    window.addEventListener("load", () => {
+        
+        Array.from(document.querySelectorAll("#tests input[type=checkbox]")).map(elm => {
+            addEventListener("change", e => {
+                let tests = Array.from(document.querySelectorAll("#tests input[type=checkbox]"));
+                let numFlagged = tests.filter(t => t.checked).length;
+
+                document.querySelector("#numFlagged").textContent = `${numFlagged}`;
+                document.querySelector("#numFlaggedVerb").textContent = ` ${numFlagged === 1 ? "is" : "are"}`;
+            });
+        });
+        
+    });
+  
+</script>
+
+{%- endblock -%}

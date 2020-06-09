@@ -10,8 +10,8 @@
 
 'use strict';
 
-const DOMParser = require('xmldom-alpha').DOMParser;
-const XMLSerializer = require('xmldom-alpha').XMLSerializer;
+const DOMParser = require('xmldom').DOMParser;
+const XMLSerializer = require('xmldom').XMLSerializer;
 const fs = require('fs');
 const path = require('path');
 const xpath = require('xpath');

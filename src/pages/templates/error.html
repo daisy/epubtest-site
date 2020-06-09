@@ -3,21 +3,21 @@
 {%- block content -%}
 
 <h1>Error</h1>
-<p id="err"></div>
 <p>An error has occurred. Please try again.</p>
+
+<pre id="err"></pre>
 
 <script type="text/javascript">
 
     window.addEventListener("DOMContentLoaded", () => {
         const params = new URLSearchParams(window.location.search);  
         let errorElm = document.querySelector("#err");
-        let htmlStr =`
-            ${params.has("code") ? 
-                `<em>${params.get("code")}</em>` : ''}
-            ${params.has("error") ? 
-                `${params.get("error")}` : ''}
-            `;
-        errorElm.innerHTML = htmlStr;
+        let codeStr = params.has("code") ? `${params.get("code")}\n` : '';
+        let errorsStr = params.has("error") ? params.get("error") : '';
+            
+        let htmlStr =`${codeStr}${errorsStr}`;
+        
+        errorElm.innerHTML = htmlStr.trim();
     });
     
 </script>

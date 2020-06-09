@@ -27,6 +27,10 @@ a:hover {
 a:link, a:visited, a:hover {
     text-decoration: none;
 }
+em {
+    font-weight: bold;
+    font-style: inherit;
+}
 header {
     grid-area: header;
     display: grid;
@@ -188,7 +192,6 @@ main > *:first-child, body > nav > :first-child {
 
 #err em {
     font-size: larger;
-    font-weight: bold;
     font-style: normal;
     display: block;
 }

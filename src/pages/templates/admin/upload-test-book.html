@@ -1,0 +1,15 @@
+{%- extends 'base/base.html' -%}
+{%- set mainclass="wide inset" -%}
+{%- set title = "Admin: Import Tests" -%}
+{%- block content -%}
+
+<h2>Upload New Test Book</h2>
+
+<p>Please ensure the book conforms to the <a href="#TODO">Guidelines</a> and that it passes EPUBCheck.</p>
+
+<form method="POST" action="/admin/forms/upload-test-book" enctype="multipart/form-data">
+    <input type="file" name="epub" required>
+    <input type="submit" value="Add book">
+</form>
+
+{%- endblock -%}

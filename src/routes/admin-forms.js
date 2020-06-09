@@ -7,6 +7,7 @@ const testBooks = require('../actions/testBooks');
 const testingEnvironments = require('../actions/testingEnvironments');
 const formidable = require('formidable')
 const utils = require('../utils');
+const path = require('path');
 
 // approve or deny request to publish
 router.post('/handle-request', async (req, res, next) => {
@@ -135,27 +136,39 @@ router.post("/upload-test-book", async (req, res, next) => {
             return next(err);
         }
         
-        testBook = await testBooks.parse(files.epub.path, files.epub.name);
+        let parsedTestBook = await testBooks.parse(files.epub.path, files.epub.name, req.cookies.jwt);
+        let newTestIds = [];
+        if (!parsedTestBook) {
+            return next(new Error("Could not parse EPUB."));
+        }
+        let canAdd = await testBooks.canAdd(parsedTestBook, req.cookies.jwt);
+        if (!canAdd.success) {
+            return next(new Error(`Could not add book: ${canAdd.errors.join('\n\n')}`));
+        }
 
-        if (!testBook) {
-            return next(new Error("Could not parse test book EPUB file."));
+        let testBook = await testBooks.setFlags(parsedTestBook, canAdd.replaces);
+        let usage = null;
+        if (canAdd.replaces) {
+            newTestIds = testBook.tests.filter(t => t.flagNew).map(t => t.testId);
+            usage = await testBooks.getUsage(canAdd.replaces.id, req.cookies.jwt);
+            testBook.replaces = canAdd.replaces.id;
         }
 
         // show page where admin can set own flags
-        return res.render('./admin/add-test-book.html', 
+        return res.render('./admin/ingest-test-book.html', 
         {
-            accessLevel: req.accessLevel,
             testBook,
-            getTopicName: utils.getTopicName
+            affectedAnswerSets: usage.answerSets.all,
+            newTestIds
         });
     });
 });
 
-router.post("/add-test-book", async (req, res, next) => {
+router.post("/ingest-test-book", async (req, res, next) => {
     let testBook = JSON.parse(req.body.testBook);
     req.body.tests.map(test => {
         let testInBook = testBook.tests.find(t=>t.testId == test.testId);
-        testInBook.flag = test.flag === 'on';
+        testInBook.flagChanged = test.flagChanged === "true"; // TODO test this
     });
 
     let result = await testBooks.add(testBook, req.cookies.jwt);
@@ -164,6 +177,12 @@ router.post("/add-test-book", async (req, res, next) => {
         let err = new Error(`ERRORS importing book: \n ${result.errors.map(e=>e.message).join(', ')}`);
         return next(err);
     }
+
+    let message = encodeURIComponent(
+        `Added test book "${testBook.title}" version ${testBook.version} (topic: ${testBook.topicId}, language: ${testBook.langId})`);
+    
+    return res.redirect(`/admin/test-books?message=${message}`);
+
 });
 
 router.post("/confirm-delete-test-book/:id", async (req, res, next) => {
@@ -177,7 +196,8 @@ router.post("/confirm-delete-test-book/:id", async (req, res, next) => {
     }
     let testBook = dbres.data.testBook;
 
-    if (!testBooks.canRemove(testBook)) {
+    let canRemove = await testBooks.canRemove(testBook.id);
+    if (!canRemove) {
         let err = new Error("Test book is in use and cannot be removed.");
         err.statusCode = 403;
         return next(err);
@@ -196,16 +216,13 @@ router.post('/delete-test-book/:id', async (req, res, next) => {
     let redirect;
 
     if (req.body.hasOwnProperty("yes")) {
-        // delete test book
-        let dbres = await db.query(Q.TEST_BOOKS.DELETE,
-            {id: parseInt(req.params.id)},
-            req.cookies.jwt);
-        
-        if (!dbres.success) {
-            let err = new Error("Could not delete test book.");
-            return next(err);
+        let result = await testBooks.remove(req.params.id, req.cookies.jwt);
+        if (!result.success) {
+            let errorMessage = 
+                `One or more errors encountered; aborting operation. \n\n ${result.errors.join('\n\n')}`;
+            return next(new Error(errorMessage));
         }
-
+        
         let message = encodeURIComponent("Test book deleted.");
         redirect = req.body.redirectUrlYes + "?message=" + message;
     }

@@ -3,7 +3,7 @@
 {%- set mainclass="wide inset" -%}
 {%- block content -%}
 
-<h1>Manage Test Books</h1>
+<h1>View Test Books</h1>
 
 {#
 
@@ -13,21 +13,10 @@ By Topic
 
 - Latest book in each supported lang
 
-- Import book => "Import" page
-
 #}
+{#
 
-<h2>Add Test Book</h2>
-
-<p>Please ensure the book conforms to the <a href="#TODO">Guidelines</a> and that it passes EPUBCheck.</p>
-
-<form method="POST" action="/admin/forms/upload-test-book" enctype="multipart/form-data">
-    <input type="file" name="epub" required>
-    <input type="submit" value="Add book">
-</form>
-
-
-{# <h2>Latest Test Books</h2>
+<h2>Latest Test Books</h2>
 <table class="wide striped">
     <thead>
         <tr>

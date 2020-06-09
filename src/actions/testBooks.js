@@ -1,13 +1,35 @@
 const EPUB = require('../epub-parser/epub');
 const db = require('../database');
 const Q = require('../queries');
+const semver = require('semver');
+const fs = require('fs-extra');
+const answerSets = require('./answerSets');
 
-async function parse(epubFilepath, epubOrigFilename) {
+async function parse(epubFilepath, epubOrigFilename, jwt) {
     let testBook;
+    
+    let exists = await fs.exists(epubFilepath);
+    if (!exists) {
+        return null;
+    }
     try {
         let epub = new EPUB(epubFilepath);
+        if (!epub) {
+            throw new Error();
+        }
         let epubx = await epub.extract();
+        if (!epubx) {
+            throw new Error();
+        }
         let bookdata = await epubx.parse();
+        if (!bookdata) {
+            throw new Error();
+        }
+        if (!bookdata.hasOwnProperty('metadata')
+            || !bookdata.hasOwnProperty("navDoc") 
+            || !bookdata.navDoc.hasOwnProperty("testsData")) {
+            throw new Error();
+        }
         testBook = {
             title: bookdata.metadata['dc:title'],
             topicId: bookdata.metadata['dc:subject'],
@@ -21,35 +43,92 @@ async function parse(epubFilepath, epubOrigFilename) {
                 testId: t.id,
                 xhtml: t.xhtml,
                 order: idx,
-                flag: false,
+                flagChanged: false,
+                flagNew: false,
                 name: t.name,
                 description: t.description
             })),
-        }
-        
-        // TODO compare versions
-        /*
-        let result = await db.query(Q.TEST_BOOKS.GET_LATEST, {});
-        let currentLatestForTopic = result.data.data.getLatestTestBooks.nodes
-            .find(book => book.topicId === bookdata.metadata['dc:subject']);
-        let testsInCurrent = await db.query(Q.TESTS.GET_FOR_BOOK, 
-        {testBookId: parseInt(currentLatestForTopic.id)});
-        testsInCurrent = testsInCurrent.data.data.tests;
-
-        */
-        // if MAJ + MIN are the same, do not suggest any flags
-        // if MIN is different, suggest some as flagged
-        // if MAJ is different, suggest all as flagged
-
+        };
+        return testBook;
     }
-    catch(err) {
-        testBook = null;
+    catch (err) {
+        return null;
     }
-    
-    
-    return testBook;
 }
 
+// return whether the book can be added and also what book it is going to be an upgrade for, if exists
+async function canAdd(testBook, jwt) {
+    let errors = [];
+    let currentBookForTopicAndLang = null;
+    try {
+        // does this topic exist
+        let dbres = await db.query(Q.TOPICS.GET_ALL, {});
+        if (!dbres.success) {
+            errors = dbres.errors;
+            throw new Error();
+        }
+        if (!dbres.data.topics.nodes.find(t=>t.id === testBook.topicId)) {
+            throw new Error(`Topic ${testBook.topicId} not found.`);
+        }
+        // compare versions
+        dbres = await db.query(Q.TEST_BOOKS.GET_LATEST, {});
+        if (!dbres.success) {
+            errors = dbres.errors;
+            throw new Error();
+        }
+        currentBookForTopicAndLang = dbres.data.getLatestTestBooks.nodes
+            .find(book => book.topicId === testBook.topicId && book.langId === testBook.langId);
+        
+        // are we upgrading an existing book? if so, does the new book have a newer version number?
+        if (currentBookForTopicAndLang) {
+            if (!semver.gt(testBook.version, currentBookForTopicAndLang.version)) {
+                throw new Error(`This version (${testBook.version}) is not newer than the existing version (${currentBookForTopicAndLang.version}).`);
+            }
+        }
+    }
+    catch(err) {
+        if (errors.length > 0) {
+            return {success: false, errors, replaces: null};
+        }
+        else {
+            return {success: false, errors: [err], replaces: null};
+        }
+    }
+    return {success: true, errors, replaces: currentBookForTopicAndLang};
+}
+
+// add flags to the new test book object
+// returns testBook object
+async function setFlags(testBook, currentBook) {
+    try {
+        let testInCurrent = [];
+        if (currentBook) {
+            let dbres = await db.query(Q.TESTS.GET_FOR_BOOK, 
+                {testBookId: parseInt(currentBook.id)});
+            if (!dbres.success) {
+                errors = dbres.errors;
+                throw new Error();
+            }
+            testsInCurrent = dbres.data.tests.nodes;    
+        }
+    
+        // flag whichever tests are new
+        newTests = testBook.tests
+            .filter(test => testsInCurrent.find(t => t.testId === test.testId) === undefined);
+        newTests.map(test => testBook.tests.find(t => t.testId === test.testId).flagNew = true);
+
+        /*
+        // holding off on suggesting "changed" flags for now because it's difficult to compare XHTML strings
+        // things like whitespace and attribute order differ in XHTML serializations generated by different systems
+        // eg the old website vs this one
+        // so, any change-based flagging we are able to do may not be very informative
+        */
+    }
+    catch (err) {
+        console.log(err);
+    }
+    return testBook;
+}
 // returns {success: bool, errors: []}
 async function add(testBook, jwt) {
     let errors = [];
@@ -63,13 +142,15 @@ async function add(testBook, jwt) {
             description: testBook.description,
             filename: testBook.filename,
             epubId: testBook.epubId
-        }, req.cookies.jwt);
+        }, jwt);
 
         if (!dbres.success) {
             errors = dbres.errors;
             throw new Error();
         }
         else {
+            let addBookResult = dbres.data.createTestBook.testBook;
+            // add the tests
             let i;
             for (i=0; i<testBook.tests.length; i++) {
                 let test = testBook.tests[i];
@@ -80,16 +161,18 @@ async function add(testBook, jwt) {
                     description: test.description,
                     xhtml: test.xhtml,
                     order: i,
-                    flag: test.flag
-                }, req.cookies.jwt);
+                    flag: test.flagNew || test.flagChanged
+                }, jwt);
                 if (!dbres.success) {
                     errors = dbres.errors;
-                    throw new Error();                }
+                    throw new Error();                
+                }
             }
 
-            // TODO add tests not working
-            // TODO copy EPUB file to downloads dir
-            // TODO plan for upgrade of results
+            // copy EPUB file to downloads dir
+            await fs.copyFile(testBook.path, path.join(__dirname, `../pages/books/${testBook.filename}`));
+
+            await upgradeResults(testBook.id, testBook.replaces, jwt);
 
         }
     }
@@ -99,24 +182,139 @@ async function add(testBook, jwt) {
     return {success: true, errors: []};
 }
 
-function canRemove(testBook) {
+// get the answer sets that use this test book
+// differentiate between empty and non-empty answer sets
+async function getUsage(testBookId, jwt) {
+    let errors = [];
+    let answerSets = {};
+    try {
+        let dbres = await db.query(Q.ANSWER_SETS.GET_FOR_BOOK,
+            {testBookId}, jwt);
+        if (!dbres.success) {
+            errors = dbres.errors;
+            throw new Error();
+        }
 
+        // count empty vs non-empty answer sets
+        let nonEmpty = dbres.data.answerSets.nodes
+            .filter(answerSet => answerSet.answersByAnswerSetId.nodes
+                    .filter(ans => ans.value != 'NOANSWER')
+                    .length > 0); 
+        
+        let empty = dbres.data.answerSets.nodes.filter(answerSet => !nonEmpty.includes(answerSet));
+
+        answerSets = {
+            all: dbres.data.answerSets.nodes,
+            empty,
+            nonEmpty
+        };
+        
+    }
+    catch(err) {
+        if (errors.length > 0) {
+            return {success: false, errors, answerSets};
+        }
+        else {
+            // use the caught error instead
+            return {success: false, errors: [err], answerSets};
+        }
+    }
+    
+    return { success: true, errors: [], answerSets};
 }
 
-function remove(testBook) {
-    // TODO: check if there are any answersets which use this book
-        
-
-        // if they have answers filled in (e.g. not  NOANSWER), don't allow deletion
-        
-
-        // else delete the answers, answersets, and also the testbook
-
+async function canRemove(testBookId, jwt) {
+    // check if there are any answersets which use this book
+    let usage = await getUsage(testBookId, jwt);
+    if (!usage.answerSets.hasOwnProperty('all')) {
+        return true;
+    }
+    return usage.answerSets.all.length === 0;
 }
 
+async function remove(testBookId, jwt) {
+    // delete the answers, answersets, and also the testbook
+    let canRemoveBook = await canRemove(testBookId, jwt);
+    if (canRemoveBook) {
+        // get tests
+        let dbres = await db.query(Q.TESTS.GET_FOR_BOOK, 
+            {testBookId: parseInt(testBookId)}, 
+            jwt);
+        
+        if (!dbres.success) {
+            return {success: false, errors: ["Database error"]};
+        }
+        
+        let errors = [];
+        // delete tests
+        let tests = dbres.data.tests.nodes;
+        let i;
+        for (i=0; i<tests.length; i++) {
+            dbres = await db.query(Q.TESTS.DELETE, {id: parseInt(tests[i].id)}, jwt);
+            if (!dbres.success) {
+                errors = errors.concat(dbres.errors);
+            }
+        }
+
+        // if some of the tests couldn't be deleted, then don't delete the book
+        // or we'll have stray tests floating around
+        if (errors.length > 0) {
+            return {success: false, errors};
+        }
+        
+        // delete test book
+        dbres = await db.query(Q.TEST_BOOKS.DELETE,
+            {id: parseInt(testBookId)},
+            jwt);
+        
+        if (!dbres.success) {
+            return {success: false, errors: dbres.errors};
+        }
+        return {success: true, errors: []};
+    }
+    else {
+        return {success: false, errors: ["Cannot remove book: operation not allowed"]};
+    }
+}
+
+async function upgradeResults(newTestBookId, oldTestBookId, jwt) {
+    
+    // get usage for the old test book
+    let usage = await getUsage(oldTestBookId, jwt);
+    let errors = [];
+    let i;
+    let created = {}; // {oldAnswerSetId: newAnswerSetId}
+    // add new answer sets
+    if (usage.answerSets.hasOwnProperty("all")) {
+        for (i=0; i<usage.answerSets.all.length; i++) {
+            let testEnvId = usage.answerSets.all[i].testingEnvironmentId;
+            let userId = usage.answerSets.all[i].user;
+            let result = await answerSets.add(newTestBookId, userId, testEnvId, jwt);
+            if (!result.success) {
+                errors = errors.concat(result.errors);
+            }
+            else {
+                created[usage.answerSets.all[i].id] = result.answerSetId;
+            }
+        }
+    }
+
+    // for books which had non-empty answer sets: migrate answers from the old answer set to the new one
+    if (usage.answerSets.hasOwnProperty("nonEmpty")) {
+        for (i=0; i<usage.answerSets.nonEmpty.length; i++) {
+            // migrate (newID, oldID)
+            await answerSets.migrate(created[usage.answerSets.nonEmpty[i].id], usageAnswerSets.nonEmpty[i].id. jwt)
+        }
+    }
+}
+
+// order of calling: parse, canAdd, setFlags, getUsage... then "add"
 module.exports = {
     add,
+    canAdd,
+    setFlags,
     parse,
     remove,
-    canRemove
+    canRemove,
+    getUsage
 };

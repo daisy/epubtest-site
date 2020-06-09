@@ -91,6 +91,7 @@ module.exports = {
                 title
                 version
                 filename
+                id
                 lang {
                     id
                     label
@@ -116,5 +117,24 @@ module.exports = {
             }
         }
     }`,
+
+    GET_FOR_BOOK: 
+    `query getAnswerSetsForTestBook($testBookId:Int!) {
+        answerSets(condition:{testBookId: $testBookId}) {
+            nodes {
+                id
+                answersByAnswerSetId {
+                    nodes{
+                        id
+                        test{
+                            testId
+                        }
+                        value
+                    }
+                }
+            }
+        }
+    }
+    `
 
 };
