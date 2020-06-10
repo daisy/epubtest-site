@@ -1,59 +1,20 @@
+const fragments = require('./fragments');
+
 module.exports = {
 
     GET_ALL: 
     `query {
         testingEnvironments {
             nodes {
-                id
-                isArchived
-                readingSystem {
-                    name
-                    version
-                    vendor
-                }
-                assistiveTechnology{
-                    name
-                    version
-                    vendor
-                }
-                os {
-                    name
-                    version
-                    vendor
-                }
-                device {
-                    name
-                    version
-                    vendor
-                }
-                browser {
-                    name
-                    version
-                    vendor
-                }
+                ${fragments.TESTING_ENVIRONMENT_FIELDS}
                 answerSetsByTestingEnvironmentId {
                     nodes {
-                        id
-                        flag
-                        score
-                        isPublic
+                        ${fragments.ANSWERSET_FIELDS}
                         user {
-                            id
-                            name
-                            organization
-                            website
-                            includeCredit
-                            creditAs
+                            ${fragments.USER_FIELDS}
                         }
                         testBook {
-                            title
-                            topic {
-                                id
-                            }
-                            lang {
-                                id
-                                label
-                            }
+                            ${fragments.TEST_BOOK_FIELDS}
                         }
                     }
                 }
@@ -108,50 +69,15 @@ module.exports = {
     `query {
         getPublishedTestingEnvironments {
             nodes {
-                id
-                readingSystem {
-                    name
-                    version
-                    vendor
-                }
-                assistiveTechnology {
-                    name
-                    version
-                    vendor
-                }
-                os {
-                    name
-                    version
-                    vendor
-                }
-                device {
-                    name
-                    version
-                    vendor
-                }
-                browser {
-                    name
-                    version
-                    vendor
-                }
+                ${fragments.TESTING_ENVIRONMENT_FIELDS}
                 answerSetsByTestingEnvironmentId {
                     nodes {
-                        score
+                        ${fragments.ANSWERSET_FIELDS}
                         user {
-                            id
-                            name
-                            organization
-                            website
-                            includeCredit
-                            creditAs
+                            ${fragments.USER_FIELDS}
                         }
                         testBook {
-                            title
-                            topic {
-                                id
-                                order
-                                type
-                            }  
+                            ${fragments.TEST_BOOK_FIELDS}  
                         }
                     }
                 }
@@ -164,50 +90,15 @@ module.exports = {
     `query {
         getArchivedTestingEnvironments {
             nodes {
-                id
-                readingSystem {
-                    name
-                    version
-                    vendor
-                }
-                assistiveTechnology {
-                    name
-                    version
-                    vendor
-                }
-                os {
-                    name
-                    version
-                    vendor
-                }
-                device {
-                    name
-                    version
-                    vendor
-                }
-                browser {
-                    name
-                    version
-                    vendor
-                }
+                ${fragments.TESTING_ENVIRONMENT_FIELDS}
                 answerSetsByTestingEnvironmentId {
                     nodes {
-                        score
+                        ${fragments.ANSWERSET_FIELDS}
                         user {
-                            id
-                            name
-                            organization
-                            website
-                            includeCredit
-                            creditAs
+                            ${fragments.USER_FIELDS}
                         }
                         testBook {
-                            title
-                            topic {
-                                id
-                                order
-                                type
-                            }  
+                            ${fragments.TEST_BOOK_FIELDS}  
                         }
                     }
                 }
@@ -220,76 +111,19 @@ module.exports = {
     `query($id: Int!) {
         testingEnvironment(id: $id) {
             id
-            testedWithBraille
-            testedWithScreenreader
-            input
-            isArchived
-            readingSystem {
-                name
-                version
-                vendor
-            }
-            assistiveTechnology {
-                name
-                version
-                vendor
-            }
-            os {
-                name
-                version
-                vendor
-            }
-            browser {
-                name
-                version
-                vendor
-            }
-            device {
-                name
-                version
-                vendor
-            }
+            ${fragments.TESTING_ENVIRONMENT_FIELDS}
             answerSetsByTestingEnvironmentId {
                 nodes {
-                    id
-                    score
-                    summary
-                    flag
-                    isPublic
+                    ${fragments.ANSWERSET_FIELDS}
                     user {
-                        id
-                        name
-                        organization
-                        website
-                        includeCredit
-                        creditAs
+                        ${fragments.USER_FIELDS}
                     }
                     testBook {
-                        title
-                        filename
-                        topic {
-                            id
-                            order
-                            type
-                        }  
-                        lang {
-                            id
-                            label
-                        }
-                        version
+                        ${fragments.TEST_BOOK_FIELDS}
                     }
                     answersByAnswerSetId {
                         nodes {
-                            id
-                            test {
-                                testId
-                                description
-                                name
-                            }
-                            value
-                            flag
-                            notes
-                            notesArePublic
+                            ${fragments.ANSWER_FIELDS}
                         }
                     }
                 }
@@ -302,50 +136,15 @@ module.exports = {
     `query($userId: Int!) {
         getUserTestingEnvironments(userId: $userId) {
             nodes {
-            id
-            readingSystem {
-                name
-                version
-                vendor
-            }
-            assistiveTechnology {
-                name
-                version
-                vendor
-            }
-            os {
-                name
-                version
-                vendor
-            }
-            device {
-                name
-                version
-                vendor
-            }
-            browser {
-                name
-                version
-                vendor
-            }
-            answerSetsByTestingEnvironmentId(
-                condition: { 
-                    userId: $userId 
-                }) {
+                ${fragments.TESTING_ENVIRONMENT_FIELDS}
+                answerSetsByTestingEnvironmentId(
+                    condition: { 
+                        userId: $userId 
+                    }) {
                     nodes{
-                        id
-                        flag
-                        score
-                        isPublic
+                        ${fragments.ANSWERSET_FIELDS}
                         testBook {
-                            title
-                            topic {
-                                id
-                            }
-                            lang {
-                                id
-                                label
-                            }
+                            ${fragments.TEST_BOOK_FIELDS}
                         }
                     }
                 }

@@ -1,12 +1,12 @@
 {%- extends 'base/base.html' -%}
 {%- import "components/testing-environment-details.html" as testingEnvironmentDetails -%}
-{%- import "components/reading-system-name.html" as readingSystemName -%}
+{%- import "components/software-name.html" as softwareName -%}
 {%- set title = "Admin: Testing Environment" -%}
 {%- set mainclass="wide inset" -%}
 {%- block content -%}
 
 <h1>Manage Testing Environment</h1>
-<h2>{{ readingSystemName.ReadingSystemName (testingEnvironment.readingSystem) }}</h2>
+<h2>{{ softwareName.SoftwareName (testingEnvironment.readingSystem) }}</h2>
 <div class="twocol spaced">
     {{ testingEnvironmentDetails.TestingEnvironmentDetails(testingEnvironment) }}
 </div>

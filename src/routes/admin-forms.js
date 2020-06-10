@@ -8,6 +8,7 @@ const testingEnvironments = require('../actions/testingEnvironments');
 const formidable = require('formidable')
 const utils = require('../utils');
 const path = require('path');
+const { validator, validationResult, body } = require('express-validator');
 
 // approve or deny request to publish
 router.post('/handle-request', async (req, res, next) => {
@@ -307,9 +308,9 @@ router.post("/confirm-delete-testing-environment/:id", async (req, res, next) =>
     return res.render('./confirm.html', {
         title: "Confirm deletion",
         content: `Please confirm that you would like to delete ${testingEnvironmentTitle}`,
-        redirectUrlYes: '/admin/testing',
-        redirectUrlNo: `/admin/testing-environment/${parseInt(req.params.id)}`,
-        actionUrl: `/admin/forms/delete-testing-environment/${parseInt(req.params.id)}`
+        redirectUrlYes: `/admin/testing`,
+        redirectUrlNo: `/admin/testing-environment/${req.params.id}`,
+        actionUrl: `/admin/forms/delete-testing-environment/${req.params.id}`
     });
 });
 
@@ -324,6 +325,79 @@ router.post('/delete-testing-environment/:id', async (req, res, next) => {
         }
         else {
             let message = encodeURIComponent("Testing environment deleted");
+            redirect = req.body.redirectUrlYes + "?message=" + message;
+        }
+    }
+    else {
+        // else cancel was pressed: do nothing
+        redirect = req.body.redirectUrlNo;
+    }
+
+    // redirect
+    return res.redirect(redirect);
+});
+
+router.post("/software", 
+[
+    body('name').trim(),
+    body('vendor').trim(),
+    body('version').trim()
+],
+async (req, res, next) => {
+    let dbres = await db.query(Q.SOFTWARE.UPDATE, {input: {
+        id: parseInt(req.body.id),
+        patch: {
+            name: req.body.name,
+            vendor: req.body.vendor,
+            version: req.body.version,
+            active: req.body.active === "on"
+        }
+    }}, req.cookies.jwt);
+    
+    if (!dbres.success) {
+        let message = "Error updating software.";
+        return res.redirect('/admin/software?message=' + encodeURIComponent(message));
+    }
+
+    let message = "Software updated.";
+    return res.redirect('/admin/software?message=' + encodeURIComponent(message));
+
+});
+
+router.post("/confirm-delete-software/:id", async (req, res, next) => {
+    let dbres = await db.query(
+        Q.SOFTWARE.GET_BY_ID, 
+        { id: parseInt(req.params.id) }, 
+        req.cookies.jwt);
+    
+    if (!dbres.success) {
+        let err = new Error(`Could not get software (${req.params.id}).`);
+        return next(err);
+    }
+    let software = dbres.data.software;
+
+    let softwareTitle = `${software.vendor} ${software.name} ${software.version}`;
+
+    return res.render('./confirm.html', {
+        title: "Confirm deletion",
+        content: `Please confirm that you would like to delete ${softwareTitle}`,
+        redirectUrlYes: `/admin/software`,
+        redirectUrlNo: `/admin/software`,
+        actionUrl: `/admin/forms/delete-software/${req.params.id}`
+    });
+});
+
+router.post('/delete-software/:id', async (req, res, next) => {
+    let redirect;
+
+    if (req.body.hasOwnProperty("yes")) {
+        let result = await db.query(Q.SOFTWARE.DELETE, {id: parseInt(req.params.id)}, req.cookies.jwt);
+        if (!result.success) {
+            let err = new Error("Could not delete software.");
+            return next(err);
+        }
+        else {
+            let message = encodeURIComponent("Software deleted");
             redirect = req.body.redirectUrlYes + "?message=" + message;
         }
     }

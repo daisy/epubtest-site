@@ -1,3 +1,4 @@
+const fragments = require('./fragments');
 module.exports = {
     ADD: 
     `mutation ($newAnswerSetInput: CreateAnswerSetInput!) {
@@ -35,7 +36,7 @@ module.exports = {
         updateAnswerSet(input:{
             id: $answerSetId,
             patch: {
-            isPublic:false
+                isPublic:false
             }
         })
         {
@@ -54,65 +55,16 @@ module.exports = {
     GET_BY_ID: 
     `query($id: Int!) {
         answerSet(id: $id) {
-            id
-            summary
-            userId
-            flag
-            score
+            ${fragments.ANSWERSET_FIELDS}
             testingEnvironment {
-                id
-                readingSystem {
-                    name
-                    version
-                    vendor
-                }
-                assistiveTechnology {
-                    name
-                    version
-                    vendor
-                }
-                os {
-                    name
-                    version
-                    vendor
-                }
-                device {
-                    name
-                    version
-                    vendor
-                }
-                browser {
-                    name
-                    version
-                    vendor
-                }
+                ${fragments.TESTING_ENVIRONMENT_FIELDS}
             }
             testBook {
-                title
-                version
-                filename
-                id
-                lang {
-                    id
-                    label
-                }
-                topic {
-                    id
-                }
+                ${fragments.TEST_BOOK_FIELDS}
             }
             answersByAnswerSetId {
                 nodes {
-                    id
-                    test {
-                        id
-                        testId
-                        description
-                        name
-                    }
-                    value
-                    flag
-                    notes
-                    notesArePublic
+                    ${fragments.ANSWER_FIELDS}
                 }
             }
         }
@@ -124,13 +76,7 @@ module.exports = {
             nodes {
                 id
                 answersByAnswerSetId {
-                    nodes{
-                        id
-                        test{
-                            testId
-                        }
-                        value
-                    }
+                    ${fragments.ANSWER_FIELDS}
                 }
             }
         }

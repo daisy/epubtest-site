@@ -1,127 +1,19 @@
 {%- extends 'base/base.html' -%}
-{%- set title = "Admin: Software" -%}
+{%- set title = "Admin: All Software" -%}
 {%- block content -%}
 
 <h1 id="reading-systems">Reading Systems</h1>
-<table>
-    <thead>
-        <tr>
-            <th>ID</th>
-            <th>Vendor</th>
-            <th>Name</th>
-            <th>Version</th>
-        </tr>
-    </thead>
-    <tbody>
-        {%- for rs in readingSystems -%}
-            <tr>
-                <td>
-                    {{rs.id}}
-                </td>
-                <td>
-                    {{rs.vendor}}
-                </td>
-                <td>
-                    {{rs.name}}
-                </td>
-                <td>
-                    {{rs.version}}
-                </td>
-            </tr>
-        {%- endfor -%}
-    </tbody>
-</table>
-
+{{ SoftwareTable(readingSystems, "reading-system") }}
 
 <h1 id="assistive-technologies">Assistive Technologies</h1>
-<table>
-    <thead>
-        <tr>
-            <th>ID</th>
-            <th>Vendor</th>
-            <th>Name</th>
-            <th>Version</th>
-        </tr>
-    </thead>
-    <tbody>
-        {%- for at in assistiveTechnologies -%}
-            <tr>
-                <td>
-                    {{at.id}}
-                </td>
-                <td>
-                    {{at.vendor}}
-                </td>
-                <td>
-                    {{at.name}}
-                </td>
-                <td>
-                    {{at.version}}
-                </td>
-            </tr>
-        {%- endfor -%}
-    </tbody>
-</table>
+{{ SoftwareTable(assistiveTechnologies, "assistive-technology") }}
 
 <h1 id="operating-systems">Operating Systems</h1>
-<table>
-    <thead>
-        <tr>
-            <th>ID</th>
-            <th>Vendor</th>
-            <th>Name</th>
-            <th>Version</th>
-        </tr>
-    </thead>
-    <tbody>
-        {%- for os in operatingSystems -%}
-            <tr>
-                <td>
-                    {{os.id}}
-                </td>
-                <td>
-                    {{os.vendor}}
-                </td>
-                <td>
-                    {{os.name}}
-                </td>
-                <td>
-                    {{os.version}}
-                </td>
-            </tr>
-        {%- endfor -%}
-    </tbody>
-</table>
+{{ SoftwareTable(operatingSystems, "os") }}
 
 <h2 id="browsers">Browsers</h2>
-<table>
-    <thead>
-        <tr>
-            <th>ID</th>
-            <th>Vendor</th>
-            <th>Name</th>
-            <th>Version</th>
-        </tr>
-    </thead>
-    <tbody>
-        {%- for brw in browsers -%}
-            <tr>
-                <td>
-                    {{brw.id}}
-                </td>
-                <td>
-                    {{brw.vendor}}
-                </td>
-                <td>
-                    {{brw.name}}
-                </td>
-                <td>
-                    {{brw.version}}
-                </td>
-            </tr>
-        {%- endfor -%}
-    </tbody>
-</table>
+{{ SoftwareTable(browsers, "browser") }}
+
 {% endblock %}  
 
 {%- block nav -%}
@@ -135,3 +27,63 @@
     </ul>
 </nav>
 {%- endblock -%}
+
+{%- macro SoftwareTable(softwares, route) -%}
+<table>
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Vendor</th>
+            <th>Name</th>
+            <th>Version</th>
+            <th>Show in dropdown</th>
+            <th>Testing Environments</th>
+            <th>Actions</th>
+            
+        </tr>
+    </thead>
+    <tbody>
+        {%- for sw in softwares -%}
+            <tr>
+                <td>
+                    {{sw.id}}
+                </td>
+                <td>
+                    {{sw.vendor}}
+                </td>
+                <td>
+                    {{sw.name}}
+                </td>
+                <td>
+                    {{sw.version}}
+                </td>
+                <td>
+                    {%-if sw.active-%}Yes{%-else-%}No{%-endif-%}
+                </td>
+                <td>
+                    {{sw.testingEnvironments.totalCount}}
+                    {%- if sw.testingEnvironments.totalCount -%}
+                    <br><a href="/admin/{{route}}/{{sw.id}}">See usage</a>
+                    {%- endif -%}
+                </td>
+                <td>
+                    <ul>
+                        <li><a href="/admin/edit-{{route}}/{{sw.id}}">Edit</a></li>
+                        
+                        <li>
+                            {%- if sw.testingEnvironments.totalCount == 0 -%}
+                            <form method="POST" action="/admin/forms/confirm-delete-software/{{sw.id}}">
+                                <input type="submit" name="submit" value="Delete"/>
+                            </form>
+                            {%- else -%}
+                            <span>Cannot delete; in use.</span>
+                            {%- endif -%}
+                        </li>
+                        
+                    </ul>
+                </td>
+            </tr>
+        {%- endfor -%}
+    </tbody>
+</table>
+{%- endmacro -%}

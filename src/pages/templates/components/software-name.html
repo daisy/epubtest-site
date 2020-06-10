@@ -1,0 +1,11 @@
+{%- macro SoftwareName (sw) -%}
+{%- if sw.vendor -%}
+{{ sw.vendor }}&nbsp;
+{%- endif -%}
+{%- if sw.name -%}
+{{ sw.name }}&nbsp;
+{%- endif -%}
+{%- if sw.version -%}
+{{ sw.version }}
+{%- endif -%}
+{%- endmacro -%}

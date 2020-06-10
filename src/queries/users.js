@@ -1,3 +1,5 @@
+const fragments = require('./fragments');
+
 module.exports = {
     GET_INACTIVE: 
     `query {
@@ -25,11 +27,7 @@ module.exports = {
     GET_BY_ID: 
     `query($id: Int!) {
         user (id: $id) {
-            name
-            organization
-            website
-            includeCredit
-            creditAs
+            ${fragments.USER_FIELDS}
         }
     }`,
 

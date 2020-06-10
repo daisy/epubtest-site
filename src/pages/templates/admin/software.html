@@ -1,0 +1,17 @@
+{%- extends 'base/base.html' -%}
+{%- set title = "Admin: Software" -%}
+{%- import "components/software-name.html" as softwareName -%}
+{%- import "components/testing-environments-table.html" as testingEnvironmentsTable -%}
+{%- block content -%}
+<h1>
+    {{ softwareName.SoftwareName(software) }}
+</h1>
+
+<h2>Usage</h2>
+<p>This software is used in the following testing environments:</p>
+
+{{testingEnvironmentsTable.TestingEnvironmentsTable(software.testingEnvironments.nodes)}}
+
+
+{% endblock %}  
+

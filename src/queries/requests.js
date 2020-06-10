@@ -1,41 +1,29 @@
+const fragments = require('./fragments');
+
 module.exports = {
     // get all the requests for publishing
     GET_ALL: 
     `query{
         requests {
-        nodes {
-            id
-            created
-            answerSet{
-            id
-            score
-            testingEnvironment {
-                readingSystem {
-                name
-                version
-                vendor
-                }
-                assistiveTechnology {
-                name
-                version
-                vendor
-                }
-                os {
-                name
-                version
-                vendor
-                }
-            }
-            user {
-                name
-            }
-            testBook {
-                topic {
+            nodes {
                 id
+                created
+                answerSet {
+                    id
+                    score
+                    testingEnvironment {
+                        ${fragments.TESTING_ENVIRONMENT_FIELDS}
+                    }
+                    user {
+                        name
+                    }
+                    testBook {
+                        topic {
+                            id
+                        }
+                    }
                 }
             }
-            }
-        }
         }
     }`,
 
@@ -60,7 +48,7 @@ module.exports = {
         }
       }`,
 
-       // get requests for publishing for the given answer sets
+    // get requests for publishing for the given answer sets
     GET_FOR_ANSWERSETS: 
     `query($ids: [Int!]) {
         requests(filter:{answerSetId:{in: $ids}}) {

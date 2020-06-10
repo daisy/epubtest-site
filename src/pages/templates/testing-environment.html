@@ -1,11 +1,11 @@
 {%- extends 'base/base.html' -%}
 {%- import "components/answer-set.html" as answerSetComponent -%}
 {%- import "components/testing-environment-details.html" as testingEnvironmentDetails -%}
-{%- import "components/reading-system-name.html" as readingSystemName -%}
+{%- import "components/software-name.html" as softwareName -%}
 {%- block content -%}
 
     <h1>
-        {{ readingSystemName.ReadingSystemName(testingEnvironment.readingSystem) }}
+        {{ softwareName.SoftwareName(testingEnvironment.readingSystem) }}
     </h1>
     <div class="twocol spaced">
         {{ testingEnvironmentDetails.TestingEnvironmentDetails(testingEnvironment) }}

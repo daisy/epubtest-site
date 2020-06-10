@@ -184,6 +184,23 @@ router.get('/users', async (req, res, next) => {
         }
     );
 });
+router.get('/reading-system/:id', async (req, res, next) => {
+    let software = await getSoftwareById(req, res, next, "READING_SYSTEM");
+    return res.status(200).render('./admin/software.html', {software});
+});
+router.get('/assistive-technology/:id', async (req, res, next) => {
+    let software = await getSoftwareById(req, res, next, "ASSISTIVE_TECHNOLOGY");
+    return res.status(200).render('./admin/software.html', {software});
+});
+router.get('/os/:id', async (req, res, next) => {
+    let software = await getSoftwareById(req, res, next, "OS");
+    return res.status(200).render('./admin/software.html', {software});
+});
+router.get('/browser/:id', async (req, res, next) => {
+    let software = await getSoftwareById(req, res, next, "BROWSER");
+    return res.status(200).render('./admin/software.html', {software});
+});
+
 
 router.get("/software", async (req, res, next) => {
     let allSw = await getAllSoftware(req.cookies.jwt);
@@ -200,7 +217,7 @@ router.get("/software", async (req, res, next) => {
 });
 
 router.get('/add-testing-environment', async (req, res, next) => {
-    let allSw = await getAllSoftware(req.cookies.jwt);
+    let allSw = await getAllSoftware(req.cookies.jwt, filterActive=true);
     if (!allSw.success) {
         return next(allSw.error);
     }
@@ -262,36 +279,86 @@ router.get('/add-browser', (req, res) => res.render(
     })
 );
 
+router.get('/etc', (req, res) => {
+    return res.status(200).render('./admin/etc.html');
+});
 
-async function getAllSoftware(jwt) {
+router.get('/version', async (req, res, next) => {
+    let dbres = await db.query(Q.ETC.DBVERSION, {}, req.cookies.jwt);
+    
+    if (!dbres.success) {
+        let err = new Error("Error getting database version.");
+        return next(err);
+    }
+    return res.status(200).send(`Database migration version: ${dbres.data.dbInfo.value}`);
+});
+
+router.get('/edit-reading-system/:id', async (req, res, next) => {
+    let software = await getSoftwareById(req, res, next, "READING_SYSTEM");
+    return res.render('./admin/edit-software.html', {software});
+});
+
+router.get('/edit-assistive-technology/:id', async (req, res, next) => {
+    let software = await getSoftwareById(req, res, next, "ASSISTIVE_TECHNOLOGY");
+    return res.render('./admin/edit-software.html', {software});
+});
+
+router.get('/edit-os/:id', async (req, res, next) => {
+    let software = await getSoftwareById(req, res, next, "OS");
+    return res.render('./admin/edit-software.html', {software});
+});
+
+router.get('/edit-browser/:id', async (req, res, next) => {
+    let software = await getSoftwareById(req, res, next, "BROWSER");
+    return res.render('./admin/edit-software.html', {software});
+});
+
+
+async function getAllSoftware(jwt, filterActive = false) {
     try {
-        let dbres = await db.query(Q.SOFTWARE.GET_BY_TYPE, 
-            { type: 'READING_SYSTEM'}, jwt);
+        let dbres = await db.query(Q.SOFTWARE.GET_BY_TYPE("READING_SYSTEM"), 
+            {}, jwt);
         if (!dbres.success) {
             throw new Error(`Could not get reading systems`);
         }
-        let readingSystems = dbres.data.softwares.nodes;
+        let readingSystems = aliasFieldArray(dbres.data.softwares.nodes, 
+            "testingEnvironmentsByReadingSystemId", "testingEnvironments");
+        if (filterActive) {
+            readingSystems = readingSystems.filter(sw => sw.active);
+        }
         
-        dbres = await db.query(Q.SOFTWARE.GET_BY_TYPE, 
-            { type: 'ASSISTIVE_TECHNOLOGY'}, jwt);
+        dbres = await db.query(Q.SOFTWARE.GET_BY_TYPE("ASSISTIVE_TECHNOLOGY"), 
+            {}, jwt);
         if (!dbres.success) {
             throw new Error(`Could not get assistive technologies`);
         }
-        let assistiveTechnologies = dbres.data.softwares.nodes;
+        let assistiveTechnologies = aliasFieldArray(dbres.data.softwares.nodes, 
+            "testingEnvironmentsByAssistiveTechnologyId", "testingEnvironments");
+        if (filterActive) {
+            assistiveTechnologies = assistiveTechnologies.filter(sw => sw.active);
+        }
 
-        dbres = await db.query(Q.SOFTWARE.GET_BY_TYPE, 
-            { type: 'OS'}, jwt);
+        dbres = await db.query(Q.SOFTWARE.GET_BY_TYPE("OS"), 
+            {}, jwt);
         if (!dbres.success) {
             throw new Error(`Could not get operating systems`);
         }
-        let operatingSystems = dbres.data.softwares.nodes;
-        
-        dbres = await db.query(Q.SOFTWARE.GET_BY_TYPE, 
-            { type: 'BROWSER'}, jwt);
+        let operatingSystems = aliasFieldArray(dbres.data.softwares.nodes, 
+            "testingEnvironmentsByOsId", "testingEnvironments");
+        if (filterActive) {
+            operatingSystems = operatingSystems.filter(sw => sw.active);
+        }
+
+        dbres = await db.query(Q.SOFTWARE.GET_BY_TYPE("BROWSER"), 
+            {}, jwt);
         if (!dbres.success) {
             throw new Error(`Could not get browsers`);
         }
-        let browsers = dbres.data.softwares.nodes;
+        let browsers = aliasFieldArray(dbres.data.softwares.nodes,
+            "testingEnvironmentsByBrowserId", "testingEnvironments");
+        if (filterActive) {
+            browsers = browsers.filter(sw => sw.active);
+        }
 
         return {
             success: true, 
@@ -312,19 +379,42 @@ async function getAllSoftware(jwt) {
     }
 }
 
-router.get('/etc', (req, res) => {
-    return res.status(200).render('./admin/etc.html');
-});
+// because of some annoying properties of graphql, we need to specify the type in order to get detailed usage info about the software
+async function getSoftwareById(req, res, next, type) {
+    let dbres = await db.query(Q.SOFTWARE.GET_BY_ID_EXTD(type), {id: parseInt(req.params.id)}, req.cookies.jwt);
 
-router.get('/version', async (req, res, next) => {
-    let dbres = await db.query(Q.ETC.DBVERSION, {}, req.cookies.jwt);
-    
     if (!dbres.success) {
-        let err = new Error("Error getting database version.");
+        let err = new Error(`Error getting software (id=${req.params.id}).`)
         return next(err);
     }
-    return res.status(200).send(`Database migration version: ${dbres.data.dbInfo.value}`);
-});
+    
+    let software = dbres.data.software;
+    if (type == "READING_SYSTEM") {
+        software = aliasField(software, "testingEnvironmentsByReadingSystemId", "testingEnvironments")
+    }
+    else if (type == "ASSISTIVE_TECHNOLOGY") {
+        software = aliasField(software, "testingEnvironmentsByAssistiveTechnologyId", "testingEnvironments")
+    }
+    else if (type == "OS") {
+        software = aliasField(software, "testingEnvironmentsByOsId", "testingEnvironments")
+    }
+    else if (type == "BROWSER") {
+        software = aliasField(software, "testingEnvironmentsByBrowserId", "testingEnvironments")
+    }
+     
+    return software;
+}
+
+// for an array of objects, create newField and populate it with the contents of oldField
+function aliasFieldArray(objs, oldField, newField) {
+    return objs.map(obj => aliasField(obj, oldField, newField));
+}
+
+function aliasField(obj, oldField, newField) {
+    let newObj = obj;
+    newObj[newField] = obj[oldField];
+    return newObj;
+}
 
 
 module.exports = router;

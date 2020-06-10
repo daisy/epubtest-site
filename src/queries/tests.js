@@ -1,3 +1,5 @@
+const fragments = require('./fragments');
+
 module.exports = {
     ADD:
     `mutation ($testId: String!, $testBookId: Int!, $name: String!, $description: String, $xhtml: String!, $order: Int!, $flag: Boolean) {
@@ -27,11 +29,7 @@ module.exports = {
     `query ($testBookId: Int!) {
         tests (condition: {testBookId: $testBookId}) {
           nodes {
-            id
-            testId
-            name
-            description
-            xhtml
+            ${fragments.TEST_FIELDS}
           }
         }
     }`,
