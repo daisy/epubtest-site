@@ -81,7 +81,7 @@ router.post('/results',
                 score: String(score)
             }
         
-            let dbres = await db.query(Q.ANSWER_SETS.UPDATE, {input: data}, req.cookies.jwt);
+            let dbres = await db.query(Q.ANSWER_SETS.UPDATE_ANSWERSET_AND_ANSWERS, {input: data}, req.cookies.jwt);
             
             if (!dbres.success) {
                 let err = new Error(`Could not update answer set ${req.body.answerSetId}`);

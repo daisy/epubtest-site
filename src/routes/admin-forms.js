@@ -13,9 +13,17 @@ const { validator, validationResult, body } = require('express-validator');
 // approve or deny request to publish
 router.post('/handle-request', async (req, res, next) => {
     if (req.body.hasOwnProperty("approve")) {
-        let dbres = await db.query(Q.ANSWER_SETS.PUBLISH,
-            { answerSetId: parseInt(req.body.answerSetId)},
-            req.cookies.jwt);
+        // let dbres = await db.query(Q.ANSWER_SETS.PUBLISH,
+        //     { answerSetId: parseInt(req.body.answerSetId)},
+        //     req.cookies.jwt);
+        let dbres = await db.query(Q.ANSWER_SETS.UPDATE,
+                { input: {
+                    id: parseInt(req.body.answerSetId),
+                    patch: {
+                      isPublic:true
+                    }
+                }},
+                req.cookies.jwt);
         
         if (!dbres.success) {
             let err = new Error("Could not publish answer set.");
@@ -39,8 +47,16 @@ router.post('/handle-request', async (req, res, next) => {
 // publish an answer set
 router.post('/publish', async (req, res, next) => {
 
-    let dbres = await db.query(Q.ANSWER_SETS.PUBLISH,
-        { answerSetId: parseInt(req.body.answerSetId)},
+    // let dbres = await db.query(Q.ANSWER_SETS.PUBLISH,
+    //     { answerSetId: parseInt(req.body.answerSetId)},
+    //     req.cookies.jwt);
+    let dbres = await db.query(Q.ANSWER_SETS.UPDATE,
+        { input: {
+            id: parseInt(req.body.answerSetId),
+            patch: {
+              isPublic:true
+            }
+        }},
         req.cookies.jwt);
     
     if (!dbres.success) {
@@ -76,9 +92,17 @@ router.post('/publish', async (req, res, next) => {
 
 // unpublish an answer set
 router.post('/unpublish', async (req, res, next) => {
-    let dbres = await db.query(
-        Q.ANSWER_SETS.UNPUBLISH,
-        { answerSetId: parseInt(req.body.answerSetId) },
+    // let dbres = await db.query(
+    //     Q.ANSWER_SETS.UNPUBLISH,
+    //     { answerSetId: parseInt(req.body.answerSetId) },
+    //     req.cookies.jwt);
+    let dbres = await db.query(Q.ANSWER_SETS.UPDATE,
+        { input: {
+            id: parseInt(req.body.answerSetId),
+            patch: {
+              isPublic:false
+            }
+        }},
         req.cookies.jwt);
     
     if (!dbres.success) {

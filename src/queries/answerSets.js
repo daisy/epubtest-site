@@ -17,6 +17,14 @@ module.exports = {
         }
     }`,
 
+    UPDATE:
+    `mutation ($input: UpdateAnswerSetInput!) {
+        updateAnswerSet(input:$input)
+          {
+            clientMutationId
+          }
+    }
+    `,
 
     PUBLISH: 
     `mutation ($answerSetId: Int!) {
@@ -44,7 +52,7 @@ module.exports = {
         }
     }`,
         
-    UPDATE: 
+    UPDATE_ANSWERSET_AND_ANSWERS: 
     `mutation ($input: UpdateAnswersetAndAnswersInput!) {
         updateAnswersetAndAnswers(input: $input){
             clientMutationId
