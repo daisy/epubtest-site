@@ -10,8 +10,8 @@
     <label for="vendor">Vendor</label>
     <input type="text" label="Vendor" name="vendor" id="vendor" value="{{software.vendor}}">
     <div style="display: block">
-        <label for="active">Is Active?</label>
-        <input type="checkbox" label="Is Active?" name="active" id="active" {% if software.active -%}checked="checked"{%-endif-%}>
+        <label for="active">Show in dropdown?</label>
+        <input type="checkbox" label="Show in dropdown?" name="active" id="active" {% if software.active -%}checked="checked"{%-endif-%}>
     </div>
     <input type="hidden" name="id" value="{{software.id}}" id="id">
     <input type="submit" value="Save">
