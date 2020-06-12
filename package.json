@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "EPUB reading experience testing site",
   "main": "index.js",
+  "type": "commonjs",
   "repository": {
     "type": "git",
     "url": "https://github.com/daisy/epubtest-site"
@@ -33,6 +34,9 @@
     "fs-extra": "^8.1.0",
     "gulp": "^4.0.2",
     "gulp-stylelint": "^13.0.0",
+    "i18next": "^19.4.5",
+    "i18next-fs-backend": "^1.0.6",
+    "i18next-http-middleware": "^2.1.2",
     "jsonwebtoken": "^8.5.1",
     "nodemailer": "^6.3.1",
     "nunjucks": "^3.2.0",

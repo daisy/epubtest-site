@@ -1,0 +1,234 @@
+{
+  "images": {
+    "daisyLogo": "Logo du Consortium DAISY"
+  },
+
+  "messages": {
+    "loading": "Chargement",
+    "please login": "Merci de vous <1>identifier</1> pour continuer.",
+    "submitting": "Envoi en cours",
+    "saving": "Sauvegarde en cours"
+  },
+
+  "labels": {
+    "about": "À propos",
+    "all": "Tout",
+    "answers": "Réponses",
+    "archive": "archive",
+    "archived": "archivé",
+    "by": "par",
+    "cancel": "Annuler",
+    "choose language": "Sélectionner la langue",
+    "complete": "complet",
+    "completed": "Complété",
+    "copyright": "Copyright",
+    "dashboard": "Tableau de bord",
+    "download": "Téléchargé",
+    "edit results": "Éditer les résultats",
+    "incomplete": "incomplet",
+    "items remain": "éléments restatns",
+    "logged in as": "Connecté en tant que",
+    "login": "Se connecter",
+    "logout": "Se déconnecter",
+    "needs update": "doit être mis à jour",
+    "no": "non",
+    "not found": "Non trouvé",
+    "not published": "non publié",
+    "not tested": "Non testé",
+    "notes": "Notes",
+    "participate": "Participer",
+    "published": "publié",
+    "request to publish": "Demande de publication",
+    "result": "Résultat",
+    "results": "Résultats",
+    "save": "Sauvegarder",
+    "start": "Démarrer",
+    "summary": "Résumé",
+    "taken": "Pris",
+    "test book": "Document de Test",
+    "test books": "Documents de Test",
+    "testing environment": "Environnement de Test",
+    "test book results": "Résultats du Document de Test",
+    "up to date": "à jour",
+    "unarchive": "désarchivé",
+    "yes": "oui",
+    "publish request sent": "Demande de publication envoyée"
+  },
+
+  "aboutPage": {
+    "title": "À propos",
+    "body": {
+      "p1": "Un dispositif de lecture, qui peut être soit une application soit un dispositif matériel, est requis pour lire des livres au format EPUB. Les lecteurs et les livres peuvent proposer des fonctionnalités et des possibilités variées. Quelles applications permettront aux personnes handicapées de réussir leurs études ou fourniront la meilleure expérience de lecture pour apprécier le dernier roman ?",
+      "p2": "Nos évaluations de l'accessibilité sont destinées à répondre à ces questions. Les tests que nous utilisons sont développés par et avec des personnes rencontrant des difficultés de lecture. Ils prennent en compte des considérations de natures variées qui sont importantes pour répondre aux différents besoins des personnes concernées.",
+      "p3": "Le résumé et les résultats détaillés des tests sont publiés en ligne afin d'aider les développeurs à améliorer leurs produits ainsi que les consommateurs et les acheteurs institutionnels à sélectionner les solutions qui répondent à leurs besoins.",
+      "p4": "Les évaluations sont réalisées par des volontaires et des experts en accessibilité, regroupant plus de 60 personnes du monde entier. N'hésitez pas à nous rejoindre !"
+    },
+    "daisy homepage": "Site du Consortium DAISY"
+  },
+
+  "homePage": {
+    "title": "Accueil",
+    "heading": "Accessibilité de l'expérience de lecture",
+    "body": {
+      "p1": "Bienvenue sur epubtest.org, le site dédié aux tests de l'accessibilité de l'expérience de lecture numérique. Ce site peut être utilisé pour découvrir comment un lecteur peut réaliser se comporte lorsqu'ils rencontrent différentes fonctionnalités des livres numériques. Les données présentes sur ce site sont collectées continuellement grâce à un important groupe de testeurs experts du monde entier qui donnent de leur temps bénévolement. Les tests sont coordonnées par le <1>Consortium DAISY</1> et <3>sont ouverts à la participation.</3>",
+      "p2": "Consulter les résultats des tests d'accessibilité"
+    }
+  },
+
+  "loginPage": {
+    "title": "Connexion",
+    "email": "E-mail",
+    "emailPlaceholder": "votre_adresse@exemple.com",
+    "password": "Mot de passe",
+    "loginAction": "Se connecter"
+  },
+
+  "logoutPage": {
+    "logout": "Se déconnecter",
+    "loggingOut": "Se déconnecter..."
+  },
+
+  "resetPasswordPage": {
+    "reset password": "Réinitialisation du mot de passe",
+    "please continue": "Merci de poursuivre en <1>vous identifiant</1>.",
+    "please set": "Définissez un mot de passe pour <1>{{email}}</1>:",
+    "new password": "Nouveau mot de passe",
+    "repeat password": "Répétez le mot de passe"
+  },
+
+  "404": {
+    "title": "Page non trouvée",
+    "404": "Erreur 404: Page non trouvée",
+    "Gohome": "Retour à l'accueil"
+  },
+
+  "news": {
+    "title": "Quoi de neuf ?",
+    "updated": "mis à jour",
+    "published": "résultats de tests publiés pour"
+  },
+
+  "particiPage": {
+    "title": "Participer",
+    "blurb": "Bienvenue! Le Consortium DAISY vous invite à nous rejoindre pour tester l'accessibilité des dispositifs de lecture numérique, incluant des apps et des dispositifs matériels. Vos résultats de tests aident les développeurs à améliorer leurs produits,ainsi que les consommateurs et les acheteurs institutionnels à choisir les solutions les plus accessibles. Ensemble nous pouvons changer le monde en rendant les livres et les autres publications accessibles avec les yeux, les oreilles et les doigts.",
+    "becoming a contributor": "Devenir un contributeur",
+    "getting started": "Débuter",
+    "if youd like to get involved": "Si vous souhaitez vous impliquer, nous vous invitons à <1>nous contacter</1>. Vous recevrez ensuite une invitation, et il vous suffira alors de suivre les instructions indiquées dans l'e-mail pour créer votre compte sur ce site.",
+    "testing": "Tester",
+    "performing the tests": "Réaliser les tests",
+    "after you login, go to your dashboard": "Après vous être connecté, allez sur votre tableau de bord. Vous trouverez un tableau où figurent les environnements et les livres de tests. Si vous ne trouvez aucun élément dans le tableau, cela signifie que nos administrateurs sont en train de configurer votre environnement. Dès que des éléments seront listés dans votre tableau de bord, vous pourrez commencer les tests.",
+    "to enter results": "Pour soumettre vos résultats, sélectionnez un environnement et un livre de tests, puis validez sur <1>Démarrer</1> pour commencer, ou sur <3>Éditer les résultats</3> (pour continuer).",
+    "this will bring you to": "Cela vous amènera sur la page de tests. Vous pourrez alors accéder à un lien pour télécharger le document de tests (le fichier EPUB), suivi d'un formulaire contenant une ligne pour chaque test présenté dans le livre. Télécharger le livre et ouvrez le dans le dispositif de lecture que vous testez.",
+
+    "for each test": "Pou chaque test présenté dans le livre, il y a une ligne correspondante dans le formulaire. Suivez les instructions du livre et saisissez votre réponse pour chaque test.",
+
+    "press save": "Validez sur <1>Sauvegarder</1> quand vous avez fini ou si vous souhaitez faire une pause dans les tests. Vous pourrez revenir plus tard pour les terminer.",
+
+    "adding summary information": "Ajouter un résumé",
+
+    "once you have performed the tests": "Lorsque vous avez réalisé les tests d'un livre pour un environnement de tests, vous pouvez ajouter des notes afin de résumer votre expérience dans le champ résumé de la page de tests. Ce résumé apparaîtra dans vos résultats lorsqu'ils seront publiés.",
+
+    "editing your results": "Éditer vos résultats",
+
+    "you may go back": "À tout moment, vous pouvez revenir et modifier vos résultats, résumés ou notes.",
+
+    "publishing your results": "Publier vos résultats",
+
+    "results are not public": "Les résultats ne sont pas publics jusqu'à ce qu'ils aient été publiés. Ils apparaissent ensuite sur la page principale.",
+
+    "to publish your results": "Pour publier vos résultats, rendez vous sur votre Tableau de bord, cherchez les résultats (listé par livres de tests), et sélectionnez l'option <1>demande de publication</1>. Nos administrateurs passeront en revue et publieront vos résultats rapidement.",
+
+    "maintaining": "Maintenir à jour vos résultats",
+
+    "from time to time": "De temps en temps les livres de tests sont mis à jour afin de corriger d'éventuelles erreurs ou d'accroître le nombre de tests. Quand cela arrivera, vous recevrez un e-mail de notification. La prochaine fois que vous vous identifierez, contrôlez votre tableau de bord afin de savoir quels tests ont besoin d'être revus.",
+
+    "once you update": "Lorsque vous avez réalisez vos mises à jour, depuis votre Tableau de bord, sélectionnez <1>demande de publication</1> pour rendre publics vos résultats sur la page principale.",
+
+    "in the time": "Entre la mise à jour d'un livre de tests et la mise à jour de vos résultats, le score qui s'appliquait à la version précédente du livre de tests restera affiché sur la page principale, avec une indication que ceux-ci ne sont pas actualisés."
+  },
+
+  "testBooksPage": {
+    "blurb": "Les évaluations sont menées avec le même ensemble de livres de test afin d'en assurer la cohérence. Les livres de tests sont considérés comme accessibles et sans erreurs. Les différent titres sont décrits ci-dessous, avec un lien pour les télécharger."
+  },
+
+  "editResultsPage": {
+    "title": "Éditer les résultats du livre de tests",
+    "about these results": "À propos de ces résultats",
+    "these results are published": "Ces résultats sont {{status}}. Les résultats publiés sont visibles sur la page de <4>résultats</4>",
+    "these results are complete": "Ces résultats sont {{status}}",
+    "please include a summary": "Merci d'inclure un résumé de votre expérience de lecture :",
+    "show only": "Afficher seulement les réponses correspondantes",
+    "all": "Tous",
+    "not answered": "Sans réponse",
+    "not applicable": "Non applicable",
+    "passed": "Valides",
+    "failed": "En échec",
+    "test id": "ID du test",
+    "name": "Nom",
+    "description": "Description",
+    "answer": "Réponse",
+    "notes": "Notes",
+    "no answer": "Pas de réponse",
+    "pass": "Succès",
+    "fail": "Échec",
+    "publish notes": "Publier les notes?",
+    "no results": "Pas de résultats",
+    "needs review": "Doit être validé"
+  },
+
+  "dashboard": {
+    "heres what youve been working on": "Voici ce sur quoi vous travaillez, organisé par environnement de tests (en lignes) et livres de tests (en colonnes).",
+    "means that another user": "signifie qu'un autre utilisateur évalue ce livre de tests pour le même environnement."
+
+  },
+
+  "results": {
+    "results updated": "Résultats mis à jour",
+    "there are no results": "Il n'y a pas de résultats pour ce livre de tests.",
+    "score for this test book": "Score pour ce livre de tests"
+  },
+
+  "testingEnvironment": {
+    "reading system": "Dispositif de lecture",
+    "assistive technology": "Technologie d'assistance",
+    "operating system": "Système d'exploitation",
+    "os": "OS",
+    "browser": "Navigateur",
+    "device": "Périphérique",
+    "tested with braille": "Testé avec une plage braille?",
+    "tested with screen reader": "Testé avec un lecteur d'écran?",
+    "input type": "Type d'entrée",
+    "keyboard": "Clavier",
+    "mouse": "Souris",
+    "touch": "Tactile/Gestuel"
+  },
+
+  "resultsTable": {
+    "filter by": "Filtrer par",
+    "reset": "Réinitialiser",
+		"showing results": "Afficher {{length}} résultats",
+    "testing environment": "Environnement de tests",
+    "essential tests": "Tests essentiels",
+    "advanced tests": "Tests avancés",
+    "showing": "Afficher",
+    "rows": "résultats"
+  },
+
+  "userProfile": {
+    "name": "Nom",
+    "organization": "Organisation",
+    "website": "Site Web",
+    "show credit": "Souhaitez-vous être mentionné dans les résultats?",
+    "credit as": "Sous quelle mention souhaitez-vous que votre travail apparaisse?"
+  },
+
+  "topics": {
+    "basic-functionality": "Fonctionnalités de base",
+    "visual-adjustments": "Ajustements visuels",
+    "read-aloud": "Fonctionnalité de lecture audio",
+    "non-visual-reading": "Non-Visual Reading",
+    "media-overlays": "Superposition de médias",
+    "math": "Mathématiques",
+    "extended-descriptions": "Descriptions étendues"
+  }
+}

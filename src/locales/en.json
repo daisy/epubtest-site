@@ -1,0 +1,235 @@
+{
+  "images": {
+    "daisyLogo": "DAISY Consortium Logo"
+  },
+
+  "messages": {
+    "loading": "Loading",
+    "please login": "Please <1>login</1> to continue.",
+    "submitting": "Submitting",
+    "saving": "Saving"
+  },
+
+  "labels": {
+    "about": "About",
+    "all": "All",
+    "answers": "Answers",
+    "archive": "archive",
+    "archived": "archived",
+    "by": "by",
+    "cancel": "Cancel",
+    "choose language": "Choose language",
+    "complete": "complete",
+    "completed": "Completed",
+    "copyright": "Copyright",
+    "dashboard": "Dashboard",
+    "download": "Download",
+    "edit results": "Edit results",
+    "incomplete": "incomplete",
+    "items remain": "items remain",
+    "logged in as": "Logged in as",
+    "login": "Login",
+    "logout": "Logout",
+    "needs update": "needs update",
+    "no": "no",
+    "not found": "Not found",
+    "not published": "not published",
+    "not tested": "Not tested",
+    "notes": "Notes",
+    "participate": "Participate",
+    "published": "published",
+    "request to publish": "request to publish",
+    "result": "Result",
+    "results": "Results",
+    "save": "Save",
+    "start": "Start",
+    "summary": "Summary",
+    "taken": "Taken",
+    "test book": "Test Book",
+    "test books": "Test Books",
+    "testing environment": "Testing Environment",
+    "test book results": "Test Book Results",
+    "up to date": "up to date",
+    "unarchive": "unarchive",
+    "yes": "yes",
+    "publish request sent": "Publish request sent"
+  },
+
+  "aboutPage": {
+    "title": "About",
+    "body": {
+      "p1": "A reading system, which could be an app or hardware device, is needed to read EPUB titles. Both titles and readers can vary in their features and functionality. When it comes to persons with disabilities, which apps will enable them to excel at their studies, or provide a great reading experience when enjoying the latest novel?",
+      "p2": "Our accessibility evaluations are intended to answer these questions. The tests we use are developed by and with people with reading disabilities. They include consideration of various aspects that are important to different people with different needs.",
+      "p3": "The summary and detailed test results are published online. This helps developers to improve their products, and consumers and institutional purchasers to select the solutions that meet their needs.",
+      "p4": "The evaluations are conducted by volunteers and accessibility experts, including over 60 people from around the globe. We'd love for you to join us!"
+    },
+    "daisy homepage": "DAISY Consortium homepage"
+  },
+
+  "homePage": {
+    "title": "Home",
+    "heading": "Accessibility of E-Reading Experiences",
+    "body": {
+      "p1": "Welcome to epubtest.org, the home for accessibility testing of e-reading experiences. This site can be used to find out how an e-reader performs with different features found in eBooks. The data here is continually collected from a large group of expert testers from all over the globe who volunteer their time, and testing is coordinated by the <1>DAISY Consortium</1> and is <3>open to participation.</3>",
+      "p2": "View accessibility testing results"
+    }
+  },
+
+  "loginPage": {
+    "title": "Login",
+    "email": "Email",
+    "emailPlaceholder": "you@example.com",
+    "password": "Password",
+    "loginAction": "Login"
+  },
+
+  "logoutPage": {
+    "logout": "Logout",
+    "loggingOut": "Logging out..."
+  },
+
+  "resetPasswordPage": {
+    "reset password": "Reset Password",
+    "please continue": "Please continue by <1>logging in</1>.",
+    "please set": "Please set a password for {{email}}:",
+    "new password": "New password",
+    "repeat password": "Repeat password"
+
+  },
+
+  "404": {
+    "title": "Not found",
+    "404": "Error 404: Page Not Found",
+    "Gohome": "Go to home page"
+  },
+
+  "news": {
+    "title": "What's new!",
+    "updated": "updated",
+    "published": "published test results for"
+  },
+
+  "particiPage": {
+    "title": "Participate",
+    "blurb": "Welcome! We at the DAISY Consortium invite you to join us in testing the accessibility of digital reading systems, including apps and hardware devices. Your test results help developers to improve their products, and consumers and institutional purchasers to select most accessible solutions. Together we can change the world by making books and other publications accessible with eyes, ears, and fingers.",
+    "becoming a contributor": "Becoming a contributor",
+    "getting started": "Getting started",
+    "if youd like to get involved": "If you'd like to get involved, we welcome you to <1>contact us</1>. Once you have received an invitation, just follow the instructions in the email to set up your account.",
+    "testing": "Testing",
+    "performing the tests": "Performing the tests",
+    "after you login, go to your dashboard": "After you login, go to your dashboard. There is a table showing testing environments and test books. If you don't have anything in your table, it means our administrators are still setting up your testing. As soon as you have items listed on your dashboard, you can start testing.",
+    "to enter results": "To enter results, choose a testing environment and a test book, and choose <1>Start</1> to begin, or <3>Edit Results</3> (to continue).",
+    "this will bring you to": "This will bring you to the testing page. There, you will see a link to download the test book itself (the EPUB file), followed by a form with rows for each test in the book. Download the book and open it in the reading system that you're testing.",
+
+    "for each test": "For each test in the book, there is a corresponding row on the testing page form. Follow the instructions in the book and record an answer for each test.",
+
+    "press save": "Press <1>Save</1> when you're done, or when you want to pause testing for now. You can return later to finish.",
+
+    "adding summary information": "Adding summary information",
+
+    "once you have performed the tests": "Once you have performed the tests from a book for a testing environment, you may add some summary notes about your experience in the summary field on the testing page. This summary will become part of your results when they're published.",
+
+    "editing your results": "Editing your results",
+
+    "you may go back": "You may go back at any time and edit your answers, summaries, or notes.",
+
+    "publishing your results": "Publishing your results",
+
+    "results are not public": "Results are not public until they have been published. Then they appear on the main page.",
+
+    "to publish your results": "To publish your results, go to your Dashboard, find the results (listed per test book), and choose the <1>request to publish</1> option. Our administrators will review and approve your request shortly!",
+
+    "maintaining": "Maintaining your results",
+
+    "from time to time": "From time to time, the test books are updated to fix bugs or expand the number of tests. When this happens, you'll receive an email notification. The next time you login, check your dashboard to see what needs your attention.",
+
+    "once you update": "Once you've made your updates, from your Dashboard, select <1>request to publish</1> to update your public results on the main page.",
+
+    "in the time": "In the time between the test books being updated and you updating your results, your score for the previous version of that test book will remain on the main page, with an indication that it is not current."
+  },
+
+  "testBooksPage": {
+    "blurb": "Evaluations are completed with the same set of EPUB test books to ensure consistency. The test books are known to be accessible and free of errors. The different titles are described below, along with a link to download each."
+  },
+
+  "editResultsPage": {
+    "title": "Edit Test Book Results",
+    "about these results": "About these results",
+    "these results are published": "These results are {{status}}.",
+    "these results are complete": "These results are {{status}}",
+    "please include a summary": "Please include a summary of your testing experience:",
+    "show only": "Show only answers matching",
+    "all": "All",
+    "not answered": "Not answered",
+    "not applicable": "Not applicable",
+    "passed": "Passed",
+    "failed": "Failed",
+    "test id": "Test ID",
+    "name": "Name",
+    "description": "Description",
+    "answer": "Answer",
+    "notes": "Notes",
+    "no answer": "No answer",
+    "pass": "Pass",
+    "fail": "Fail",
+    "publish notes": "Publish notes?",
+    "no results": "No results",
+    "needs review": "Needs review"
+  },
+
+  "dashboard": {
+    "heres what youve been working on": "Here's what you've been working on, organized by testing environment (rows) and test books (columns).",
+    "means that another user": "means that another user is evaluating that test book for that testing environment."
+
+  },
+
+  "results": {
+    "results updated": "Results updated",
+    "there are no results": "There are no results for this test book.",
+    "score for this test book": "Score for this test book"
+  },
+
+  "testingEnvironment": {
+    "reading system": "Reading System",
+    "assistive technology": "Assistive Technology",
+    "operating system": "Operating System",
+    "os": "OS",
+    "browser": "Browser",
+    "device": "Device",
+    "tested with braille": "Tested with Braille?",
+    "tested with screen reader": "Tested with screen reader?",
+    "input type": "Input Type",
+    "keyboard": "Keyboard",
+    "mouse": "Mouse",
+    "touch": "Touch/Gestures"
+  },
+
+  "resultsTable": {
+    "filter by": "Filter by",
+    "reset": "Reset",
+    "showing results": "Showing {{length}} rows",
+    "testing environment": "Testing Environment",
+    "essential tests": "Essential Tests",
+    "advanced tests": "Advanced Tests",
+    "showing": "Showing",
+    "rows": "rows"
+  },
+
+  "userProfile": {
+    "name": "Name",
+    "organization": "Organization",
+    "website": "Website",
+    "show credit": "Show credit with your results?",
+    "credit as": "How shall we credit your work?"
+  },
+
+  "topics": {
+    "basic-functionality": "Basic Functionality",
+    "visual-adjustments": "Visual Adjustments",
+    "read-aloud": "Read Aloud",
+    "non-visual-reading": "Non-Visual Reading",
+    "media-overlays": "Media Overlays",
+    "math": "Mathematics",
+    "extended-descriptions": "Extended Descriptions"
+  }
+}
