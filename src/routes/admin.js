@@ -303,22 +303,22 @@ router.get('/version', async (req, res, next) => {
 
 router.get('/edit-reading-system/:id', async (req, res, next) => {
     let software = await getSoftwareById(req, res, next, "READING_SYSTEM");
-    return res.render('./admin/edit-software.html', {action: "/admin/forms/software", software});
+    return res.render('./admin/add-edit-software.html', {action: "/admin/forms/software", software});
 });
 
 router.get('/edit-assistive-technology/:id', async (req, res, next) => {
     let software = await getSoftwareById(req, res, next, "ASSISTIVE_TECHNOLOGY");
-    return res.render('./admin/edit-software.html', {software});
+    return res.render('./admin/add-edit-software.html', {software});
 });
 
 router.get('/edit-os/:id', async (req, res, next) => {
     let software = await getSoftwareById(req, res, next, "OS");
-    return res.render('./admin/edit-software.html', {software});
+    return res.render('./admin/add-edit-software.html', {software});
 });
 
 router.get('/edit-browser/:id', async (req, res, next) => {
     let software = await getSoftwareById(req, res, next, "BROWSER");
-    return res.render('./admin/edit-software.html', {software});
+    return res.render('./admin/add-edit-software.html', {software});
 });
 
 
