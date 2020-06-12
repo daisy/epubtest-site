@@ -361,6 +361,7 @@ router.post('/delete-testing-environment/:id', async (req, res, next) => {
     return res.redirect(redirect);
 });
 
+// update software
 router.post("/software", 
 [
     body('name').trim(),
@@ -368,24 +369,29 @@ router.post("/software",
     body('version').trim()
 ],
 async (req, res, next) => {
-    let dbres = await db.query(Q.SOFTWARE.UPDATE, {input: {
-        id: parseInt(req.body.id),
-        patch: {
-            name: req.body.name,
-            vendor: req.body.vendor,
-            version: req.body.version,
-            active: req.body.active === "on"
-        }
-    }}, req.cookies.jwt);
+    let url='/admin/software';
+    if (req.body.hasOwnProperty("save")) {
+        let dbres = await db.query(Q.SOFTWARE.UPDATE, {input: {
+            id: parseInt(req.body.id),
+            patch: {
+                name: req.body.name,
+                vendor: req.body.vendor,
+                version: req.body.version,
+                active: req.body.active === "on"
+            }
+        }}, req.cookies.jwt);
     
-    if (!dbres.success) {
-        let message = "Error updating software.";
-        return res.redirect('/admin/software?message=' + encodeURIComponent(message));
+        url += '?message=';
+        if (!dbres.success) {
+            let message = "Error updating software.";
+            url = url + encodeURIComponent(message);
+        }
+        else {
+            let message = "Software updated.";
+            url = url + encodeURIComponent(message);
+        }
     }
-
-    let message = "Software updated.";
-    return res.redirect('/admin/software?message=' + encodeURIComponent(message));
-
+    return res.redirect(url);
 });
 
 router.post("/confirm-delete-software/:id", async (req, res, next) => {
