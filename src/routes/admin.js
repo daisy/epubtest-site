@@ -248,34 +248,42 @@ router.get('/add-testing-environment', async (req, res, next) => {
 });
 
 router.get('/add-reading-system', (req, res) => res.render(
-    'admin/add-software.html', 
+    'admin/add-edit-software.html', 
     {
+        action: "/admin/forms/add-software",
         title: "Add Reading System",
-        type: "READING_SYSTEM"
+        type: "READING_SYSTEM",
+        showInDropdown: true
     })
 );
 
 router.get('/add-assistive-technology', (req, res) => res.render(
-    'admin/add-software.html', 
+    'admin/add-edit-software.html', 
     {
+        action: "/admin/forms/add-software",
         title: "Add Assistive Technology",
-        type: "ASSISTIVE_TECHNOLOGY"
+        type: "ASSISTIVE_TECHNOLOGY",
+        showInDropdown: true
     })
 );
 
 router.get('/add-operating-system', (req, res) => res.render(
-    'admin/add-software.html', 
+    'admin/add-edit-software.html', 
     {
+        action: "/admin/forms/add-software",
         title: "Add Operating System",
-        type: "OS"
+        type: "OS",
+        showInDropdown: true
     })
 );
 
 router.get('/add-browser', (req, res) => res.render(
-    './admin/add-software.html', 
+    './admin/add-edit-software.html', 
     {
+        action: "/admin/forms/add-software",
         title: "Add Browser",
-        type: "BROWSER"
+        type: "BROWSER",
+        showInDropdown: true
     })
 );
 
@@ -295,7 +303,7 @@ router.get('/version', async (req, res, next) => {
 
 router.get('/edit-reading-system/:id', async (req, res, next) => {
     let software = await getSoftwareById(req, res, next, "READING_SYSTEM");
-    return res.render('./admin/edit-software.html', {software});
+    return res.render('./admin/edit-software.html', {action: "/admin/forms/software", software});
 });
 
 router.get('/edit-assistive-technology/:id', async (req, res, next) => {
