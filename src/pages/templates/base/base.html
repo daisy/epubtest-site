@@ -30,6 +30,15 @@
                 </form>
             </li>
         {%- endif -%}
+            <li>
+                <form method="POST" action="/forms/choose-language">
+                    <select id="language" name="language">
+                        <option value="en" {%- if currentLanguage == 'en' -%}selected{%- endif -%}>English</option>
+                        <option value="fr" {%- if currentLanguage == 'fr' -%}selected{%- endif -%}>Français</option>
+                    </select>
+                    <input type="submit" name="submit" value="Choose language"/>
+                </form>
+            </li>
         </ul>
     </nav>
     

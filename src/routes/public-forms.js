@@ -105,4 +105,21 @@ router.post('/forgot-password',
         }
     }
 );
+let LANGS = ['en', 'fr'];
+router.post('/choose-language', [
+    body("language").isIn(LANGS)
+], (req, res, next) => {
+
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return next(new Error(`Could not set language to ${req.body.language}`));
+    }
+
+    return res.status(200)
+            .cookie('currentLanguage', 
+                req.body.language, 
+                { httpOnly: true/*, secure: true */ })
+                .redirect(req.body.next ? req.body.next : '/');
+    
+});
 module.exports = router;

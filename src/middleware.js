@@ -34,6 +34,16 @@ function accessLevel (req, res, next) {
     return next();
 }
 
+function currentLanguage (req, res, next) {
+    if (!req || !req.cookies || !req.cookies.currentLanguage) {
+        res.locals.currentLanguage = 'en';
+    }
+    else {
+        res.locals.currentLanguage = req.cookies.currentLanguage;
+    }
+    return next();
+}
+
 function error (err, req, res, next) {
     console.log("Error: ", err.statusCode);
     // use a generic status code if not present
@@ -47,5 +57,6 @@ module.exports = {
     isAuthenticated, 
     isAdmin,
     accessLevel,
-    error
+    error,
+    currentLanguage
 }

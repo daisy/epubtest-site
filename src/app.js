@@ -34,6 +34,7 @@ app.set('trust proxy', 1);
 
 app.use(cors());
 app.use(cookieParser());
+app.use(middleware.currentLanguage);
 app.use(middleware.accessLevel);
 app.use(express.urlencoded({extended: true}));
 
