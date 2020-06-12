@@ -8,6 +8,9 @@
     "type": "git",
     "url": "https://github.com/daisy/epubtest-site"
   },
+  "engines": {
+    "node": "14.4.0"
+  },
   "scripts": {
     "start": "node src/start.js",
     "dev": "nodemon --inspect  -e js,html src/start.js",
