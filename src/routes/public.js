@@ -8,7 +8,9 @@ const utils = require('../utils');
 router.get('/test', (req, res) => res.render('test.html'));
 
 // home page
-router.get('/', (req, res) => res.render('index.html'));
+router.get('/', (req, res) => {
+    return res.render('index.html');
+});
 
 // about page
 router.get('/about', (req, res) => res.render('about.html'));
@@ -89,7 +91,7 @@ router.get('/archive', async (req, res, next) => {
     
     return res.render('results.html', {
         testingEnvironments,
-        topics: topics.data.data.topics.nodes,
+        topics,
         isArchivesPage: true,
         getfortopic: (answerSets, topic) => {
             return answerSets.find(a => a.testBook.topic.id === topic.id)
