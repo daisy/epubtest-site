@@ -2,9 +2,10 @@ var express = require('express')
 const db = require('../database');
 const Q = require('../queries');
 const utils = require('../utils');
-const mail = require('../actions/mail.js');
-const emails = require('../emails.js');
+const mail = require('../actions/mail');
+const emails = require('../emails');
 const { validationResult, body } = require('express-validator');
+const LANGS = require('../l10n/langs');
 
 var router = express.Router()
 
@@ -105,7 +106,7 @@ router.post('/forgot-password',
         }
     }
 );
-let LANGS = ['en', 'fr'];
+    
 router.post('/choose-language', [
     body("language").isIn(LANGS)
 ], (req, res, next) => {

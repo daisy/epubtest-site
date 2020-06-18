@@ -44,4 +44,9 @@ describe('epubtest.org public pages', function() {
             .get('/error')
             .expect(200);
     });    
+    it('Gets the archive page', async () => {
+        await request
+            .get('/archive')
+            .expect(200);
+    });    
 });

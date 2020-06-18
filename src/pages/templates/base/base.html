@@ -30,7 +30,7 @@
                 </form>
             </li>
         {%- endif -%}
-            <li>
+            {#<li>
                 <form method="POST" action="/forms/choose-language">
                     <select id="language" name="language" aria-label="Choose language">
                         <option value="en" {%- if currentLanguage == 'en' -%}selected{%- endif -%}>English</option>
@@ -40,7 +40,7 @@
                     </select>
                     <input aria-label="Save language choice" type="submit" name="submit" value="Set"/>
                 </form>
-            </li>
+            </li>#}
         </ul>
     </nav>
     
