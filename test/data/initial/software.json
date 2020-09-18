@@ -1,0 +1,23 @@
+[
+    {
+        "name": "BookReader",
+        "version": "3.0",
+        "vendor": "Digital Stuff",
+        "type": "READING_SYSTEM",
+        "notes": "BookReader notes go here. Duis consectetur nulla nisi occaecat aute consequat ad aliqua esse reprehenderit."
+    },
+    {
+        "name": "ScreenTalk",
+        "version": "2.2",
+        "vendor": "AssistiveForAll",
+        "type": "ASSISTIVE_TECHNOLOGY",
+        "notes": "ScreenTalk notes go here. Occaecat proident aliquip non ut mollit esse excepteur qui id labore."
+    },
+    {
+        "name": "Windows",
+        "version": "10",
+        "vendor": "Microsoft",
+        "type": "OS",
+        "notes": "Windows notes go here. Enim culpa pariatur pariatur consequat consectetur dolor et sunt dolore duis dolore qui proident."
+    }
+]

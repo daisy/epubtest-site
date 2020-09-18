@@ -1,0 +1,9 @@
+[
+    {
+        "readingSystemId": 1,
+        "assistiveTechnologyId": 2,
+        "osId": 3,
+        "input": "KEYBOARD",
+        "testedWithScreenreader": true
+    }
+]
