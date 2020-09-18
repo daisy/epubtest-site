@@ -1,81 +1,41 @@
-const fragments = require('./fragments');
-module.exports = {
-    ADD:
-    `mutation ($newSoftwareInput: CreateSoftwareInput!) {
-        createSoftware(input:$newSoftwareInput) {
-            clientMutationId
-        }
-    }`,
-    
-    // this is different: instead of using graphql variables, we just use a template string
-    // because we have to know the value of the variable 'type' when we construct the query
-    GET_BY_TYPE: type => `
-    query {
-        softwares(condition: {type: ${type}}) {
-            nodes{
-                ${fragments.SOFTWARE_FIELDS}
-                ${type === "READING_SYSTEM" ? 
-                    `testingEnvironmentsByReadingSystemId` 
-                    : type === "ASSISTIVE_TECHNOLOGY" ? 
-                    `testingEnvironmentsByAssistiveTechnologyId`
-                    : type === "OS" ? 
-                    `testingEnvironmentsByOsId` 
-                    : type == "BROWSER" ? 
-                    `testingEnvironmentsByBrowserId`
-                    : ''
-                }
-                    {
-                    totalCount
-                    nodes{
-                        id
-                    }
+const generate  = require('./crudGenerator');
+const softwareFrag = require('./fragments/software');
+const testEnvFrag = require('./fragments/testingEnvironment');
+
+const {CREATE, DELETE, UPDATE, GET, GET_ALL} 
+    = generate("software", "softwares", softwareFrag.FIELDS);
+
+// type = ReadingSystem, AssistiveTechnology, Browser, Os
+// have to convert type to READING_SYSTEM, ASSISTIVE_TECHNOLOGY, etc
+let GET_ALL_BY_TYPE = type => `
+query {
+    softwares(condition: {type: ${type.replace(/([a-z])([A-Z])/g, '$1_$2').toUpperCase()}}) {
+        nodes{
+            ${softwareFrag.FIELDS}
+            testingEnvironmentsBy${type}Id {
+                totalCount
+                nodes {
+                    ${testEnvFrag.FIELDS}
                 }
             }
-        }
-    }`,
-
-    GET_BY_ID: `
-    query ($id: Int!) {
-        software(id: $id) {
-            ${fragments.SOFTWARE_FIELDS}
         }
     }
-    `,
+}`;
 
-    GET_BY_ID_EXTD: type => `
+// type = ReadingSystem, AssistiveTechnology, Browser, Os
+let GET_EXTENDED = type => `
     query ($id: Int!) {
         software(id: $id) {
-            ${fragments.SOFTWARE_FIELDS}
-            ${type === "READING_SYSTEM" ? 
-                `testingEnvironmentsByReadingSystemId` 
-                : type === "ASSISTIVE_TECHNOLOGY" ? 
-                `testingEnvironmentsByAssistiveTechnologyId`
-                : type === "OS" ? 
-                `testingEnvironmentsByOsId` 
-                : type == "BROWSER" ? 
-                `testingEnvironmentsByBrowserId`
-                : ''
-            }
-            {
+            ${softwareFrag.FIELDS}
+            testingEnvironmentsBy${type}Id {
                 nodes {
-                    ${fragments.TESTING_ENVIRONMENT_FIELDS}
+                    ${testEnvFrag.FIELDS}
                 }
             }
         }
-    }`,
+    }`;
 
-    UPDATE: `
-    mutation ($input: UpdateSoftwareInput!){
-        updateSoftware(input:$input) {
-           clientMutationId
-       }
-    }`,
-
-    DELETE: `
-    mutation($id: Int!) {
-        deleteSoftware(input: {id: $id}) {
-            clientMutationId
-        }
-    }`
-    
+module.exports = {
+    CREATE, DELETE, UPDATE, GET, GET_ALL, 
+    GET_EXTENDED, GET_ALL_BY_TYPE
 };

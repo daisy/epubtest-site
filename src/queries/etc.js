@@ -1,7 +1,7 @@
-module.exports = {
-    DBVERSION: `query {
-        dbInfo(field:"version") {
-          value
-        }
-      }`
-};
+const DBVERSION = `query {
+  dbInfo(field:"version") {
+    value
+  }
+}`;
+
+module.exports = { DBVERSION };

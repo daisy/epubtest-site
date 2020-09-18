@@ -1,49 +1,67 @@
 const db = require('../database');
 const Q = require('../queries');
 const answerSets = require('./answerSets');
+const undo = require('./undo');
 
 // add a new testing environment and create answer sets for the topics 
-// assign the answer sets to the specified users
-// topicsUsers should look like [{topic, user}...] where each value is a topic ID or user ID
-async function add(testingEnvironmentInput, topicsUsers, jwt) {
+async function add(testingEnvironmentInput, jwt) {
     let errors = [];
-    let testingEnvironmentId = -1;
+    let transactions = [];
+    let testingEnvironmentId;
     try {
-        let dbres = await db.query(Q.TEST_BOOKS.GET_LATEST);
+        let dbres = await db.query(
+            Q.TESTING_ENVIRONMENTS.CREATE, 
+            {
+                input: {
+                    ...testingEnvironmentInput
+                }
+            }, 
+            jwt);
+        if (!dbres.success) {
+            errors = dbres.errors;
+            throw new Error();
+        }
+        testingEnvironmentId = dbres.data.createTestingEnvironment.testingEnvironment.id; 
+        transactions.push({objectType: 'TESTING_ENVIRONMENTS', actionWas: 'CREATE', id: testingEnvironmentId});
+
+        // create answer sets for all topics
+        // don't assign them to a user yet
+        // dbres = await db.query(
+        //     Q.TOPICS.GET_ALL,
+        //     {},
+        //     jwt);
+        // if (!dbres.success) {
+        //     errors = dbres.errors;
+        //     throw new Error();
+        // }
+        // let topics = dbres.data.topics.nodes;
+        // for (topic of topics) {
+            
+        // create answer sets for each of the latest test books
+        // don't assign them to a user yet
+        dbres = await db.query(
+            Q.TEST_BOOKS.GET_LATEST,
+            {},
+            jwt);
         if (!dbres.success) {
             errors = dbres.errors;
             throw new Error();
         }
         let testBooks = dbres.data.getLatestTestBooks.nodes;
-        dbres = await db.query(Q.TESTING_ENVIRONMENTS.ADD, 
-            {
-                newTestingEnvironmentInput: {
-                    testingEnvironment: testingEnvironmentInput
-                }
-            }, jwt);
-        if (!dbres.success) {
-            errors = dbres.errors;
-            throw new Error();
-        }
-        testingEnvironmentId = dbres.data.createTestingEnvironment.testingEnvironment.id;
-
-        let i;
-        for (i=0; i<topicsUsers.length; i++) {
-            let topicId = topicsUsers[i].topic;
-            let book = testBooks.find(tb => tb.topicId === topicId);
-            let result = await answerSets.add(book.id, topicsUsers[i].user, testingEnvironmentId, jwt);
-
+        for (testBook of testBooks) {
+            let result = await answerSets.add(testBook.id, testingEnvironmentId, jwt);
             if (!result.success) {
                 errors = result.errors;
                 throw new Error();
             }
-        }   
+        }
     }
     catch(err) {
+        undo(transactions, jwt);
         return {success: false, errors, testingEnvironmentId};
     }
 
-    return {success: true, errors: [], testingEnvironmentId};
+    return {success: true, errors, testingEnvironmentId};
 }
 
 // remove a testing environment and all its answer sets and answers
@@ -52,7 +70,7 @@ async function remove(testingEnvironmentId, jwt) {
     try {
         // get testing environment
         let dbres = await db.query(
-            Q.TESTING_ENVIRONMENTS.GET_BY_ID, 
+            Q.TESTING_ENVIRONMENTS.GET, 
             { id: testingEnvironmentId }, 
             jwt);
         if (!dbres.success) {
@@ -62,13 +80,12 @@ async function remove(testingEnvironmentId, jwt) {
         
         let testenv = dbres.data.testingEnvironment;
         // delete answers and answer sets
-        let i, j;
         let answerSets = testenv.answerSetsByTestingEnvironmentId.nodes;
-        for (i=0; i<answerSets.length; i++) {
-            let answers = answerSets[i].answersByAnswerSetId.nodes;
-            for (j=0; j<answers.length; j++) {
+        for (answerSet of answerSets) {
+            let answers = answerSet.answersByAnswerSetId.nodes;
+            for (answer of answers) {
                 dbres = await db.query(Q.ANSWERS.DELETE, 
-                    {id: answers[j].id}, 
+                    {id: answer.id}, 
                     jwt);
                 if (!dbres.success) {
                     errors = dbres.errors;
@@ -76,7 +93,7 @@ async function remove(testingEnvironmentId, jwt) {
                 }
             }
             dbres = await db.query(Q.ANSWER_SETS.DELETE, 
-                {id: answerSets[i].id}, 
+                {id: answerSet.id}, 
                 jwt);
             if (!dbres.success) {
                 errors = dbres.errors;

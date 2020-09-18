@@ -13,16 +13,13 @@ const { validator, validationResult, body } = require('express-validator');
 // approve or deny request to publish
 router.post('/handle-request', async (req, res, next) => {
     if (req.body.hasOwnProperty("approve")) {
-        // let dbres = await db.query(Q.ANSWER_SETS.PUBLISH,
-        //     { answerSetId: parseInt(req.body.answerSetId)},
-        //     req.cookies.jwt);
         let dbres = await db.query(Q.ANSWER_SETS.UPDATE,
-                { input: {
+                { 
                     id: parseInt(req.body.answerSetId),
                     patch: {
-                      isPublic:true
+                      isPublic: true
                     }
-                }},
+                },
                 req.cookies.jwt);
         
         if (!dbres.success) {
@@ -33,7 +30,7 @@ router.post('/handle-request', async (req, res, next) => {
     
     if (req.body.hasOwnProperty("approve") || req.body.hasOwnProperty("deny")) {
         let dbres = await db.query(Q.REQUESTS.DELETE,
-            { requestId: parseInt(req.body.requestId) },
+            { id: parseInt(req.body.requestId) },
             req.cookies.jwt);
         
         if (!dbres.success) {
@@ -47,16 +44,13 @@ router.post('/handle-request', async (req, res, next) => {
 // publish an answer set
 router.post('/publish', async (req, res, next) => {
 
-    // let dbres = await db.query(Q.ANSWER_SETS.PUBLISH,
-    //     { answerSetId: parseInt(req.body.answerSetId)},
-    //     req.cookies.jwt);
     let dbres = await db.query(Q.ANSWER_SETS.UPDATE,
-        { input: {
+        { 
             id: parseInt(req.body.answerSetId),
             patch: {
-              isPublic:true
+              isPublic: true
             }
-        }},
+        },
         req.cookies.jwt);
     
     if (!dbres.success) {
@@ -78,7 +72,7 @@ router.post('/publish', async (req, res, next) => {
 
     if (dbres.data && dbres.data.requests.nodes.length > 0) {
         dbres = await db.query(Q.REQUESTS.DELETE,
-            { requestId: requests.data.data.nodes[0].id },
+            { id: requests.data.data.nodes[0].id },
             req.cookies.jwt);
         
         if (!dbres.success) {
@@ -92,17 +86,13 @@ router.post('/publish', async (req, res, next) => {
 
 // unpublish an answer set
 router.post('/unpublish', async (req, res, next) => {
-    // let dbres = await db.query(
-    //     Q.ANSWER_SETS.UNPUBLISH,
-    //     { answerSetId: parseInt(req.body.answerSetId) },
-    //     req.cookies.jwt);
     let dbres = await db.query(Q.ANSWER_SETS.UPDATE,
-        { input: {
+        {
             id: parseInt(req.body.answerSetId),
             patch: {
-              isPublic:false
+              isPublic: false
             }
-        }},
+        },
         req.cookies.jwt);
     
     if (!dbres.success) {
@@ -115,8 +105,10 @@ router.post('/unpublish', async (req, res, next) => {
 
 router.post('/archive', async (req, res, next) => {
     let dbres = await db.query(
-        Q.TESTING_ENVIRONMENTS.ARCHIVE,
-        { id: parseInt(req.body.testingEnvironmentId) },
+        Q.TESTING_ENVIRONMENTS.UPDATE, { 
+            id: parseInt(req.body.testingEnvironmentId),
+            patch: {isArchived: true}
+        },
         req.cookies.jwt);
     
     if (!dbres.success) {
@@ -129,8 +121,10 @@ router.post('/archive', async (req, res, next) => {
 
 router.post ('/unarchive', async (req, res) => {
     let dbres = await db.query(
-        Q.TESTING_ENVIRONMENTS.UNARCHIVE,
-        { id: parseInt(req.body.testingEnvironmentId) },
+        Q.TESTING_ENVIRONMENTS.UPDATE, { 
+            id: parseInt(req.body.testingEnvironmentId),
+            patch: {isArchived: false} 
+        },
         req.cookies.jwt);
     
     if (!dbres.success) {
@@ -142,9 +136,8 @@ router.post ('/unarchive', async (req, res) => {
 });
 
 router.post('/reinvite-users', async (req, res) => {
-    let i;
-    for (i = 0; i<req.body.users.length; i++) {
-        let dbres = await invite.inviteUser(req.body.users[i], req.cookies.jwt);
+    for (user of req.body.users) {
+        let dbres = await invite.inviteUser(user, req.cookies.jwt);
         if (!dbres.success) {
             let err = new Error(`Could not invite one or more user(s) (${req.body.users[i]}).`);
             return next(err);
@@ -171,12 +164,12 @@ router.post("/upload-test-book", async (req, res, next) => {
             return next(new Error(`Could not add book: ${canAdd.errors.join('\n\n')}`));
         }
 
-        let testBook = await testBooks.setFlags(parsedTestBook, canAdd.replaces);
+        let testBook = await testBooks.setFlags(parsedTestBook, canAdd.bookToUpgrade, req.cookies.jwt);
         let usage = null;
-        if (canAdd.replaces) {
+        if (canAdd.bookToUpgrade) {
             newTestIds = testBook.tests.filter(t => t.flagNew).map(t => t.testId);
-            usage = await testBooks.getUsage(canAdd.replaces.id, req.cookies.jwt);
-            testBook.replaces = canAdd.replaces.id;
+            usage = await testBooks.getUsage(canAdd.bookToUpgrade.id, req.cookies.jwt);
+            testBook.bookToUpgradeId = canAdd.bookToUpgrade.id;
         }
 
         // show page where admin can set own flags
@@ -212,7 +205,7 @@ router.post("/ingest-test-book", async (req, res, next) => {
 
 router.post("/confirm-delete-test-book/:id", async (req, res, next) => {
     let dbres = await db.query(
-        Q.TEST_BOOKS.GET_BY_ID, 
+        Q.TEST_BOOKS.GET, 
         { id: parseInt(req.params.id) }, 
         req.cookies.jwt);
     if (!dbres.success) {
@@ -261,16 +254,17 @@ router.post('/delete-test-book/:id', async (req, res, next) => {
 });
 
 router.post('/add-software', async (req, res, next) => {
-    let dbres = await(db.query(Q.SOFTWARE.ADD, {
-        newSoftwareInput: {
-            software: {
+    let dbres = await(db.query(
+        Q.SOFTWARE.CREATE, 
+        {
+            input: {
                 name: req.body.name,
                 version: req.body.version,
                 vendor: req.body.vendor,
                 type: req.body.type
             }
-        }
-    }, req.cookies.jwt));
+        }, 
+        req.cookies.jwt));
 
     if (!dbres.success) {
         let err = new Error("Could not add software.");
@@ -295,26 +289,31 @@ router.post('/add-testing-environment', async(req, res, next) => {
         input = {...input, assistiveTechnologyId: parseInt(req.body.assistiveTechnologyId)};
     }
 
+    // TODO separate form for assigning users
+    // this just grabs the req user
     let topicsUsers = [];
     let user = parseInt(req.body.user);
     if (req.body.hasOwnProperty("topics")) {    
         topicsUsers = req.body.topics.map(t=>({topic: t, user}));
     }
-    let result = await testingEnvironments.add(input, topicsUsers, req.cookies.jwt);
+    let result = await testingEnvironments.add(input, req.cookies.jwt);
 
     if (!result.success) {
         let err = new Error("Could not create testing environment.");
         return next(err);
     }
-    else {
-        let message = `Testing environment created (${result.testingEnvironmentId}).`;
-        return res.redirect('/admin?message=' + encodeURIComponent(message));
+    for (topicUser of topicsUsers) {
+        // TODO left off here
+        //await testingEnvironments.assign()
     }
+
+    let message = `Testing environment created (${result.testingEnvironmentId}).`;
+    return res.redirect('/admin?message=' + encodeURIComponent(message));
 });
 
 router.post("/confirm-delete-testing-environment/:id", async (req, res, next) => {
     let dbres = await db.query(
-        Q.TESTING_ENVIRONMENTS.GET_BY_ID, 
+        Q.TESTING_ENVIRONMENTS.GET, 
         { id: parseInt(req.params.id) }, 
         req.cookies.jwt);
     
@@ -371,7 +370,7 @@ router.post("/software",
 async (req, res, next) => {
     let url='/admin/software';
     if (req.body.hasOwnProperty("save")) {
-        let dbres = await db.query(Q.SOFTWARE.UPDATE, {input: {
+        let dbres = await db.query(Q.SOFTWARE.UPDATE, {
             id: parseInt(req.body.id),
             patch: {
                 name: req.body.name,
@@ -379,7 +378,7 @@ async (req, res, next) => {
                 version: req.body.version,
                 active: req.body.active === "on"
             }
-        }}, req.cookies.jwt);
+        }, req.cookies.jwt);
     
         url += '?message=';
         if (!dbres.success) {
@@ -396,7 +395,7 @@ async (req, res, next) => {
 
 router.post("/confirm-delete-software/:id", async (req, res, next) => {
     let dbres = await db.query(
-        Q.SOFTWARE.GET_BY_ID, 
+        Q.SOFTWARE.GET, 
         { id: parseInt(req.params.id) }, 
         req.cookies.jwt);
     

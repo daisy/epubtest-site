@@ -34,7 +34,7 @@ router.get('/forgot-password', (req, res) => res.render('auth/forgot-password.ht
 // testing environment results
 router.get('/results/:testingEnvironmentId', async (req, res, next) => {
     let dbres = await db.query(
-        Q.TESTING_ENVIRONMENTS.GET_BY_ID, 
+        Q.TESTING_ENVIRONMENTS.GET, 
         { id: parseInt(req.params.testingEnvironmentId) }); 
     if (!dbres.success) {
         let err = new Error(`Could not get testing environment (${req.params.testingEnvironmentId})`);

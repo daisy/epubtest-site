@@ -46,8 +46,12 @@ router.post('/set-password',
 // submit request to publish
 router.post('/request-to-publish', async (req, res, next) => {
     let dbres = await db.query(
-        Q.REQUESTS.ADD, 
-        { answerSetId: parseInt(req.body.answerSetId) }, 
+        Q.REQUESTS.CREATE, 
+        { 
+            input: {
+                answerSetId: parseInt(req.body.answerSetId) 
+            }
+        }, 
         req.cookies.jwt);
     
     if (!dbres.success) {
@@ -77,8 +81,9 @@ router.post('/results',
                 answerIds: answers.map(a=>parseInt(a.id)),
                 answerValues: answers.map(a=>a.value),
                 notes: answers.map(a=>a.notes),
-                notesArePublic: answers.map(a=>a.publishNotes === 'on'),
-                score: String(score)
+                notesArePublic: answers.map(a=>a.publishNotes === 'on')
+                //,
+                //score: String(score)
             }
         
             let dbres = await db.query(Q.ANSWER_SETS.UPDATE_ANSWERSET_AND_ANSWERS, {input: data}, req.cookies.jwt);
@@ -101,7 +106,7 @@ router.post('/profile',
             website: req.body.website.indexOf("http://") === -1 ? 
                 `http://${req.body.website}` : req.body.website
         };
-        let dbres = await db.query(Q.USERS.UPDATE, {id: req.userId, data}, req.cookies.jwt);
+        let dbres = await db.query(Q.USERS.UPDATE, {id: req.userId, patch: data}, req.cookies.jwt);
         
         if (!dbres.success) {
             let message = "Error updating profile.";

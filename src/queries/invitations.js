@@ -1,22 +1,9 @@
+const generate  = require('./crudGenerator');
+const invitationFrag = require('./fragments/invitation');
+
+const {CREATE, DELETE, UPDATE, GET, GET_ALL} 
+    = generate("invitation", "invitations", invitationFrag.FIELDS);
+
 module.exports = {
-    GET_ALL: 
-    `query {
-        invitations {
-            nodes {
-                user {
-                    id
-                    name
-                }
-                dateInvited
-            }
-        }
-    }`,
-
-    ADD: 
-    `mutation ($input: CreateInvitationInput!) {
-        createInvitation(input: $input) {
-            clientMutationId
-        }
-    }`,
-
+    CREATE, DELETE, UPDATE, GET, GET_ALL 
 };

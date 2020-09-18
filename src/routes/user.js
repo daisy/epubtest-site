@@ -39,7 +39,7 @@ router.get('/dashboard', async (req, res, next) => {
 
 // user profile page
 router.get('/profile', async (req, res, next) => {
-    let dbres = await db.query(Q.USERS.GET_BY_ID, { id: req.userId }, req.cookies.jwt);
+    let dbres = await db.query(Q.USERS.GET, { id: req.userId }, req.cookies.jwt);
     
     if (!dbres.success) {
         let err = new Error(`Could not get profile for user (${req.userId})`);
@@ -56,7 +56,7 @@ router.get('/profile', async (req, res, next) => {
 // edit results page
 router.get('/edit-results/:answerSetId', async (req, res, next) => {
     let dbres = await db.query(
-        Q.ANSWER_SETS.GET_BY_ID,
+        Q.ANSWER_SETS.GET,
         { id: parseInt(req.params.answerSetId) },
         req.cookies.jwt);
     

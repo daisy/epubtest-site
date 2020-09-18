@@ -9,9 +9,11 @@ async function testEmail(emailAddress) {
             "<p>This is a test message from epubtest.org. </p>"
         );
         console.log("Message sent");
+        return true;
     }
     catch(err) {
         console.log("Error sending test email", err);
+        return false;
     };
 }
 

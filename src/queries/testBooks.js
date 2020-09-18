@@ -1,53 +1,19 @@
+const generate  = require('./crudGenerator');
+const testBookFrag = require('./fragments/testBook');
+
+const {CREATE, DELETE, UPDATE, GET, GET_ALL} 
+    = generate("testBook", "testBooks", testBookFrag.FIELDS);
+
+// get all the latest test books
+const GET_LATEST =
+`query {
+    getLatestTestBooks{
+        nodes{
+            ${testBookFrag.FIELDS_WITHOUT_NESTING}
+        }
+    }
+}`;
+
 module.exports = {
-    DELETE: 
-    `mutation ($id: Int!) {
-        deleteTestBook(input:{ id:$id}) {
-          clientMutationId
-        }
-    }`,
-
-    ADD: 
-    `mutation ($topicId: String!, $langId: String!, $version: String!, $title: String!, $filename: String!, $description: String) {
-        createTestBook(input:{
-            testBook:{
-              topicId: $topicId
-              title: $title
-              langId: $langId
-              version: $version
-              filename: $filename
-              description: $description
-            }
-          }){
-            clientMutationId
-            testBook {
-                id
-            }
-          }
-    }`,
-
-    // get all the latest test books
-    GET_LATEST: 
-    `query {
-        getLatestTestBooks{
-            nodes{
-                id
-                title
-                topicId
-                langId 
-                version
-                filename
-                description
-            }
-        }
-    }`,
-
-    GET_BY_ID: 
-    `query($id: Int!) {
-        testBook(id: $id) {
-            id
-            title
-            langId
-            version
-        }
-    }`,
+    CREATE, DELETE, UPDATE, GET, GET_ALL, GET_LATEST
 };

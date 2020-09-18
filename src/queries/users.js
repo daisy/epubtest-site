@@ -1,53 +1,47 @@
-const fragments = require('./fragments');
+const generate  = require('./crudGenerator');
+const userFrag = require('./fragments/user');
+
+
+const {CREATE, DELETE, UPDATE, GET, GET_ALL} 
+    = generate("user", "users", userFrag.FIELDS);
+
+
+const { GET: GET_EXTENDED, GET_ALL: GET_ALL_EXTENDED}
+    = generate("user", "users", userFrag.FIELDS_WITH_LOGIN);
+
+const GET_INACTIVE =
+`query {
+    getInactiveUsers {
+        nodes {
+            id
+            name
+            email
+        }
+    }
+}`;
+
+const GET_ACTIVE =
+`query {
+    getActiveUsers {
+        nodes {
+            id
+            name
+        }
+    }
+}`;
+
+const GET_EMAIL = 
+`query($id: Int!) {
+    user (id: $id) {
+        login{
+            email
+        }
+    }
+}`;
 
 module.exports = {
-    GET_INACTIVE: 
-    `query {
-        getInactiveUsers {
-            nodes {
-                id
-                name
-                email
-            }
-        }
-    }`,
-
-    GET_ACTIVE: 
-    `query {
-        getActiveUsers {
-            nodes {
-                id
-                name
-            }
-        }
-    }`,
-
-    
-    // get the profile for a given user
-    GET_BY_ID: 
-    `query($id: Int!) {
-        user (id: $id) {
-            ${fragments.USER_FIELDS}
-        }
-    }`,
-
-    GET_EMAIL: 
-    `query($id: Int!) {
-        user (id: $id) {
-            login{
-                email
-            }
-        }
-    }`,
-
-    UPDATE: 
-    `mutation ($id: Int!, $data: UserPatch!) {
-        updateUser(input: {
-            id: $id,
-            patch: $data
-        }) {
-            clientMutationId
-        }
-    }`,
-
+    CREATE, DELETE, UPDATE, GET, GET_ALL,
+    GET_INACTIVE, GET_ACTIVE, GET_EMAIL,
+    GET_EXTENDED, GET_ALL_EXTENDED
 };
+

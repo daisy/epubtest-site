@@ -1,8 +1,8 @@
-const testFrag = require('./fragments/test');
 const generate  = require('./crudGenerator');
+const langFrag = require('./fragments/lang');
 
 const {CREATE, DELETE, UPDATE, GET, GET_ALL} 
-    = generate("test", "tests", testFrag.FIELDS);
+    = generate("lang", "langs", langFrag.FIELDS);
 
 module.exports = {
     CREATE, DELETE, UPDATE, GET, GET_ALL 

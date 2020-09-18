@@ -6,9 +6,11 @@ const mail = require('./mail');
 
 // admin authorization required
 async function inviteUser(userId, jwt) {
+    let errors = [];
     try {
-        let dbres = await db.query(Q.USER_EMAIL, {id: parseInt(userId)}, jwt);
+        let dbres = await db.query(Q.USERS.GET_EMAIL, {id: parseInt(userId)}, jwt);
         if (!dbres.success) {
+            errors = dbres.errors;
             throw new Error();
         }
         let userEmail = dbres.data.user.login.email;
@@ -21,11 +23,13 @@ async function inviteUser(userId, jwt) {
                 }
             });
         if (!dbres.success) {
+            errors = dbres.errors;
             throw new Error();
         }
         let temporaryJwt = dbres.data.createTemporaryToken.jwtToken;
         let token = utils.parseToken(temporaryJwt);
         if (!token) {
+            errors = dbres.errors;
             throw new Error();
         }
         
@@ -39,23 +43,23 @@ async function inviteUser(userId, jwt) {
             emails.reinvite.html(inviteUrl));   
         
         dbres = await db.query(
-            Q.INVITATIONS.ADD, 
-            { 
+            Q.INVITATIONS.CREATE, 
+            {
                 input: {
-                    invitation: {
-                        userId: parseInt(userId)
-                    }
-                }
+                    userId: parseInt(userId)
+                } 
             },
             jwt);
         
         if (!dbres.success) {
+            errors = dbres.errors;
             throw new Error();
         }
     }
     catch(err) {
-        console.log(`Could not create token for user with ID ${userId}.`);
+        return { success: false, errors: errors.length > 0 ? errors : [err]};
     }
+    return { success: true, errors };
 }
 
 module.exports = {

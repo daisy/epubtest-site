@@ -88,7 +88,7 @@ router.get('/testing', async (req, res, next) => {
 });
 
 router.get('/testing-environment/:id', async (req, res, next) => {
-    let dbres = await db.query(Q.TESTING_ENVIRONMENTS.GET_BY_ID, 
+    let dbres = await db.query(Q.TESTING_ENVIRONMENTS.GET, 
         { id: parseInt(req.params.id) }, 
         req.cookies.jwt);
     if (!dbres.success) {
@@ -324,7 +324,7 @@ router.get('/edit-browser/:id', async (req, res, next) => {
 
 async function getAllSoftware(jwt, filterActive = false) {
     try {
-        let dbres = await db.query(Q.SOFTWARE.GET_BY_TYPE("READING_SYSTEM"), 
+        let dbres = await db.query(Q.SOFTWARE.GET_ALL_BY_TYPE("ReadingSystem"), 
             {}, jwt);
         if (!dbres.success) {
             throw new Error(`Could not get reading systems`);
@@ -335,7 +335,7 @@ async function getAllSoftware(jwt, filterActive = false) {
             readingSystems = readingSystems.filter(sw => sw.active);
         }
         
-        dbres = await db.query(Q.SOFTWARE.GET_BY_TYPE("ASSISTIVE_TECHNOLOGY"), 
+        dbres = await db.query(Q.SOFTWARE.GET_ALL_BY_TYPE("AssistiveTechnology"), 
             {}, jwt);
         if (!dbres.success) {
             throw new Error(`Could not get assistive technologies`);
@@ -346,7 +346,7 @@ async function getAllSoftware(jwt, filterActive = false) {
             assistiveTechnologies = assistiveTechnologies.filter(sw => sw.active);
         }
 
-        dbres = await db.query(Q.SOFTWARE.GET_BY_TYPE("OS"), 
+        dbres = await db.query(Q.SOFTWARE.GET_ALL_BY_TYPE("Os"), 
             {}, jwt);
         if (!dbres.success) {
             throw new Error(`Could not get operating systems`);
@@ -357,7 +357,7 @@ async function getAllSoftware(jwt, filterActive = false) {
             operatingSystems = operatingSystems.filter(sw => sw.active);
         }
 
-        dbres = await db.query(Q.SOFTWARE.GET_BY_TYPE("BROWSER"), 
+        dbres = await db.query(Q.SOFTWARE.GET_ALL_BY_TYPE("Browser"), 
             {}, jwt);
         if (!dbres.success) {
             throw new Error(`Could not get browsers`);
@@ -389,7 +389,7 @@ async function getAllSoftware(jwt, filterActive = false) {
 
 // because of some annoying properties of graphql, we need to specify the type in order to get detailed usage info about the software
 async function getSoftwareById(req, res, next, type) {
-    let dbres = await db.query(Q.SOFTWARE.GET_BY_ID_EXTD(type), {id: parseInt(req.params.id)}, req.cookies.jwt);
+    let dbres = await db.query(Q.SOFTWARE.GET_EXTENDED(type), {id: parseInt(req.params.id)}, req.cookies.jwt);
 
     if (!dbres.success) {
         let err = new Error(`Error getting software (id=${req.params.id}).`)

@@ -1,13 +1,9 @@
+const generate  = require('./crudGenerator');
+const topicFrag = require('./fragments/topic');
+
+const {CREATE, DELETE, UPDATE, GET, GET_ALL} 
+    = generate("topic", "topics", topicFrag.FIELDS);
+
 module.exports = {
-    // get all topics, in order
-    GET_ALL: 
-    `query {
-        topics(orderBy:ORDER_ASC) {
-            nodes {
-                id
-                order
-                type
-            }
-        }
-    }`,
-}
+    CREATE, DELETE, UPDATE, GET, GET_ALL 
+};

@@ -1,94 +1,46 @@
-const fragments = require('./fragments');
-module.exports = {
-    ADD: 
-    `mutation ($newAnswerSetInput: CreateAnswerSetInput!) {
-        createAnswerSet(input: $newAnswerSetInput) {
-            clientMutationId
-            answerSet {
-                id
+const generate  = require('./crudGenerator');
+const answerSetFrag = require('./fragments/answerSetWithTestEnv');
+
+const {CREATE, DELETE, UPDATE, GET, GET_ALL} 
+    = generate("answerSet", "answerSets", answerSetFrag.FIELDS_WITH_ANSWERS);
+
+const { GET: GET_EXTENDED, GET_ALL: GET_ALL_EXTENDED } 
+    = generate("answerSet", "answerSets", answerSetFrag.FIELDS_WITH_ANSWERS_WITH_USER_LOGIN);
+
+
+const GET_FOR_BOOK = 
+    `query getAnswerSetsForTestBook($testBookId:Int!) {
+        answerSets(condition:{testBookId: $testBookId}) {
+            nodes {
+                ${answerSetFrag.FIELDS_WITH_ANSWERS}
             }
         }
-    }`,
-
-    DELETE:
-    `mutation ($id:Int!) {
-        deleteAnswerSet(input:{id:$id}) {
-            clientMutationId
-        }
-    }`,
-
-    UPDATE:
-    `mutation ($input: UpdateAnswerSetInput!) {
-        updateAnswerSet(input:$input)
-          {
-            clientMutationId
-          }
     }
-    `,
+    `;
 
-    PUBLISH: 
-    `mutation ($answerSetId: Int!) {
-        updateAnswerSet(input:{
-            id: $answerSetId,
-            patch: {
-              isPublic:true
-            }
-          })
-          {
-            clientMutationId
-          }
-    }`,
-
-    UNPUBLISH: 
-    `mutation ($answerSetId: Int!) {
-        updateAnswerSet(input:{
-            id: $answerSetId,
-            patch: {
-                isPublic:false
-            }
-        })
-        {
-            clientMutationId
+const GET_FOR_BOOK_EXTENDED = 
+`query getAnswerSetsForTestBooks($testBookId:Int!) {
+    answerSets(condition:{testBookId: $testBookId}) {
+        nodes {
+            ${answerSetFrag.FIELDS_WITH_ANSWERS_WITH_USER_LOGIN}
         }
-    }`,
-        
-    UPDATE_ANSWERSET_AND_ANSWERS: 
+    }
+}`;
+
+const UPDATE_ANSWERSET_AND_ANSWERS =
     `mutation ($input: UpdateAnswersetAndAnswersInput!) {
         updateAnswersetAndAnswers(input: $input){
             clientMutationId
         }
-    }`,
+    }`;
 
-    // get an answer set by ID
-    GET_BY_ID: 
-    `query($id: Int!) {
-        answerSet(id: $id) {
-            ${fragments.ANSWERSET_FIELDS}
-            testingEnvironment {
-                ${fragments.TESTING_ENVIRONMENT_FIELDS}
-            }
-            testBook {
-                ${fragments.TEST_BOOK_FIELDS}
-            }
-            answersByAnswerSetId {
-                nodes {
-                    ${fragments.ANSWER_FIELDS}
-                }
-            }
-        }
-    }`,
 
-    GET_FOR_BOOK: 
-    `query getAnswerSetsForTestBook($testBookId:Int!) {
-        answerSets(condition:{testBookId: $testBookId}) {
-            nodes {
-                id
-                answersByAnswerSetId {
-                    ${fragments.ANSWER_FIELDS}
-                }
-            }
-        }
-    }
-    `
-
+module.exports = {
+    CREATE, DELETE, UPDATE, GET, GET_ALL, 
+    GET_FOR_BOOK,
+    UPDATE_ANSWERSET_AND_ANSWERS,
+    GET_EXTENDED,
+    GET_ALL_EXTENDED,
+    GET_FOR_BOOK_EXTENDED
 };
+
