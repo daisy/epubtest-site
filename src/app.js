@@ -8,6 +8,8 @@ const nunjucksDate = require("nunjucks-date");
 
 const rateLimit = require("express-rate-limit");  
 
+const winston = require('winston');
+
 const publicRoutes = require('./routes/public');
 const userRoutes = require('./routes/user');
 const adminRoutes = require('./routes/admin');
@@ -16,9 +18,9 @@ const userFormRoutes = require('./routes/user-forms');
 const adminFormRoutes = require('./routes/admin-forms');
 const middleware = require('./middleware');
 
-// const i18next = require('i18next');
-// const i18nextMiddleware = require('i18next-http-middleware');
-// const Backend = require('i18next-fs-backend');
+const i18next = require('i18next');
+const i18nextMiddleware = require('i18next-http-middleware');
+const Backend = require('i18next-fs-backend');
 const LANGS = require('./l10n/langs');
 
 const apiLimiter = rateLimit();
@@ -45,22 +47,32 @@ app.use(express.urlencoded({extended: true}));
 //app.use(middleware.currentLanguage);
 //app.use(middleware.translate);
 
-// i18next
-//   .use(Backend)
-//   //.use(i18nextMiddleware.LanguageDetector)
-//   .init({
-//     debug: true,
-//     backend: {
-//       // eslint-disable-next-line no-path-concat
-//       loadPath: __dirname + '/l10n/{{lng}}.json',
-//       // eslint-disable-next-line no-path-concat
-//       //addPath: __dirname + '/locales/{{lng}}/{{ns}}.missing.json'
-//     },
-//     fallbackLng: 'en',
-//     preload: LANGS,
-//     saveMissing: true
-//   });
-// app.use(i18nextMiddleware.handle(i18next, {ignoreRoutes: ['/admin']}));
+// init logger
+let transports = [new winston.transports.File({ filename: 'epubtest-site-error.log', level: 'error' })];
+if (process.env.NODE_ENV != 'production') {
+    transports.push(new winston.transports.Console({format: winston.format.simple(),}));
+}
+winston.configure({
+    transports
+});
+
+i18next
+    .use(Backend)
+    //.use(i18nextMiddleware.LanguageDetector)
+    .init({
+        debug: false,
+        backend: {
+            // eslint-disable-next-line no-path-concat
+            loadPath: __dirname + '/l10n/{{lng}}.json',
+            // eslint-disable-next-line no-path-concat
+            //addPath: __dirname + '/locales/{{lng}}/{{ns}}.missing.json'
+        },
+        cookie: 'i18n',
+        fallbackLng: 'en',
+        preload: LANGS,
+        saveMissing: true
+    });
+app.use(i18nextMiddleware.handle(i18next, {ignoreRoutes: ['/admin']}));
 
 app.use('/images', express.static(path.join(__dirname, `./pages/images`)));
 app.use('/css', express.static(path.join(__dirname, `./pages/css`)));
