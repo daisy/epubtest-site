@@ -1,6 +1,7 @@
 const Q = require("../src/queries/index");
 const db = require("../src/database");
-const { initDbFromScratch, loadFirstAnswersAndPublish, upgradeTestSuite, assignAnswerSets, initializeDb } = require('./load-data');
+const { initDbFromScratch, loadFirstAnswersAndPublish, upgradeTestSuite, 
+    assignAnswerSets, initializeDb, loadSecondAnswersAndPublish } = require('./load-data');
 const {expect} = require('chai');
 const winston = require('winston');
 const testBookActions = require('../src/actions/testBooks');
@@ -276,20 +277,37 @@ describe('upgrade-test-books', function () {
             expect(answerSetTestBookIds).to.contain(nonVisBook.id);
         });
     });
+
+    describe('record new results and publish', function () {
+        before(async function() {
+            await loadSecondAnswersAndPublish(jwt);
+        });
+        it("has the right scores", async function() {
+            let dbres = await db.query(Q.ANSWER_SETS.GET_ALL, {}, jwt);
+            let answerSets = dbres.data.answerSets.nodes;
+            for (answerSet of answerSets) {
+                if (answerSet.id == 3) {
+                    expect(parseFloat(answerSet.score)).to.equal(0);
+                }
+                else if (answerSet.id == 4) {
+                    expect(parseFloat(answerSet.score)).to.equal(100.00);
+                }
+            }   
+        });
+        it("lists both new answer sets in the testing environment's public profile", async function() {
+            let result = await testBookActions.getLatestForTopic("basic-functionality");
+            let basicFuncBook = result.testBook;
+            result = await testBookActions.getLatestForTopic("non-visual-reading");
+            let nonVisBook = result.testBook;
+    
+            // this gets the testing env with its published answer sets
+            let dbres = await db.query(Q.TESTING_ENVIRONMENTS.GET_PUBLISHED);
+            let testenv = dbres.data.getPublishedTestingEnvironments.nodes[0];
+            let testBookIds = testenv.answerSetsByTestingEnvironmentId.nodes.map(aset => aset.testBook.id);
+            expect(testBookIds).to.contain(basicFuncBook.id);
+            expect(testBookIds).to.contain(nonVisBook.id);
+        });
+    });
+    
 });
 
-describe('record new results', function () {
-    before(async function() {
-        // 
-    });
-    it.skip("updated the scores", async function() {
-
-    });
-    it.skip("published the new answer sets", async function() {
-
-    });
-    it.skip("lists the new answer sets in the testing environment's public profile", async function() {
-
-    });
-
-});

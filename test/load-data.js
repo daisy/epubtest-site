@@ -62,13 +62,13 @@ module.exports.assignAnswerSets = async function(jwt) {
     await assignAnswerSets(jwt);
 }
 
-// to be called after initDb
+// to be called after assignAnswerSets
 module.exports.loadFirstAnswersAndPublish = async function(jwt) {
     let data = await readJson('./data/answers-first-set/answers.json');
     await updateAnswersAndPublish(data, jwt);
 }
 
-// to be called after initDb and loadFirstAnswersAndPublish
+// to be called after loadFirstAnswersAndPublish
 module.exports.upgradeTestSuite = async function(jwt) {
     let jsonFile = './data/upgrade-test-suite/test-books.json';
     let datafilepath = path.resolve(__dirname, jsonFile);
@@ -79,6 +79,12 @@ module.exports.upgradeTestSuite = async function(jwt) {
     for (entry of addedBooks) {
         await upgradeAnswerSets(entry.newBookId, entry.replacesBookId, jwt);
     }
+}
+
+// to be called after upgradeTestSuite
+module.exports.loadSecondAnswersAndPublish = async function(jwt) {
+    let data = await readJson('./data/answers-second-set/answers.json');
+    await updateAnswersAndPublish(data, jwt);
 }
 
 async function resetDb() {

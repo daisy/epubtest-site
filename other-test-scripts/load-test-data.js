@@ -1,4 +1,4 @@
-const { initializeDb, assignAnswerSets, loadFirstAnswersAndPublish, upgradeTestSuite } = require("../test/load-data");
+const { initializeDb, assignAnswerSets, loadFirstAnswersAndPublish, upgradeTestSuite, loadSecondAnswersAndPublish } = require("../test/load-data");
 const winston = require("winston");
 
 (async () => {
@@ -11,6 +11,7 @@ const winston = require("winston");
     await assignAnswerSets(jwt);
     await loadFirstAnswersAndPublish(jwt);
     await upgradeTestSuite(jwt);
+    await loadSecondAnswersAndPublish(jwt);
 
     winston.info("Done");
 })();
