@@ -21,7 +21,7 @@ module.exports = {
   // extract data for a test from an xhtml document
   getTestData: function (fullpath) {
     const [filepath, hash] = fullpath.split("#");
-    console.log(`Processing ${fullpath}`);
+    winston.log('info', `Processing ${fullpath}`);
     //const hash = fullpath.split('#')[1];
     const content = fs.readFileSync(filepath).toString();
     //FIXME hack to workaround xmldom-alpha regex test
