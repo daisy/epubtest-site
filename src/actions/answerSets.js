@@ -135,10 +135,10 @@ async function migrate(newAnswerSetId, oldAnswerSetId, jwt) {
             }
         }
         // if there were flagged answers in the new answer set
-        // mark the old one as being out of date
+        // mark it as needing updating
         if (flaggedAnswer) {
             dbres = await db.query(Q.ANSWER_SETS.UPDATE, {
-                id: oldAnswerSetId,
+                id: newAnswerSetId,
                 patch: {
                     flag: true
                 }
