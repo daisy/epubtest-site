@@ -1,6 +1,11 @@
-{%- macro AnswerSet(answerSet) -%}
+{%- macro AnswerSet(answerSet, topicName = '') -%}
 
-<h2 id="{{answerSet.id}}">{{answerSet.testBook.title}}</h2>
+<h2 id="{{answerSet.id}}">Results for {{topicName}}</h2>
+<p>Tested with test book 
+    <a href="/books/{{answerSet.testBook.filename}}">
+        <em class="title">{{answerSet.testBook.title}}, version {{answerSet.testBook.version}}</em>
+    </a>
+</p>
 
 {%- if answerSet.summary != "" -%}<p class="limit spaced"><b>Summary</b>: {{answerSet.summary}}</p>{%-endif-%}
 

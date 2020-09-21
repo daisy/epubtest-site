@@ -12,7 +12,7 @@
     </div>
     
     {%- for answerSet in testingEnvironment.answerSetsByTestingEnvironmentId.nodes -%}
-    {{ answerSetComponent.AnswerSet(answerSet) }}
+    {{ answerSetComponent.AnswerSet(answerSet, getTopicName(answerSet.testBook.topic.id)) }}
     {%- endfor -%}
     
 {%- endblock -%}
