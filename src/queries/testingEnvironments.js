@@ -5,17 +5,25 @@ const {CREATE, DELETE, UPDATE, GET, GET_ALL}
     = generate("testingEnvironment", "testingEnvironments", testEnvFrag.FIELDS)
 
 // get all public results
-const GET_PUBLISHED = `
+// const GET_ALL_PUBLISHED = `
+// query {
+//     getPublishedTestingEnvironments {
+//         nodes {
+//             ${testEnvFrag.PUBLIC_FIELDS}
+//         }
+//     }
+// }`;
+const GET_ALL_PUBLISHED = `
 query {
-    getPublishedTestingEnvironments {
+    testingEnvironments(condition: {isPublic: true}) {
         nodes {
-            ${testEnvFrag.FIELDS}
+            ${testEnvFrag.PUBLIC_FIELDS}
         }
     }
 }`;
 
 // get all archived public results
-const GET_ARCHIVED =`
+const GET_ALL_ARCHIVED =`
 query {
     getArchivedTestingEnvironments {
         nodes {
@@ -25,7 +33,7 @@ query {
 }`;
 
 // get answer sets for a given user
-const GET_BY_USER =`
+const GET_ALL_BY_USER =`
 query($userId: Int!) {
     getUserTestingEnvironments(userId: $userId) {
         nodes {
@@ -35,6 +43,6 @@ query($userId: Int!) {
 }`;
 
 module.exports = {
-    CREATE, DELETE, UPDATE, GET, GET_ALL, GET_PUBLISHED, GET_ARCHIVED, GET_BY_USER
+    CREATE, DELETE, UPDATE, GET, GET_ALL, GET_ALL_PUBLISHED, GET_ALL_ARCHIVED, GET_ALL_BY_USER
 };
 

@@ -4,18 +4,29 @@ const testEnvFrag = require('./fragments/testingEnvironment');
 const {CREATE, DELETE, UPDATE, GET, GET_ALL} 
     = generate("testingEnvironment", "testingEnvironments", testEnvFrag.FIELDS_WITH_ANSWERS)
 
+const {GET: GET_PUBLISHED}
+    = generate("testingEnvironment", "testingEnvironments", testEnvFrag.PUBLIC_FIELDS_WITH_ANSWERS);
+
 // get all public results
-const GET_PUBLISHED = `
+// const GET_ALL_PUBLISHED = `
+// query {
+//     getPublishedTestingEnvironments {
+//         nodes {
+//             ${testEnvFrag.PUBLIC_FIELDS_WITH_ANSWERS}
+//         }
+//     }
+// }`;
+const GET_ALL_PUBLISHED = `
 query {
-    getPublishedTestingEnvironments {
+    testingEnvironments(condition: {isPublic: true}) {
         nodes {
-            ${testEnvFrag.FIELDS_WITH_ANSWERS}
+            ${testEnvFrag.PUBLIC_FIELDS_WITH_ANSWERS}
         }
     }
 }`;
 
 // get all archived public results
-const GET_ARCHIVED =`
+const GET_ALL_ARCHIVED =`
 query {
     getArchivedTestingEnvironments {
         nodes {
@@ -25,7 +36,7 @@ query {
 }`;
 
 // get answer sets for a given user
-const GET_BY_USER =`
+const GET_ALL_BY_USER =`
 query($userId: Int!) {
     getUserTestingEnvironments(userId: $userId) {
         nodes {
@@ -35,34 +46,4 @@ query($userId: Int!) {
 }`;
 
 module.exports = {
-    CREATE, DELETE, UPDATE, GET, GET_ALL, GET_PUBLISHED, GET_ARCHIVED, GET_BY_USER
-};
-
-// ARCHIVE: 
-//       `mutation ($id: Int!) {
-//           updateTestingEnvironment(input:{
-//               id: $id,
-//               patch: {
-//                 isArchived:true
-//               }
-//             })
-//             {
-//               clientMutationId
-//             }
-//         }`,
-//     UNARCHIVE: 
-//     `mutation ($id: Int!) {
-//         updateTestingEnvironment(input:{
-//             id: $id,
-//             patch: {
-//                 isArchived:false
-//             }
-//             })
-//             {
-//             clientMutationId
-//             }
-//     }`,
-
-    // get all public results
-
-  
+    CREATE, DELETE, UPDATE, GET, GET_PUBLISHED, GET_ALL, GET_ALL_PUBLISHED, GET_ALL_ARCHIVED, GET_ALL_BY_USER};
