@@ -1,6 +1,7 @@
 [
     {
-        "answerSetId": 3,
+        "testingEnvironmentId": 1,
+        "testBookId": 3,
         "summary": "Test summary for answer set",
         "answers": [
             {

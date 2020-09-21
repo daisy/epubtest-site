@@ -1,6 +1,7 @@
 [
     {
-        "answerSetId": 1,
+        "testingEnvironmentId": 1,
+        "testBookId": 1,
         "summary": "Test summary for answer set",
         "answers": [
             {
@@ -22,7 +23,8 @@
         ]
     },
     {
-        "answerSetId": 2,
+        "testingEnvironmentId": 1,
+        "testBookId": 2,
         "answers": [
             {
                 "testId": "reading-010",
@@ -37,6 +39,49 @@
             {
                 "testId": "reading-210",
                 "result": "PASS"
+            }
+        ]
+    },
+    {
+        "testingEnvironmentId": 2,
+        "testBookId": 1,
+        "summary": "Test summary for answer set",
+        "answers": [
+            {
+                "testId": "file-010",
+                "result": "PASS",
+                "notes": "Private notes for this test result",
+                "notesArePublic": false
+            },
+            {
+                "testId": "file-110",
+                "result": "PASS",
+                "notes": "Public notes for this test result",
+                "notesArePublic": true
+            },
+            {
+                "testId": "file-210",
+                "result": "PASS"
+            }
+        ]
+    },
+    {
+        "testingEnvironmentId": 2,
+        "testBookId": 2,
+        "answers": [
+            {
+                "testId": "reading-010",
+                "result": "FAIL",
+                "notes": "Public notes for this test result",
+                "notesArePublic": true
+            },
+            {
+                "testId": "reading-110",
+                "result": "FAIL"
+            },
+            {
+                "testId": "reading-210",
+                "result": "FAIL"
             }
         ]
     }

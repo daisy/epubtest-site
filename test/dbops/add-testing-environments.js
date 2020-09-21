@@ -9,12 +9,6 @@ async function addTestingEnvironments(data, jwt) {
     for (tenv of data) {
         await testEnvActions.add(tenv, jwt);
     }
-
-    let dbres = await db.query(
-        Q.USERS.GET_ALL,
-        {},
-        jwt
-    );
 }
 
 module.exports = addTestingEnvironments;

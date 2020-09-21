@@ -2,15 +2,26 @@ const Q = require("../../src/queries/index");
 const db = require("../../src/database");
 const winston = require("winston");
 
-async function updateAnswersAndPublish(data, jwt) {
-    winston.info("Updating answers and publishing");
+async function updateAnswersAndPublish(data, jwt, publish = true) {
+    winston.info("Updating answers");
+    if (publish) {
+        winston.info("and publishing");
+    }
 
     for (answerSetJson of data) {
-        let dbres = await db.query(Q.ANSWER_SETS.GET, {id: answerSetJson.answerSetId}, jwt);
+        // find the answer set
+        let dbres = await db.query(
+            Q.ANSWER_SETS.GET_FOR_BOOK_AND_TESTING_ENVIRONMENT, 
+            {
+                testBookId: answerSetJson.testBookId,
+                testingEnvironmentId: answerSetJson.testingEnvironmentId
+            }, 
+            jwt);
+        //let dbres = await db.query(Q.ANSWER_SETS.GET, {id: answerSetJson.answerSetId}, jwt);
         if (!dbres.success) {
             return;
         }   
-        let answerSet = dbres.data.answerSet;
+        let answerSet = dbres.data.answerSets.nodes[0];
         let summary = answerSetJson.summary ?? "";
         let answerIds = answerSetJson.answers.map(answer => {
             let answerInDb = answerSet.answersByAnswerSetId.nodes.find(ans => ans.test.testId == answer.testId);
@@ -40,7 +51,10 @@ async function updateAnswersAndPublish(data, jwt) {
                 }
             }, 
             jwt);
-        dbres = await db.query(Q.ANSWER_SETS.UPDATE, { id: answerSet.id, patch: {isPublic: true}}, jwt);
+        if (publish) {
+            dbres = await db.query(Q.ANSWER_SETS.UPDATE, { id: answerSet.id, patch: {isPublic: true}}, jwt);
+        }
+        
     }
 }
 

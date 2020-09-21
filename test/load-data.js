@@ -1,6 +1,6 @@
 const fs = require('fs-extra');
 const path = require('path');
-require('dotenv').config({path: path.join(__dirname, '../.env')});
+require('dotenv').config({path: path.join(__dirname, '../.testenv')});
 const winston = require('winston');
 
 const { spawn } = require('child_process')
@@ -82,9 +82,9 @@ module.exports.upgradeTestSuite = async function(jwt) {
 }
 
 // to be called after upgradeTestSuite
-module.exports.loadSecondAnswersAndPublish = async function(jwt) {
+module.exports.loadSecondAnswers = async function(jwt) {
     let data = await readJson('./data/answers-second-set/answers.json');
-    await updateAnswersAndPublish(data, jwt);
+    await updateAnswersAndPublish(data, jwt, false);
 }
 
 async function resetDb() {

@@ -5,5 +5,12 @@
         "osId": 3,
         "input": "KEYBOARD",
         "testedWithScreenreader": true
+    },
+    {
+        "readingSystemId": 4,
+        "assistiveTechnologyId": 5,
+        "osId": 3,
+        "input": "KEYBOARD",
+        "testedWithScreenreader": true
     }
 ]

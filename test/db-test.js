@@ -1,7 +1,7 @@
 const Q = require("../src/queries/index");
 const db = require("../src/database");
 const { initDbFromScratch, loadFirstAnswersAndPublish, upgradeTestSuite, 
-    assignAnswerSets, initializeDb, loadSecondAnswersAndPublish } = require('./load-data');
+    assignAnswerSets, initializeDb, loadSecondAnswers } = require('./load-data');
 const {expect} = require('chai');
 const winston = require('winston');
 const testBookActions = require('../src/actions/testBooks');
@@ -235,8 +235,9 @@ describe('upgrade-test-books', function () {
         });
         it("flagged the still-published answer set for basic-functionality as not current", async function() {
             // the basic-functionality answer set is not current anymore
-            let dbres = await db.query(Q.TESTING_ENVIRONMENTS.GET_PUBLISHED);
-            let testenv = dbres.data.getPublishedTestingEnvironments.nodes[0];
+            let dbres = await db.query(Q.TESTING_ENVIRONMENTS.GET_ALL_PUBLISHED);
+            //let testenv = dbres.data.getPublishedTestingEnvironments.nodes[0];
+            let testenv = dbres.data.testingEnvironments.nodes[0];
             for (answerSet of testenv.answerSetsByTestingEnvironmentId.nodes) {
                 if (answerSet.testBook.topic.id == "basic-functionality") {
                     expect(answerSet.flag).to.be.true;
@@ -247,8 +248,9 @@ describe('upgrade-test-books', function () {
             let result = await testBookActions.getLatestForTopic("basic-functionality");
             let basicFuncBook = result.testBook;
             
-            let dbres = await db.query(Q.TESTING_ENVIRONMENTS.GET_PUBLISHED);
-            let testenv = dbres.data.getPublishedTestingEnvironments.nodes[0];
+            let dbres = await db.query(Q.TESTING_ENVIRONMENTS.GET_ALL_PUBLISHED);
+            //let testenv = dbres.data.getPublishedTestingEnvironments.nodes[0];
+            let testenv = dbres.data.testingEnvironments.nodes[0];
             // these are just the published answer sets
             for (answerSet of testenv.answerSetsByTestingEnvironmentId.nodes) {
                 // the basic functionality answer set should not be for the new book
@@ -270,17 +272,18 @@ describe('upgrade-test-books', function () {
         it("auto-published the latest non-visual-reading answer set", async function() {
             let result = await testBookActions.getLatestForTopic("non-visual-reading");
             let nonVisBook = result.testBook;
-            let dbres = await db.query(Q.TESTING_ENVIRONMENTS.GET_PUBLISHED);
-            let testenv = dbres.data.getPublishedTestingEnvironments.nodes[0];
+            let dbres = await db.query(Q.TESTING_ENVIRONMENTS.GET_ALL_PUBLISHED);
+            //let testenv = dbres.data.getPublishedTestingEnvironments.nodes[0];
+            let testenv = dbres.data.testingEnvironments.nodes[0];
             // these are just the published answer sets
             let answerSetTestBookIds = testenv.answerSetsByTestingEnvironmentId.nodes.map(aset => aset.testBook.id);
             expect(answerSetTestBookIds).to.contain(nonVisBook.id);
         });
     });
 
-    describe('record new results and publish', function () {
+    describe('record new results (don`t publish)', function () {
         before(async function() {
-            await loadSecondAnswersAndPublish(jwt);
+            await loadSecondAnswers(jwt);
         });
         it("has the right scores", async function() {
             let dbres = await db.query(Q.ANSWER_SETS.GET_ALL, {}, jwt);
@@ -294,18 +297,27 @@ describe('upgrade-test-books', function () {
                 }
             }   
         });
-        it("lists both new answer sets in the testing environment's public profile", async function() {
-            let result = await testBookActions.getLatestForTopic("basic-functionality");
-            let basicFuncBook = result.testBook;
-            result = await testBookActions.getLatestForTopic("non-visual-reading");
+        it("lists the non-vis book's answer set in the testing environment's public profile", async function() {
+            let result = await testBookActions.getLatestForTopic("non-visual-reading");
             let nonVisBook = result.testBook;
     
             // this gets the testing env with its published answer sets
-            let dbres = await db.query(Q.TESTING_ENVIRONMENTS.GET_PUBLISHED);
-            let testenv = dbres.data.getPublishedTestingEnvironments.nodes[0];
+            let dbres = await db.query(Q.TESTING_ENVIRONMENTS.GET_ALL_PUBLISHED);
+            //let testenv = dbres.data.getPublishedTestingEnvironments.nodes[0];
+            let testenv = dbres.data.testingEnvironments.nodes[0];
             let testBookIds = testenv.answerSetsByTestingEnvironmentId.nodes.map(aset => aset.testBook.id);
-            expect(testBookIds).to.contain(basicFuncBook.id);
             expect(testBookIds).to.contain(nonVisBook.id);
+        });
+        it("does not list the basic-func book's answer set in the testing environment's public profile", async function() {
+            let result = await testBookActions.getLatestForTopic("basic-functionality");
+            let basicFuncBook = result.testBook;
+            
+            // this gets the testing env with its published answer sets
+            let dbres = await db.query(Q.TESTING_ENVIRONMENTS.GET_ALL_PUBLISHED);
+            //let testenv = dbres.data.getPublishedTestingEnvironments.nodes[0];
+            let testenv = dbres.data.testingEnvironments.nodes[0];
+            let testBookIds = testenv.answerSetsByTestingEnvironmentId.nodes.map(aset => aset.testBook.id);
+            expect(testBookIds).to.not.contain(basicFuncBook.id);
         });
     });
     
