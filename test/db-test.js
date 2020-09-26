@@ -5,6 +5,7 @@ const { initDbFromScratch, loadFirstAnswersAndPublish, upgradeTestSuite,
 const {expect} = require('chai');
 const winston = require('winston');
 const testBookActions = require('../src/actions/testBooks');
+const testBookAndAnswerSetActions = require('../src/actions/testBooksAndAnswerSets');
 
 let jwt;
 
@@ -22,9 +23,9 @@ describe('upgrade-test-books', function () {
             let dbres = await db.query(Q.USERS.GET_ALL, {}, jwt);
             expect(dbres.data.users.nodes.length).to.equal(2);
         });
-        it('has one testing environment', async function() {
+        it('has two testing environments', async function() {
                 let dbres = await db.query(Q.TESTING_ENVIRONMENTS.GET_ALL, {}, jwt);
-                expect(dbres.data.testingEnvironments.nodes.length).to.equal(1);
+                expect(dbres.data.testingEnvironments.nodes.length).to.equal(2);
         });
         it('has two test books', async function() {
             let dbres = await db.query(Q.TEST_BOOKS.GET_ALL, {}, jwt);
@@ -44,12 +45,12 @@ describe('upgrade-test-books', function () {
                 expect(testingEnvironment.answerSetsByTestingEnvironmentId.nodes.length).to.equal(2);
             }
         });
-        it('has one answer set per test book', async function() {
+        it('has two answer sets per test book', async function() {
             let dbres = await db.query(Q.TEST_BOOKS.GET_ALL, {}, jwt);
             let testBooks = dbres.data.testBooks.nodes;
             for (testBook of testBooks) {
                 dbres = await db.query(Q.ANSWER_SETS.GET_FOR_BOOK, {testBookId: testBook.id}, jwt);
-                expect(dbres.data.answerSets.nodes.length).to.equal(1);
+                expect(dbres.data.answerSets.nodes.length).to.equal(2);
             }
         });
         it('has three answers per answer set', async function() {
@@ -91,13 +92,19 @@ describe('upgrade-test-books', function () {
             let dbres = await db.query(Q.SOFTWARE.GET_ALL_BY_TYPE('Os'), {}, jwt);
             expect(dbres.data.softwares.nodes.length).to.equal(1);
         });
-        it("has one AT", async function() {
+        it("has two ATs", async function() {
             let dbres = await db.query(Q.SOFTWARE.GET_ALL_BY_TYPE('AssistiveTechnology'), {}, jwt);
-            expect(dbres.data.softwares.nodes.length).to.equal(1);
+            expect(dbres.data.softwares.nodes.length).to.equal(2);
         });
-        it("has one RS", async function() {
+        it("has two RSes", async function() {
             let dbres = await db.query(Q.SOFTWARE.GET_ALL_BY_TYPE('ReadingSystem'), {}, jwt);
-            expect(dbres.data.softwares.nodes.length).to.equal(1);
+            expect(dbres.data.softwares.nodes.length).to.equal(2);
+        });
+        it("reports the correct usage ", async function() {
+            let result = await testBookActions.getUsage(2, jwt);
+            expect(result.answerSets.nonEmpty.length).to.equal(0);
+            expect(result.answerSets.empty.length).to.equal(2);
+            expect(result.answerSets.all.length).to.equal(2);
         });
     });
 
@@ -214,12 +221,19 @@ describe('upgrade-test-books', function () {
                 }
             }
         });
+        // a flag on an answer set means that it requires attention from the tester
+        it("flags the answer sets for the new basic-functionality book correctly", async function () {
+            let dbres = await db.query(Q.ANSWER_SETS.GET_FOR_BOOK, { testBookId: 3}, jwt);
+            let answerSets = dbres.data.answerSets.nodes;
+            let flags = answerSets.map(aset => aset.flag);
+            expect(flags).to.not.contain(false);
+        });
         it("created new answer sets for the test books", async function() {
             let dbres = await db.query(Q.TEST_BOOKS.GET_LATEST, {}, jwt);
             let testBooks = dbres.data.getLatestTestBooks.nodes;
             for (testBook of testBooks) {
                 dbres = await db.query(Q.ANSWER_SETS.GET_FOR_BOOK, { testBookId: testBook.id}, jwt);
-                expect(dbres.data.answerSets.nodes.length).to.equal(1);
+                expect(dbres.data.answerSets.nodes.length).to.equal(2);
             }
         });
         it("flagged the answers for the flagged tests", async function() {
@@ -233,14 +247,14 @@ describe('upgrade-test-books', function () {
                 }
             }
         });
-        it("flagged the still-published answer set for basic-functionality as not current", async function() {
+        it("marked the still-published answer set for basic-functionality as not current", async function() {
             // the basic-functionality answer set is not current anymore
             let dbres = await db.query(Q.TESTING_ENVIRONMENTS.GET_ALL_PUBLISHED);
-            //let testenv = dbres.data.getPublishedTestingEnvironments.nodes[0];
             let testenv = dbres.data.testingEnvironments.nodes[0];
             for (answerSet of testenv.answerSetsByTestingEnvironmentId.nodes) {
-                if (answerSet.testBook.topic.id == "basic-functionality") {
-                    expect(answerSet.flag).to.be.true;
+                if (answerSet.testBook.id == 1) {
+                    expect(answerSet.isLatestPublic).to.be.true;
+                    expect(answerSet.isLatest).to.be.false;
                 }
             }
         });
@@ -279,6 +293,12 @@ describe('upgrade-test-books', function () {
             let answerSetTestBookIds = testenv.answerSetsByTestingEnvironmentId.nodes.map(aset => aset.testBook.id);
             expect(answerSetTestBookIds).to.contain(nonVisBook.id);
         });
+        it("reports the correct usage ", async function() {
+            let result = await testBookActions.getUsage(3, jwt);
+            expect(result.answerSets.nonEmpty.length).to.equal(2);
+            expect(result.answerSets.empty.length).to.equal(0);
+            expect(result.answerSets.all.length).to.equal(2);
+        });
     });
 
     describe('record new results (don`t publish)', function () {
@@ -289,15 +309,15 @@ describe('upgrade-test-books', function () {
             let dbres = await db.query(Q.ANSWER_SETS.GET_ALL, {}, jwt);
             let answerSets = dbres.data.answerSets.nodes;
             for (answerSet of answerSets) {
-                if (answerSet.id == 3) {
+                if (answerSet.testBook.id == 3 && answerSet.testingEnvironment.id == 1) {
                     expect(parseFloat(answerSet.score)).to.equal(0);
                 }
-                else if (answerSet.id == 4) {
+                else if (answerSet.testBook.id == 4 && answerSet.testingEnvironment.id == 1) {
                     expect(parseFloat(answerSet.score)).to.equal(100.00);
                 }
             }   
         });
-        it("lists the non-vis book's answer set in the testing environment's public profile", async function() {
+        it("lists the new non-vis book's answer set in the testing environment's public profile", async function() {
             let result = await testBookActions.getLatestForTopic("non-visual-reading");
             let nonVisBook = result.testBook;
     
@@ -307,6 +327,14 @@ describe('upgrade-test-books', function () {
             let testenv = dbres.data.testingEnvironments.nodes[0];
             let testBookIds = testenv.answerSetsByTestingEnvironmentId.nodes.map(aset => aset.testBook.id);
             expect(testBookIds).to.contain(nonVisBook.id);
+        });
+        it ("does not list the old non-vis book's answer set in the testing environment's public profile", async function() {
+            let oldNonVisBookId = 2;
+            // this gets the testing env with its published answer sets
+            dbres = await db.query(Q.TESTING_ENVIRONMENTS.GET_ALL_PUBLISHED);
+            let testenv = dbres.data.testingEnvironments.nodes[0];
+            let testBookIds = testenv.answerSetsByTestingEnvironmentId.nodes.map(aset => aset.testBook.id);
+            expect(testBookIds).to.not.contain(oldNonVisBookId);
         });
         it("does not list the basic-func book's answer set in the testing environment's public profile", async function() {
             let result = await testBookActions.getLatestForTopic("basic-functionality");
@@ -320,6 +348,16 @@ describe('upgrade-test-books', function () {
             expect(testBookIds).to.not.contain(basicFuncBook.id);
         });
     });
-    
+
+    describe('delete a test book and its answer sets', function () {
+        before(async function() {
+            await testBookAndAnswerSetActions.remove(3, jwt);
+        });
+        it("answer sets for book with ID=1 are the latest", async function() {
+            let dbres = await db.query(Q.ANSWER_SETS.GET_FOR_BOOK, {testBookId: 1}, jwt);
+            let isLatests = dbres.data.answerSets.nodes.map(aset => aset.isLatest);
+            expect(isLatests).to.not.contain(false);
+        });
+    });
 });
 

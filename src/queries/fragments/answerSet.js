@@ -8,6 +8,8 @@ summary
 flag
 score
 isPublic
+isLatest
+isLatestPublic
 testBook {
     ${testBookFrag.FIELDS}
 }

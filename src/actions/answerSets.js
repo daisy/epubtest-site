@@ -204,11 +204,51 @@ async function upgrade(newTestBookId, oldTestBookId, jwt) {
 
 
 async function remove(answerSetId, jwt) {
-    // TODO
+    let errors = [];
+    try {
+        let dbres = await db.query(
+            Q.ANSWER_SETS.GET,
+            { id: answerSetId},
+            jwt
+        );
+        if (!dbres.success) {
+            errors = dbres.errors;
+            throw new Error();
+        }
+        let answerSet = dbres.data.answerSet;
+        for (answer of answerSet.answersByAnswerSetId.nodes) {
+            dbres = await db.query(
+                Q.ANSWERS.DELETE, 
+                { id: answer.id}, 
+                jwt
+            );
+            if (!dbres.success) {
+                errors = errors.concat(dbres.errors);
+            }
+        }
+        // if there are errors at this point, it's because answers couldn't be deleted
+        // in this case, don't delete the answer set, otherwise there will be 
+        // answers with no owner
+        if (errors.length > 0) {
+            throw new Error();
+        }
+        dbres = await db.query(
+            Q.ANSWER_SETS.DELETE,
+            {id: answerSetId},
+            jwt
+        );
+        if (!dbres.success) {
+            throw new Error();
+        }
+    }
+    catch (err) {
+        return { success: false, errors: errors.length > 0 ? errors : [err]};
+    }
+    return { success: true };
 }
 
 async function assign(answerSetId, userId, jwt) {
-    dbres = await db.query(
+    let dbres = await db.query(
         Q.ANSWER_SETS.UPDATE,
         {
             id: answerSetId,

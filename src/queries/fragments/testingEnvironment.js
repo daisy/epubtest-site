@@ -19,6 +19,7 @@ input
 testedWithBraille
 testedWithScreenreader
 isArchived
+isPublic
 notes
 `;
 const FIELDS = `
