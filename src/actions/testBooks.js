@@ -36,6 +36,10 @@ async function parse(epubFilepath, epubOrigFilename) {
             || !bookdata.navDoc.hasOwnProperty("testsData")) {
             throw new Error(`Incorrect EPUB structure for test book ingestion.`);
         }
+
+        if (!semver.valid(bookdata.metadata['schema:version'])) {
+            throw new Error(`Incorrect EPUB version metadata; cannot ingest.`);
+        }
         
         testBook = {
             title: bookdata.metadata['dc:title'],
