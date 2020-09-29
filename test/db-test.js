@@ -1,11 +1,10 @@
 const Q = require("../src/queries/index");
 const db = require("../src/database");
-const { initDbFromScratch, loadFirstAnswersAndPublish, upgradeTestSuite, 
-    assignAnswerSets, initializeDb, loadSecondAnswers } = require('./load-data');
+const { initDb, loadFirstAnswersAndPublish, upgradeTestSuite, 
+    assignAnswerSets, loadSecondAnswers, errmgr: loadDataErrors } = require('./load-data');
 const {expect} = require('chai');
 const winston = require('winston');
 const testBookActions = require('../src/actions/testBooks');
-const testBookAndAnswerSetActions = require('../src/actions/testBooksAndAnswerSets');
 
 let jwt;
 
@@ -14,11 +13,21 @@ describe('upgrade-test-books', function () {
     before(async function () {
         winston.add(new winston.transports.Console({format: winston.format.simple()}));
         winston.level = 'debug';
-        //jwt = await initDbFromScratch(); // this runs reset-db.sh and sometimes the process hangs
-        jwt = await initializeDb(); // this assumes you've run reset-db.sh manually and are managing the api server (on port 3000)
+        let dataProfile = {
+            langs: "./data/langs.json",
+            topics: "./data/topics.json",
+            testBooks: "./data/test-books.json",
+            software: "./data/software.json",
+            testingEnvironments: "./data/testing-environments.json",
+            users: "./data/users.json"
+        };
+        jwt = await initDb(dataProfile); 
     });
   
     describe('initial-data-import', function() {
+        it('does not report errors', async function() {
+            expect(loadDataErrors.getErrors().length).to.equal(0);
+        });
         it('has two users', async function () {
             let dbres = await db.query(Q.USERS.GET_ALL, {}, jwt);
             expect(dbres.data.users.nodes.length).to.equal(2);
@@ -101,7 +110,9 @@ describe('upgrade-test-books', function () {
             expect(dbres.data.softwares.nodes.length).to.equal(2);
         });
         it("reports the correct usage ", async function() {
-            let result = await testBookActions.getUsage(2, jwt);
+            let dbres = await db.query(Q.TEST_BOOKS.GET_ALL, {});
+            let id = dbres.data.testBooks.nodes[0].id; // just grab the first test book
+            let result = await testBookActions.getUsage(id, jwt);
             expect(result.answerSets.nonEmpty.length).to.equal(0);
             expect(result.answerSets.empty.length).to.equal(2);
             expect(result.answerSets.all.length).to.equal(2);
@@ -126,14 +137,18 @@ describe('upgrade-test-books', function () {
 
     describe('add answers and publish', function() {
         before(async function() {
-            await loadFirstAnswersAndPublish(jwt);
+            let dataProfile = {
+                answers: "./data/answers-first-set.json"
+            };
+            await loadFirstAnswersAndPublish(jwt, dataProfile);
         });
 
         it("recorded the answers", async function() {
             let dbres = await db.query(Q.ANSWER_SETS.GET_ALL, {}, jwt);
             let answerSets = dbres.data.answerSets.nodes;
             for (answerSet of answerSets) {
-                if (answerSet.id == 1) {
+                if (answerSet.testBook.topic.id == 'basic-functionality' 
+                    && answerSet.testingEnvironment.readingSystem.name == 'BookReader') {
                     for (answer of answerSet.answersByAnswerSetId.nodes) {
                         if (answer.test.testId == "file-010") {
                             expect(answer.value).to.equal('PASS');
@@ -146,7 +161,8 @@ describe('upgrade-test-books', function () {
                         }
                     }
                 }
-                else if (answerSet.id == 2) {
+                else if (answerSet.testBook.topic.id == 'non-visual-reading'
+                    && answerSet.testingEnvironment.readingSystem.name == 'BookReader') {
                     for (answer of answerSet.answersByAnswerSetId.nodes) {
                         expect(answer.value).to.equal('PASS');
                     }
@@ -164,10 +180,12 @@ describe('upgrade-test-books', function () {
             let dbres = await db.query(Q.ANSWER_SETS.GET_ALL, {}, jwt);
             let answerSets = dbres.data.answerSets.nodes;
             for (answerSet of answerSets) {
-                if (answerSet.id == 1) {
+                if (answerSet.testBook.topic.id == 'basic-functionality' 
+                    && answerSet.testingEnvironment.readingSystemName == "BookReader") {
                     expect(parseFloat(answerSet.score)).to.equal(66.67);
                 }
-                else if (answerSet.id == 2) {
+                else if (answerSet.testBook.topic.id == 'non-visual-reading'
+                    && answerSet.testingEnvironment.readingSystemName == "BookReader") {
                     expect(parseFloat(answerSet.score)).to.equal(100.00);
                 }
             }   
@@ -176,7 +194,10 @@ describe('upgrade-test-books', function () {
 
     describe('upgrade test suite', function () {
         before(async function() {
-            await upgradeTestSuite(jwt);
+            let dataProfile = {
+                upgrade: "./data/upgrade-test-books.json"
+            };
+            await upgradeTestSuite(jwt, dataProfile);
         });
         it("has four test books", async function() {
             let dbres = await db.query(Q.TEST_BOOKS.GET_ALL, {}, jwt);
@@ -223,7 +244,9 @@ describe('upgrade-test-books', function () {
         });
         // a flag on an answer set means that it requires attention from the tester
         it("flags the answer sets for the new basic-functionality book correctly", async function () {
-            let dbres = await db.query(Q.ANSWER_SETS.GET_FOR_BOOK, { testBookId: 3}, jwt);
+            let result = await testBookActions.getLatestForTopicWithTests("basic-functionality");
+            let basicFuncBook = result.testBook;
+            let dbres = await db.query(Q.ANSWER_SETS.GET_FOR_BOOK, { testBookId: basicFuncBook.id}, jwt);
             let answerSets = dbres.data.answerSets.nodes;
             let flags = answerSets.map(aset => aset.flag);
             expect(flags).to.not.contain(false);
@@ -294,7 +317,9 @@ describe('upgrade-test-books', function () {
             expect(answerSetTestBookIds).to.contain(nonVisBook.id);
         });
         it("reports the correct usage ", async function() {
-            let result = await testBookActions.getUsage(3, jwt);
+            let result = await testBookActions.getLatestForTopic("non-visual-reading");
+            let basicFuncBook = result.testBook;
+            result = await testBookActions.getUsage(basicFuncBook.id, jwt);
             expect(result.answerSets.nonEmpty.length).to.equal(2);
             expect(result.answerSets.empty.length).to.equal(0);
             expect(result.answerSets.all.length).to.equal(2);
@@ -303,7 +328,10 @@ describe('upgrade-test-books', function () {
 
     describe('record new results (don`t publish)', function () {
         before(async function() {
-            await loadSecondAnswers(jwt);
+            let dataProfile = {
+                answers: "./data/answers-second-set.json"
+            };
+            await loadSecondAnswers(jwt, dataProfile);
         });
         it("has the right scores", async function() {
             let dbres = await db.query(Q.ANSWER_SETS.GET_ALL, {}, jwt);

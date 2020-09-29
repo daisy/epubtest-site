@@ -1,7 +1,7 @@
 [
     {
-        "testingEnvironmentId": 1,
-        "testBookId": 1,
+        "readingSystemName": "BookReader",
+        "testBookTopic": "basic-functionality",
         "summary": "Test summary for answer set",
         "answers": [
             {
@@ -23,8 +23,8 @@
         ]
     },
     {
-        "testingEnvironmentId": 1,
-        "testBookId": 2,
+        "readingSystemName": "BookReader",
+        "testBookTopic": "non-visual-reading",
         "answers": [
             {
                 "testId": "reading-010",
@@ -43,8 +43,8 @@
         ]
     },
     {
-        "testingEnvironmentId": 2,
-        "testBookId": 1,
+        "readingSystemName": "Librario",
+        "testBookTopic": "basic-functionality",
         "summary": "Test summary for answer set",
         "answers": [
             {
@@ -66,8 +66,8 @@
         ]
     },
     {
-        "testingEnvironmentId": 2,
-        "testBookId": 2,
+        "readingSystemName": "Librario",
+        "testBookTopic": "non-visual-reading",
         "answers": [
             {
                 "testId": "reading-010",

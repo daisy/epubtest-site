@@ -1,0 +1,16 @@
+[
+    {
+        "readingSystemName": "BookReader",
+        "assistiveTechnologyName": "ScreenTalk",
+        "osName": "Windows",
+        "input": "KEYBOARD",
+        "testedWithScreenreader": true
+    },
+    {
+        "readingSystemName": "Librario",
+        "assistiveTechnologyName": "NVDA",
+        "osName": "Windows",
+        "input": "KEYBOARD",
+        "testedWithScreenreader": true
+    }
+]

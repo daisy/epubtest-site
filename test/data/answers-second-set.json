@@ -1,7 +1,7 @@
 [
     {
-        "testingEnvironmentId": 1,
-        "testBookId": 3,
+        "readingSystemName": "BookReader",
+        "testBookTopic": "basic-functionality",
         "summary": "Test summary for answer set",
         "answers": [
             {

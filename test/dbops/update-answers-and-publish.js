@@ -2,25 +2,35 @@ const Q = require("../../src/queries/index");
 const db = require("../../src/database");
 const winston = require("winston");
 
-async function updateAnswersAndPublish(data, jwt, publish = true) {
+async function updateAnswersAndPublish(data, jwt, publish, errors) {
     winston.info("Updating answers");
     if (publish) {
         winston.info("and publishing");
     }
 
+    let dbres = await db.query(Q.TESTING_ENVIRONMENTS.GET_ALL, {}, jwt);
+    let tenvs = dbres.data.testingEnvironments.nodes;
+    dbres = await db.query(Q.TEST_BOOKS.GET_LATEST, {}, jwt);
+    let testBooks = dbres.data.getLatestTestBooks.nodes;
+
     for (answerSetJson of data) {
+        // get the testing environment ID and test book ID
+        let testingEnvironmentId = tenvs.find(tenv => tenv.readingSystem.name === answerSetJson.readingSystemName).id;
+        let testBookId = testBooks.find(tb => tb.topicId === answerSetJson.testBookTopic).id;
+
         // find the answer set
-        let dbres = await db.query(
+        dbres = await db.query(
             Q.ANSWER_SETS.GET_FOR_BOOK_AND_TESTING_ENVIRONMENT, 
             {
-                testBookId: answerSetJson.testBookId,
-                testingEnvironmentId: answerSetJson.testingEnvironmentId
+                testBookId,
+                testingEnvironmentId
             }, 
             jwt);
         //let dbres = await db.query(Q.ANSWER_SETS.GET, {id: answerSetJson.answerSetId}, jwt);
         if (!dbres.success) {
-            return;
-        }   
+            errors = errors.concat(dbres.errors);
+            throw new Error("updateAnswersAndPublish error");
+        }
         let answerSet = dbres.data.answerSets.nodes[0];
         let summary = answerSetJson.summary ?? "";
         let answerIds = answerSetJson.answers.map(answer => {
@@ -30,7 +40,6 @@ async function updateAnswersAndPublish(data, jwt, publish = true) {
             }
             else {
                 winston.error(`Answer for test id ${answer.testId} not found`);
-                return "";
             }
         });
             
@@ -51,8 +60,16 @@ async function updateAnswersAndPublish(data, jwt, publish = true) {
                 }
             }, 
             jwt);
+        if (!dbres.success) {
+            errors = errors.concat(dbres.errors);
+            throw new Error("updateAnswersAndPublish error");
+        }
         if (publish) {
             dbres = await db.query(Q.ANSWER_SETS.UPDATE, { id: answerSet.id, patch: {isPublic: true}}, jwt);
+            if (!dbres.success) {
+                errors = errors.concat(dbres.errors);
+                throw new Error("updateAnswersAndPublish error");
+            }
         }
         
     }
