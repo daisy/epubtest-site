@@ -14,6 +14,13 @@ const GET_LATEST =
     }
 }`;
 
+const DELETE_TEST_BOOK_AND_ANSWER_SETS = 
+`mutation ($testBookId: Int!) {
+    deleteTestBookAndAnswerSets(input:{testBookId: $testBookId}) {
+        clientMutationId
+    }
+}`;
+
 module.exports = {
-    CREATE, DELETE, UPDATE, GET, GET_ALL, GET_LATEST
+    CREATE, DELETE, UPDATE, GET, GET_ALL, GET_LATEST, DELETE_TEST_BOOK_AND_ANSWER_SETS
 };
