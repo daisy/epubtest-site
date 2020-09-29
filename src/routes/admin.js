@@ -39,13 +39,14 @@ router.get('/testing', async (req, res, next) => {
     let allTestEnvs = dbres.data.testingEnvironments.nodes;
 
     // the following two are public datasets so no jwt required
-    dbres = await db.query(Q.TESTING_ENVIRONMENTS.GET_PUBLISHED);
+    dbres = await db.query(Q.TESTING_ENVIRONMENTS.GET_ALL_PUBLISHED);
     if (!dbres.success) {
         let err = new Error("Could not get published testing environments.");
         return next(err);
     }
-    let publishedTestEnvs = dbres.data.getPublishedTestingEnvironments.nodes;
-    dbres = await db.query(Q.TESTING_ENVIRONMENTS.GET_ARCHIVED);
+   // let publishedTestEnvs = dbres.data.getPublishedTestingEnvironments.nodes;
+   let publishedTestEnvs = dbres.data.testingEnvironments.nodes;
+    dbres = await db.query(Q.TESTING_ENVIRONMENTS.GET_ALL_ARCHIVED);
     if (!dbres.success) {
         let err = new Error("Could not get archived testing environments.");
         return next(err);

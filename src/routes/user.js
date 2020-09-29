@@ -6,7 +6,7 @@ var router = express.Router()
 
 // user dashboard page
 router.get('/dashboard', async (req, res, next) => {
-    let dbres = await db.query(Q.TESTING_ENVIRONMENTS.GET_BY_USER, {userId: req.userId}, req.cookies.jwt);
+    let dbres = await db.query(Q.TESTING_ENVIRONMENTS.GET_ALL_BY_USER, {userId: req.userId}, req.cookies.jwt);
     
     if (!dbres.success) {
         let err = new Error("Could not get user's testing environments.");
