@@ -1,7 +1,10 @@
 {%- extends 'base/base.html' -%}
 {%- import "components/answer-set.html" as answerSetComponent -%}
 {%- import "components/testing-environment-details.html" as testingEnvironmentDetails -%}
+{%- import "components/testing-environment-title.html" as testingEnvironmentTitle -%}
 {%- import "components/software-name.html" as softwareName -%}
+{%- set testEnvTitle = testingEnvironmentTitle.TestingEnvironmentOneLinerPlainText(testingEnvironment) -%}
+{%- set title = "Results for " + testEnvTitle | cleanString -%}
 {%- block content -%}
 
     <h1>
