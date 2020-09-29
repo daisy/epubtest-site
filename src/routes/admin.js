@@ -186,19 +186,19 @@ router.get('/users', async (req, res, next) => {
     );
 });
 router.get('/reading-system/:id', async (req, res, next) => {
-    let software = await getSoftwareById(req, res, next, "READING_SYSTEM");
+    let software = await getSoftwareById(req, res, next, "ReadingSystem");
     return res.status(200).render('./admin/software.html', {software});
 });
 router.get('/assistive-technology/:id', async (req, res, next) => {
-    let software = await getSoftwareById(req, res, next, "ASSISTIVE_TECHNOLOGY");
+    let software = await getSoftwareById(req, res, next, "AssistiveTechnology");
     return res.status(200).render('./admin/software.html', {software});
 });
 router.get('/os/:id', async (req, res, next) => {
-    let software = await getSoftwareById(req, res, next, "OS");
+    let software = await getSoftwareById(req, res, next, "Os");
     return res.status(200).render('./admin/software.html', {software});
 });
 router.get('/browser/:id', async (req, res, next) => {
-    let software = await getSoftwareById(req, res, next, "BROWSER");
+    let software = await getSoftwareById(req, res, next, "Browser");
     return res.status(200).render('./admin/software.html', {software});
 });
 
@@ -303,23 +303,23 @@ router.get('/version', async (req, res, next) => {
 });
 
 router.get('/edit-reading-system/:id', async (req, res, next) => {
-    let software = await getSoftwareById(req, res, next, "READING_SYSTEM");
-    return res.render('./admin/add-edit-software.html', {action: "/admin/forms/software", software});
+    let software = await getSoftwareById(req, res, next, "ReadingSystem");
+    return res.render('./admin/add-edit-software.html', {title: "Edit Reading System", action: "/admin/forms/software", software});
 });
 
 router.get('/edit-assistive-technology/:id', async (req, res, next) => {
-    let software = await getSoftwareById(req, res, next, "ASSISTIVE_TECHNOLOGY");
-    return res.render('./admin/add-edit-software.html', {software});
+    let software = await getSoftwareById(req, res, next, "AssistiveTechnology");
+    return res.render('./admin/add-edit-software.html', {title: "Edit Assistive Technology", action: "/admin/forms/software", software});
 });
 
 router.get('/edit-os/:id', async (req, res, next) => {
-    let software = await getSoftwareById(req, res, next, "OS");
-    return res.render('./admin/add-edit-software.html', {software});
+    let software = await getSoftwareById(req, res, next, "Os");
+    return res.render('./admin/add-edit-software.html', {title: "Edit OS", action: "/admin/forms/software", software});
 });
 
 router.get('/edit-browser/:id', async (req, res, next) => {
-    let software = await getSoftwareById(req, res, next, "BROWSER");
-    return res.render('./admin/add-edit-software.html', {software});
+    let software = await getSoftwareById(req, res, next, "Browser");
+    return res.render('./admin/add-edit-software.html', {title: "Edit Browser", action: "/admin/forms/software", software});
 });
 
 
@@ -398,16 +398,16 @@ async function getSoftwareById(req, res, next, type) {
     }
     
     let software = dbres.data.software;
-    if (type == "READING_SYSTEM") {
+    if (type == "ReadingSystem") {
         software = aliasField(software, "testingEnvironmentsByReadingSystemId", "testingEnvironments")
     }
-    else if (type == "ASSISTIVE_TECHNOLOGY") {
+    else if (type == "AssistiveTechnology") {
         software = aliasField(software, "testingEnvironmentsByAssistiveTechnologyId", "testingEnvironments")
     }
-    else if (type == "OS") {
+    else if (type == "Os") {
         software = aliasField(software, "testingEnvironmentsByOsId", "testingEnvironments")
     }
-    else if (type == "BROWSER") {
+    else if (type == "Browser") {
         software = aliasField(software, "testingEnvironmentsByBrowserId", "testingEnvironments")
     }
      
