@@ -13,7 +13,8 @@
         <label for="active">Show in dropdown?</label>
         <input type="checkbox" label="Show in dropdown?" name="active" id="active" {% if software.active or showInDropdown -%}checked="checked"{%-endif-%}>
     </div>
-    <input type="hidden" name="id" value="{{software.id}}" id="id">
+    <input type="hidden" name="id" value="{{software.id}}" id="id"/>
+    <input type="hidden" name="type" value="{%- if software.type -%}{{software.type}}{%- else -%}{{type}}{%- endif -%}"/>
     <input type="submit" name="cancel" value="Cancel"/>
     <input type="submit" name="save" value="Save">
 </form>
