@@ -30,7 +30,7 @@ router.get('/dashboard', async (req, res, next) => {
         {
             testingEnvironments: userTestingEnvironments.sort(utils.sortAlphaTestEnv),
             getRequestToPublish: answerSetId => {
-                let retval = requests.find(r => r.answerSetId === answerSetId);
+                let retval = requests.find(r => r.answerSet.id === answerSetId);
                 return retval;
             }
         }
@@ -64,9 +64,10 @@ router.get('/edit-results/:answerSetId', async (req, res, next) => {
         let err = new Error(`Could not get answer set (${req.params.answerSetId})`);
         return next(err);
     }
-
+    let nextUrl = req.query.hasOwnProperty('next') ? req.query.next : '/user/dashboard';
     return res.render('edit-results.html', {
-        answerSet: dbres.data.answerSet
+        answerSet: dbres.data.answerSet,
+        next: nextUrl
     });
 });
 module.exports = router;
