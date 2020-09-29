@@ -88,7 +88,8 @@
     <p>You are about to add this <em>{{testBook.topicId}}</em> book, which contains <em>{{testBook.tests.length}}</em> tests. 
         <em><span id="numFlagged">0</span></em> <span id="numFlaggedVerb">are</span> marked as changed. 
         <em>{{newTestIds | length}}</em> {% if newTestIds | length == 1 %} is {% else %} are {% endif %} new tests.</p>
-    <p><em>{{affectedAnswerSets | length}}</em> answer sets will require upgrading.</p>
+    <p><em>{{affectedAnswerSets | length}}</em> answer sets will be upgraded. 
+        Upgraded answer sets will not be automatically published unless this test book contains no tests are flagged as changed/new.</p>
 
     <input type="submit" value="Add book" name="addBook">
     <input type="submit" value="Cancel" name="cancel">
