@@ -13,7 +13,7 @@
     <p>{{user.name}}</p>
     {%- endif -%}
     {%- if user.organization -%}
-        {%- if user.website -%}
+        {%- if user.website and user.website != 'http://' -%}
         <p><a href="{{user.website}}">{{user.organization}}</a></p>
         {%- else -%}
         <p>{{user.organization}}</p>
