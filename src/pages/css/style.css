@@ -46,8 +46,8 @@ header h1 {
     margin: 0;
     font-size: 1.5rem;
 }
-header h1 a {
-    text-decoration: none;
+header h1 a, header h1 a:hover {
+    text-decoration: none !important;
     color: black !important;
 }
 header nav ul {
@@ -153,7 +153,10 @@ span.notTested {
     max-width: 50vw;
     overflow: scroll;
 }
-
+.testenv span {
+    margin-bottom: 1vh;
+    display: block;
+}
 ul.cols {
     columns: 3;
 }
@@ -194,6 +197,10 @@ main > *:first-child, body > nav > :first-child {
     font-size: larger;
     font-style: normal;
     display: block;
+}
+em.title {
+    font-weight: normal;
+    /* font-style: italic; */
 }
 /*****************************/
 /* MOBILE                    */
@@ -256,7 +263,8 @@ main > *:first-child, body > nav > :first-child {
         grid-area: message;
     }
     th, td {
-        word-wrap: break-word;
+        /* word-wrap: break-word; */
+        white-space: break-spaces;
     }
 }
 
