@@ -70,7 +70,7 @@ async function remove(testingEnvironmentId, jwt) {
     try {
         // get testing environment
         let dbres = await db.query(
-            Q.TESTING_ENVIRONMENTS.GET, 
+            Q.TESTING_ENVIRONMENTS_WITH_ANSWERS.GET, 
             { id: testingEnvironmentId }, 
             jwt);
         if (!dbres.success) {
