@@ -140,7 +140,7 @@ div.selection {
     padding: 1vh;
     margin: 1vh;   
 }
-span.notTested {
+span.notTested, span.na {
     font-style: italic;
     font-weight: lighter;
     color: var(--grayed-out);

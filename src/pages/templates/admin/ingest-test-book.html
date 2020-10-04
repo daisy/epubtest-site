@@ -77,6 +77,8 @@
                         <input type="checkbox" name="tests[{{loop.index}}][flagChanged]" 
                         {%- if test.flagChanged -%}checked{%- endif -%}>
                         <input type="hidden" name="tests[{{loop.index}}][testId]" value="{{test.testId}}">
+                    {%- else -%}
+                        <span class="na">N/A</span>
                     {%- endif -%}
                 </td>
             </tr>
