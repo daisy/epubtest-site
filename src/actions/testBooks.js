@@ -155,7 +155,9 @@ async function add(testBook, jwt) {
                     title: testBook.title,
                     description: testBook.description,
                     filename: testBook.filename,
-                    epubId: testBook.epubId
+                    epubId: testBook.epubId,
+                    translation: testBook.translation,
+                    experimental: testBook.experimental
                 }
             }, 
             jwt);
@@ -167,32 +169,33 @@ async function add(testBook, jwt) {
         else {
             transactions.push({objectType: 'TEST_BOOKS', actionWas: 'CREATE', id: dbres.data.createTestBook.testBook.id});
             addBookResult = dbres.data.createTestBook.testBook;
-            // add the tests
-            let i; 
-            for (i = 0; i < testBook.tests.length; i++) {
-                let test = testBook.tests[i];
-                dbres = await db.query(
-                    Q.TESTS.CREATE, 
-                    {
-                        input: {
-                            testId: test.testId,
-                            testBookId: parseInt(addBookResult.id),
-                            name: test.name,
-                            description: test.description,
-                            xhtml: test.xhtml,
-                            order: i,
-                            flag: test.flagNew || test.flagChanged
-                        }
-                    }, 
-                    jwt);
-                if (!dbres.success) {
-                    winston.error(`Error adding test ${test.testId}`);
-                    errors = dbres.errors;
-                    throw new Error();                
+            if (testBook.experimental == false) {
+                // add the tests
+                let i; 
+                for (i = 0; i < testBook.tests.length; i++) {
+                    let test = testBook.tests[i];
+                    dbres = await db.query(
+                        Q.TESTS.CREATE, 
+                        {
+                            input: {
+                                testId: test.testId,
+                                testBookId: parseInt(addBookResult.id),
+                                name: test.name,
+                                description: test.description,
+                                xhtml: test.xhtml,
+                                order: i,
+                                flag: test.flagNew || test.flagChanged
+                            }
+                        }, 
+                        jwt);
+                    if (!dbres.success) {
+                        winston.error(`Error adding test ${test.testId}`);
+                        errors = dbres.errors;
+                        throw new Error();                
+                    }
+                    transactions.push({objectType: 'TESTS', actionWas: 'CREATE', id: dbres.data.createTest.test.id});
                 }
-                transactions.push({objectType: 'TESTS', actionWas: 'CREATE', id: dbres.data.createTest.test.id});
             }
-
             // copy EPUB file to downloads dir
             let destDir = path.join(__dirname, '../pages/books/');
             try {
