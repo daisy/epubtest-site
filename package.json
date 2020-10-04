@@ -13,9 +13,9 @@
   },
   "scripts": {
     "start": "node src/start.js",
-    "dev": "nodemon --inspect  -e js,html src/start.js",
+    "dev": "./node_modules/.bin/cross-env NODE_ENV=development nodemon --inspect  -e js,html src/start.js",
     "test": "mocha",
-    "load-test-data": "node other-test-scripts/load-test-data.js",
+    "load-test-data": "./node_modules/.bin/cross-env NODE_ENV=development node other-test-scripts/load-test-data.js",
     "gulp": "./node_modules/.bin/gulp"
   },
   "author": {
@@ -54,6 +54,7 @@
   },
   "devDependencies": {
     "chai": "^4.2.0",
+    "cross-env": "^7.0.2",
     "mocha": "^7.1.1",
     "nodemon": "^1.19.4",
     "supertest": "^4.0.2"

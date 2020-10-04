@@ -19,7 +19,7 @@ async function testEmail(emailAddress) {
 
 async function sendEmail(toAddress, subject, messageBodyText, messageBodyHtml) {
     // can test locally with nodemailer server on port 1025
-    let opts = process.env.MODE === 'LOCALDEV' ? 
+    let opts = process.env.NODE_ENV != 'production' ? 
         {
             host: 'localhost',
             port: 1025,
