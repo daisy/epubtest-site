@@ -6,14 +6,26 @@ const mail = require('../actions/mail');
 const emails = require('../emails');
 const { validationResult, body } = require('express-validator');
 const LANGS = require('../l10n/langs');
+const dayjs = require('dayjs');
 
 var router = express.Router()
 
 // test mail sending
 router.post('/mail', [body('email').isEmail()], async(req, res) => {
-    await mail.testEmail(req.body.email);
-    let message = "Message sent";
+    let success = await mail.testEmail(req.body.email);
+    let message = success ? "Message sent" : "Error sending message";
     return res.redirect('/test?message=' + encodeURIComponent(message));
+});
+
+router.post('/token', async(req, res) => {
+    let token = utils.parseToken(req.body.token);
+    if (token) {
+        token.expires_ = dayjs.unix(token.expires).format();
+        res.send(JSON.stringify(token, null, 2));
+    }
+    else {
+        res.send("Could not process token");
+    }
 });
 
 // submit login
@@ -92,7 +104,7 @@ router.post('/forgot-password',
         let jwt = dbres.data.createTemporaryToken.jwtToken;
         let token = utils.parseToken(jwt);
         if (token) {
-            let resetUrl = process.env.MODE === 'LOCALDEV' ? 
+            let resetUrl = process.env.NODE_ENV != 'production' ? 
                 `http://localhost:${process.env.PORT}/set-password?token=${jwt}`
                 : 
                 `http://epubtest.org/set-password?token=${jwt}`;
@@ -116,6 +128,8 @@ router.post('/choose-language', [
         return next(new Error(`Could not set language to ${req.body.language}`));
     }
 
+    req.i18n.language = req.body.language;
+    
     return res.status(200)
             .cookie('currentLanguage', 
                 req.body.language, 
