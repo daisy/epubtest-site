@@ -179,6 +179,10 @@ router.post("/upload-test-book", async (req, res, next) => {
         }
         newTestIds = flaggedTestBook.tests.filter(t => t.flagNew).map(t => t.testId);
 
+        // attach these properties
+        flaggedTestBook.experimental = req.body.experimental;
+        flaggedTestBook.translation = req.body.translation;
+        
         // show page where admin can set own flags
         return res.render('./admin/ingest-test-book.html', 
         {

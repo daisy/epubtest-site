@@ -9,6 +9,14 @@
 
 <form method="POST" action="/admin/forms/upload-test-book" enctype="multipart/form-data">
     <input type="file" name="epub" required>
+    <div>
+        <label for="experimental">This book is experimental</label>
+        <input type="checkbox" name="experimental" id="experimental">
+    </div>
+    <div>
+    	<label for="translation">This book is a translation</label>
+    	<input type="checkbox" name="translation" id="translation">
+    </div>
     <input type="submit" value="Add book">
 </form>
 
