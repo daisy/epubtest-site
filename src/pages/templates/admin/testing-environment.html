@@ -51,7 +51,7 @@
         <tr>
             <th>Topic</th>
             <th>Test Book</th>
-            {#<th>Assigned to</th>#}
+            <th>Assigned to</th>
             <th>Score</th>
             <th>Edit</th>
             <th>Status</th>
@@ -67,12 +67,19 @@
             v{{ answerSet.testBook.version }} ({{ answerSet.testBook.lang.id }})
             </a>
         </td>
-       {# <td>
+       <td>
             <form method="POST" action="/admin/forms/set-user">
-                <select name="user">
+                <select name="userId">
+                    
+                    {%- if answerSet.user == null -%}
+                    <option value="None" selected="selected">None</option>
+                    {%- else -%}
+                    <option value="None">None</option>
+                    {%- endif -%}
+
                     {%- for user in users -%}
-                    {%- if user.id == answerSet.user.id -%}
-                    <option value="{{user.id}}" selected="true">
+                    {%- if answerSet.user and user.id == answerSet.user.id -%}
+                    <option value="{{user.id}}" selected="selected">
                     {%- else -%}
                     <option value="{{user.id}}">
                     {%- endif -%}
@@ -80,10 +87,12 @@
                     </option>
                     {%- endfor -%}
                 </select>
+                <input type="hidden" name="answerSetId" value="{{answerSet.id}}">
+                <input type="hidden" name="next" value="/admin/testing-environment/{{testingEnvironment.id}}">
                 <input type="submit" value="Set user">  
             </form>
         </td>
-        #}
+        
         <td>{%-if answerSet.score -%}{{answerSet.score | round(1)}}{%- endif -%}</td>
         <td><a href="/user/edit-results/{{answerSet.id}}?next=/admin/testing-environment/{{testingEnvironment.id}}">Edit</td>
         <td>

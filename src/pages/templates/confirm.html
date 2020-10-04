@@ -2,9 +2,9 @@
 {%- block content -%}
 <h1>{{title}}</h1>
 <p>{{content}}</p>
-<form method="POST" action="{{actionUrl}}">
-    <input type="hidden" name="redirectUrlYes" value="{{redirectUrlYes}}"/>
-    <input type="hidden" name="redirectUrlNo" value="{{redirectUrlNo}}"/>
+<form method="POST" action="{{formAction}}">
+    <input type="hidden" name="nextIfYes" value="{{nextIfYes}}"/>
+    <input type="hidden" name="nextIfNo" value="{{nextIfNo}}"/>
     <input type="submit" name="no" value="No"/>
     <input type="submit" name="yes" value="Yes"/>
 </form>

@@ -236,9 +236,9 @@ router.post("/confirm-delete-test-book/:id", async (req, res, next) => {
             return res.render('./admin/confirm-remove-test-book-and-answer-sets.html', {
                 testBook,
                 answerSets: usageResult.answerSets.nonEmpty,
-                redirectUrlYes: '/admin/test-books',
-                redirectUrlNo: `/admin/test-books`,
-                actionUrl: `/admin/forms/delete-test-book-and-answer-sets/${parseInt(req.params.id)}`
+                nextIfYes: '/admin/test-books',
+                nextIfNo: `/admin/test-books`,
+                formAction: `/admin/forms/delete-test-book-and-answer-sets/${parseInt(req.params.id)}`
             });
         }
         else {
@@ -252,9 +252,9 @@ router.post("/confirm-delete-test-book/:id", async (req, res, next) => {
         return res.render('./confirm.html', {
             title: "Confirm deletion",
             content: `Please confirm that you would like to delete ${testBook.title} (${testBook.langId}, v. ${testBook.version})`,
-            redirectUrlYes: '/admin/test-books',
-            redirectUrlNo: `/admin/test-books`,
-            actionUrl: `/admin/forms/delete-test-book/${parseInt(req.params.id)}`
+            nextIfYes: '/admin/test-books',
+            nextIfNo: `/admin/test-books`,
+            formAction: `/admin/forms/delete-test-book/${parseInt(req.params.id)}`
         });
     }
     
@@ -272,11 +272,11 @@ router.post('/delete-test-book/:id', async (req, res, next) => {
         }
         
         let message = encodeURIComponent("Test book deleted.");
-        redirect = req.body.redirectUrlYes + "?message=" + message;
+        redirect = req.body.nextIfYes + "?message=" + message;
     }
     else {
         // else cancel was pressed: do nothing
-        redirect = req.body.redirectUrlNo;
+        redirect = req.body.nextIfNo;
     }
 
     // redirect
@@ -299,11 +299,11 @@ router.post('/delete-test-book-and-answer-sets/:id', async (req, res, next) => {
         // TODO remove file from downloads folder
 
         let message = encodeURIComponent("Test book and answer sets deleted.");
-        redirect = req.body.redirectUrlYes + "?message=" + message;
+        redirect = req.body.nextIfYes + "?message=" + message;
     }
     else {
         // else cancel was pressed: do nothing
-        redirect = req.body.redirectUrlNo;
+        redirect = req.body.nextIfNo;
     }
     // redirect
     return res.redirect(redirect);
@@ -387,9 +387,9 @@ router.post("/confirm-delete-testing-environment/:id", async (req, res, next) =>
     return res.render('./confirm.html', {
         title: "Confirm deletion",
         content: `Please confirm that you would like to delete ${testingEnvironmentTitle}`,
-        redirectUrlYes: `/admin/testing`,
-        redirectUrlNo: `/admin/testing-environment/${req.params.id}`,
-        actionUrl: `/admin/forms/delete-testing-environment/${req.params.id}`
+        nextIfYes: `/admin/testing`,
+        nextIfNo: `/admin/testing-environment/${req.params.id}`,
+        formAction: `/admin/forms/delete-testing-environment/${req.params.id}`
     });
 });
 
@@ -404,12 +404,12 @@ router.post('/delete-testing-environment/:id', async (req, res, next) => {
         }
         else {
             let message = encodeURIComponent("Testing environment deleted");
-            redirect = req.body.redirectUrlYes + "?message=" + message;
+            redirect = req.body.nextIfYes + "?message=" + message;
         }
     }
     else {
         // else cancel was pressed: do nothing
-        redirect = req.body.redirectUrlNo;
+        redirect = req.body.nextIfNo;
     }
 
     // redirect
@@ -466,9 +466,9 @@ router.post("/confirm-delete-software/:id", async (req, res, next) => {
     return res.render('./confirm.html', {
         title: "Confirm deletion",
         content: `Please confirm that you would like to delete ${softwareTitle}`,
-        redirectUrlYes: `/admin/software`,
-        redirectUrlNo: `/admin/software`,
-        actionUrl: `/admin/forms/delete-software/${req.params.id}`
+        nextIfYes: `/admin/software`,
+        nextIfNo: `/admin/software`,
+        formAction: `/admin/forms/delete-software/${req.params.id}`
     });
 });
 
@@ -483,16 +483,41 @@ router.post('/delete-software/:id', async (req, res, next) => {
         }
         else {
             let message = encodeURIComponent("Software deleted");
-            redirect = req.body.redirectUrlYes + "?message=" + message;
+            redirect = req.body.nextIfYes + "?message=" + message;
         }
     }
     else {
         // else cancel was pressed: do nothing
-        redirect = req.body.redirectUrlNo;
+        redirect = req.body.nextIfNo;
     }
 
     // redirect
     return res.redirect(redirect);
+});
+
+router.post('/set-user', async (req, res, next) => {
+    let message = '';
+    if (req.body.hasOwnProperty('userId') && req.body.hasOwnProperty('answerSetId')) {
+        let userId, answerSetId;
+        userId = req.body.userId == 'None' ? null : parseInt(req.body.userId);
+        answerSetId = req.body.answerSetId ? parseInt(req.body.answerSetId) : null;
+         
+        let dbres = await db.query(Q.ANSWER_SETS.UPDATE, {
+            id: answerSetId,
+            patch: {
+                userId: userId
+            }
+        }, req.cookies.jwt);
+        if (dbres.success) {
+            message = "User successfully assigned.";
+        }
+        else {
+            message = "Could not assign user";
+        }
+        return res.redirect(`${req.body.next}?message=${encodeURIComponent(message)}`);
+    }
+    message = "Could not assign user";
+    return res.redirect(`${req.body.next}?message=${encodeURIComponent(message)}`);
 });
 
 module.exports = router;
