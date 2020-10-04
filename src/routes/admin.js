@@ -18,7 +18,7 @@ router.get('/requests', async (req, res, next) => {
     
     return res.render('./admin/requests.html', 
         { 
-            requests: dbres.data.requests.nodes 
+            requests: dbres.data.requests 
         }
     );
 });
@@ -30,13 +30,13 @@ router.get('/testing', async (req, res, next) => {
         let err = new Error("Could not get requests.");
         return next(err);
     }
-    let requests = dbres.data.requests.nodes;
+    let requests = dbres.data.requests;
     dbres = await db.query(Q.TESTING_ENVIRONMENTS.GET_ALL, {}, req.cookies.jwt);
     if (!dbres.success) {
         let err = new Error("Could not get testing environments.");
         return next(err);
     }
-    let allTestEnvs = dbres.data.testingEnvironments.nodes;
+    let allTestEnvs = dbres.data.testingEnvironments;
 
     // the following two are public datasets so no jwt required
     dbres = await db.query(Q.TESTING_ENVIRONMENTS.GET_ALL_PUBLISHED);
@@ -44,14 +44,13 @@ router.get('/testing', async (req, res, next) => {
         let err = new Error("Could not get published testing environments.");
         return next(err);
     }
-   // let publishedTestEnvs = dbres.data.getPublishedTestingEnvironments.nodes;
-   let publishedTestEnvs = dbres.data.testingEnvironments.nodes;
+   let publishedTestEnvs = dbres.data.testingEnvironments;
     dbres = await db.query(Q.TESTING_ENVIRONMENTS.GET_ALL_ARCHIVED);
     if (!dbres.success) {
         let err = new Error("Could not get archived testing environments.");
         return next(err);
     }
-    let archivedTestEnvs = dbres.data.getArchivedTestingEnvironments.nodes;
+    let archivedTestEnvs = dbres.data.getArchivedTestingEnvironments;
 
     let publicTestingEnvironments = publishedTestEnvs.sort(utils.sortAlphaTestEnv);
     let publicArchivedTestingEnvironments = archivedTestEnvs.sort(utils.sortAlphaTestEnv);
@@ -63,11 +62,11 @@ router.get('/testing', async (req, res, next) => {
             .sort(utils.sortAlphaTestEnv);
     // too slow
     // TODO write pgsql function
-    /*let noResultsTestingEnvironments = results[1].data.data.testingEnvironments.nodes
+    /*let noResultsTestingEnvironments = results[1].data.data.testingEnvironments
         .filter(tenv => {
-            let answerSets = tenv.answerSetsByTestingEnvironmentId.nodes;
+            let answerSets = tenv.answerSets;
             let completedAnswerSets = answerSets.filter(aset => {
-                let answered = aset.answersByAnswerSetId.nodes
+                let answered = aset.answers
                     .filter(ans => ans.value != 'NOANSWER');
                 return answered.length !== 0;
             });
@@ -79,7 +78,6 @@ router.get('/testing', async (req, res, next) => {
             publicArchivedTestingEnvironments,
             unpublishedTestingEnvironments,
             unpublishedArchivedTestingEnvironments,
-            // noResultsTestingEnvironments,
             getRequestToPublish: answerSetId => {
                 let retval = requests.find(r => r.answerSetId === answerSetId);
                 return retval;
@@ -103,18 +101,18 @@ router.get('/testing-environment/:id', async (req, res, next) => {
         let err = new Error(`Could not get active users.`);
         return next(err);
     }
-    let users = dbres.data.getActiveUsers.nodes;
+    let users = dbres.data.getActiveUsers;
     
     dbres = await db.query(
         Q.REQUESTS.GET_FOR_ANSWERSETS, 
-        { ids: testingEnvironment.answerSetsByTestingEnvironmentId.nodes.map(ans => ans.id)},
+        { ids: testingEnvironment.answerSets.map(ans => ans.id)},
         req.cookies.jwt
     );
     if (!dbres.success) {
         let err = new Error(`Could not get requests.`);
         return next(err);
     }
-    let requests = dbres.data.requests.nodes;
+    let requests = dbres.data.requests;
     return res.render('admin/testing-environment.html', 
         {
             testingEnvironment,
@@ -141,7 +139,7 @@ router.get('/test-books', async (req, res, next) => {
     
     return res.render('admin/test-books.html', 
         {
-            testBooks: dbres.data.getLatestTestBooks.nodes,
+            testBooks: dbres.data.getLatestTestBooks,
             getTopicName: utils.getTopicName
         }
     );
@@ -157,21 +155,21 @@ router.get('/users', async (req, res, next) => {
         let err = new Error(`Could not get inactive users.`);
         return next(err);
     }
-    let inactiveUsers = dbres.data.getInactiveUsers.nodes;
+    let inactiveUsers = dbres.data.getInactiveUsers;
 
     dbres = await db.query(Q.INVITATIONS.GET_ALL, {}, req.cookies.jwt);
     if (!dbres.success) {
         let err = new Error(`Could not get invitations.`);
         return next(err);
     }
-    let invitations = dbres.data.invitations.nodes;
+    let invitations = dbres.data.invitations;
 
     dbres = await db.query(Q.USERS.GET_ACTIVE, {}, req.cookies.jwt);
     if (!dbres.success) {
         let err = new Error(`Could not get active users.`);
         return next(err);
     }
-    let activeUsers = dbres.data.getActiveUsers.nodes;
+    let activeUsers = dbres.data.getActiveUsers;
 
     // filter out users who've been invited
     inactiveUsers = inactiveUsers.filter(u => invitations.find(a => a.user.id === u.id) === undefined);
@@ -228,14 +226,14 @@ router.get('/add-testing-environment', async (req, res, next) => {
         let err = new Error("Could not get topics");
         return next(err);
     }
-    let topics = dbres.data.topics.nodes;
+    let topics = dbres.data.topics;
     
     dbres = await db.query(Q.USERS.GET_ACTIVE, {}, req.cookies.jwt);
     if (!dbres.success) {
         let err = new Error("Could not get active users");
         return next(err);
     }
-    let users = dbres.data.getActiveUsers.nodes;
+    let users = dbres.data.getActiveUsers;
 
     return res.render("admin/add-testing-environment.html", {
         readingSystems: allSw.readingSystems.sort(utils.sortAlpha),
@@ -330,7 +328,7 @@ async function getAllSoftware(jwt, filterActive = false) {
         if (!dbres.success) {
             throw new Error(`Could not get reading systems`);
         }
-        let readingSystems = aliasFieldArray(dbres.data.softwares.nodes, 
+        let readingSystems = aliasFieldArray(dbres.data.softwares, 
             "testingEnvironmentsByReadingSystemId", "testingEnvironments");
         if (filterActive) {
             readingSystems = readingSystems.filter(sw => sw.active);
@@ -341,7 +339,7 @@ async function getAllSoftware(jwt, filterActive = false) {
         if (!dbres.success) {
             throw new Error(`Could not get assistive technologies`);
         }
-        let assistiveTechnologies = aliasFieldArray(dbres.data.softwares.nodes, 
+        let assistiveTechnologies = aliasFieldArray(dbres.data.softwares, 
             "testingEnvironmentsByAssistiveTechnologyId", "testingEnvironments");
         if (filterActive) {
             assistiveTechnologies = assistiveTechnologies.filter(sw => sw.active);
@@ -352,7 +350,7 @@ async function getAllSoftware(jwt, filterActive = false) {
         if (!dbres.success) {
             throw new Error(`Could not get operating systems`);
         }
-        let operatingSystems = aliasFieldArray(dbres.data.softwares.nodes, 
+        let operatingSystems = aliasFieldArray(dbres.data.softwares, 
             "testingEnvironmentsByOsId", "testingEnvironments");
         if (filterActive) {
             operatingSystems = operatingSystems.filter(sw => sw.active);
@@ -363,7 +361,7 @@ async function getAllSoftware(jwt, filterActive = false) {
         if (!dbres.success) {
             throw new Error(`Could not get browsers`);
         }
-        let browsers = aliasFieldArray(dbres.data.softwares.nodes,
+        let browsers = aliasFieldArray(dbres.data.softwares,
             "testingEnvironmentsByBrowserId", "testingEnvironments");
         if (filterActive) {
             browsers = browsers.filter(sw => sw.active);

@@ -7,9 +7,7 @@ const {CREATE, DELETE, UPDATE, GET}
 const GET_ALL =  
 `query {
     topics(orderBy:ORDER_ASC) {
-        nodes {
-            ${topicFrag.FIELDS}
-        }
+        ${topicFrag.FIELDS}
     }
 }`;
 

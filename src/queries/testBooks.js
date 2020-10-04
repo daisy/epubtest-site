@@ -8,9 +8,7 @@ const {CREATE, DELETE, UPDATE, GET, GET_ALL}
 const GET_LATEST =
 `query {
     getLatestTestBooks{
-        nodes{
-            ${testBookFrag.FIELDS_WITHOUT_NESTING}
-        }
+        ${testBookFrag.FIELDS_WITHOUT_NESTING}
     }
 }`;
 

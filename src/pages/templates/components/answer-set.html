@@ -20,7 +20,7 @@
         </tr>
     </thead>
     <tbody>
-        {%- for answer in answerSet.answersByAnswerSetId.nodes -%}
+        {%- for answer in answerSet.answers -%}
         <tr>
             <td>{{answer.test.testId}}</td>
             <td>{{answer.test.name}}</td>

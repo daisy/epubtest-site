@@ -44,9 +44,7 @@ const DELETE = dataType =>
 const GET_ALL = (dataType, fields) =>
 `query {
     ${dataType} {
-        nodes {
-            ${fields}
-        }
+        ${fields}
     }
 }`;
 

@@ -14,7 +14,7 @@
         {{ testingEnvironmentDetails.TestingEnvironmentDetails(testingEnvironment) }}
     </div>
     
-    {%- for answerSet in testingEnvironment.answerSetsByTestingEnvironmentId.nodes -%}
+    {%- for answerSet in testingEnvironment.answerSets -%}
     {{ answerSetComponent.AnswerSet(answerSet, getTopicName(answerSet.testBook.topic.id)) }}
     {%- endfor -%}
     
@@ -24,7 +24,7 @@
 <nav aria-labelled-by="topics-title">
     <h1 id="topics-title">Topics</h1>
     <ul>
-        {%- for answerSet in testingEnvironment.answerSetsByTestingEnvironmentId.nodes -%}
+        {%- for answerSet in testingEnvironment.answerSets -%}
         <li><a href="#{{answerSet.id}}">{{getTopicName(answerSet.testBook.topic.id)}}</a></li>
         {%- endfor -%}
     </ul>        

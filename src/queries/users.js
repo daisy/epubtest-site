@@ -12,21 +12,17 @@ const { GET: GET_EXTENDED, GET_ALL: GET_ALL_EXTENDED}
 const GET_INACTIVE =
 `query {
     getInactiveUsers {
-        nodes {
-            id
-            name
-            email
-        }
+        id
+        name
+        email
     }
 }`;
 
 const GET_ACTIVE =
 `query {
     getActiveUsers {
-        nodes {
-            id
-            name
-        }
+        id
+        name
     }
 }`;
 

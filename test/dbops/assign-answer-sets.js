@@ -17,7 +17,7 @@ async function assignAnswerSets(jwt, errors) {
         errors = errors.concat(dbres.errors);
         throw new Error("addAnswerSets error");
     }
-    let answerSets = dbres.data.answerSets.nodes;
+    let answerSets = dbres.data.answerSets;
     dbres = await db.query(
         Q.USERS.GET_ALL_EXTENDED,
         {},
@@ -26,7 +26,7 @@ async function assignAnswerSets(jwt, errors) {
         errors = errors.concat(dbres.errors);
         throw new Error("addAnswerSets error");
     }
-    let users = dbres.data.users.nodes;
+    let users = dbres.data.users;
     let user = users.find(u => u.login.type == 'USER');
 
     for (answerSet of answerSets) {

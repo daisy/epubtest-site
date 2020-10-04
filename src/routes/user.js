@@ -12,10 +12,10 @@ router.get('/dashboard', async (req, res, next) => {
         let err = new Error("Could not get user's testing environments.");
         return next(err);
     }
-    let userTestingEnvironments = dbres.data.getUserTestingEnvironments.nodes;
+    let userTestingEnvironments = dbres.data.getUserTestingEnvironments;
 
     let answerSetIds = userTestingEnvironments.map(tenv => 
-        tenv.answerSetsByTestingEnvironmentId.nodes.map(ans => ans.id))
+        tenv.answerSets.map(ans => ans.id))
         .reduce((acc, curr) => acc.concat(curr), []);
     
     dbres = await db.query(Q.REQUESTS.GET_FOR_ANSWERSETS, {ids: answerSetIds}, req.cookies.jwt);
@@ -25,7 +25,7 @@ router.get('/dashboard', async (req, res, next) => {
         return next(err);
     }
 
-    let requests = dbres.data.requests.nodes;
+    let requests = dbres.data.requests;
     return res.render('dashboard.html', 
         {
             testingEnvironments: userTestingEnvironments.sort(utils.sortAlphaTestEnv),

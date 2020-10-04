@@ -79,7 +79,7 @@ async function canAdd(parsedTestBook, jwt) {
             errors = dbres.errors;
             throw new Error();
         }
-        if (!dbres.data.topics.nodes.find(t=>t.id === parsedTestBook.topicId)) {
+        if (!dbres.data.topics.find(t=>t.id === parsedTestBook.topicId)) {
             throw new Error(`Topic ${parsedTestBook.topicId} not found.`);
         }
         // compare versions
@@ -88,7 +88,7 @@ async function canAdd(parsedTestBook, jwt) {
             errors = dbres.errors;
             throw new Error();
         }
-        currentBookForTopicAndLang = dbres.data.getLatestTestBooks.nodes
+        currentBookForTopicAndLang = dbres.data.getLatestTestBooks
             .find(book => book.topicId === parsedTestBook.topicId && book.langId === parsedTestBook.langId);
         
         // are we upgrading an existing book? if so, does the new book have a newer version number?
@@ -117,7 +117,7 @@ async function setFlags(testBook, bookToUpgrade, jwt) {
                 errors = dbres.errors;
                 throw new Error();
             }
-            testsInCurrent = dbres.data.testBook.testsByTestBookId.nodes;    
+            testsInCurrent = dbres.data.testBook.tests;    
         }
     
         // flag whichever tests are new
@@ -226,15 +226,15 @@ async function getUsage(testBookId, jwt) {
         }
 
         // count empty vs non-empty answer sets
-        let nonEmpty = dbres.data.answerSets.nodes
-            .filter(answerSet => answerSet.answersByAnswerSetId.nodes
+        let nonEmpty = dbres.data.answerSets
+            .filter(answerSet => answerSet.answers
                     .filter(ans => ans.value != 'NOANSWER')
                     .length > 0); 
         
-        let empty = dbres.data.answerSets.nodes.filter(answerSet => !nonEmpty.includes(answerSet));
+        let empty = dbres.data.answerSets.filter(answerSet => !nonEmpty.includes(answerSet));
 
         answerSets = {
-            all: dbres.data.answerSets.nodes,
+            all: dbres.data.answerSets,
             empty,
             nonEmpty
         };
@@ -271,7 +271,7 @@ async function remove(testBookId, jwt) {
             }
             
             // delete tests
-            let tests = dbres.data.testBook.testsByTestBookId.nodes;
+            let tests = dbres.data.testBook.tests;
             for (test of tests) {
                 dbres = await db.query(Q.TESTS.DELETE, {id: parseInt(test.id)}, jwt);
                 if (!dbres.success) {
@@ -316,7 +316,7 @@ async function getLatestForTopic(topicId, langId='en') {
             errors = dbres.errors;
             throw new Error();
         }
-        let testBooks = dbres.data.getLatestTestBooks.nodes;
+        let testBooks = dbres.data.getLatestTestBooks;
         //let topicId = topic;
         book = testBooks.find(tb => tb.topicId === topicId && tb.langId === langId);
 
@@ -340,7 +340,7 @@ async function getLatestForTopicWithTests(topicId, langId='en') {
             errors = dbres.errors;
             throw new Error();
         }
-        let testBooks = dbres.data.getLatestTestBooks.nodes;
+        let testBooks = dbres.data.getLatestTestBooks;
         //let topicId = topic;
         book = testBooks.find(tb => tb.topicId === topicId && tb.langId === langId);
 

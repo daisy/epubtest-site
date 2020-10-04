@@ -9,9 +9,9 @@ async function updateAnswersAndPublish(data, jwt, publish, errors) {
     }
 
     let dbres = await db.query(Q.TESTING_ENVIRONMENTS.GET_ALL, {}, jwt);
-    let tenvs = dbres.data.testingEnvironments.nodes;
+    let tenvs = dbres.data.testingEnvironments;
     dbres = await db.query(Q.TEST_BOOKS.GET_LATEST, {}, jwt);
-    let testBooks = dbres.data.getLatestTestBooks.nodes;
+    let testBooks = dbres.data.getLatestTestBooks;
 
     for (answerSetJson of data) {
         // get the testing environment ID and test book ID
@@ -31,10 +31,10 @@ async function updateAnswersAndPublish(data, jwt, publish, errors) {
             errors = errors.concat(dbres.errors);
             throw new Error("updateAnswersAndPublish error");
         }
-        let answerSet = dbres.data.answerSets.nodes[0];
+        let answerSet = dbres.data.answerSets[0];
         let summary = answerSetJson.summary ?? "";
         let answerIds = answerSetJson.answers.map(answer => {
-            let answerInDb = answerSet.answersByAnswerSetId.nodes.find(ans => ans.test.testId == answer.testId);
+            let answerInDb = answerSet.answers.find(ans => ans.test.testId == answer.testId);
             if (answerInDb) {
                 return answerInDb.id;
             }

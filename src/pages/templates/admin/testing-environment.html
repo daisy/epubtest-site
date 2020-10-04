@@ -35,7 +35,7 @@
 </form>
 
 {%- set hasPublic = false -%}
-{%- for answerSet in testingEnvironment.answerSetsByTestingEnvironmentId.nodes -%}
+{%- for answerSet in testingEnvironment.answerSets -%}
     {%- if answerSet.isPublic -%}
         {%- set hasPublic = true -%}
     {%- endif -%}
@@ -58,7 +58,7 @@
         </tr>
     </thead>
     <tbody>
-    {%- for answerSet in testingEnvironment.answerSetsByTestingEnvironmentId.nodes -%}
+    {%- for answerSet in testingEnvironment.answerSets -%}
     {%- set requestToPublish=getRequestToPublish(answerSet.id) -%}
             
     <tr>

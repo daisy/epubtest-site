@@ -21,7 +21,7 @@
         </tr>
     </thead>
     <tbody>
-    {%- for answerSet in testingEnvironment.answerSetsByTestingEnvironmentId.nodes -%}
+    {%- for answerSet in testingEnvironment.answerSets -%}
     <tr>
         <td>{{answerSet.testBook.topic.id}}</td>
         {#<td>Up to date</td>#}

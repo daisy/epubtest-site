@@ -54,15 +54,14 @@ router.get('/results', async (req, res, next) => {
         let err = new Error("Could not get topics.");
         return next(err);
     }
-    let topics = dbres.data.topics.nodes;
+    let topics = dbres.data.topics;
     
     dbres = await db.query(Q.TESTING_ENVIRONMENTS.GET_ALL_PUBLISHED);
     if (!dbres.success) {
         let err = new Error("Could not get published testing environments");
         return next(err);
     }
-    //let testingEnvironments = dbres.data.getPublishedTestingEnvironments.nodes;
-    let testingEnvironments = dbres.data.testingEnvironments.nodes;
+    let testingEnvironments = dbres.data.testingEnvironments;
     
     return res.render('results.html', {
         testingEnvironments,
@@ -81,14 +80,14 @@ router.get('/archive', async (req, res, next) => {
         let err = new Error("Could not get topics.");
         return next(err);
     }
-    let topics = dbres.data.topics.nodes;
+    let topics = dbres.data.topics;
     
     dbres = await db.query(Q.TESTING_ENVIRONMENTS.GET_ALL_ARCHIVED);
     if (!dbres.success) {
         let err = new Error("Could not get archived testing environments");
         return next(err);
     }
-    let testingEnvironments = dbres.data.getArchivedTestingEnvironments.nodes;
+    let testingEnvironments = dbres.data.getArchivedTestingEnvironments;
     
     return res.render('results.html', {
         testingEnvironments,
@@ -113,7 +112,7 @@ router.get('/test-books', async (req, res, next) => {
 
     return res.render('test-books.html', 
         {
-            testBooks: dbres.data.getLatestTestBooks.nodes,
+            testBooks: dbres.data.getLatestTestBooks,
             getTopicName: utils.getTopicName
         }
     );

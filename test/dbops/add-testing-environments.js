@@ -6,11 +6,11 @@ const winston = require("winston");
 async function addTestingEnvironments(data, jwt, errmgr) {
     winston.info("Adding Testing Environments");
     let dbres = await db.query(Q.SOFTWARE.GET_ALL_BY_TYPE('ReadingSystem'), {}, jwt);
-    let rses = dbres.data.softwares.nodes;
+    let rses = dbres.data.softwares;
     dbres = await db.query(Q.SOFTWARE.GET_ALL_BY_TYPE('AssistiveTechnology'), {}, jwt);
-    let ats = dbres.data.softwares.nodes;
+    let ats = dbres.data.softwares;
     dbres = await db.query(Q.SOFTWARE.GET_ALL_BY_TYPE('Os'), {}, jwt);
-    let oses = dbres.data.softwares.nodes;
+    let oses = dbres.data.softwares;
         
     for (tenv of data) {
         

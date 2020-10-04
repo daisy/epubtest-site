@@ -64,8 +64,8 @@
                     {%-if sw.active-%}Yes{%-else-%}No{%-endif-%}
                 </td>
                 <td>
-                    {{sw.testingEnvironments.totalCount}}
-                    {%- if sw.testingEnvironments.totalCount -%}
+                    {{sw.testingEnvironments.length}}
+                    {%- if sw.testingEnvironments.length -%}
                     <br><a href="/admin/{{route}}/{{sw.id}}">See usage</a>
                     {%- endif -%}
                 </td>
@@ -74,7 +74,7 @@
                         <li><a href="/admin/edit-{{route}}/{{sw.id}}">Edit</a></li>
                         
                         <li>
-                            {%- if sw.testingEnvironments.totalCount == 0 -%}
+                            {%- if sw.testingEnvironments.length == 0 -%}
                             <form method="POST" action="/admin/forms/confirm-delete-software/{{sw.id}}">
                                 <input type="submit" name="submit" value="Delete"/>
                             </form>

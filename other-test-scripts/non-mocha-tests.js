@@ -14,7 +14,7 @@ const db = require("../src/database");
     let jwt = await initDb();
     if (jwt) {
         let dbres = await db.query(Q.USERS.GET_ALL, {}, jwt)
-        if (dbres.data?.users.nodes.length == 2) {
+        if (dbres.data?.users.length == 2) {
             winston.log('info', "Has 2 users");
         }
         else {

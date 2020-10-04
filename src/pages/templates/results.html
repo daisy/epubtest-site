@@ -52,7 +52,7 @@
                         },
                         results: [
                             {%- for topic in topics -%}
-                            {%- set score=getfortopic(testenv.answerSetsByTestingEnvironmentId.nodes, topic).score -%}                
+                            {%- set score=getfortopic(testenv.answerSets, topic).score -%}                
                             {%-if score > 0 -%}{{score | round(1)}}{%- else -%} -1 {%- endif -%},
                             {%- endfor -%}
                         ]

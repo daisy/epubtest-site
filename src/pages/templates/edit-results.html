@@ -29,7 +29,7 @@
             </tr>
         </thead>
         <tbody>
-            {%- for answer in answerSet.answersByAnswerSetId.nodes -%}
+            {%- for answer in answerSet.answers -%}
             <tr>
                 <td>{{answer.test.testId}}<input type="hidden" value="{{answer.id}}" name="answers[{{loop.index}}][id]"></input></td>
                 <td><label for="answer-{{answer.id}}">{{answer.test.name}}</label></td>
