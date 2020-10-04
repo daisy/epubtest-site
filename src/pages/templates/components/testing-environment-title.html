@@ -71,14 +71,14 @@
     
     <ul class="details">
         {%- if at.name -%}
-        <li>{{ SoftwareTitle (at.name, at.version) }}</li>
+        <li>{{ SoftwareTitle (at) }}</li>
         {%- endif -%}
         {%- if dev -%}
-        <li>{{ SoftwareTitle (dev.name, dev.version) }}</li>
+        <li>{{ SoftwareTitle (dev) }}</li>
         {%- endif -%}
-        <li>{{ SoftwareTitle (os.name, os.version) }}</li>
+        <li>{{ SoftwareTitle (os) }}</li>
         {%- if brw -%}
-        <li>{{ SoftwareTitle (brw.name, brw.version) }}</li>
+        <li>{{ SoftwareTitle (brw) }}</li>
         {%- endif -%}
     </ul>
 
