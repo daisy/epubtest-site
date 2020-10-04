@@ -33,7 +33,7 @@ async function inviteUser(userId, jwt) {
             throw new Error();
         }
         
-        let inviteUrl = process.env.MODE === 'LOCALDEV' ? 
+        let inviteUrl = process.env.NODE_ENV != 'production' ? 
             `http://localhost:${process.env.PORT}/accept-invitation?token=${temporaryJwt}`
             : 
             `http://epubtest.org/accept-invitation?token=${temporaryJwt}`;

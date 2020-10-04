@@ -13,6 +13,8 @@
             <tr>
                 <th>Topic</th>
                 <th>Title</th>
+                <th>Version</th>
+                <th>Language</th>
                 <th>Description</th>
                 <th>Download</th>
             </tr>
@@ -22,6 +24,8 @@
             <tr>
                 <td>{{getTopicName(testBook.topicId)}}</td>
                 <td>{{testBook.title}}</td>
+                <td>{{testBook.version}}</td>
+                <td>{{testBook.langId}}</td>
                 <td>{{testBook.description}}</td>
                 <td><a href="/books/{{testBook.filename}}" title="{{testBook.title}}">Download</a></td>
             </tr>    

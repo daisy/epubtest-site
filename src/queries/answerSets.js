@@ -9,7 +9,7 @@ const { GET: GET_EXTENDED, GET_ALL: GET_ALL_EXTENDED }
 
 
 const GET_FOR_BOOK = 
-    `query getAnswerSetsForTestBook($testBookId:Int!) {
+    `query ($testBookId:Int!) {
         answerSets(condition:{testBookId: $testBookId}) {
             nodes {
                 ${answerSetFrag.FIELDS_WITH_ANSWERS}
@@ -18,8 +18,18 @@ const GET_FOR_BOOK =
     }
     `;
 
+const GET_FOR_BOOK_AND_TESTING_ENVIRONMENT = 
+`query ($testBookId:Int!, $testingEnvironmentId:Int!) {
+    answerSets(condition:{testBookId: $testBookId, testingEnvironmentId: $testingEnvironmentId}) {
+        nodes {
+            ${answerSetFrag.FIELDS_WITH_ANSWERS}
+        }
+    }
+}
+`;
+
 const GET_FOR_BOOK_EXTENDED = 
-`query getAnswerSetsForTestBooks($testBookId:Int!) {
+`query ($testBookId:Int!) {
     answerSets(condition:{testBookId: $testBookId}) {
         nodes {
             ${answerSetFrag.FIELDS_WITH_ANSWERS_WITH_USER_LOGIN}
@@ -38,6 +48,7 @@ const UPDATE_ANSWERSET_AND_ANSWERS =
 module.exports = {
     CREATE, DELETE, UPDATE, GET, GET_ALL, 
     GET_FOR_BOOK,
+    GET_FOR_BOOK_AND_TESTING_ENVIRONMENT,
     UPDATE_ANSWERSET_AND_ANSWERS,
     GET_EXTENDED,
     GET_ALL_EXTENDED,

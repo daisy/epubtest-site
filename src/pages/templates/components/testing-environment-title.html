@@ -14,8 +14,52 @@
     {%- set rs = testingEnvironment.readingSystem -%}
     <{{tagname}} id="{{testingEnvironment.id}}">{{ SoftwareTitlePlusVendor (rs.name, rs.version, rs.vendor) }}</{{tagname}}>
     {{ TestingEnvironmentDetails (testingEnvironment) }}
+{%- endmacro -%}
+
+{%- macro TestingEnvironmentOneLiner(testingEnvironment) -%}
+{%- set rs = testingEnvironment.readingSystem -%}
+{%- set at = testingEnvironment.assistiveTechnology -%}
+{%- set os = testingEnvironment.os -%}
+{%- set dev = testingEnvironment.device -%}
+{%- set brw = testingEnvironment.browser -%}
+{{SoftwareTitleSpan(rs)}}
+{%- if at -%}
+, {{SoftwareTitleSpan(at)}}
+{%- endif -%}
+{%- if os -%}
+, {{SoftwareTitleSpan(os)}}
+{%- endif -%}
+{%- if brw -%}
+, {{SoftwareTitleSpan(brw)}}
+{%- endif -%}
+{%- if dev -%}
+, {{SoftwareTitleSpan(dev)}}
+{%- endif -%}
 
 {%- endmacro -%}
+
+{%- macro TestingEnvironmentOneLinerPlainText(testingEnvironment) -%}
+{%- set rs = testingEnvironment.readingSystem -%}
+{%- set at = testingEnvironment.assistiveTechnology -%}
+{%- set os = testingEnvironment.os -%}
+{%- set dev = testingEnvironment.device -%}
+{%- set brw = testingEnvironment.browser -%}
+{{SoftwareTitle(rs)}}
+{%- if at -%}
+, {{SoftwareTitle(at)}}
+{%- endif -%}
+{%- if os -%}
+, {{SoftwareTitle(os)}}
+{%- endif -%}
+{%- if brw -%}
+, {{SoftwareTitle(brw)}}
+{%- endif -%}
+{%- if dev -%}
+, {{SoftwareTitle(dev)}}
+{%- endif -%}
+
+{%- endmacro -%}
+
 
 {%- macro TestingEnvironmentDetails(testingEnvironment) -%}
 {%- set rs = testingEnvironment.readingSystem -%}
@@ -40,12 +84,17 @@
 
 {%- endmacro -%}
 
+{%- macro SoftwareTitleSpan(software) -%}
+    {%- if software -%}
+    <span>{{SoftwareTitle(software)}}</span>
+    {%- endif -%}
+{%- endmacro -%}
 
-{%- macro SoftwareTitle(name, version) -%}
-    {%- if name -%}
-        {{name}} 
-        {%- if version -%}
-            &nbsp;{{version}}
+{%- macro SoftwareTitle(software) -%}
+    {%- if software.name -%}
+        {{software.name}}
+        {%- if software.version -%}
+            &nbsp;{{software.version}}
         {%- endif -%}
     {%- endif -%}    
 {%- endmacro -%}

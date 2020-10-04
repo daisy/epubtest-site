@@ -36,6 +36,10 @@ async function parse(epubFilepath, epubOrigFilename) {
             || !bookdata.navDoc.hasOwnProperty("testsData")) {
             throw new Error(`Incorrect EPUB structure for test book ingestion.`);
         }
+
+        if (!semver.valid(bookdata.metadata['schema:version'])) {
+            throw new Error(`Incorrect EPUB version metadata; cannot ingest.`);
+        }
         
         testBook = {
             title: bookdata.metadata['dc:title'],
@@ -247,16 +251,16 @@ async function getUsage(testBookId, jwt) {
 async function canRemove(testBookId, jwt) {
     // check if there are any answersets which use this book
     let usage = await getUsage(testBookId, jwt);
-    if (!usage.answerSets.hasOwnProperty('all')) {
-        return true;
+    if (!usage.success) {
+        return false;
     }
-    return usage.answerSets.all.length === 0;
+    let numNonEmpty = usage.answerSets?.nonEmpty?.length;
+    return  numNonEmpty == 0 ||  numNonEmpty == undefined; 
 }
 
 async function remove(testBookId, jwt) {
     let errors = [];
     try {
-        // delete the answers, answersets, and also the testbook
         let canRemoveBook = await canRemove(testBookId, jwt);
         if (canRemoveBook) {
             let dbres = await db.query(Q.TEST_BOOKS_WITH_TESTS.GET, {id: parseInt(testBookId)}, jwt);
@@ -267,7 +271,7 @@ async function remove(testBookId, jwt) {
             }
             
             // delete tests
-            let tests = dbres.data.testBook.tests.nodes;
+            let tests = dbres.data.testBook.testsByTestBookId.nodes;
             for (test of tests) {
                 dbres = await db.query(Q.TESTS.DELETE, {id: parseInt(test.id)}, jwt);
                 if (!dbres.success) {

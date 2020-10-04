@@ -4,8 +4,10 @@ const db = require('../database');
 const Q = require('../queries');
 const invite = require('../actions/invite');
 const testBooks = require('../actions/testBooks');
+const answerSets = require('../actions/answerSets');
 const testingEnvironments = require('../actions/testingEnvironments');
-const formidable = require('formidable')
+const formidable = require('formidable');
+const winston = require('winston');
 const utils = require('../utils');
 const path = require('path');
 const { validator, validationResult, body } = require('express-validator');
@@ -149,34 +151,39 @@ router.post('/reinvite-users', async (req, res) => {
 router.post("/upload-test-book", async (req, res, next) => {
     new formidable.IncomingForm().parse(req, async (err, fields, files) => {
         if (err) {
-            console.log(err);
+            winston.error(err);
             let err = new Error("Upload error");
             return next(err);
         }
         
-        let parsedTestBook = await testBooks.parse(files.epub.path, files.epub.name, req.cookies.jwt);
+        let parseResult = await testBooks.parse(files.epub.path, files.epub.name);
         let newTestIds = [];
-        if (!parsedTestBook) {
+        if (!parseResult.success) {
             return next(new Error("Could not parse EPUB."));
         }
-        let canAdd = await testBooks.canAdd(parsedTestBook, req.cookies.jwt);
-        if (!canAdd.success) {
-            return next(new Error(`Could not add book: ${canAdd.errors.join('\n\n')}`));
+        let testBook = parseResult.testBook;
+        let canAddResult = await testBooks.canAdd(testBook, req.cookies.jwt);
+        if (!canAddResult.success) {
+            return next(new Error(`Could not add book: ${canAddResult.errors.join('\n\n')}`));
         }
 
-        let testBook = await testBooks.setFlags(parsedTestBook, canAdd.bookToUpgrade, req.cookies.jwt);
-        let usage = null;
-        if (canAdd.bookToUpgrade) {
-            newTestIds = testBook.tests.filter(t => t.flagNew).map(t => t.testId);
-            usage = await testBooks.getUsage(canAdd.bookToUpgrade.id, req.cookies.jwt);
-            testBook.bookToUpgradeId = canAdd.bookToUpgrade.id;
+        let setFlagsResult = await testBooks.setFlags(testBook, canAddResult.bookToUpgrade, req.cookies.jwt);
+        if (!setFlagsResult.success) {
+            return next(new Error(`Error processing book: ${setFlagsResult.errors.join('\n\n')}`));
         }
+        let flaggedTestBook = setFlagsResult.testBook;
+        let usage = null;
+        if (canAddResult.bookToUpgrade) {
+            usage = await testBooks.getUsage(canAddResult.bookToUpgrade.id, req.cookies.jwt);
+            flaggedTestBook.bookToUpgradeId = canAddResult.bookToUpgrade.id;
+        }
+        newTestIds = flaggedTestBook.tests.filter(t => t.flagNew).map(t => t.testId);
 
         // show page where admin can set own flags
         return res.render('./admin/ingest-test-book.html', 
         {
-            testBook,
-            affectedAnswerSets: usage.answerSets.all,
+            testBook: flaggedTestBook,
+            affectedAnswerSets: usage ? usage?.answerSets?.all : [],
             newTestIds
         });
     });
@@ -184,7 +191,8 @@ router.post("/upload-test-book", async (req, res, next) => {
 
 router.post("/ingest-test-book", async (req, res, next) => {
     let testBook = JSON.parse(req.body.testBook);
-    req.body.tests.map(test => {
+    let replacesBookId = testBook.bookToUpgradeId;
+    testBook.tests.map(test => {
         let testInBook = testBook.tests.find(t=>t.testId == test.testId);
         testInBook.flagChanged = test.flagChanged === "true"; // TODO test this
     });
@@ -194,6 +202,13 @@ router.post("/ingest-test-book", async (req, res, next) => {
     if (!result.success) {
         let err = new Error(`ERRORS importing book: \n ${result.errors.map(e=>e.message).join(', ')}`);
         return next(err);
+    }
+
+    if (replacesBookId != null && replacesBookId != undefined) {
+        result = await answerSets.upgrade(result.newBookId, replacesBookId, req.cookies.jwt);
+    }
+    else {
+        result = await answerSets.createAnswerSetsForNewTestBook(result.newBookId, req.cookies.jwt);
     }
 
     let message = encodeURIComponent(
@@ -214,27 +229,42 @@ router.post("/confirm-delete-test-book/:id", async (req, res, next) => {
     }
     let testBook = dbres.data.testBook;
 
-    let canRemove = await testBooks.canRemove(testBook.id);
+    let canRemove = await testBooks.canRemove(testBook.id, req.cookies.jwt);
     if (!canRemove) {
-        let err = new Error("Test book is in use and cannot be removed.");
-        err.statusCode = 403;
-        return next(err);
-    }
+        let usageResult = await testBooks.getUsage(parseInt(req.params.id), req.cookies.jwt);
+        if (usageResult.success) {
+            return res.render('./admin/confirm-remove-test-book-and-answer-sets.html', {
+                testBook,
+                answerSets: usageResult.answerSets.nonEmpty,
+                redirectUrlYes: '/admin/test-books',
+                redirectUrlNo: `/admin/test-books`,
+                actionUrl: `/admin/forms/delete-test-book-and-answer-sets/${parseInt(req.params.id)}`
+            });
+        }
+        else {
+            let err = new Error(
+                `Could not determine usage for test book ID ${testBook.id} (${testBook.title} v${testBook.version} ${testBook.lang.id})`);
+            return next(err);
+        }
         
-    return res.render('./confirm.html', {
-        title: "Confirm deletion",
-        content: `Please confirm that you would like to delete ${testBook.title} (${testBook.langId}, v. ${testBook.version})`,
-        redirectUrlYes: '/admin/test-books',
-        redirectUrlNo: `/admin/test-books`,
-        actionUrl: `/admin/forms/delete-test-book/${parseInt(req.params.id)}`
-    });
+    }
+    else {
+        return res.render('./confirm.html', {
+            title: "Confirm deletion",
+            content: `Please confirm that you would like to delete ${testBook.title} (${testBook.langId}, v. ${testBook.version})`,
+            redirectUrlYes: '/admin/test-books',
+            redirectUrlNo: `/admin/test-books`,
+            actionUrl: `/admin/forms/delete-test-book/${parseInt(req.params.id)}`
+        });
+    }
+    
 });
 
 router.post('/delete-test-book/:id', async (req, res, next) => {
     let redirect;
 
     if (req.body.hasOwnProperty("yes")) {
-        let result = await testBooks.remove(req.params.id, req.cookies.jwt);
+        let result = await testBooks.remove(parseInt(req.params.id), req.cookies.jwt);
         if (!result.success) {
             let errorMessage = 
                 `One or more errors encountered; aborting operation. \n\n ${result.errors.join('\n\n')}`;
@@ -249,6 +279,32 @@ router.post('/delete-test-book/:id', async (req, res, next) => {
         redirect = req.body.redirectUrlNo;
     }
 
+    // redirect
+    return res.redirect(redirect);
+});
+
+router.post('/delete-test-book-and-answer-sets/:id', async (req, res, next) => {
+    let redirect;
+    if (req.body.hasOwnProperty("yes")) {
+        let dbres = await db.query(
+            Q.TEST_BOOKS.DELETE_TEST_BOOK_AND_ANSWER_SETS, 
+            {testBookId: parseInt(req.params.id)},
+            req.cookies.jwt
+        );
+        if (!dbres.success) {
+            let errorMessage = `One or more errors encountered; aborting operation. \n\n ${result.errors?.join('\n\n')}`;
+            return next(new Error(errorMessage));
+        }
+        
+        // TODO remove file from downloads folder
+
+        let message = encodeURIComponent("Test book and answer sets deleted.");
+        redirect = req.body.redirectUrlYes + "?message=" + message;
+    }
+    else {
+        // else cancel was pressed: do nothing
+        redirect = req.body.redirectUrlNo;
+    }
     // redirect
     return res.redirect(redirect);
 });

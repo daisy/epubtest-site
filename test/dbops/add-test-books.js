@@ -5,7 +5,7 @@ const testBookActions = require("../../src/actions/testBooks");
 const winston = require('winston');
 
 // returns [ { newBookId, replacesBookId}, ...] where replacesBookId is the book that newBookId is upgrading, if any
-async function addTestBooks(data, jwt, datafilepath) {
+async function addTestBooks(data, jwt, datafilepath, errmgr) {
     winston.info("Adding Test Books");
     let addedBooks = [];
     for (testbook of data) {
@@ -15,17 +15,18 @@ async function addTestBooks(data, jwt, datafilepath) {
         let result = await testBookActions.parse(filepath, filename);
         if (!result.success) {
             winston.error(`Error parsing testbook ${testbook}`);
-            return;
+            errmgr.addErrors(result.errors);
+            throw new Error("addTestBooks error");
         }
         let parsedTestBook = result.testBook;
 
         // 2. see if we can add it
         let canAdd = await testBookActions.canAdd(parsedTestBook, jwt);
 
-        // 3. add it
         if (!canAdd.success) {
             winston.error(`Cannot add test book ${testbook}`);
-            return;
+            errmgr.addErrors(dbres.errors);
+            throw new Error("addTestBooks error");
         }
 
         // new tests are flagged at this point
@@ -38,6 +39,10 @@ async function addTestBooks(data, jwt, datafilepath) {
 
         // adding the book also creates new answer sets
         result = await testBookActions.add(flaggedBook.testBook, jwt);
+        if (!result.success) {
+            errmgr.addErrors(dbres.errors);
+            throw new Error("addTestBooks error");
+        }
         addedBooks.push({newBookId: result.newBookId, replacesBookId: canAdd?.bookToUpgrade?.id});
     } 
     return addedBooks;

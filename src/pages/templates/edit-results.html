@@ -8,7 +8,7 @@
 
 {{ testingEnvironmentTitle.TestingEnvironmentTitle(answerSet.testingEnvironment, 'h2') }}
 
-<p><b>Topic:</b> <a href="/books/{{answerSet.testBook.filename}}">{{answerSet.testBook.title}}</a></p>
+<p><b>Test Book:</b> <a href="/books/{{answerSet.testBook.filename}}">{{answerSet.testBook.title}} (v {{answerSet.testBook.version}})</a></p>
 
 <form method="POST" action="/user/forms/results">
     <h2>Summary</h2>
@@ -56,6 +56,7 @@
         </tbody>
     </table>
     <input type="hidden" name="answerSetId" value="{{answerSet.id}}"></input>
+    <input type="hidden" name="next" value="{{next}}"></input>
     <input type="submit" name="submit" value="Save" id="save"></input>
 </form>
 

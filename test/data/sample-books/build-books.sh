@@ -12,3 +12,5 @@ wait
 java -jar ${EPUBCHECK} --mode exp --save testbook-example-non-visual-reading-1.0.0-en
 wait
 java -jar ${EPUBCHECK} --mode exp --save testbook-example-non-visual-reading-1.0.1-en
+wait
+java -jar ${EPUBCHECK} --mode exp --save testbook-example-invalid-version

@@ -3,7 +3,7 @@ const db = require("../../src/database");
 const winston = require("winston");
 const answerSetActions = require('../../src/actions/answerSets');
 
-async function assignAnswerSets(jwt) {
+async function assignAnswerSets(jwt, errors) {
     winston.info("Assigning Answer sets");
 
     // assign both answer sets to the one non-admin user
@@ -14,7 +14,8 @@ async function assignAnswerSets(jwt) {
     );
     
     if (!dbres.success) {
-        return;
+        errors = errors.concat(dbres.errors);
+        throw new Error("addAnswerSets error");
     }
     let answerSets = dbres.data.answerSets.nodes;
     dbres = await db.query(
@@ -22,13 +23,18 @@ async function assignAnswerSets(jwt) {
         {},
         jwt);
     if (!dbres.success) {
-        return;
+        errors = errors.concat(dbres.errors);
+        throw new Error("addAnswerSets error");
     }
     let users = dbres.data.users.nodes;
     let user = users.find(u => u.login.type == 'USER');
 
     for (answerSet of answerSets) {
-        answerSetActions.assign(answerSet.id, user.id, jwt);
+        dbres = await answerSetActions.assign(answerSet.id, user.id, jwt);
+        if (!dbres.success) {
+            errors = errors.concat(dbres.errors);
+            throw new Error("addAnswerSets error");
+        }
     }
 }
 

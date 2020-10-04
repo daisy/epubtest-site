@@ -24,33 +24,36 @@ class table  {
             tdTestenv.classList.add("testenv");
             tdTestenv.innerHTML = 
                 `<a href="/results/${d.testingEnvironment.id}">
+                    <span>
                     ${d.testingEnvironment.readingSystem.name}
                     ${d.testingEnvironment.readingSystem.version}
                     <br>
                     by
                     ${d.testingEnvironment.readingSystem.vendor}
-                </a>
-                <a href="/results/${d.testingEnvironment.id}">
+                    </span>
+                    <span>
                     ${d.testingEnvironment.assistiveTechnology.name}
                     ${d.testingEnvironment.assistiveTechnology.version}
-                </a>
+                    </span>
                 ${d.testingEnvironment.device ? `
-                    <a href="/results/${d.testingEnvironment.id}">
+                    <span>
                         ${d.testingEnvironment.device.name}
                         ${d.testingEnvironment.device.version}
-                    </a>` : ''
+                    </span>
+                    ` : ''
                 }
-                <a href="/results/${d.testingEnvironment.id}">
+                    <span>
                     ${d.testingEnvironment.operatingSystem.name}
                     ${d.testingEnvironment.operatingSystem.version}
-                </a>
+                    </span>
                 ${d.testingEnvironment.browser ? `
-                    <a href="/results/${d.testingEnvironment.id}">
+                        <span>
                         ${d.testingEnvironment.browser.name}
                         ${d.testingEnvironment.browser.version}
-                    </a>` : ''
+                        </span>
+                ` : ''
                 }
-                `;
+                </a>`;
             tr.appendChild(tdTestenv);
 
             // add the score cells

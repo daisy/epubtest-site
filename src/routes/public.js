@@ -34,7 +34,7 @@ router.get('/forgot-password', (req, res) => res.render('auth/forgot-password.ht
 // testing environment results
 router.get('/results/:testingEnvironmentId', async (req, res, next) => {
     let dbres = await db.query(
-        Q.TESTING_ENVIRONMENTS.GET, 
+        Q.TESTING_ENVIRONMENTS_WITH_ANSWERS.GET_PUBLISHED, 
         { id: parseInt(req.params.testingEnvironmentId) }); 
     if (!dbres.success) {
         let err = new Error(`Could not get testing environment (${req.params.testingEnvironmentId})`);
@@ -56,12 +56,13 @@ router.get('/results', async (req, res, next) => {
     }
     let topics = dbres.data.topics.nodes;
     
-    dbres = await db.query(Q.TESTING_ENVIRONMENTS.GET_PUBLISHED);
+    dbres = await db.query(Q.TESTING_ENVIRONMENTS.GET_ALL_PUBLISHED);
     if (!dbres.success) {
         let err = new Error("Could not get published testing environments");
         return next(err);
     }
-    let testingEnvironments = dbres.data.getPublishedTestingEnvironments.nodes;
+    //let testingEnvironments = dbres.data.getPublishedTestingEnvironments.nodes;
+    let testingEnvironments = dbres.data.testingEnvironments.nodes;
     
     return res.render('results.html', {
         testingEnvironments,
@@ -82,7 +83,7 @@ router.get('/archive', async (req, res, next) => {
     }
     let topics = dbres.data.topics.nodes;
     
-    dbres = await db.query(Q.TESTING_ENVIRONMENTS.GET_ARCHIVED);
+    dbres = await db.query(Q.TESTING_ENVIRONMENTS.GET_ALL_ARCHIVED);
     if (!dbres.success) {
         let err = new Error("Could not get archived testing environments");
         return next(err);

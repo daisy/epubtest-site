@@ -26,12 +26,21 @@ const LANGS = require('./l10n/langs');
 const apiLimiter = rateLimit();
 const app = express()
 
-require('dotenv').config({path: path.join(__dirname, '../.env')});
+const envFile = process.argv.length > 2 ? 
+    process.argv[2] : ".env";
+if (process.env.NODE_ENV != 'production') {
+    require('dotenv').config({path: path.join(__dirname, `../${envFile}`)});
+}
+    
 
 var env = nunjucks.configure('src/pages/templates', {
     autoescape: true,
     express: app
 });
+env.addFilter('cleanString', str => {
+    return str.replace(/&nbsp;/g, " ");
+});
+
 nunjucksDate.setDefaultFormat("MMMM Do YYYY");
 nunjucksDate.install(env);
 

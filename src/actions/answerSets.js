@@ -135,10 +135,10 @@ async function migrate(newAnswerSetId, oldAnswerSetId, jwt) {
             }
         }
         // if there were flagged answers in the new answer set
-        // mark the old one as being out of date
+        // mark it as needing updating
         if (flaggedAnswer) {
             dbres = await db.query(Q.ANSWER_SETS.UPDATE, {
-                id: oldAnswerSetId,
+                id: newAnswerSetId,
                 patch: {
                     flag: true
                 }
@@ -162,6 +162,34 @@ async function migrate(newAnswerSetId, oldAnswerSetId, jwt) {
     return { success: true, errors};
 }
 
+// call this when we don't need to upgrade
+async function createAnswerSetsForNewTestBook(newTestBookId, jwt) {
+    let errors = [];
+    let dbres = await db.query(Q.TESTING_ENVIRONMENTS.GET_ALL, {}, jwt);
+    if (!dbres.success) {
+        return dbres;
+    }
+    let testingEnvironments = dbres.data.testingEnvironments.nodes;
+
+    // pause the triggers
+    db.query(Q.ETC.DISABLE_TRIGGERS, {}, jwt);
+
+    for (testingEnvironment of testingEnvironments) {
+        let result = await add(newTestBookId, testingEnvironment.id, jwt);
+        if (!result.success) {
+            errors = errors.concat(result.errors);
+        }
+    }
+
+    // reenable the triggers
+    db.query(Q.ETC.ENABLE_TRIGGERS, {}, jwt);
+    // call the function that does what the triggers would have done had they been active
+    db.query(Q.ETC.RUN_ANSWERSET_TRIGGER_OPERATIONS, {}, jwt);
+
+    return { success: errors.length === 0, errors };
+}
+
+// this might be nice to encapsulate in a postgres function
 async function upgrade(newTestBookId, oldTestBookId, jwt) {
     let errors = [];
     // get usage for the old test book
@@ -170,6 +198,9 @@ async function upgrade(newTestBookId, oldTestBookId, jwt) {
         return usage; // just pass the status and errors along
     }
     let created = {}; // {oldAnswerSetId: newAnswerSetId}
+
+    // pause the triggers
+    db.query(Q.ETC.DISABLE_TRIGGERS, {}, jwt);
 
     // add new answer sets
     if (usage.answerSets.hasOwnProperty("all")) {
@@ -198,17 +229,61 @@ async function upgrade(newTestBookId, oldTestBookId, jwt) {
             }
         }
     }
+    // reenable the triggers
+    db.query(Q.ETC.ENABLE_TRIGGERS, {}, jwt);
+    // call the function that does what the triggers would have done had they been active
+    db.query(Q.ETC.RUN_ANSWERSET_TRIGGER_OPERATIONS, {}, jwt);
+
     return { success: errors.length === 0, errors };
-    
 }
 
 
 async function remove(answerSetId, jwt) {
-    // TODO
+    let errors = [];
+    try {
+        let dbres = await db.query(
+            Q.ANSWER_SETS.GET,
+            { id: answerSetId},
+            jwt
+        );
+        if (!dbres.success) {
+            errors = dbres.errors;
+            throw new Error();
+        }
+        let answerSet = dbres.data.answerSet;
+        for (answer of answerSet.answersByAnswerSetId.nodes) {
+            dbres = await db.query(
+                Q.ANSWERS.DELETE, 
+                { id: answer.id}, 
+                jwt
+            );
+            if (!dbres.success) {
+                errors = errors.concat(dbres.errors);
+            }
+        }
+        // if there are errors at this point, it's because answers couldn't be deleted
+        // in this case, don't delete the answer set, otherwise there will be 
+        // answers with no owner
+        if (errors.length > 0) {
+            throw new Error();
+        }
+        dbres = await db.query(
+            Q.ANSWER_SETS.DELETE,
+            {id: answerSetId},
+            jwt
+        );
+        if (!dbres.success) {
+            throw new Error();
+        }
+    }
+    catch (err) {
+        return { success: false, errors: errors.length > 0 ? errors : [err]};
+    }
+    return { success: true };
 }
 
 async function assign(answerSetId, userId, jwt) {
-    dbres = await db.query(
+    let dbres = await db.query(
         Q.ANSWER_SETS.UPDATE,
         {
             id: answerSetId,
@@ -225,5 +300,6 @@ module.exports = {
     add,
     remove,
     upgrade,
-    assign
+    assign,
+    createAnswerSetsForNewTestBook
 };

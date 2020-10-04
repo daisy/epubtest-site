@@ -1,4 +1,5 @@
-GRPAHQL_PORT=3000
+# env file for the db api server 
+GRAPHQL_PORT=3000
 POSTGRES_USER=epubtest_app_role
 POSTGRES_PASSWORD=password
 POSTGRES_DB=epubtesttest

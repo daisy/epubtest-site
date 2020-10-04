@@ -49,7 +49,8 @@ router.post('/request-to-publish', async (req, res, next) => {
         Q.REQUESTS.CREATE, 
         { 
             input: {
-                answerSetId: parseInt(req.body.answerSetId) 
+                answerSetId: parseInt(req.body.answerSetId),
+                type: 'PUBLISH'
             }
         }, 
         req.cookies.jwt);
@@ -93,7 +94,7 @@ router.post('/results',
                 return next(err);
             }
         }
-        return res.redirect('/user/dashboard');
+        return res.redirect(req.body.next);
     }
 );
 

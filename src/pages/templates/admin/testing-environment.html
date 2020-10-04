@@ -54,7 +54,7 @@
             {#<th>Assigned to</th>#}
             <th>Score</th>
             <th>Edit</th>
-            <th>Publish</th>
+            <th>Status</th>
         </tr>
     </thead>
     <tbody>
@@ -85,15 +85,17 @@
         </td>
         #}
         <td>{%-if answerSet.score -%}{{answerSet.score | round(1)}}{%- endif -%}</td>
-        <td><a href="/user/edit-results/{{answerSet.id}}">Edit</td>
+        <td><a href="/user/edit-results/{{answerSet.id}}?next=/admin/testing-environment/{{testingEnvironment.id}}">Edit</td>
         <td>
             {%- if answerSet.isPublic -%}
+            <span>Published</span>
             <form method="POST" action="/admin/forms/unpublish">
                 <input type="hidden" name="testingEnvironmentId" value="{{testingEnvironment.id}}"/>
                 <input type="hidden" name="answerSetId" value="{{answerSet.id}}"/>
                 <input type="submit" name="submit" value="Unpublish"/>
             </form>
             {%- else -%}
+            <span>Unpublished</span>
             <form method="POST" action="/admin/forms/publish">
                 <input type="hidden" name="testingEnvironmentId" value="{{testingEnvironment.id}}"/>
                 <input type="hidden" name="answerSetId" value="{{answerSet.id}}"/>

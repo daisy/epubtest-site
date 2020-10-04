@@ -2,7 +2,7 @@
     {
         "name": "BookReader",
         "version": "3.0",
-        "vendor": "Digital Stuff",
+        "vendor": "Computronics",
         "type": "READING_SYSTEM",
         "notes": "BookReader notes go here. Duis consectetur nulla nisi occaecat aute consequat ad aliqua esse reprehenderit."
     },
@@ -19,5 +19,19 @@
         "vendor": "Microsoft",
         "type": "OS",
         "notes": "Windows notes go here. Enim culpa pariatur pariatur consequat consectetur dolor et sunt dolore duis dolore qui proident."
+    },
+    {
+        "name": "Librario",
+        "version": "2.0",
+        "vendor": "BooksEtc",
+        "type": "READING_SYSTEM",
+        "notes": "Librario notes go here. Duis consectetur nulla nisi occaecat aute consequat ad aliqua esse reprehenderit."
+    },
+    {
+        "name": "NVDA",
+        "version": "2020.2",
+        "vendor": "NV Screen Access",
+        "type": "ASSISTIVE_TECHNOLOGY",
+        "notes": "NVDA notes go here. Occaecat proident aliquip non ut mollit esse excepteur qui id labore."
     }
 ]

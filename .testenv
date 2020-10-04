@@ -1,0 +1,7 @@
+JWT_SECRET=thesecret
+GRAPHQLURL=http://localhost:3000/graphql
+MAILHOST=localhost
+MAILPORT=1025
+MAILUSER=me@mymail.com
+MAILPASS=shhsecret
+PORT=8000

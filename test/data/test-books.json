@@ -1,0 +1,10 @@
+[
+    {
+        "file": "./sample-books/testbook-example-basic-func-1.0.0-en.epub",
+        "flags": [] 
+    },
+    {
+        "file": "./sample-books/testbook-example-non-visual-reading-1.0.0-en.epub",
+        "flags": []
+    }
+]

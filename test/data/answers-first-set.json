@@ -1,0 +1,88 @@
+[
+    {
+        "readingSystemName": "BookReader",
+        "testBookTopic": "basic-functionality",
+        "summary": "Test summary for answer set",
+        "answers": [
+            {
+                "testId": "file-010",
+                "result": "PASS",
+                "notes": "Private notes for this test result",
+                "notesArePublic": false
+            },
+            {
+                "testId": "file-110",
+                "result": "FAIL",
+                "notes": "Public notes for this test result",
+                "notesArePublic": true
+            },
+            {
+                "testId": "file-210",
+                "result": "PASS"
+            }
+        ]
+    },
+    {
+        "readingSystemName": "BookReader",
+        "testBookTopic": "non-visual-reading",
+        "answers": [
+            {
+                "testId": "reading-010",
+                "result": "PASS",
+                "notes": "Public notes for this test result",
+                "notesArePublic": true
+            },
+            {
+                "testId": "reading-110",
+                "result": "PASS"
+            },
+            {
+                "testId": "reading-210",
+                "result": "PASS"
+            }
+        ]
+    },
+    {
+        "readingSystemName": "Librario",
+        "testBookTopic": "basic-functionality",
+        "summary": "Test summary for answer set",
+        "answers": [
+            {
+                "testId": "file-010",
+                "result": "PASS",
+                "notes": "Private notes for this test result",
+                "notesArePublic": false
+            },
+            {
+                "testId": "file-110",
+                "result": "PASS",
+                "notes": "Public notes for this test result",
+                "notesArePublic": true
+            },
+            {
+                "testId": "file-210",
+                "result": "PASS"
+            }
+        ]
+    },
+    {
+        "readingSystemName": "Librario",
+        "testBookTopic": "non-visual-reading",
+        "answers": [
+            {
+                "testId": "reading-010",
+                "result": "FAIL",
+                "notes": "Public notes for this test result",
+                "notesArePublic": true
+            },
+            {
+                "testId": "reading-110",
+                "result": "FAIL"
+            },
+            {
+                "testId": "reading-210",
+                "result": "FAIL"
+            }
+        ]
+    }
+]

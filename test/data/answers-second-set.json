@@ -1,0 +1,19 @@
+[
+    {
+        "readingSystemName": "BookReader",
+        "testBookTopic": "basic-functionality",
+        "summary": "Test summary for answer set",
+        "answers": [
+            {
+                "testId": "file-010",
+                "result": "FAIL",
+                "notes": "Private notes for this test result",
+                "notesArePublic": false
+            },
+            {
+                "testId": "file-310",
+                "result": "FAIL"
+            }
+        ]
+    }
+]

@@ -2,7 +2,7 @@ const Q = require("../../src/queries/index");
 const db = require("../../src/database");
 const winston = require("winston");
 
-async function addUsers(data, jwt) {
+async function addUsers(data, jwt, errors) {
     winston.info("Adding Users");
     
     for (user of data) {
@@ -15,7 +15,8 @@ async function addUsers(data, jwt) {
             jwt
         );
         if (!dbres.success) {
-            return;
+            errors = errors.concat(dbres.errors);
+            throw new Error("addUsers error");
         }
         let loginId = dbres.data.createNewLogin.integer;
         dbres = await db.query(
@@ -28,6 +29,10 @@ async function addUsers(data, jwt) {
             },
             jwt
         );
+        if (!dbres.success) {
+            errors = errors.concat(dbres.errors);
+            throw new Error("addUsers error");
+        }
     }
 }
 
