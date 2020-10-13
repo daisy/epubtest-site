@@ -21,12 +21,18 @@ describe('upgrade-test-books', function () {
             testingEnvironments: "./data/testing-environments.json",
             users: "./data/users.json"
         };
+        console.log("init");
         jwt = await initDb(dataProfile); 
     });
   
     describe('initial-data-import', function() {
         it('does not report errors', async function() {
             expect(loadDataErrors.getErrors().length).to.equal(0);
+            if (loadDataErrors.getErrors().length) {
+                for (err in loadDataErrors.getErrors()) {
+                    winston.error(err);
+                }
+            }
         });
         it('has two users', async function () {
             let dbres = await db.query(Q.USERS.GET_ALL, {}, jwt);
@@ -74,6 +80,13 @@ describe('upgrade-test-books', function () {
             let answers = dbres.data.answers.nodes;
             for (answer of answers) {
                 expect(answer.value).to.equal('NOANSWER');
+            }
+        });
+        it('has isTested=false for every answer set', async function() {
+            let dbres = await db.query(Q.ANSWER_SETS.GET_ALL, {}, jwt);
+            let answerSets = dbres.data.answerSets.nodes;
+            for(answerSet of answerSets) {
+                expect(answerSet.isTested).to.be.false;
             }
         });
         it('has no user assigned to any answer sets', async function() {
@@ -189,6 +202,13 @@ describe('upgrade-test-books', function () {
                     expect(parseFloat(answerSet.score)).to.equal(100.00);
                 }
             }   
+        });
+        it('has isTested=true for every answer set', async function() {
+            let dbres = await db.query(Q.ANSWER_SETS.GET_ALL, {}, jwt);
+            let answerSets = dbres.data.answerSets.nodes;
+            for(answerSet of answerSets) {
+                expect(answerSet.isTested).to.be.true;
+            }
         });
     });
 
@@ -377,15 +397,15 @@ describe('upgrade-test-books', function () {
         });
     });
 
-    describe('delete a test book and its answer sets', function () {
-        before(async function() {
-            await testBookAndAnswerSetActions.remove(3, jwt);
-        });
-        it("answer sets for book with ID=1 are the latest", async function() {
-            let dbres = await db.query(Q.ANSWER_SETS.GET_FOR_BOOK, {testBookId: 1}, jwt);
-            let isLatests = dbres.data.answerSets.nodes.map(aset => aset.isLatest);
-            expect(isLatests).to.not.contain(false);
-        });
-    });
+    // describe('delete a test book and its answer sets', function () {
+    //     before(async function() {
+    //         await testBookAndAnswerSetActions.remove(3, jwt);
+    //     });
+    //     it("answer sets for book with ID=1 are the latest", async function() {
+    //         let dbres = await db.query(Q.ANSWER_SETS.GET_FOR_BOOK, {testBookId: 1}, jwt);
+    //         let isLatests = dbres.data.answerSets.nodes.map(aset => aset.isLatest);
+    //         expect(isLatests).to.not.contain(false);
+    //     });
+    // });
 });
 
