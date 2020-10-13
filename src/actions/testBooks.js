@@ -213,7 +213,6 @@ async function add(testBook, jwt) {
 
 // get the answer sets that use this test book
 // differentiate between empty and non-empty answer sets
-// TODO Throwing an error
 async function getUsage(testBookId, jwt) {
     let errors = [];
     let answerSets = {};
@@ -226,12 +225,9 @@ async function getUsage(testBookId, jwt) {
         }
 
         // count empty vs non-empty answer sets
-        let nonEmpty = dbres.data.answerSets.nodes
-            .filter(answerSet => answerSet.answersByAnswerSetId.nodes
-                    .filter(ans => ans.value != 'NOANSWER')
-                    .length > 0); 
+        let nonEmpty = dbres.data.answerSets.nodes.filter(answerSet => answerSet.isTested);
         
-        let empty = dbres.data.answerSets.nodes.filter(answerSet => !nonEmpty.includes(answerSet));
+        let empty = dbres.data.answerSets.nodes.filter(answerSet => answerSet.isTested === false);//!nonEmpty.includes(answerSet));
 
         answerSets = {
             all: dbres.data.answerSets.nodes,

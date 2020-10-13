@@ -52,8 +52,8 @@
                         },
                         results: [
                             {%- for topic in topics -%}
-                            {%- set score=getfortopic(testenv.answerSetsByTestingEnvironmentId.nodes, topic).score -%}                
-                            {%-if score > 0 -%}{{score | round(1)}}{%- else -%} -1 {%- endif -%},
+                            {%- set answerSet = getfortopic(testenv.answerSetsByTestingEnvironmentId.nodes, topic) -%}
+                            {%-if answerSet and answerSet.isTested -%}{{answerSet.score | round(1)}}{%- else -%} -1 {%- endif -%},
                             {%- endfor -%}
                         ]
                     },

@@ -10,6 +10,7 @@ score
 isPublic
 isLatest
 isLatestPublic
+isTested
 testBook {
     ${testBookFrag.FIELDS}
 }
