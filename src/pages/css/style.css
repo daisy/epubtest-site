@@ -202,6 +202,15 @@ em.title {
     font-weight: normal;
     /* font-style: italic; */
 }
+.boxed {
+    border: thin solid black;
+    padding: 2rem;
+    font-size: smaller;
+    columns: 2;
+}
+.boxed li {
+    break-inside: avoid;
+}
 /*****************************/
 /* MOBILE                    */
 /*****************************/

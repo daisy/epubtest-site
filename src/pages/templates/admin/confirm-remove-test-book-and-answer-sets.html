@@ -9,7 +9,7 @@
     (version {{testBook.version}}, {{testBook.lang.id}}) 
     has the following results, which would also be removed permanently:</p>
 
-<ul>
+<ul class="boxed">
     {%- for answerSet in answerSets -%}
         <li>{{ testingEnvironmentTitle.TestingEnvironmentOneLiner(answerSet.testingEnvironment) }}
             <br/>
@@ -22,6 +22,7 @@
     {% endfor -%}
 </ul>
 
+<p>Are you sure you want to remove the test book along with the results listed above?</p>
 {%- endif -%}
 
 <form method="POST" action="{{actionUrl}}">
