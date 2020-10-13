@@ -25,10 +25,11 @@ describe('ingest-invalid-book', function () {
     describe('initial-data-import', function() {
         it('reports errors', async function() {
             let errors = loadDataErrors.getErrors();
-            expect(errors.length).not.to.equal(0);
             for (err of errors) {
                 winston.error(err.toString());
             }
+            expect(errors.length).not.to.equal(0);
+            
         }); 
     });
 });

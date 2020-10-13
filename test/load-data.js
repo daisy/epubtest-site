@@ -1,11 +1,6 @@
 const fs = require('fs-extra');
 const path = require('path');
-const envFile = process.argv.length > 2 ? 
-    process.argv[2] : ".env";
-if (process.env.NODE_ENV != 'production') {
-    require('dotenv').config({path: path.join(__dirname, `../${envFile}`)});
-}
-
+require('dotenv').config({path: path.join(__dirname, `../.testenv`)});
 const winston = require('winston');
 
 const { spawn } = require('child_process')
