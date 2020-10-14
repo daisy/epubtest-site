@@ -25,7 +25,11 @@
     <tr>
         <td>{{answerSet.testBook.topic.id}}</td>
         {#<td>Up to date</td>#}
-        <td>{%-if answerSet.score -%}{{answerSet.score | round(1)}}{%- endif -%}</td>
+        <td>{%-if answerSet.isTested-%}
+            {{answerSet.score | round(1)}}
+            {%- else -%}
+            <span class="notTested">Not tested</span>
+            {%- endif -%}</td>
         <td><a href="/user/edit-results/{{answerSet.id}}">Edit</td>
         <td>
             {%- set requestToPublish=getRequestToPublish(answerSet.id) -%}

@@ -84,7 +84,11 @@
             </form>
         </td>
         #}
-        <td>{%-if answerSet.score -%}{{answerSet.score | round(1)}}{%- endif -%}</td>
+        <td>{%-if answerSet.isTested-%}
+            {{answerSet.score | round(1)}}
+            {%- else -%}
+            <span class="notTested">Not tested</span>
+            {%- endif -%}</td>
         <td><a href="/user/edit-results/{{answerSet.id}}?next=/admin/testing-environment/{{testingEnvironment.id}}">Edit</td>
         <td>
             {%- if answerSet.isPublic -%}
