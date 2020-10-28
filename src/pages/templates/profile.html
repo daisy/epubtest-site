@@ -1,53 +1,59 @@
 {%- extends 'base/base.html' -%}
+{%- import "components/user-credit.html" as userCredit -%}
+
 {%- set title = "Profile" -%}
 {%- block content -%}
 
 <h1>Profile</h1>
 <p>View and edit your profile below. You may also change your password.</p>
 
-<div class="spaced">
-    <h2>Your profile</h2>
-    {%- if not user.organization and user.website and user.website != 'http://' -%}
-    <p><a href="{{user.website}}">{{user.name}}</a></p>
-    {%- else -%}
-    <p>{{user.name}}</p>
-    {%- endif -%}
-    {%- if user.organization -%}
-        {%- if user.website and user.website != 'http://' -%}
-        <p><a href="{{user.website}}">{{user.organization}}</a></p>
-        {%- else -%}
-        <p>{{user.organization}}</p>
-        {%- endif -%}
-    {%- endif -%}
-</div>
+<p></p>
 
-<div class="spaced">
+{%- if user.includeCredit -%}
+<p>Currently, your testing work is credited publicly to "{{userCredit.UserCredit(user)}}". You may modify this on the form below, and it will take effect immediately.</p>
+
+{%- else -%}
+<p>Currently, you are not being publicly credited for your testing. If you would like to change this, please indicate on the form below.</p>
+{%- endif -%}
+
+<div>
     <h2>Edit Profile</h2>
     <p id="local-error" aria-live="polite"></p>
     <form action="/user/forms/profile" method="POST" id="profile-form" class="simple">
+        <h3>Profile information</h3>
         <div>
             <label for="name">Name</label>
-            <input type="text" name="name" value="{{user.name}}" required>
+            <input type="text" name="name" id="name" value="{{user.name}}" required>
         </div>
         <div>
             <label for="organization">Organization</label>
-            <input type="text" name="organization" value="{{user.organization}}">
+            <input type="text" name="organization" id="organization" value="{{user.organization}}">
         </div>
         <div>
             <label for="website">Website</label>
-            <input type="text" name="website" value="{{user.website}}">
+            <input type="text" name="website" id="website" value="{{user.website}}">
+        </div>
+        <div class="row">
+            <label for="includeCredit">Include credit</label>
+            <input type="checkbox" name="includeCredit" id="includeCredit" {%- if user.includeCredit -%}checked="checked"{%-endif-%}>
         </div>
         <div>
+            <label for="creditAs">Credit as (optional)</label>
+            <input type="text" name="creditAs" id="creditAs" value="{{user.creditAs}}">
+        </div>
+        <h3>Change password</h3>
+        <div>
             <label for="password">Password</label>
-            <input type="password" name="password">
+            <input type="password" name="password" id="password">
         </div>
         <div>
             <label for="passwordmatch">Password (again)</label>
-            <input type="password" name="passwordmatch">
+            <input type="password" name="passwordmatch" id="passwordmatch">
         </div>
         <input type="submit" name="save" value="Save changes">
     </form>
 </div>
+    
 <script type="module" src="/js/passwordMatch.js"></script>
 <script type="module">
     import { initCheckPasswordsMatch } from '/js/passwordMatch.js';

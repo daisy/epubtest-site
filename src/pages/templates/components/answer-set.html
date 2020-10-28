@@ -1,11 +1,17 @@
+{%- import "components/user-credit.html" as userCredit -%}
+
 {%- macro AnswerSet(answerSet, topicName = '') -%}
 
 <h2 id="{{answerSet.id}}">Results for {{topicName}}</h2>
-<p>Tested with 
+<p>The tests for these results are from  
     <a href="/books/{{answerSet.testBook.filename}}">
         <em class="title">{{answerSet.testBook.title}}, version {{answerSet.testBook.version}}</em>
-    </a>
+    </a>.
 </p>
+{%- if answerSet.user and answerSet.user.includeCredit -%}
+<p>These tests were done by {{userCredit.UserCredit(answerSet.user)}}.</p>
+
+{%- endif -%}
 
 {%- if answerSet.summary != "" -%}<p class="limit spaced"><b>Summary</b>: {{answerSet.summary}}</p>{%-endif-%}
 

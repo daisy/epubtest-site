@@ -18,7 +18,7 @@ input#save {
 
 form.simple {
     display: grid;
-    grid-gap: 3vh;
+    grid-gap: 1vh;
     width: 30%;
     margin: auto;
 }
@@ -36,7 +36,9 @@ form.simple > .actions {
 }
 
 form.simple input[type=submit] {
-    max-width: 5rem;
+    max-width: 8rem;
+    padding: 1vh;
+    margin-top: 1rem;
 }
 
 textarea.summary {
@@ -61,3 +63,8 @@ div.testenv li {
 #profile-form {
     margin: inherit;
 }
+
+#profile-form .row {
+    grid-template-columns: 80% 20%;
+}
+

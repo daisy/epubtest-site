@@ -71,6 +71,11 @@ router.post('/results',
         body('answers.*.notes').trim()
     ],
     async (req, res, next) => {
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            let message = `${errors.join(', ')}`;
+            return res.status(422).redirect('/results?message=' + encodeURIComponent(message));
+        }
         let summary = req.body.summary;
         let answers = req.body.answers;
         if (answers && answers.length > 0) {
@@ -100,12 +105,34 @@ router.post('/results',
 
 // submit profile
 router.post('/profile', 
+    [
+      body("name").trim().escape(),
+      body("includeCredit").isIn(['on', undefined]),
+      body("creditAs").trim().escape()
+
+    ],
     async (req, res) => {
+        const errors = validationResult(req);
+        
+        if (!errors.isEmpty()) {
+            let message = `Invalid value for ${errors.array().map(err => `${err.param}`).join(', ')}`;
+            return res.status(422).redirect('/user/profile?message=' + encodeURIComponent(message));
+        }
+        let website = "";
+        if (req.body.website && req.body.website.length > 0) {
+            if (req.body.website.indexOf("http://") === -1 && req.body.website.indexOf("https://") === -1) {
+                website = `http://${req.body.website}`;
+            }
+            else {
+                website = req.body.website;
+            }
+        }
         let data = {
             name: req.body.name,
             organization: req.body.organization,
-            website: req.body.website.indexOf("http://") === -1 ? 
-                `http://${req.body.website}` : req.body.website
+            website,
+            includeCredit: req.body.includeCredit === "on",
+            creditAs: req.body.creditAs
         };
         let dbres = await db.query(Q.USERS.UPDATE, {id: req.userId, patch: data}, req.cookies.jwt);
         
