@@ -38,6 +38,12 @@ const UPDATE_ANSWERSET_AND_ANSWERS =
         }
     }`;
 
+const GET_FOR_USER = 
+`query ($userId:Int!) {
+    answerSets(condition: {userId: $userId}) {
+        ${answerSetFrag.FIELDS_WITH_ANSWERS}
+    }
+}`;
 
 module.exports = {
     CREATE, DELETE, UPDATE, GET, GET_ALL, 
@@ -46,6 +52,7 @@ module.exports = {
     UPDATE_ANSWERSET_AND_ANSWERS,
     GET_EXTENDED,
     GET_ALL_EXTENDED,
-    GET_FOR_BOOK_EXTENDED
+    GET_FOR_BOOK_EXTENDED,
+    GET_FOR_USER
 };
 
