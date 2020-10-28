@@ -13,6 +13,14 @@ router.get('/dashboard', async (req, res, next) => {
         return next(err);
     }
     let userTestingEnvironments = dbres.data.getUserTestingEnvironments;
+    
+    // admins can view everything, so their testing environments will have all the answer sets
+    // we need to filter it to only include their assignments
+    if (res.locals.accessLevel == 'admin') {
+        for (testingEnvironment of userTestingEnvironments) {
+            testingEnvironment.answerSets = testingEnvironment.answerSets.filter(aset => aset.user && aset.user.id == req.userId);
+        }
+    }
 
     let answerSetIds = userTestingEnvironments.map(tenv => 
         tenv.answerSets.map(ans => ans.id))
