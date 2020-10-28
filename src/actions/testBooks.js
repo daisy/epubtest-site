@@ -169,7 +169,7 @@ async function add(testBook, jwt) {
         else {
             transactions.push({objectType: 'TEST_BOOKS', actionWas: 'CREATE', id: dbres.data.createTestBook.testBook.id});
             addBookResult = dbres.data.createTestBook.testBook;
-            if (testBook.experimental == false) {
+            if (testBook.experimental == undefined || testBook.experimental == false) {
                 // add the tests
                 let i; 
                 for (i = 0; i < testBook.tests.length; i++) {
