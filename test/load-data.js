@@ -108,7 +108,7 @@ async function initializeDb (dataProfile) {
     }
     
     
-    let jwt = await login();
+    let jwt = await login("admin@example.com", "password");
     if (jwt) {
         try {
             
@@ -143,7 +143,7 @@ async function initializeDb (dataProfile) {
 
 // clear all data from the database
 async function wipeDb() {
-    let jwt = await login();
+    let jwt = await login("admin@example.com", "password");
     // delete all rows from all tables except for DbInfo
     let dbres = await db.query(Q.ETC.DELETE_ALL_DATA, {}, jwt);
     if (!dbres.success) {
@@ -182,11 +182,11 @@ async function wipeDb() {
     winston.info("Cleared data");
 }
 
-async function login() {
+async function login (email, password) {
     let dbres = await db.query(Q.AUTH.LOGIN, {
         input: {
-            "email": "admin@example.com",
-            "password": "password"
+            email, 
+            password
         }
     });
 
@@ -197,6 +197,7 @@ async function login() {
 
     return dbres.data.authenticate.jwtToken;
 }
+module.exports.login = login;
 
 async function readJson(filename) {
     let data = await fs.readFile(path.resolve(__dirname, filename), {encoding: "utf-8"});

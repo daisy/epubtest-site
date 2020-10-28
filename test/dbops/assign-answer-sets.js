@@ -27,10 +27,17 @@ async function assignAnswerSets(jwt, errors) {
         throw new Error("addAnswerSets error");
     }
     let users = dbres.data.users;
-    let user = users.find(u => u.login.type == 'USER');
+    users = users.filter(u => u.login.type == 'USER');
 
+    let userIdx = 0;
     for (answerSet of answerSets) {
+        // cycle through the available users
+        if (userIdx > users.length - 1) {
+            userIdx = 0;
+        }
+        let user = users[userIdx];
         dbres = await answerSetActions.assign(answerSet.id, user.id, jwt);
+        userIdx++;
         if (!dbres.success) {
             errors = errors.concat(dbres.errors);
             throw new Error("addAnswerSets error");
