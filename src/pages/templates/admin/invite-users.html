@@ -1,0 +1,53 @@
+{%- extends 'base/admin-base.html' -%}
+{%- set title = "Admin: Manage Users" -%}
+{%- block content -%}
+
+<h1>Invite Users</h1>
+
+<h2>Invite a new user</h2>
+<p>Enter the name and email address of the new user. They will receive an email with a link to finish setting up their account. After that, they are considered "active" in the system, and an admin may assign tasks to them.</p>
+<form method="POST" action="/admin/forms/invite-new-user" class="simple" style="margin: inherit">
+    <div>
+        <label for="name">Name</label>
+        <input name="name" type="text" required placeholder="User's name" id="name">
+    </div>
+    <div>
+        <label for="email">Email</label>
+        <input name="email" type="email" required placeholder="email@example.com" id="email">
+    </div>
+    
+    <input type="submit" value="Invite">
+</form>
+
+<h2 id="pending-invitations">Pending invitations</h2>
+{%- if invitations.length == 0 -%}
+<p>There are not currently any pending invitations.</p>
+{%- else -%}
+<p>These users have been invited but have not yet accepted the invitation. You may re-send invites or cancel them.</p>
+<table>
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Date invited</th>
+            <th>Action</th>
+        </tr>
+    </thead>
+    <tbody>
+        {%- for invite in invitations -%}
+        <tr>
+            <td>{{invite.user.name}}</td>
+            <td>{{invite.dateInvited | date("YYYY-MM-DD HH:mm:ss")}}</td>
+            <td>
+                <form method="POST" action="/admin/forms/manage-invitations/{{invite.id}}">
+                    <input name="resend" value="Re-send invitation" type="submit"/>
+                    <input name="cancel" value="Cancel invitation" type="submit"/>
+                </form>
+            </td>
+        </tr>
+        {%- endfor -%}
+    </tbody>
+</table>
+{%- endif -%}
+
+{%- endblock -%}
+
