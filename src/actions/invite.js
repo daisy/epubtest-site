@@ -62,6 +62,33 @@ async function inviteUser(userId, jwt) {
     return { success: true, errors };
 }
 
+async function resendInvitation(invitationId, jwt) {
+    let errors = [];
+    // get the user ID for this invitation
+    let dbres = await db.query(Q.INVITATIONS.GET, {id: invitationId}, jwt);
+
+    if (!dbres.success) {
+        errors = dbres.errors;
+        throw new Error();
+    }
+
+    let userId = dbres.data.invitation.user.id;
+
+    // then delete the invitation
+    await db.query(Q.INVITATIONS.DELETE, {id: invitationId}, jwt);
+
+    // and send a new one
+    let res = await inviteUser(userId, jwt);
+    return res;
+}
+
+async function cancelInvitation(invitationId, jwt) {
+    // delete the invitation
+    await db.query(Q.INVITATIONS.DELETE, {id: invitationId}, jwt);
+}
+
 module.exports = {
-    inviteUser
+    inviteUser,
+    resendInvitation,
+    cancelInvitation
 };

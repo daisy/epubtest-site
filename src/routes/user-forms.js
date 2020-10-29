@@ -17,19 +17,47 @@ router.post('/set-password',
         }
 
         let dbres = await db.query(
+            Q.USERS.GET_EXTENDED,
+            {id: req.userId},
+            req.cookies.jwt
+        );
+        if (!dbres.success) {
+            let message = "Could not identify user";
+            return res.redirect("/");
+        }
+        let user = dbres.data.user;
+
+        dbres = await db.query(
             Q.AUTH.SET_PASSWORD, 
             {
                 input: {
                     userId: req.userId, 
                     newPassword: req.body.password
                 }
-            }
-            , req.cookies.jwt);
+            }, 
+            req.cookies.jwt
+        );
+        
         if (!dbres.success) {
             let message = "Error setting password";
             return res
                 .status(401)
                 .redirect('/set-password?message=' + encodeURIComponent(message));
+        }
+        // also set the user as active in case this is for a new login
+        dbres = await db.query(
+            Q.LOGINS.UPDATE,
+            {
+                id: user.login.id,
+                patch: {
+                    active: true
+                }
+            }, 
+            req.cookies.jwt
+        );
+        if (!dbres.success) {
+            let message = "Error activating user";
+            return res.status(401).redirect('/set-password?message=' + encodeURIComponent(message));
         }
         let message = "Success. Login with your new password."
         return res

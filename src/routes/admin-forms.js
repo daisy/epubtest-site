@@ -137,15 +137,36 @@ router.post ('/unarchive', async (req, res) => {
     return res.redirect(`/admin/testing-environment/${req.body.testingEnvironmentId}`);
 });
 
-router.post('/reinvite-users', async (req, res) => {
+router.post('/reinvite-users', async (req, res, next) => {
+    // req.body.users is an array of IDs
     for (user of req.body.users) {
         let dbres = await invite.inviteUser(user, req.cookies.jwt);
         if (!dbres.success) {
-            let err = new Error(`Could not invite one or more user(s) (${req.body.users[i]}).`);
+            let err = new Error(`Could not invite one or more user(s) (ID=${user}).`);
             return next(err);
         }
     }
-    return res.redirect('/admin/users');
+    return res.redirect('/admin/invite-users');
+});
+
+router.post('/manage-invitations/:id', async (req, res, next) => {
+
+    let inviteId = parseInt(req.params.id);
+    if (req.body.hasOwnProperty("resend")) {
+        let dbres = await invite.resendInvitation(inviteId, req.cookies.jwt);
+        if (!dbres.success) {
+            let err  = new Error(`Could not resend invitation.`);
+            return next(err);
+        }
+    }
+    else if (req.body.hasOwnProperty("cancel")) {
+        await invite.cancelInvitation(inviteId, req.cookies.jwt);
+    }
+    return res.redirect('/admin/invite-users');
+});
+
+router.post('/invite-new-user', async (req, res, next) => {
+
 });
 
 router.post("/upload-test-book", async (req, res, next) => {

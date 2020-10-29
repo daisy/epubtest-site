@@ -145,11 +145,43 @@ router.get('/test-books', async (req, res, next) => {
     );
 });
 
+
+// sort functions for users
+let alpha = (a,b) => a.name > b.name ? 1 : a.name == b.name ? 0 : -1;
+let alpha2 = (a,b) => a.user.name > b.user.name ? 1 : a.user.name == b.user.name ? 0 : -1;
+    
 // admin users
 router.get('/users', async (req, res, next) => {
-    let alpha = (a,b) => a.name > b.name ? 1 : a.name == b.name ? 0 : -1;
-    let alpha2 = (a,b) => a.user.name > b.user.name ? 1 : a.user.name == b.user.name ? 0 : -1;
-    
+    dbres = await db.query(Q.USERS.GET_ACTIVE, {}, req.cookies.jwt);
+    if (!dbres.success) {
+        let err = new Error(`Could not get active users.`);
+        return next(err);
+    }
+    let activeUsers = dbres.data.getActiveUsers;
+
+    return res.render('admin/view-users.html', 
+        {
+            activeUsers: activeUsers.sort(alpha)
+        }
+    );
+});
+
+router.get('/invite-users', async(req, res, next) => {
+    dbres = await db.query(Q.INVITATIONS.GET_ALL, {}, req.cookies.jwt);
+    if (!dbres.success) {
+        let err = new Error(`Could not get invitations.`);
+        return next(err);
+    }
+    let invitations = dbres.data.invitations;
+
+    return res.render('admin/invite-users.html', 
+        {
+            invitations: invitations.sort(alpha2)
+        }
+    );
+});
+
+router.get('/reinvite-users', async(req, res, next) => {
     let dbres = await db.query(Q.USERS.GET_INACTIVE, {}, req.cookies.jwt);
     if (!dbres.success) {
         let err = new Error(`Could not get inactive users.`);
@@ -164,25 +196,17 @@ router.get('/users', async (req, res, next) => {
     }
     let invitations = dbres.data.invitations;
 
-    dbres = await db.query(Q.USERS.GET_ACTIVE, {}, req.cookies.jwt);
-    if (!dbres.success) {
-        let err = new Error(`Could not get active users.`);
-        return next(err);
-    }
-    let activeUsers = dbres.data.getActiveUsers;
-
     // filter out users who've been invited
     inactiveUsers = inactiveUsers.filter(u => invitations.find(a => a.user.id === u.id) === undefined);
     
-    return res.render('admin/users.html', 
+    return res.render('admin/reinvite-users.html', 
         {
-            invitations: invitations.sort(alpha2),
             inactiveUsers: inactiveUsers.sort(alpha),
-            activeUsers: activeUsers.sort(alpha),
             duplicateName: name => inactiveUsers.filter(u => u.name === name).length > 1
         }
     );
 });
+
 router.get('/reading-system/:id', async (req, res, next) => {
     let software = await getSoftwareById(req, res, next, "ReadingSystem");
     return res.status(200).render('./admin/software.html', {software});
