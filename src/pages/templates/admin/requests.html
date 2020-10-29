@@ -27,7 +27,7 @@
             <td>{{testenv.assistiveTechnology.name}}</td>
             <td>{{testenv.os.name}} {{testenv.os.version}}</td>
             <td>{{request.answerSet.testBook.topic.id}}</td>
-            <td>{{request.created | date("YYYY-MM-DD")}}</td>
+            <td>{{request.created | date("YYYY-MM-DD HH:mm:ss")}}</td>
             <td>{{request.answerSet.user.name}}</td>
             <td>
                 <form method="POST" action="/admin/forms/handle-request">
