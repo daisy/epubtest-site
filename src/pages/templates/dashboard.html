@@ -4,8 +4,14 @@
 {%- block content -%}
 
 <h1>Dashboard</h1>
-<p>Your dashboard shows what you've been working on.</p>
+{%- if testingEnvironments.length == 0 -%}
+<p>Looks like you don't have any tasks assigned yet - check back soon!</p>
+{%- else -%}
+<p>Your dashboard shows what you've been assigned to work on.</p>
 
+{%- if accessLevel == 'admin' -%}
+<p>You may directly publish or unpublish your own answer sets from this page because you are an administrator (regular users have "request to publish" buttons instead).</p>
+{%- endif -%}
     
 {%- for testingEnvironment in testingEnvironments -%}
 {{ testingEnvironmentTitle.TestingEnvironmentTitle (testingEnvironment, 'h2') }}
@@ -27,6 +33,27 @@
         {#<td>Up to date</td>#}
         <td>{%-if answerSet.score -%}{{answerSet.score | round(1)}}{%- endif -%}</td>
         <td><a href="/user/edit-results/{{answerSet.id}}">Edit</td>
+        {%- if accessLevel == 'admin' -%}
+        <td>
+            {%- if answerSet.isPublic -%}
+            <span>Published</span>
+            <form method="POST" action="/admin/forms/unpublish">
+                <input type="hidden" name="next" value="/user/dashboard"></input>
+                <input type="hidden" name="testingEnvironmentId" value="{{testingEnvironment.id}}"/>
+                <input type="hidden" name="answerSetId" value="{{answerSet.id}}"/>
+                <input type="submit" name="submit" value="Unpublish"/>
+            </form>
+            {%- else -%}
+            <span>Unpublished</span>
+            <form method="POST" action="/admin/forms/publish">
+                <input type="hidden" name="next" value="/user/dashboard"></input>
+                <input type="hidden" name="testingEnvironmentId" value="{{testingEnvironment.id}}"/>
+                <input type="hidden" name="answerSetId" value="{{answerSet.id}}"/>
+                <input type="submit" name="submit" value="Publish"/>
+            </form>
+            {%- endif -%}
+        </td>
+        {%- else -%}
         <td>
             {%- set requestToPublish=getRequestToPublish(answerSet.id) -%}
             {%- if answerSet.isPublic -%}
@@ -41,16 +68,21 @@
             </form>
             {%- endif -%}
         </td>
+        {%- endif -%}
     </tr>
     {%- endfor -%}
     </tbody>
 </table>
 {%- endfor -%}
+{%- endif -%}
+
 {%- endblock -%}
 
 {%- block nav -%}
+{%- if testingEnvironments.length != 0 -%}
 <nav aria-labelled-by="testing-environments-title">
     <h1 id="testing-environments-title">Testing Environments</h2>
     {{ testingEnvironmentTitle.TestingEnvironmentList(testingEnvironments) }}
 </nav>
+{%- endif -%}
 {%- endblock -%}
