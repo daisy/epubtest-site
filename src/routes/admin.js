@@ -314,14 +314,20 @@ router.get('/etc', (req, res) => {
     return res.status(200).render('./admin/etc.html');
 });
 
-router.get('/version', async (req, res, next) => {
+router.get('/server-info', async (req, res, next) => {
     let dbres = await db.query(Q.ETC.DBVERSION, {}, req.cookies.jwt);
     
     if (!dbres.success) {
         let err = new Error("Error getting database version.");
         return next(err);
     }
-    return res.status(200).send(`Database migration version: ${dbres.data.dbInfo.value}`);
+    let info = `
+    <pre>
+    Database migration: ${dbres.data.dbInfo.value}
+    Node version: ${process.version}
+    </pre>
+    `;
+    return res.status(200).send(info);
 });
 
 router.get('/edit-reading-system/:id', async (req, res, next) => {
