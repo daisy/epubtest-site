@@ -13,13 +13,13 @@ async function inviteUser(userId, jwt) {
             errors = dbres.errors;
             throw new Error();
         }
-        let userEmail = dbres.data.user.login.email;
+        let user = dbres.data.user;
                 
         dbres = await db.query(
             Q.AUTH.TEMPORARY_TOKEN,
             {
                 input: {
-                    email: userEmail
+                    email: user.login.email
                 }
             });
         if (!dbres.success) {
@@ -37,7 +37,7 @@ async function inviteUser(userId, jwt) {
             `http://localhost:${process.env.PORT}/accept-invitation?token=${temporaryJwt}`
             : 
             `http://epubtest.org/accept-invitation?token=${temporaryJwt}`;
-        await mail.sendEmail(userEmail, 
+        await mail.sendEmail(user.login.email, 
             emails.reinvite.subject, 
             emails.reinvite.text(inviteUrl), 
             emails.reinvite.html(inviteUrl));   

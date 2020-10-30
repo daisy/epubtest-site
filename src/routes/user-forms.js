@@ -3,6 +3,7 @@ const db = require('../database');
 const Q = require('../queries');
 const { validator, validationResult, body } = require('express-validator');
 var router = express.Router()
+const utils = require('../utils');
 
 // submit set password
 router.post('/set-password', 
@@ -16,8 +17,10 @@ router.post('/set-password',
             return res.status(422).redirect('/set-password?message=' + encodeURIComponent(message));
         }
 
+        let token = utils.parseToken(req.cookies.jwt);
+
         let dbres = await db.query(
-            Q.USERS.GET_EXTENDED,
+            Q.USERS.GET,
             {id: req.userId},
             req.cookies.jwt
         );
@@ -44,21 +47,7 @@ router.post('/set-password',
                 .status(401)
                 .redirect('/set-password?message=' + encodeURIComponent(message));
         }
-        // also set the user as active in case this is for a new login
-        dbres = await db.query(
-            Q.LOGINS.UPDATE,
-            {
-                id: user.login.id,
-                patch: {
-                    active: true
-                }
-            }, 
-            req.cookies.jwt
-        );
-        if (!dbres.success) {
-            let message = "Error activating user";
-            return res.status(401).redirect('/set-password?message=' + encodeURIComponent(message));
-        }
+        
         let message = "Success. Login with your new password."
         return res
                 .status(200)

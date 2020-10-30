@@ -26,7 +26,7 @@ let errmgr = require('./errmgr');
 module.exports.errmgr = errmgr;
 
 module.exports.initDb = async function (dataProfile) {
-    // test query
+    // test that we can execute a query
     let dbres = await db.query(Q.TEST_BOOKS.GET_ALL, {});
     if (!dbres.success) {
         winston.error("COULD NOT REACH THE DB API SERVER");
@@ -156,7 +156,8 @@ async function wipeDb() {
     dbres = await db.query(Q.LOGINS.CREATE_NEW_LOGIN, 
         {
             email: "admin@example.com",
-            password: "password"
+            password: "password",
+            active: true
         }, 
         jwt);
     if (!dbres.success) {

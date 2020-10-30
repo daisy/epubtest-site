@@ -83,7 +83,8 @@ router.post('/publish', async (req, res, next) => {
         }
     }
 
-    return res.redirect(`/admin/testing-environment/${req.body.testingEnvironmentId}`);
+    let nextUrl = req.body.next ?? `/admin/testing-environment/${req.body.testingEnvironmentId}`
+    return res.redirect(nextUrl);
 });
 
 // unpublish an answer set
@@ -102,7 +103,8 @@ router.post('/unpublish', async (req, res, next) => {
         return next(err);
     }
 
-    return res.redirect(`/admin/testing-environment/${req.body.testingEnvironmentId}`);
+    let nextUrl = req.body.next ?? `/admin/testing-environment/${req.body.testingEnvironmentId}`
+    return res.redirect(nextUrl);
 });
 
 router.post('/archive', async (req, res, next) => {
@@ -165,8 +167,66 @@ router.post('/manage-invitations/:id', async (req, res, next) => {
     return res.redirect('/admin/invite-users');
 });
 
-router.post('/invite-new-user', async (req, res, next) => {
+router.post('/invite-new-user', 
+[
+    body("name").trim().escape(),
+    body("email").trim().isEmail()
+],
+async (req, res, next) => {
 
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        let message = `Invalid value for ${errors.array().map(err => `${err.param}`).join(', ')}`;
+        return res.status(422).redirect('/admin/invite-users?message=' + encodeURIComponent(message));
+    }
+    
+    let message = "";
+
+    // create new inactive login
+    let dbres = await db.query(
+        Q.LOGINS.CREATE_NEW_LOGIN, 
+        {
+            email: req.body.email,
+            password: '',
+            active: false
+        },
+        req.cookies.jwt
+    );
+
+    if (!dbres.success) {
+        message = `Could not create invitation: ${dbres.errors.map(err => err.message).join(', ')}`;
+        return res.status(422).redirect('/admin/invite-users?message=' + encodeURIComponent(message));
+    }
+    let loginId = dbres.data.createNewLogin.integer;
+
+    // create new user (will default to type = 'USER')
+    dbres = await db.query(
+        Q.USERS.CREATE, 
+        {
+            input: {
+                name: req.body.name,
+                loginId
+            }
+        },
+        req.cookies.jwt
+    );
+
+    if (!dbres.success) {
+        message = `Could not create invitation`;
+        return res.status(422).redirect('/admin/invite-users?message=' + encodeURIComponent(message));
+    }
+
+    let userId = dbres.data.createUser.user.id;
+
+    // send invitation
+    dbres = await invite.inviteUser(userId, req.cookies.jwt);
+    if (!dbres.success) {
+        message = `Could not create invitation`;
+        return res.status(422).redirect('/admin/invite-users?message=' + encodeURIComponent(message));
+    }
+
+    message = `User ${req.body.email} has been invited.`;
+    return res.redirect('/admin/invite-users?message=' + encodeURIComponent(message));
 });
 
 router.post("/upload-test-book", async (req, res, next) => {
