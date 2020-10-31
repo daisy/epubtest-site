@@ -118,6 +118,62 @@ router.post('/forgot-password',
         }
     }
 );
+
+// submit set password (requires a "token" field in the form body)
+router.post('/set-password', 
+    [
+        body('password').isLength({ min: 8, max: 20 })
+    ],
+    async (req, res) => {
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            let message = "Password must be 8-20 characters";
+            return res.status(422).redirect('/set-password?message=' + encodeURIComponent(message));
+        }
+
+        //let token = utils.parseToken(req.cookies.jwt);
+        let jwt = req.body.token;
+        let token = utils.parseToken(jwt);
+        let dbres = await db.query(
+            Q.USERS.GET,
+            {id: token.userId},
+            jwt
+        );
+        if (!dbres.success) {
+            let message = "Could not identify user";
+            return res.redirect("/");
+        }
+        
+        dbres = await db.query(
+            Q.AUTH.SET_PASSWORD, 
+            {
+                input: {
+                    userId: token.userId, 
+                    newPassword: req.body.password
+                }
+            }, 
+            jwt
+        );
+        
+        if (!dbres.success) {
+            let message = "Error setting password";
+            return res
+                .status(401)
+                .redirect('/set-password?message=' + encodeURIComponent(message));
+        }
+        
+        let message = "Success. Login with your new password."
+        return res
+                .status(200)
+                // clear the temporary cookie
+                // .clearCookie('jwt', {
+                //     path: '/'
+                // })
+                .redirect('/login?message=' + encodeURIComponent(message));
+                
+    }
+);
+
     
 router.post('/choose-language', [
     body("language").isIn(LANGS)

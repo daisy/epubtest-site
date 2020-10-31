@@ -5,60 +5,6 @@ const { validator, validationResult, body } = require('express-validator');
 var router = express.Router()
 const utils = require('../utils');
 
-// submit set password
-router.post('/set-password', 
-    [
-        body('password').isLength({ min: 8, max: 20 })
-    ],
-    async (req, res) => {
-        const errors = validationResult(req);
-        if (!errors.isEmpty()) {
-            let message = "Password must be 8-20 characters";
-            return res.status(422).redirect('/set-password?message=' + encodeURIComponent(message));
-        }
-
-        let token = utils.parseToken(req.cookies.jwt);
-
-        let dbres = await db.query(
-            Q.USERS.GET,
-            {id: req.userId},
-            req.cookies.jwt
-        );
-        if (!dbres.success) {
-            let message = "Could not identify user";
-            return res.redirect("/");
-        }
-        let user = dbres.data.user;
-
-        dbres = await db.query(
-            Q.AUTH.SET_PASSWORD, 
-            {
-                input: {
-                    userId: req.userId, 
-                    newPassword: req.body.password
-                }
-            }, 
-            req.cookies.jwt
-        );
-        
-        if (!dbres.success) {
-            let message = "Error setting password";
-            return res
-                .status(401)
-                .redirect('/set-password?message=' + encodeURIComponent(message));
-        }
-        
-        let message = "Success. Login with your new password."
-        return res
-                .status(200)
-                // clear the temporary cookie
-                .clearCookie('jwt', {
-                    path: '/'
-                })
-                .redirect('/login?message=' + encodeURIComponent(message));
-                
-    }
-);
 
 // submit request to publish
 router.post('/request-to-publish', async (req, res, next) => {

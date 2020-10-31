@@ -132,8 +132,8 @@ router.get('/set-password', (req, res) => {
     if (token) {
         return res
                 .status(200)
-                .cookie('jwt', jwt, { httpOnly: true/*, secure: true */ , maxAge: token.expires})
-                .render('auth/set-password.html');
+                //.cookie('jwt', jwt, { httpOnly: true/*, secure: true */ , maxAge: token.expires})
+                .render('auth/set-password.html', {token: jwt});
     }
     else {
         let message = "Please try again";
@@ -144,28 +144,56 @@ router.get('/set-password', (req, res) => {
 });
 
 // invitation accept page
-router.get('/accept-invitation', (req, res) => {
+router.get('/accept-invitation', async (req, res) => {
     // verify token
     let jwt = req.query.token;
     let token = utils.parseToken(jwt);
     if (token) {
+        // ensure that this user has an invitation
+        let dbres = await db.query(
+            Q.INVITATIONS.GET_FOR_USER,
+            {userId: token.userId},
+            jwt
+        );
+        
+        if (!dbres.success || dbres.data.invitations.length == 0) {
+            // could not get invitation
+            let message = "Could not retrieve invitation.";
+            return res
+                    .status(401)
+                    .redirect(`error?message=${encodeURIComponent(message)}`);
+        }
+
+        // there should just be one invitation per user but just in case there are more
+        for (invitation of dbres.data.invitations) {
+            // delete the invitation
+            dbres = await db.query(
+                Q.INVITATIONS.DELETE,
+                {
+                    id: invitation.id
+                }, 
+                jwt
+            );
+        }
+        
         return res
                 .status(200)
-                .cookie('jwt', jwt, { httpOnly: true/*, secure: true */ , maxAge: token.expires})
-                .render('auth/set-password.html',
+                //.cookie('jwt', jwt, { httpOnly: true/*, secure: true */ , maxAge: token.expires})
+                .render(`auth/set-password.html`,
                     {
                         pageTitle: "Welcome",
                         pageMessage: `Thank you for participating in EPUB Accessibility Testing! 
                         Because you'll login to contribute to this site, please set a password. 
-                        Then after you've logged in, don't forget to update your profile.`
+                        Then after you've logged in, don't forget to update your profile.`,
+                        token: jwt
                     });
-        }
-        else {
-            return res
-                    .status(401)
-                    .redirect('/request-error');
-        }
     }
-);
+    else {
+        let message = "Could not verify invitation."
+        return res
+                .status(401)
+                .redirect(`/error?message=${message}`);
+    }
+});
 
 module.exports = router;
