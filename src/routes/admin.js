@@ -166,7 +166,7 @@ router.get('/users', async (req, res, next) => {
     );
 });
 
-router.get('/invite-users', async(req, res, next) => {
+router.get('/invitations', async(req, res, next) => {
     dbres = await db.query(Q.INVITATIONS.GET_ALL, {}, req.cookies.jwt);
     if (!dbres.success) {
         let err = new Error(`Could not get invitations.`);
@@ -174,11 +174,15 @@ router.get('/invite-users', async(req, res, next) => {
     }
     let invitations = dbres.data.invitations;
 
-    return res.render('admin/invite-users.html', 
+    return res.render('admin/invitations.html', 
         {
             invitations: invitations.sort(alpha2)
         }
     );
+});
+
+router.get('/invite-users', async(req, res, next) => {
+    return res.render('admin/invite-users.html');
 });
 
 router.get('/reinvite-users', async(req, res, next) => {

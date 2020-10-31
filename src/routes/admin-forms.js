@@ -164,7 +164,7 @@ router.post('/manage-invitations/:id', async (req, res, next) => {
     else if (req.body.hasOwnProperty("cancel")) {
         await invite.cancelInvitation(inviteId, req.cookies.jwt);
     }
-    return res.redirect('/admin/invite-users');
+    return res.redirect('/admin/invitations');
 });
 
 router.post('/invite-new-user', 
