@@ -34,7 +34,7 @@ router.get('/dashboard', async (req, res, next) => {
     }
 
     let requests = dbres.data.requests;
-    return res.render('dashboard.html', 
+    return res.render('dashboard.njk', 
         {
             testingEnvironments: userTestingEnvironments.sort(utils.sortAlphaTestEnv),
             getRequestToPublish: answerSetId => {
@@ -54,7 +54,7 @@ router.get('/profile', async (req, res, next) => {
         return next(err);
     }
 
-    return res.render('profile.html', 
+    return res.render('profile.njk', 
         {
             user: dbres.data.user
         }
@@ -73,7 +73,7 @@ router.get('/edit-results/:answerSetId', async (req, res, next) => {
         return next(err);
     }
     let nextUrl = req.query.hasOwnProperty('next') ? req.query.next : '/user/dashboard';
-    return res.render('edit-results.html', {
+    return res.render('edit-results.njk', {
         answerSet: dbres.data.answerSet,
         next: nextUrl
     });

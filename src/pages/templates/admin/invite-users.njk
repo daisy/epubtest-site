@@ -1,0 +1,25 @@
+{%- extends 'base/admin-base.njk' -%}
+{%- set title = "Admin: Invite Users" -%}
+{%- block content -%}
+
+<main>
+    <h2>Invite Users</h2>
+
+    <h2 id="invite-new-user">Invite a new user</h2>
+    <p>Enter the name and email address of the new user in the form below, and click "Invite". They will receive an email with a link to finish setting up their account. After that, they are considered "active" in the system, and an admin may assign tasks to them.</p>
+    <form method="POST" action="/admin/forms/invite-new-user" class="simple" style="margin: inherit">
+        <div>
+            <label for="name">Name</label>
+            <input name="name" type="text" required placeholder="User's name" id="name">
+        </div>
+        <div>
+            <label for="email">Email</label>
+            <input name="email" type="email" required placeholder="email@example.com" id="email">
+        </div>
+        
+        <input type="submit" value="Invite">
+    </form>
+</main>
+
+{%- endblock -%}
+

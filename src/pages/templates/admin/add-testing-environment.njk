@@ -1,0 +1,93 @@
+{%- extends 'base/admin-base.njk' -%}
+{%- set title="Add Testing Environment" -%}
+{%- block content -%}
+
+<main>
+    <form action="/admin/forms/add-testing-environment" method="POST" class="simple">
+        <h1>Select a reading system</h1>
+
+        <select name="readingSystemId">
+            {%- for rs in readingSystems -%}
+            <option value="{{rs.id}}">{{rs.name}} {{rs.version}} {%- if rs.vendor %} by {{rs.vendor}} {%- endif -%}</option>
+            {%- endfor -%}
+        </select>
+
+        <p><a href="/admin/add-reading-system">Add new reading system</a></p>
+
+        <h1>Select an assistive technology</h1>
+        <select name="assistiveTechnologyId">
+            <option value="none">None</option>
+            {%- for at in assistiveTechnologies -%}
+            <option value="{{at.id}}">{{at.name}} {{at.version}}</option>
+            {%- endfor -%}
+        </select>
+
+        <p><a href="/admin/add-assistive-technology">Add new assistive technology</a></p>
+
+
+        <h1>Select operating system</h1>
+
+        <select name="operatingSystemId">
+            {%- for os in operatingSystems -%}
+            <option value="{{os.id}}">{{os.name}} {{os.version}}</option>
+            {%- endfor -%}
+        </select>
+
+        <p><a href="/admin/add-operating-system">Add new operating system</a></p>
+
+        <h1>Select browser</h1>
+
+        <select name="browserId">
+            <option value="none">None</option>
+            {%- for brw in browsers -%}
+            <option value="{{brw.id}}">{{brw.name}} {{brw.version}}</option>
+            {%- endfor -%}
+        </select>
+
+        <p><a href="/admin/add-browser">Add new browser</a></p>
+
+        <h1>Select options</h1>
+        <p>
+            <input type="checkbox" name="testedWithBraille">
+            <label for="testedWithBraille">Tested with Braille</label>
+        </p>
+
+        <p>
+            <input type="checkbox" name="testedWithScreenreader">
+            <label for="testedWithScreenreader">Tested with Screenreader</label>
+        </p>
+
+        <p>
+            <label for="input-type">Select the type of input:</label>
+            <select name="input" id="input-type">
+                <option value="KEYBOARD">Keyboard</option>
+                <option value="MOUSE">Mouse</option>
+                <option value="TOUCH">Touch</option>
+            </select>
+        </p>
+
+        <h1>Select one or more topics</h1>
+        <ul>
+            {%- for topic in topics -%}
+            <li>
+                <input type="checkbox" value="{{topic.id}}" name="topics[{{loop.index}}]">
+                <label for="{{topicId}}">{{getTopicName(topic.id)}}</label>
+            </li>
+            {%- endfor -%}
+        </ul>
+
+        <h1>Assign a user</h1>
+        <p>
+            <label for="user">Select a user to assign testing to:</label>
+            <select name="user">
+                {%- for user in users -%}
+                <option value="{{user.id}}">{{user.name}}</option>
+                {%- endfor -%}
+            </select>
+        </p>
+        
+        <input type="submit" value="Save">
+    </form>
+</main>
+
+{%- endblock -%}

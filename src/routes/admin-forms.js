@@ -265,7 +265,7 @@ router.post("/upload-test-book", async (req, res, next) => {
         flaggedTestBook.translation = req.body.translation;
         
         // show page where admin can set own flags
-        return res.render('./admin/ingest-test-book.html', 
+        return res.render('./admin/ingest-test-book.njk', 
         {
             testBook: flaggedTestBook,
             affectedAnswerSets: usage ? usage?.answerSets?.all : [],
@@ -318,7 +318,7 @@ router.post("/confirm-delete-test-book/:id", async (req, res, next) => {
     if (!canRemove) {
         let usageResult = await testBooks.getUsage(parseInt(req.params.id), req.cookies.jwt);
         if (usageResult.success) {
-            return res.render('./admin/confirm-remove-test-book-and-answer-sets.html', {
+            return res.render('./admin/confirm-remove-test-book-and-answer-sets.njk', {
                 testBook,
                 answerSets: usageResult.answerSets.nonEmpty,
                 nextIfYes: '/admin/test-books',
@@ -334,7 +334,7 @@ router.post("/confirm-delete-test-book/:id", async (req, res, next) => {
         
     }
     else {
-        return res.render('./confirm.html', {
+        return res.render('./confirm.njk', {
             title: "Confirm deletion",
             content: `Please confirm that you would like to delete ${testBook.title} (${testBook.langId}, v. ${testBook.version})`,
             nextIfYes: '/admin/test-books',
@@ -469,7 +469,7 @@ router.post("/confirm-delete-testing-environment/:id", async (req, res, next) =>
     ${testenv.assistiveTechnology ? testenv.assistiveTechnology.name ? `${testenv.assistiveTechnology.name} ${testenv.assistiveTechnology.version}` : '' : ''}
     ${testenv.os.name} ${testenv.os.version}`;
 
-    return res.render('./confirm.html', {
+    return res.render('./confirm.njk', {
         title: "Confirm deletion",
         content: `Please confirm that you would like to delete ${testingEnvironmentTitle}`,
         nextIfYes: `/admin/testing`,
@@ -548,7 +548,7 @@ router.post("/confirm-delete-software/:id", async (req, res, next) => {
 
     let softwareTitle = `${software.vendor} ${software.name} ${software.version}`;
 
-    return res.render('./confirm.html', {
+    return res.render('./confirm.njk', {
         title: "Confirm deletion",
         content: `Please confirm that you would like to delete ${softwareTitle}`,
         nextIfYes: `/admin/software`,

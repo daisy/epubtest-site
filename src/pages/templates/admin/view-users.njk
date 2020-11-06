@@ -1,0 +1,16 @@
+{%- extends 'base/admin-base.njk' -%}
+{%- set title = "Admin: Manage Users" -%}
+{%- block content -%}
+
+<main>
+    <h2>Active users</h2>
+
+    <ul class="cols">
+        {%- for user in activeUsers -%}
+        <li>{{user.name}}</li>
+        {%- endfor -%}
+    </ul>
+</main>
+
+{%- endblock -%}
+

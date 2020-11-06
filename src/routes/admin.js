@@ -5,7 +5,7 @@ const utils = require('../utils');
 
 var router = express.Router()
 
-router.get('/', async(req, res) => res.render('admin/index.html'));
+router.get('/', async(req, res) => res.render('admin/index.njk'));
 
 // admin requests
 router.get('/requests', async (req, res, next) => {
@@ -16,7 +16,7 @@ router.get('/requests', async (req, res, next) => {
         return next(err);
     }
     
-    return res.render('./admin/requests.html', 
+    return res.render('./admin/requests.njk', 
         { 
             requests: dbres.data.requests 
         }
@@ -72,7 +72,7 @@ router.get('/testing', async (req, res, next) => {
             });
             return completedAnswerSets.length === 0;
         });*/
-    return res.render('admin/testing.html', 
+    return res.render('admin/testing.njk', 
         {
             publicTestingEnvironments,
             publicArchivedTestingEnvironments,
@@ -113,7 +113,7 @@ router.get('/testing-environment/:id', async (req, res, next) => {
         return next(err);
     }
     let requests = dbres.data.requests;
-    return res.render('admin/testing-environment.html', 
+    return res.render('admin/testing-environment.njk', 
         {
             testingEnvironment,
             users,
@@ -127,7 +127,7 @@ router.get('/testing-environment/:id', async (req, res, next) => {
 
 // admin test books
 router.get('/upload-test-book', async (req, res, next) => {
-    return res.render('admin/upload-test-book.html');
+    return res.render('admin/upload-test-book.njk');
 });
 
 router.get('/test-books', async (req, res, next) => {
@@ -137,7 +137,7 @@ router.get('/test-books', async (req, res, next) => {
         return next(err);
     }
     
-    return res.render('admin/test-books.html', 
+    return res.render('admin/test-books.njk', 
         {
             testBooks: dbres.data.getLatestTestBooks,
             getTopicName: utils.getTopicName
@@ -159,7 +159,7 @@ router.get('/users', async (req, res, next) => {
     }
     let activeUsers = dbres.data.getActiveUsers;
 
-    return res.render('admin/view-users.html', 
+    return res.render('admin/view-users.njk', 
         {
             activeUsers: activeUsers.sort(alpha)
         }
@@ -174,7 +174,7 @@ router.get('/invitations', async(req, res, next) => {
     }
     let invitations = dbres.data.invitations;
 
-    return res.render('admin/invitations.html', 
+    return res.render('admin/invitations.njk', 
         {
             invitations: invitations.sort(alpha2)
         }
@@ -182,7 +182,7 @@ router.get('/invitations', async(req, res, next) => {
 });
 
 router.get('/invite-users', async(req, res, next) => {
-    return res.render('admin/invite-users.html');
+    return res.render('admin/invite-users.njk');
 });
 
 router.get('/reinvite-users', async(req, res, next) => {
@@ -203,7 +203,7 @@ router.get('/reinvite-users', async(req, res, next) => {
     // filter out users who've been invited
     inactiveUsers = inactiveUsers.filter(u => invitations.find(a => a.user.id === u.id) === undefined);
     
-    return res.render('admin/reinvite-users.html', 
+    return res.render('admin/reinvite-users.njk', 
         {
             inactiveUsers: inactiveUsers.sort(alpha),
             duplicateName: name => inactiveUsers.filter(u => u.name === name).length > 1
@@ -213,19 +213,19 @@ router.get('/reinvite-users', async(req, res, next) => {
 
 router.get('/reading-system/:id', async (req, res, next) => {
     let software = await getSoftwareById(req, res, next, "ReadingSystem");
-    return res.status(200).render('./admin/software.html', {software});
+    return res.status(200).render('./admin/software.njk', {software});
 });
 router.get('/assistive-technology/:id', async (req, res, next) => {
     let software = await getSoftwareById(req, res, next, "AssistiveTechnology");
-    return res.status(200).render('./admin/software.html', {software});
+    return res.status(200).render('./admin/software.njk', {software});
 });
 router.get('/os/:id', async (req, res, next) => {
     let software = await getSoftwareById(req, res, next, "Os");
-    return res.status(200).render('./admin/software.html', {software});
+    return res.status(200).render('./admin/software.njk', {software});
 });
 router.get('/browser/:id', async (req, res, next) => {
     let software = await getSoftwareById(req, res, next, "Browser");
-    return res.status(200).render('./admin/software.html', {software});
+    return res.status(200).render('./admin/software.njk', {software});
 });
 
 
@@ -235,7 +235,7 @@ router.get("/software", async (req, res, next) => {
         return next(allSw.error);
     }
     
-    return res.render('admin/all-software.html', {
+    return res.render('admin/all-software.njk', {
         readingSystems: allSw.readingSystems.sort(utils.sortAlpha),
         assistiveTechnologies: allSw.assistiveTechnologies.sort(utils.sortAlpha),
         operatingSystems: allSw.operatingSystems.sort(utils.sortAlpha),
@@ -263,7 +263,7 @@ router.get('/add-testing-environment', async (req, res, next) => {
     }
     let users = dbres.data.getActiveUsers;
 
-    return res.render("admin/add-testing-environment.html", {
+    return res.render("admin/add-testing-environment.njk", {
         readingSystems: allSw.readingSystems.sort(utils.sortAlpha),
         assistiveTechnologies: allSw.assistiveTechnologies.sort(utils.sortAlpha),
         operatingSystems: allSw.operatingSystems.sort(utils.sortAlpha),
@@ -275,7 +275,7 @@ router.get('/add-testing-environment', async (req, res, next) => {
 });
 
 router.get('/add-reading-system', (req, res) => res.render(
-    'admin/add-edit-software.html', 
+    'admin/add-edit-software.njk', 
     {
         action: "/admin/forms/add-software",
         title: "Add Reading System",
@@ -285,7 +285,7 @@ router.get('/add-reading-system', (req, res) => res.render(
 );
 
 router.get('/add-assistive-technology', (req, res) => res.render(
-    'admin/add-edit-software.html', 
+    'admin/add-edit-software.njk', 
     {
         action: "/admin/forms/add-software",
         title: "Add Assistive Technology",
@@ -295,7 +295,7 @@ router.get('/add-assistive-technology', (req, res) => res.render(
 );
 
 router.get('/add-operating-system', (req, res) => res.render(
-    'admin/add-edit-software.html', 
+    'admin/add-edit-software.njk', 
     {
         action: "/admin/forms/add-software",
         title: "Add Operating System",
@@ -305,7 +305,7 @@ router.get('/add-operating-system', (req, res) => res.render(
 );
 
 router.get('/add-browser', (req, res) => res.render(
-    './admin/add-edit-software.html', 
+    './admin/add-edit-software.njk', 
     {
         action: "/admin/forms/add-software",
         title: "Add Browser",
@@ -315,7 +315,7 @@ router.get('/add-browser', (req, res) => res.render(
 );
 
 router.get('/etc', (req, res) => {
-    return res.status(200).render('./admin/etc.html');
+    return res.status(200).render('./admin/etc.njk');
 });
 
 router.get('/server-info', async (req, res, next) => {
@@ -336,22 +336,22 @@ router.get('/server-info', async (req, res, next) => {
 
 router.get('/edit-reading-system/:id', async (req, res, next) => {
     let software = await getSoftwareById(req, res, next, "ReadingSystem");
-    return res.render('./admin/add-edit-software.html', {title: "Edit Reading System", action: "/admin/forms/software", software});
+    return res.render('./admin/add-edit-software.njk', {title: "Edit Reading System", action: "/admin/forms/software", software});
 });
 
 router.get('/edit-assistive-technology/:id', async (req, res, next) => {
     let software = await getSoftwareById(req, res, next, "AssistiveTechnology");
-    return res.render('./admin/add-edit-software.html', {title: "Edit Assistive Technology", action: "/admin/forms/software", software});
+    return res.render('./admin/add-edit-software.njk', {title: "Edit Assistive Technology", action: "/admin/forms/software", software});
 });
 
 router.get('/edit-os/:id', async (req, res, next) => {
     let software = await getSoftwareById(req, res, next, "Os");
-    return res.render('./admin/add-edit-software.html', {title: "Edit OS", action: "/admin/forms/software", software});
+    return res.render('./admin/add-edit-software.njk', {title: "Edit OS", action: "/admin/forms/software", software});
 });
 
 router.get('/edit-browser/:id', async (req, res, next) => {
     let software = await getSoftwareById(req, res, next, "Browser");
-    return res.render('./admin/add-edit-software.html', {title: "Edit Browser", action: "/admin/forms/software", software});
+    return res.render('./admin/add-edit-software.njk', {title: "Edit Browser", action: "/admin/forms/software", software});
 });
 
 

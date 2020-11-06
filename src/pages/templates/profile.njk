@@ -1,0 +1,64 @@
+{%- extends 'base/base.njk' -%}
+{%- import "components/user-credit.njk" as userCredit -%}
+
+{%- set title = "Profile" -%}
+{%- block content -%}
+<main>
+    <h2>Profile</h2>
+    <p>View and edit your profile below. You may also change your password.</p>
+
+    {%- if user.includeCredit -%}
+    <p>Currently, your testing work is credited publicly to "{{userCredit.UserCredit(user)}}". You may modify this on the form below, and it will take effect immediately.</p>
+
+    {%- else -%}
+    <p>Currently, you are not being publicly credited for your testing. If you would like to change this, please indicate on the form below.</p>
+    {%- endif -%}
+
+    <div>
+        <h3>Edit Profile</h3>
+        <p id="local-error" aria-live="polite"></p>
+        <form action="/user/forms/profile" method="POST" id="profile-form" class="simple">
+            <h4>Profile information</h4>
+            <div>
+                <label for="name">Name</label>
+                <input type="text" name="name" id="name" value="{{user.name}}" required>
+            </div>
+            <div>
+                <label for="organization">Organization</label>
+                <input type="text" name="organization" id="organization" value="{{user.organization}}">
+            </div>
+            <div>
+                <label for="website">Website</label>
+                <input type="text" name="website" id="website" value="{{user.website}}">
+            </div>
+            <div class="row">
+                <label for="includeCredit">Include credit</label>
+                <input type="checkbox" name="includeCredit" id="includeCredit" {%- if user.includeCredit -%}checked="checked"{%-endif-%}>
+            </div>
+            <div>
+                <label for="creditAs">Credit as (optional)</label>
+                <input type="text" name="creditAs" id="creditAs" value="{{user.creditAs}}">
+            </div>
+            <h4>Change password</h4>
+            <div>
+                <label for="password">Password</label>
+                <input type="password" name="password" id="password">
+            </div>
+            <div>
+                <label for="passwordmatch">Password (again)</label>
+                <input type="password" name="passwordmatch" id="passwordmatch">
+            </div>
+            <input type="submit" name="save" value="Save changes">
+        </form>
+    </div>
+        
+    <script type="module" src="/js/passwordMatch.js"></script>
+    <script type="module">
+        import { initCheckPasswordsMatch } from '/js/passwordMatch.js';
+        window.addEventListener("load", () => {
+            initCheckPasswordsMatch("profile-form");   
+        });   
+    </script>
+</main>
+
+{%- endblock -%}

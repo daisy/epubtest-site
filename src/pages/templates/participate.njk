@@ -1,0 +1,73 @@
+{%- extends 'base/base.njk' -%}
+{%- set title="Participate" -%}
+{%- block content -%}
+
+<main>
+    <h2>Participate</h2>
+    <p class="spaced">Welcome! We at the DAISY Consortium invite you to join us in testing the accessibility of digital reading systems, including apps and hardware devices. Your test results help developers to improve their products, and consumers and institutional purchasers to select most accessible solutions. Together we can change the world by making books and other publications accessible with eyes, ears, and fingers.</p>
+
+    <div>
+        <h3 id="becoming-a-contributor">Becoming a contributor</h3>
+        <h4 id="getting-started">Getting started</h4>
+        <p>If you'd like to get involved, we welcome you to <a href="mailto:epubtest@daisy.org">contact us</a>. Once you have received an invitation, just follow the instructions in the email to set up your account.</p>
+    </div>
+        
+    <div>
+        <h3 id="testing">Testing</h3>
+
+        <h4 id="performing-the-tests">Performing the tests</h4>
+        
+        <p>After you login, go to your dashboard. There is a table showing testing environments and test books. If you don't have anything in your table, it means our administrators are still setting up your testing. As soon as you have items listed on your dashboard, you can start testing.</p>
+        <p>To enter results, choose a testing environment and a test book, and choose <span class="cmd">Start</span> to begin, or <span class="cmd">Edit Results</span> (to continue).</p>
+        <p>This will bring you to the testing page. There, you will see a link to download the test book itself (the EPUB file), followed by a form with rows for each test in the book. Download the book and open it in the reading system that you're testing.</p>
+        <p>For each test in the book, there is a corresponding row on the testing page form. Follow the instructions in the book and record an answer for each test.</p>
+        <p>Press <span class="cmd">Save</span> when you're done, or when you want to pause testing for now. You can return later to finish.</p>
+            
+        <h4 id="adding-summary-information">Adding summary information</h4>
+        
+        <p>Once you have performed the tests from a book for a testing environment, you may add some summary notes about your experience in the summary field on the testing page. This summary will become part of your results when they're published.</p>
+        
+        <h4 id="editing-your-results">Editing your results</h4>
+        
+        <p>You may go back at any time and edit your answers, summaries, or notes.</p>
+        
+        <h4 id="publishing-your-results">Publishing your results</h4>
+        
+        <p>Results are not public until they have been published. Then they appear on the main page.</p>
+        <p>To publish your results, go to your Dashboard, find the results (listed per test book), and choose the <span class="cmd">request to publish</span> option. Our administrators will review and approve your request shortly!</p>
+    </div>
+
+    <div>
+        <h3 id="maintaining-your-results">Maintaining your results</h3>
+        
+        <p>From time to time, the test books are updated to fix bugs or expand the number of tests. When this happens, you'll receive an email notification. The next time you login, check your dashboard to see what needs your attention.</p>
+        <p>Once you've made your updates, from your Dashboard, select <span class="cmd">request to publish</span> to update your public results on the main page.</p>
+        <p>In the time between the test books being updated and you updating your results, your score for the previous version of that test book will remain on the main page, with an indication that it is not current.</p>
+    </div>
+</main>
+{% endblock %}
+
+{% block nav %}
+<nav aria-label="Document sections">
+    <ul>
+        <li><a href="#becoming-a-contributor">Becoming a contributor</a>
+            <ul>
+                <li>
+                    <a href="#getting-started">Getting started</a>
+                </li>
+            </ul>
+        </li>
+        <li><a href="#testing">Testing</a>
+            <ul>
+                <li><a href="#performing-the-tests">Performing the tests</a></li>
+                <li><a href="#adding-summary-information">Adding summary information</a></li>
+                <li><a href="#editing-your-results">Editing your results</a></li>
+                <li><a href="#publishing-your-results">Publishing your results</a></li>
+            </ul>
+        </li>
+        <li><a href="#maintaining-your-results">Maintaining your results</a></li>
+    </ul>
+</nav>
+
+{%- endblock -%}
+

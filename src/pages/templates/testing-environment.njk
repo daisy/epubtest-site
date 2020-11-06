@@ -1,0 +1,34 @@
+{%- extends 'base/base.njk' -%}
+{%- import "components/answer-set.njk" as answerSetComponent -%}
+{%- import "components/testing-environment-details.njk" as testingEnvironmentDetails -%}
+{%- import "components/testing-environment-title.njk" as testingEnvironmentTitle -%}
+{%- import "components/software-name.njk" as softwareName -%}
+{%- set testEnvTitle = testingEnvironmentTitle.TestingEnvironmentOneLinerPlainText(testingEnvironment) -%}
+{%- set title = "Results for " + testEnvTitle | cleanString -%}
+{%- block content -%}
+
+<main>
+    <h2>
+        {{ softwareName.SoftwareName(testingEnvironment.readingSystem) }}
+    </h2>
+    <div class="sidebar spaced">
+        {{ testingEnvironmentDetails.TestingEnvironmentDetails(testingEnvironment) }}
+    </div>
+    
+    {%- for answerSet in testingEnvironment.answerSets -%}
+    {{ answerSetComponent.AnswerSet(answerSet, 3, getTopicName(answerSet.testBook.topic.id)) }}
+    {%- endfor -%}
+</main>
+
+{%- endblock -%}
+
+{%- block nav -%}
+<nav aria-labelled-by="topics-title">
+    <h1 id="topics-title">Topics</h1>
+    <ul>
+        {%- for answerSet in testingEnvironment.answerSets -%}
+        <li><a href="#{{answerSet.id}}">{{getTopicName(answerSet.testBook.topic.id)}}</a></li>
+        {%- endfor -%}
+    </ul>        
+</nav>
+{%- endblock -%}

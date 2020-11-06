@@ -1,0 +1,51 @@
+{%- import "components/user-credit.njk" as userCredit -%}
+
+{%- macro AnswerSet(answerSet, headingLevel, topicName = '') -%}
+
+<h{{headingLevel}} id="{{answerSet.id}}">Results for {{topicName}}</h{{headingLevel}}>
+<p>The tests for these results are from  
+    <a href="/books/{{answerSet.testBook.filename}}">
+        <em class="title">{{answerSet.testBook.title}}, version {{answerSet.testBook.version}}</em>
+    </a>.
+</p>
+{%- if answerSet.user and answerSet.user.includeCredit -%}
+<p>These tests were done by {{userCredit.UserCredit(answerSet.user)}}.</p>
+
+{%- endif -%}
+
+{%- if answerSet.summary != "" -%}<p class="limit spaced"><b>Summary</b>: {{answerSet.summary}}</p>{%-endif-%}
+
+<table class="striped">
+    <thead>
+        <tr>
+            <td>Test ID</td>
+            <td>Name</td>
+            <td>Description</td>
+            <td>Result</td>
+            <td>Notes</td>
+        </tr>
+    </thead>
+    <tbody>
+        {%- for answer in answerSet.answers -%}
+        <tr>
+            <td>{{answer.test.testId}}</td>
+            <td>{{answer.test.name}}</td>
+            <td>{{answer.test.description}}</td>
+            <td>
+                {%- if answer.value == "PASS" -%}
+                    Pass
+                {%-elif answer.value=="FAIL"-%}
+                    Fail
+                {%-elif answer.value=="NA"-%}
+                    Not applicable
+                {%-elif answer.value=="NOANSWER"-%}
+                    No answer
+                {%-endif-%}
+            </td>
+            <td>{%- if answer.notesArePublic -%} {{answer.notes}} {%- endif -%}</td>
+        </tr>
+        {%- endfor -%}
+    </tbody>
+</table>
+
+{%- endmacro -%}

@@ -1,0 +1,17 @@
+{%- extends 'base/admin-base.njk' -%}
+{%- import "components/software-name.njk" as softwareName -%}
+{%- import "components/testing-environments-table.njk" as testingEnvironmentsTable -%}
+{%- set title = "Admin: Software: " + softwareName.SoftwareName(software) | cleanString -%}
+{%- block content -%}
+
+<main>
+    <h2>{{ softwareName.SoftwareName(software) }}</h2>
+
+    <h3>Usage</h3>
+    <p>This software is used in the following testing environments:</p>
+
+    {{testingEnvironmentsTable.TestingEnvironmentsTable(software.testingEnvironments)}}
+</main>
+
+{% endblock %}  
+

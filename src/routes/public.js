@@ -5,31 +5,28 @@ const db = require('../database');
 const Q = require('../queries');
 const utils = require('../utils');
 
-router.get('/test', (req, res) => res.render('test.html'));
+router.get('/test', (req, res) => res.render('test.njk'));
 
 // home page
 router.get('/', (req, res) => {
-    return res.render('index.html');
+    return res.render('index.njk');
 });
 
 // about page
-router.get('/about', (req, res) => res.render('about.html'));
+router.get('/about', (req, res) => res.render('about.njk'));
 
 // participate page
-router.get('/participate', (req, res) => res.render('participate.html'));
+router.get('/participate', (req, res) => res.render('participate.njk'));
 
 // instructions page
 router.get('/instructions', (req, res) => 
     res.redirect('https://dl.daisy.org/Notes_on_Testing_EPUB_reading_systems.docx'));
 
 // server error
-router.get('/error', (req, res) => res.render('error.html'));
+router.get('/error', (req, res) => res.render('error.njk'));
 
 // forgot password page
-router.get('/forgot-password', (req, res) => res.render('auth/forgot-password.html'));
-
-// check your email (for a reset password link) page
-//router.get('/check-your-email', (req, res) => res.render('auth/check-your-email.html'));
+router.get('/forgot-password', (req, res) => res.render('auth/forgot-password.njk'));
 
 // testing environment results
 router.get('/results/:testingEnvironmentId', async (req, res, next) => {
@@ -41,7 +38,7 @@ router.get('/results/:testingEnvironmentId', async (req, res, next) => {
         return next(err);
     }
 
-    return res.render('testing-environment.html', {
+    return res.render('testing-environment.njk', {
         testingEnvironment: dbres.data.testingEnvironment,
         getTopicName: utils.getTopicName
     });
@@ -63,7 +60,7 @@ router.get('/results', async (req, res, next) => {
     }
     let testingEnvironments = dbres.data.testingEnvironments;
     
-    return res.render('results.html', {
+    return res.render('results.njk', {
         testingEnvironments,
         topics,
         isArchivesPage: false,
@@ -85,7 +82,7 @@ router.get('/archive', async (req, res, next) => {
     }
     let testingEnvironments = dbres.data.getArchivedTestingEnvironments;
     
-    return res.render('results.html', {
+    return res.render('results.njk', {
         testingEnvironments,
         topics,
         isArchivesPage: true
@@ -102,7 +99,7 @@ router.get('/test-books', async (req, res, next) => {
         return next(err);
     }
 
-    return res.render('test-books.html', 
+    return res.render('test-books.njk', 
         {
             testBooks: dbres.data.getLatestTestBooks,
             getTopicName: utils.getTopicName
@@ -111,7 +108,7 @@ router.get('/test-books', async (req, res, next) => {
 });
 
 // login page
-router.get('/login', (req, res) => res.render('auth/login.html', {
+router.get('/login', (req, res) => res.render('auth/login.njk', {
     next: req.query.hasOwnProperty('next') ? req.query.next : ''
 }));
 
@@ -125,7 +122,7 @@ router.get('/set-password', (req, res) => {
         return res
                 .status(200)
                 //.cookie('jwt', jwt, { httpOnly: true/*, secure: true */ , maxAge: token.expires})
-                .render('auth/set-password.html', {token: jwt});
+                .render('auth/set-password.njk', {token: jwt});
     }
     else {
         let message = "Please try again";
@@ -171,7 +168,7 @@ router.get('/accept-invitation', async (req, res) => {
         return res
                 .status(200)
                 //.cookie('jwt', jwt, { httpOnly: true/*, secure: true */ , maxAge: token.expires})
-                .render(`auth/set-password.html`,
+                .render(`auth/set-password.njk`,
                     {
                         pageTitle: "Welcome",
                         pageMessage: `Thank you for participating in EPUB Accessibility Testing! 

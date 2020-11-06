@@ -1,0 +1,35 @@
+{%- extends 'base/base.njk' -%}
+{%- import "components/testing-environment-title.njk" as testingEnvironmentTitle -%}
+
+{%- block content -%}
+<main>
+    <h1>Confirm removal of test book and answer sets</h1>
+
+    {%- if answerSets and answerSets.length > 0  -%}
+    <p>The test book {{testBook.title}} 
+        (version {{testBook.version}}, {{testBook.lang.id}}) 
+        has the following results, which would also be removed permanently:</p>
+
+    <ul>
+        {%- for answerSet in answerSets -%}
+            <li>{{ testingEnvironmentTitle.TestingEnvironmentOneLiner(answerSet.testingEnvironment) }}
+                <br/>
+                {%- if answerSet.isPublic -%}
+                <span>Published</span>
+                {%- else -%}
+                <span>Not published</span>
+                {%- endif -%}
+            </li>
+        {% endfor -%}
+    </ul>
+
+    {%- endif -%}
+
+    <form method="POST" action="{{formAction}}">
+        <input type="hidden" name="nextIfYes" value="{{nextIfYes}}"/>
+        <input type="hidden" name="nextIfNo" value="{{nextIfNo}}"/>
+        <input type="submit" name="no" value="No"/>
+        <input type="submit" name="yes" value="Yes"/>
+    </form>
+</main>
+{%- endblock -%}
