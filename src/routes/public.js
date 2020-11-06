@@ -66,10 +66,6 @@ router.get('/results', async (req, res, next) => {
     return res.render('results.html', {
         testingEnvironments,
         topics,
-        getfortopic: (answerSets, topic) => {
-            return answerSets.find(a => a.testBook.topic.id === topic.id)
-        },
-        getTopicName: utils.getTopicName,
         isArchivesPage: false,
     });
 });
@@ -92,11 +88,7 @@ router.get('/archive', async (req, res, next) => {
     return res.render('results.html', {
         testingEnvironments,
         topics,
-        isArchivesPage: true,
-        getfortopic: (answerSets, topic) => {
-            return answerSets.find(a => a.testBook.topic.id === topic.id)
-        },
-        getTopicName: utils.getTopicName
+        isArchivesPage: true
     });
 });
 

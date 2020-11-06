@@ -1,78 +1,79 @@
 {%- extends 'base/admin-base.html' -%}
 {%- set title = "Admin: Test Books" -%}
-{%- set mainclass="wide inset" -%}
 {%- block content -%}
 
-<h1>View Test Books</h1>
+<main>
+    <h2>View Test Books</h2>
 
-{#
+    {#
 
-This page should have:
+    This page should have:
 
-By Topic
+    By Topic
 
-- Latest book in each supported lang
+    - Latest book in each supported lang
 
-#}
-{#
+    #}
+    {#
 
-<h2>Latest Test Books</h2>
-<table class="wide striped">
-    <thead>
-        <tr>
-            <th>Topic</th>
-            <th>Version</th>
-            <th>Language</th>
-            <th>Title</th>
-            <th>Description</th>
-            <th>Download</th>
-        </tr>
-    </thead>
-    <tbody>
-        {%- for testBook in testBooks -%}
-        <tr>
-            <td>{{getTopicName(testBook.topicId)}}</td>
-            <td>{{testBook.version}}</td>
-            <td>{{testBook.langId}}</td>
-            <td>{{testBook.title}}</td>
-            <td>{{testBook.description}}</td>
-            <td><a href="/books/{{testBook.filename}}" title="{{testBook.title}}">Download</a></td>
-        </tr>    
-        {%- endfor -%}  
-    </tbody>
-</table> #}
+    <h2>Latest Test Books</h2>
+    <table class="wide striped">
+        <thead>
+            <tr>
+                <th>Topic</th>
+                <th>Version</th>
+                <th>Language</th>
+                <th>Title</th>
+                <th>Description</th>
+                <th>Download</th>
+            </tr>
+        </thead>
+        <tbody>
+            {%- for testBook in testBooks -%}
+            <tr>
+                <td>{{getTopicName(testBook.topicId)}}</td>
+                <td>{{testBook.version}}</td>
+                <td>{{testBook.langId}}</td>
+                <td>{{testBook.title}}</td>
+                <td>{{testBook.description}}</td>
+                <td><a href="/books/{{testBook.filename}}" title="{{testBook.title}}">Download</a></td>
+            </tr>    
+            {%- endfor -%}  
+        </tbody>
+    </table> #}
 
-<h2>All Test Books</h2>
-<table class="wide striped">
-    <thead>
-        <tr>
-            {# <th>In use</th> #}
-            <th>Topic</th>
-            <th>Version</th>
-            <th>Language</th>
-            <th>Title</th>
-            <th>Description</th>
-            <th>Download</th>
-            <th>Delete</th>
-        </tr>
-    </thead>
-    <tbody>
-        {%- for testBook in testBooks -%}
-        <tr>
-            {# <td>TODO</td> #}
-            <td>{{getTopicName(testBook.topicId)}}</td>
-            <td>{{testBook.version}}</td>
-            <td>{{testBook.langId}}</td>
-            <td>{{testBook.title}}</td>
-            <td>{{testBook.description}}</td>
-            <td><a href="/books/{{testBook.filename}}" title="{{testBook.title}}">Download</a></td>
-            <td><form action="/admin/forms/confirm-delete-test-book/{{testBook.id}}" method="post">
-                    <input type="submit" value="Delete"></input>
-                </form>
-            </td>
-        </tr>    
-        {%- endfor -%}  
-    </tbody>
-</table>
+    <h2>All Test Books</h2>
+    <table class="wide striped">
+        <thead>
+            <tr>
+                {# <th>In use</th> #}
+                <th>Topic</th>
+                <th>Version</th>
+                <th>Language</th>
+                <th>Title</th>
+                <th>Description</th>
+                <th>Download</th>
+                <th>Delete</th>
+            </tr>
+        </thead>
+        <tbody>
+            {%- for testBook in testBooks -%}
+            <tr>
+                {# <td>TODO</td> #}
+                <td>{{getTopicName(testBook.topicId)}}</td>
+                <td>{{testBook.version}}</td>
+                <td>{{testBook.langId}}</td>
+                <td>{{testBook.title}}</td>
+                <td>{{testBook.description}}</td>
+                <td><a href="/books/{{testBook.filename}}" title="{{testBook.title}}">Download</a></td>
+                <td><form action="/admin/forms/confirm-delete-test-book/{{testBook.id}}" method="post">
+                        <input type="submit" value="Delete"></input>
+                    </form>
+                </td>
+            </tr>    
+            {%- endfor -%}  
+        </tbody>
+    </table>
+</main>
 
 {%- endblock -%}

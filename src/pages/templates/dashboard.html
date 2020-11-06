@@ -3,7 +3,8 @@
 {%- set title = "Dashboard" -%}
 {%- block content -%}
 
-<h1>Dashboard</h1>
+<main>
+<h2>Dashboard</h2>
 {%- if testingEnvironments.length == 0 -%}
 <p>Looks like you don't have any tasks assigned yet - check back soon!</p>
 {%- else -%}
@@ -75,13 +76,14 @@
 </table>
 {%- endfor -%}
 {%- endif -%}
+</main>
 
 {%- endblock -%}
 
 {%- block nav -%}
 {%- if testingEnvironments.length != 0 -%}
 <nav aria-labelled-by="testing-environments-title">
-    <h1 id="testing-environments-title">Testing Environments</h2>
+    <h2 id="testing-environments-title">Testing Environments</h2>
     {{ testingEnvironmentTitle.TestingEnvironmentList(testingEnvironments) }}
 </nav>
 {%- endif -%}

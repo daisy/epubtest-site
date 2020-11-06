@@ -68,3 +68,8 @@ div.testenv li {
     grid-template-columns: 80% 20%;
 }
 
+@media (max-width: 768px) {
+    form.simple {
+        width: 100%;
+    }
+}

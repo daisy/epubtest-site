@@ -22,9 +22,9 @@ a, a:visited {
     color: var(--primary);  
 }
 a:hover {
-    text-decoration: underline !important;
+    text-decoration-thickness: 2px;
 }
-a:link, a:visited, a:hover {
+header a:link, header a:visited {
     text-decoration: none;
 }
 em {
@@ -35,10 +35,11 @@ header {
     grid-area: header;
     display: grid;
     grid-template-areas: "title nav login";
-    grid-template-columns: 20rem auto 20rem;
+    grid-template-columns: 20% auto 20%;
     align-items: center;
     border-bottom: 1vh solid var(--primary);
     margin-bottom: 1rem;
+    padding-left: 1rem;
 }
 header h1 {
     grid-area: title;
@@ -70,20 +71,43 @@ header nav.user {
 header nav.user ul {
     justify-content: right;
 }
+/* regular main content area, just a big block */
 main {
     grid-area: main;
-}
-main.landing {
-    display: grid;
-    grid-template-rows: 10rem 10rem;
-    margin-top: 3rem;
-}
-main.wide {
+    margin-right: 10%;
+    margin-left: 1rem;
     grid-column-start: 1;
+    grid-column-end: 4;
 }
-main.inset {
-    margin-left: 5rem;
-    margin-right: 5rem;
+/* if there's a secondary nav area, start the main section in column 2*/
+nav + main {
+    grid-column-start: 2;
+}
+/* centered main area */
+main.center {
+    display: grid;
+    margin-left: calc(20% + 1rem);
+    margin-right: 20%;
+    grid-template-columns: 60% auto;
+}
+/* main area with a logo on the right */
+main.rightlogo {
+    margin-right: 1rem;
+    display: grid;
+    gap: 5rem;
+    grid-template-columns: 60% 30%;
+}
+main.rightlogo > p {
+    margin-right: 0;
+}
+main.rightlogo > *:nth-child(2) {
+    padding-bottom: 50%;
+    align-self: center;
+    justify-self: center;
+}
+
+main > p {
+    margin-right: 30%;
 }
 footer {
     grid-area: footer;
@@ -115,9 +139,11 @@ p.message {
     grid-column-end: 4;
 }
 
-div.twocol {
+.sidebar {
     display: grid;
     grid-template-columns: 30% auto;
+    grid-column-start: 1;
+    grid-column-end: 4;
 }
 
 .big {
@@ -132,7 +158,8 @@ div.twocol {
     border-bottom: none !important;  
     text-align: center !important;
     margin-top: 3rem;
-    
+    border-radius: 4px;
+    font-size: larger;
 }
 
 div.selection {
@@ -140,7 +167,7 @@ div.selection {
     padding: 1vh;
     margin: 1vh;   
 }
-span.notTested, span.na {
+span.na {
     font-style: italic;
     font-weight: lighter;
     color: var(--grayed-out);
@@ -161,7 +188,8 @@ ul.cols {
     columns: 3;
 }
 body > nav {
-    margin-right: 2rem;
+    margin-left: 1rem;
+    grid-area: nav;
 }
 body > nav > h1 {
     font-size: 1.3rem;
@@ -185,7 +213,7 @@ body > nav ul li {
 
 /* make the local navigation and main body line up */
 main > *:first-child, body > nav > :first-child {
-    margin-top: 0;
+    /* margin-top: 0; */
 }
 
 .deemph {
@@ -218,7 +246,7 @@ em.title {
             1fr
             auto
             auto;
-        grid-gap: 5vh;
+        /*! grid-gap: 5vh; */
     }
     nav {
       margin: 0;
@@ -228,30 +256,50 @@ em.title {
         "message"
         "title"
         "nav"
-        "login"
-        "search";
-        grid-row-gap: 1vh;
-        grid-column-gap: inherit;
+        "login";
         grid-template-columns: 1fr;
-        grid-template-rows: minmax(0, min-content) auto auto auto;  
-        border-bottom: none;
-        justify-content: center;
-        padding-bottom: 1rem;
     }
     header nav ul {
         justify-content: center !important;
     }
     header h1 {
-        font-size: inherit;
-        padding-left: inherit;
+        font-size: x-large;
         justify-self: center;
     }
     main {
         grid-template-columns: 1fr;
+        margin-right: 0;
     }
-    main.landing {
-        grid-template-rows: inherit;
+    /* if there's a secondary nav area, start the main section in column 1 on mobile */
+    nav + main {
+        grid-column-start: 1;
     }
+    main.center {
+        margin-left: 0;
+        margin-right: 0;
+        grid-template-rows: auto;
+        grid-template-columns: 1fr;
+    }
+    main.rightlogo {
+        grid-template-areas: 
+        "logo" 
+        "content";
+        grid-template-columns: 1fr;
+        gap: 0;
+    }
+    main > p {
+        margin-right: auto;
+    }
+    main.rightlogo > *:nth-child(1) {
+        grid-area:content;
+    }
+    main.rightlogo > *:nth-child(2) {
+        grid-area: logo;
+        justify-self: center;
+        margin-right: 0;
+        padding-bottom: 0;
+    }
+    
     body > nav {
         width: inherit;
         grid-template-columns: 1fr;
@@ -261,10 +309,6 @@ em.title {
     }
     .message {
         grid-area: message;
-    }
-    th, td {
-        /* word-wrap: break-word; */
-        white-space: break-spaces;
     }
 }
 

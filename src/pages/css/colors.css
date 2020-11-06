@@ -7,7 +7,7 @@
     --soft: rgba(var(--pink), .6);
     --comp: rgba(var(--brightgreen), .2);
     --softcomp: rgba(var(--yellowgreen), .2);
-  
+    --hardcomp: #ecf1e6; /* no alpha */
     --grayed-out: rgba(0, 0, 0, .6);
   }
   

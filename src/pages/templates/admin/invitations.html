@@ -2,37 +2,39 @@
 {%- set title = "Admin: User Invitations" -%}
 {%- block content -%}
 
-<h2>Pending invitations</h2>
-{%- if invitations.length == 0 -%}
-<p>There are not currently any pending invitations.</p>
-{%- else -%}
-<p>These users have been invited but have not yet accepted the invitation. You may re-send invites or cancel them.</p>
-<table>
-    <thead>
-        <tr>
-            <th>Name</th>
-            <th>Email</th>
-            <th>Date invited</th>
-            <th>Action</th>
-        </tr>
-    </thead>
-    <tbody>
-        {%- for invite in invitations -%}
-        <tr>
-            <td>{{invite.user.name}}</td>
-            <td>{{invite.user.login.email}}</td>
-            <td>{{invite.dateInvited | date("YYYY-MM-DD HH:mm:ss")}}</td>
-            <td>
-                <form method="POST" action="/admin/forms/manage-invitations/{{invite.id}}">
-                    <input name="resend" value="Re-send invitation" type="submit"/>
-                    <input name="cancel" value="Cancel invitation" type="submit"/>
-                </form>
-            </td>
-        </tr>
-        {%- endfor -%}
-    </tbody>
-</table>
-{%- endif -%}
+<main>
+    <h2>Pending invitations</h2>
+    {%- if invitations.length == 0 -%}
+    <p>There are not currently any pending invitations.</p>
+    {%- else -%}
+    <p>These users have been invited but have not yet accepted the invitation. You may re-send invites or cancel them.</p>
+    <table>
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Date invited</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {%- for invite in invitations -%}
+            <tr>
+                <td>{{invite.user.name}}</td>
+                <td>{{invite.user.login.email}}</td>
+                <td>{{invite.dateInvited | date("YYYY-MM-DD HH:mm:ss")}}</td>
+                <td>
+                    <form method="POST" action="/admin/forms/manage-invitations/{{invite.id}}">
+                        <input name="resend" value="Re-send invitation" type="submit"/>
+                        <input name="cancel" value="Cancel invitation" type="submit"/>
+                    </form>
+                </td>
+            </tr>
+            {%- endfor -%}
+        </tbody>
+    </table>
+    {%- endif -%}
+</main>
 
 {%- endblock -%}
 

@@ -7,17 +7,19 @@
 {%- set title = "Results for " + testEnvTitle | cleanString -%}
 {%- block content -%}
 
-    <h1>
+<main>
+    <h2>
         {{ softwareName.SoftwareName(testingEnvironment.readingSystem) }}
-    </h1>
-    <div class="twocol spaced">
+    </h2>
+    <div class="sidebar spaced">
         {{ testingEnvironmentDetails.TestingEnvironmentDetails(testingEnvironment) }}
     </div>
     
     {%- for answerSet in testingEnvironment.answerSets -%}
-    {{ answerSetComponent.AnswerSet(answerSet, getTopicName(answerSet.testBook.topic.id)) }}
+    {{ answerSetComponent.AnswerSet(answerSet, 3, getTopicName(answerSet.testBook.topic.id)) }}
     {%- endfor -%}
-    
+</main>
+
 {%- endblock -%}
 
 {%- block nav -%}

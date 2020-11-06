@@ -2,25 +2,27 @@
 {%- set title = "Admin: All Software" -%}
 {%- block content -%}
 
-<h1 id="reading-systems">Reading Systems</h1>
-{{ SoftwareTable(readingSystems, "reading-system") }}
+<main>
+    <h1 id="reading-systems">Reading Systems</h1>
+    {{ SoftwareTable(readingSystems, "reading-system") }}
 
-<h1 id="assistive-technologies">Assistive Technologies</h1>
-<a href="#main">Back to top</a>
-{{ SoftwareTable(assistiveTechnologies, "assistive-technology") }}
+    <h1 id="assistive-technologies">Assistive Technologies</h1>
+    <a href="#main">Back to top</a>
+    {{ SoftwareTable(assistiveTechnologies, "assistive-technology") }}
 
-<h1 id="operating-systems">Operating Systems</h1>
-<a href="#main">Back to top</a>
-{{ SoftwareTable(operatingSystems, "os") }}
+    <h1 id="operating-systems">Operating Systems</h1>
+    <a href="#main">Back to top</a>
+    {{ SoftwareTable(operatingSystems, "os") }}
 
-<h2 id="browsers">Browsers</h2>
-<a href="#main">Back to top</a>
-{{ SoftwareTable(browsers, "browser") }}
+    <h2 id="browsers">Browsers</h2>
+    <a href="#main">Back to top</a>
+    {{ SoftwareTable(browsers, "browser") }}
+</main>
 
 {% endblock %}  
 
 {%- block nav -%}
-<nav>
+<nav aria-label="Software categories">
     <h1>All Software</h1>
     <ul>
         <li><a href="#reading-systems">Reading Systems</a></li>

@@ -15,6 +15,9 @@ assistiveTechnology{
 device{
     ${softwareFrag.FIELDS}
 }
+browser{
+    ${softwareFrag.FIELDS}
+}
 input
 testedWithBraille
 testedWithScreenreader

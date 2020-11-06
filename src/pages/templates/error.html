@@ -2,24 +2,26 @@
 {%- set title="Error" -%}
 {%- block content -%}
 
-<h1>Error</h1>
-<p>An error has occurred. Please try again.</p>
+<main>
+    <h2>Error</h2>
+    <p>An error has occurred. Please try again.</p>
 
-<pre id="err"></pre>
+    <pre id="err"></pre>
 
-<script type="text/javascript">
+    <script type="text/javascript">
 
-    window.addEventListener("DOMContentLoaded", () => {
-        const params = new URLSearchParams(window.location.search);  
-        let errorElm = document.querySelector("#err");
-        let codeStr = params.has("code") ? `${params.get("code")}\n` : '';
-        let errorsStr = params.has("error") ? params.get("error") : '';
+        window.addEventListener("DOMContentLoaded", () => {
+            const params = new URLSearchParams(window.location.search);  
+            let errorElm = document.querySelector("#err");
+            let codeStr = params.has("code") ? `${params.get("code")}\n` : '';
+            let errorsStr = params.has("error") ? params.get("error") : '';
+                
+            let htmlStr =`${codeStr}${errorsStr}`;
             
-        let htmlStr =`${codeStr}${errorsStr}`;
+            errorElm.innerHTML = htmlStr.trim();
+        });
         
-        errorElm.innerHTML = htmlStr.trim();
-    });
-    
-</script>
+    </script>
+</main>
 
 {%- endblock -%}

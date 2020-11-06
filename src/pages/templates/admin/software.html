@@ -3,15 +3,15 @@
 {%- import "components/testing-environments-table.html" as testingEnvironmentsTable -%}
 {%- set title = "Admin: Software: " + softwareName.SoftwareName(software) | cleanString -%}
 {%- block content -%}
-<h1>
-    {{ softwareName.SoftwareName(software) }}
-</h1>
 
-<h2>Usage</h2>
-<p>This software is used in the following testing environments:</p>
+<main>
+    <h2>{{ softwareName.SoftwareName(software) }}</h2>
 
-{{testingEnvironmentsTable.TestingEnvironmentsTable(software.testingEnvironments)}}
+    <h3>Usage</h3>
+    <p>This software is used in the following testing environments:</p>
 
+    {{testingEnvironmentsTable.TestingEnvironmentsTable(software.testingEnvironments)}}
+</main>
 
 {% endblock %}  
 

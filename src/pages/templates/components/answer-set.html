@@ -1,8 +1,8 @@
 {%- import "components/user-credit.html" as userCredit -%}
 
-{%- macro AnswerSet(answerSet, topicName = '') -%}
+{%- macro AnswerSet(answerSet, headingLevel, topicName = '') -%}
 
-<h2 id="{{answerSet.id}}">Results for {{topicName}}</h2>
+<h{{headingLevel}} id="{{answerSet.id}}">Results for {{topicName}}</h{{headingLevel}}>
 <p>The tests for these results are from  
     <a href="/books/{{answerSet.testBook.filename}}">
         <em class="title">{{answerSet.testBook.title}}, version {{answerSet.testBook.version}}</em>

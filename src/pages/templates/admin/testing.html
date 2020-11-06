@@ -1,53 +1,52 @@
 {%- extends 'base/admin-base.html' -%}
-
 {%- import "components/testing-environment-title.html" as testingEnvironmentTitle -%}
 {%- import "components/testing-environments-table.html" as testingEnvironmentsTable -%}
 {%- set title = "Admin: Testing Environments" -%}
 
-
 {%- block content -%}
 
-<h1>Testing Environments</h1>
+<main>
+    <h2>Testing Environments</h2>
 
-<p>Below, all testing environments are listed and organized into current, archived, published, and unpublished. Select one to view details and edit results per topic.</p>
+    <p>Below, all testing environments are listed and organized into current, archived, published, and unpublished. Select one to view details and edit results per topic.</p>
 
-<div id="current">
-    <h2>Current testing environments</h2>
-    <div id="current-published">
-        <h3>With published results</h3>
-        {{ testingEnvironmentsTable.TestingEnvironmentsTable (publicTestingEnvironments) }}
-        
-    </div>
-    <div id="current-unpublished">
-        <h3>With unpublished results</h3>
-        {{ testingEnvironmentsTable.TestingEnvironmentsTable (unpublishedTestingEnvironments) }}
-    </div>
-</div>
-
-<div id="archived">
-    <h2>Archived</h2>
-    <div id="archived-published">
-        <h3>With published results</h3>
-        {{ testingEnvironmentsTable.TestingEnvironmentsTable (publicArchivedTestingEnvironments) }}
-        
+    <div id="current">
+        <h3>Current testing environments</h3>
+        <div id="current-published">
+            <h4>With published results</h4>
+            {{ testingEnvironmentsTable.TestingEnvironmentsTable (publicTestingEnvironments) }}
+            
+        </div>
+        <div id="current-unpublished">
+            <h4>With unpublished results</h4>
+            {{ testingEnvironmentsTable.TestingEnvironmentsTable (unpublishedTestingEnvironments) }}
+        </div>
     </div>
 
-    <div id="archived-unpublished">
-        <h3>With unpublished results</h3>
-        {{ testingEnvironmentsTable.TestingEnvironmentsTable (unpublishedArchivedTestingEnvironments) }}
-    </div>
-</div>
+    <div id="archived">
+        <h3>Archived</h3>
+        <div id="archived-published">
+            <h4>With published results</h4>
+            {{ testingEnvironmentsTable.TestingEnvironmentsTable (publicArchivedTestingEnvironments) }}
+        </div>
 
-{#<div id="noresults">
-    <h2>Testing Environments with no results</h2>
-    {{ TestingEnvironmentList (noResultsTestingEnvironments) }}
-</div>#}
+        <div id="archived-unpublished">
+            <h4>With unpublished results</h4>
+            {{ testingEnvironmentsTable.TestingEnvironmentsTable (unpublishedArchivedTestingEnvironments) }}
+        </div>
+    </div>
+
+    {#<div id="noresults">
+        <h3>Testing Environments with no results</h3>
+        {{ TestingEnvironmentList (noResultsTestingEnvironments) }}
+    </div>#}
+</main>
 
 {%- endblock -%}
 
 {%- block nav -%}
 <nav aria-label="Testing environments navigation">
-    <h1>By status</h1>
+    <h2>By status</h2>
     <ul>
         <li><a href="#current">Current Testing Environments</a>
             <ul>

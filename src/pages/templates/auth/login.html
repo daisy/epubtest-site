@@ -1,25 +1,26 @@
 {%- extends 'base/base.html' -%}
 {%- set title="Login" -%}
-{%- set mainclass="wide" -%}
 {%- block content -%}
 
-<form method="POST" action="/forms/login" class="login simple">
-  <div>
-    <label for="email">Email</label>
-    <input type="email" name="email" required/>
-  </div>
-            
-  <div>
-    <label for="password">Password</label>
-    <input type="password" name="password" required/>
-  </div>
+<main class="center">
+  <form method="POST" action="/forms/login" class="login simple">
+    <div>
+      <label for="email">Email</label>
+      <input type="email" name="email" required/>
+    </div>
+              
+    <div>
+      <label for="password">Password</label>
+      <input type="password" name="password" required/>
+    </div>
 
-  <div class="actions">
-    <input type="hidden" name="next" value="{{next}}" />
-    <input type="submit" name="submit" value="Login" />
+    <div class="actions">
+      <input type="hidden" name="next" value="{{next}}" />
+      <input type="submit" name="submit" value="Login" />
 
-    <a href="/forgot-password">Forgot password?</a>
-  </div>
-</form>
+      <a href="/forgot-password">Forgot password?</a>
+    </div>
+  </form>
+</main>
 
 {%- endblock -%}

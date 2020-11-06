@@ -2,6 +2,7 @@
 
 {%- block content -%}
 
+<main>
 <h2>Test email sending</h2>
 <form method="POST" action="/forms/mail" class="login simple">
     <label for="email">Email</label>
@@ -15,5 +16,7 @@
     <input type="textarea" name="token"/>
     <input type="submit"/>
 </form>
+
+</main>
 
 {%- endblock -%}
