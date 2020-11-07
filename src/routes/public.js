@@ -128,7 +128,7 @@ router.get('/set-password', (req, res) => {
         let message = "Please try again";
         return res
                 .status(401)
-                .redirect('/forgot-password?message=' + encodeURIComponent(message));
+                .redirect(`/forgot-password?message=${encodeURIComponent(message)}`);
     }
 });
 

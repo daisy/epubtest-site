@@ -108,11 +108,15 @@ router.post('/forgot-password',
                 `http://localhost:${process.env.PORT}/set-password?token=${jwt}`
                 : 
                 `http://epubtest.org/set-password?token=${jwt}`;
-            await mail.sendEmail(req.body.email, 
+            let success = await mail.sendEmail(req.body.email, 
                 emails.reset.subject,
                 emails.reset.text(resetUrl),
                 emails.reset.html(resetUrl));  
-            let message = "Password reset initiated. Please check your email for further instructions."; 
+            
+            let message = success ? 
+                "Password reset initiated. Please check your email for further instructions." 
+                : 
+                "Could not initiate password reset. Please contact an administrator."; 
             return res.status(200)
                 .redirect(`/?message=` + encodeURIComponent(message));
         }
@@ -125,14 +129,16 @@ router.post('/set-password',
         body('password').isLength({ min: 8, max: 20 })
     ],
     async (req, res) => {
+        let jwt = req.body.token;
+        
         const errors = validationResult(req);
         if (!errors.isEmpty()) {
             let message = "Password must be 8-20 characters";
-            return res.status(422).redirect('/set-password?message=' + encodeURIComponent(message));
+            return res.status(422).redirect(`/set-password?token=${jwt}&message=${encodeURIComponent(message)}`);
         }
 
         //let token = utils.parseToken(req.cookies.jwt);
-        let jwt = req.body.token;
+        
         let token = utils.parseToken(jwt);
         let dbres = await db.query(
             Q.USERS.GET,
@@ -159,7 +165,7 @@ router.post('/set-password',
             let message = "Error setting password";
             return res
                 .status(401)
-                .redirect('/set-password?message=' + encodeURIComponent(message));
+                .redirect(`/set-password?token=${jwt}&message=${encodeURIComponent(message)}`);
         }
         
         let message = "Success. Login with your new password."
