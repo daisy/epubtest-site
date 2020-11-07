@@ -446,10 +446,12 @@ router.post('/add-testing-environment', async(req, res, next) => {
     for (topicUser of topicsUsers) {
         // TODO left off here
         //await testingEnvironments.assign()
+        // do we have to assign testing environments upon creation? 
     }
 
+    let newId = result.testingEnvironmentId;
     let message = `Testing environment created (${result.testingEnvironmentId}).`;
-    return res.redirect('/admin?message=' + encodeURIComponent(message));
+    return res.redirect(`/admin/testing-environment/${newId}?message=${encodeURIComponent(message)}`);
 });
 
 router.post("/confirm-delete-testing-environment/:id", async (req, res, next) => {
