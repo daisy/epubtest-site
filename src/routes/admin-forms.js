@@ -584,24 +584,52 @@ router.post('/delete-software/:id', async (req, res, next) => {
 
 router.post('/set-user', async (req, res, next) => {
     let message = '';
-    if (req.body.hasOwnProperty('userId') && req.body.hasOwnProperty('answerSetId')) {
-        let userId, answerSetId;
-        userId = req.body.userId == 'None' ? null : parseInt(req.body.userId);
-        answerSetId = req.body.answerSetId ? parseInt(req.body.answerSetId) : null;
-         
-        let dbres = await db.query(Q.ANSWER_SETS.UPDATE, {
-            id: answerSetId,
-            patch: {
-                userId: userId
+    if (req.body.hasOwnProperty('userId')) {
+        if (req.body.hasOwnProperty('answerSetId')) {
+            let userId, answerSetId;
+            userId = req.body.userId == 'None' ? null : parseInt(req.body.userId);
+            answerSetId = req.body.answerSetId ? parseInt(req.body.answerSetId) : null;
+            
+            let dbres = await db.query(Q.ANSWER_SETS.UPDATE, {
+                id: answerSetId,
+                patch: {
+                    userId: userId
+                }
+            }, req.cookies.jwt);
+            if (dbres.success) {
+                message = "User successfully assigned.";
             }
-        }, req.cookies.jwt);
-        if (dbres.success) {
-            message = "User successfully assigned.";
+            else {
+                message = "Could not assign user";
+            }
+            return res.redirect(`${req.body.next}?message=${encodeURIComponent(message)}`);
         }
-        else {
-            message = "Could not assign user";
+        // else we are assigning all the answer sets in this test env
+        else if (req.body.hasOwnProperty("testingEnvironmentId")) {
+            let userId, answerSetId;
+            userId = req.body.userId == 'None' ? null : parseInt(req.body.userId);
+            let dbres = await db.query(
+                Q.TESTING_ENVIRONMENTS.GET, 
+                {id: parseInt(req.body.testingEnvironmentId)}, 
+                req.cookies.jwt);
+            let testingEnvironment = dbres.data.testingEnvironment;
+            for (answerSet of testingEnvironment.answerSets) {
+                dbres = await db.query(Q.ANSWER_SETS.UPDATE, {
+                    id: answerSet.id,
+                    patch: {
+                        userId: userId
+                    }
+                }, req.cookies.jwt);
+                if (!dbres.success) {
+                    message = "Could not assign user";
+                }    
+            }
+            // hacky error handling, oh well
+            if (message == "") {
+                message = "User successfully assigned.";
+            }
+            return res.redirect(`${req.body.next}?message=${encodeURIComponent(message)}`);
         }
-        return res.redirect(`${req.body.next}?message=${encodeURIComponent(message)}`);
     }
     message = "Could not assign user";
     return res.redirect(`${req.body.next}?message=${encodeURIComponent(message)}`);

@@ -93,7 +93,7 @@
                 {%- if answerSet.isPublic -%}
                 <span>Published</span>
                 <form method="POST" action="/admin/forms/unpublish">
-                    <input type="hidden" name="next" value="/admin/testing-enviroment/{{testingEnvironment.id}}"/>
+                    <input type="hidden" name="next" value="/admin/testing-environment/{{testingEnvironment.id}}"/>
                     <input type="hidden" name="testingEnvironmentId" value="{{testingEnvironment.id}}"/>
                     <input type="hidden" name="answerSetId" value="{{answerSet.id}}"/>
                     <input type="submit" name="submit" value="Unpublish"/>
@@ -101,7 +101,7 @@
                 {%- else -%}
                 <span>Unpublished</span>
                 <form method="POST" action="/admin/forms/publish">
-                    <input type="hidden" name="next" value="/admin/testing-enviroment/{{testingEnvironment.id}}"/>
+                    <input type="hidden" name="next" value="/admin/testing-environment/{{testingEnvironment.id}}"/>
                     <input type="hidden" name="testingEnvironmentId" value="{{testingEnvironment.id}}"/>
                     <input type="hidden" name="answerSetId" value="{{answerSet.id}}"/>
                     <input type="submit" name="submit" value="Publish"/>
@@ -115,6 +115,32 @@
         {%- endfor -%}
         </tbody>
     </table>
+
+    <h3>Batch assign</h3>
+    <p>Instead of assigning each answer set individually, you can assign them all to one user here (warning: this overwrites any current assignments):</p>
+    <form method="POST" action="/admin/forms/set-user">
+        <select name="userId">
+            
+            {%- if answerSet.user == null -%}
+            <option value="None" selected="selected">None</option>
+            {%- else -%}
+            <option value="None">None</option>
+            {%- endif -%}
+
+            {%- for user in users -%}
+            {%- if answerSet.user and user.id == answerSet.user.id -%}
+            <option value="{{user.id}}" selected="selected">
+            {%- else -%}
+            <option value="{{user.id}}">
+            {%- endif -%}
+            {{user.name}}
+            </option>
+            {%- endfor -%}
+        </select>
+        <input type="hidden" name="testingEnvironmentId" value="{{testingEnvironment.id}}">
+        <input type="hidden" name="next" value="/admin/testing-environment/{{testingEnvironment.id}}">
+        <input type="submit" value="Assign">  
+    </form>
 </main>
 
 {%- endblock -%}
