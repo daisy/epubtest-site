@@ -34,7 +34,8 @@ if (process.env.NODE_ENV != 'production') {
 
 var env = nunjucks.configure('src/pages/templates', {
     autoescape: true,
-    express: app
+    express: app,
+    noCache: process.env.NODE_ENV != 'production'
 });
 env.addFilter('cleanString', str => {
     return str.replace(/&nbsp;/g, " ");
