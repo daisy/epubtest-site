@@ -6,6 +6,7 @@ module.exports = {
         }
     }`,
 
+    // input: {email, duration}
     TEMPORARY_TOKEN: 
     `mutation ($input: CreateTemporaryTokenInput!) {
         createTemporaryToken(input: $input) {
