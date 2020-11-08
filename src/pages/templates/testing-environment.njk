@@ -3,6 +3,7 @@
 {%- import "components/testing-environment-details.njk" as testingEnvironmentDetails -%}
 {%- import "components/testing-environment-labels.njk" as testingEnvironmentLabels -%}
 {%- import "components/software-name.njk" as softwareName -%}
+{%- import "components/format-score.njk" as formatScore -%}
 {%- set testEnvTitle = testingEnvironmentLabels.TestingEnvironmentOneLinerPlainText(testingEnvironment) -%}
 {%- set title = "Results for " + testEnvTitle | cleanString -%}
 {%- block content -%}
@@ -69,7 +70,7 @@
     };
 </script>
 
-<h{{headingLevel}} id="{{answerSet.id}}">Results for {{topicName}}</h{{headingLevel}}>
+<h{{headingLevel}} id="{{answerSet.testBook.topic.id}}">Results for {{topicName}}: {{formatScore.FormatScore(answerSet)}}</h{{headingLevel}}>
 <p>Test book used: 
     <a href="/books/{{answerSet.testBook.filename}}">
         <em class="title">{{answerSet.testBook.title}}, version {{answerSet.testBook.version}}</em>

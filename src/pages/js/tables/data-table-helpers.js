@@ -2,6 +2,13 @@ let calcScore = score => {
     return parseFloat(parseFloat(score).toFixed(2));
 };
 
+let makeScoreSpan = answerSet => 
+    answerSet && answerSet.isTested ? 
+        `<span>${calcScore(answerSet.score)}%</span>` 
+        : 
+        `<span class="not-tested">Not tested</span>`
+;
+
 const topicNames = {
     "basic-functionality": "Basic Functionality",
     "visual-adjustments": "Visual Adjustments",
@@ -11,6 +18,14 @@ const topicNames = {
     "extended-descriptions": "Extended Descriptions",
     "math": "Mathematics"
 }
+
+const resultNames = {
+    "PASS": "Pass",
+    "FAIL": "Fail",
+    "NA": "N/A",
+    "NOANSWER": "No answer"
+};
+
 function getTopicName(id) {
     let retval = topicNames.hasOwnProperty(id) ? topicNames[id] : '';
     return retval;
@@ -135,6 +150,6 @@ function testingEnvironmentString(testenv, vendor = false) {
 
     return testingEnvironmentString;
 }
-export {calcScore, topicNames, getTopicName, 
+export {calcScore, makeScoreSpan, topicNames, getTopicName, 
         sortBySoftwareName, sortByScore, stringSort, dateSort, booleanSort, numberSort, 
-        testingEnvironmentLink, testingEnvironmentString, softwareNameString};
+        testingEnvironmentLink, testingEnvironmentString, softwareNameString, resultNames};

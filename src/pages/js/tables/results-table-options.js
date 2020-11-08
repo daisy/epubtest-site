@@ -4,14 +4,15 @@ function getBodyCellDisplay (header, row) {
     if (header.hasOwnProperty('topic')) {
         let {answerSets} = row;
         let answerSet = answerSets.find(aset => aset.testBook.topic.id === header.topic);
-        let score = answerSet && answerSet.isTested ? 
-            `<span>${helpers.calcScore(answerSet.score)}%</span>` 
-            : 
-            `<span class="not-tested">Not tested</span>`;
-        let cellClass = answerSet && answerSet.isTested ? "" : "not-tested";
+        let score = helpers.makeScoreSpan(answerSet);
+        let cellClass = answerSet && answerSet.isTested ? "score" : "not-tested";
+        let cellContent = answerSet && answerSet.isTested ? 
+            `<a href="/results/${row.id}/#${answerSet.testBook.topic.id}">${score}</a>`
+            :
+            score;
         return {
             cellClass,
-            cellContent: score
+            cellContent
         };
     } 
     else {
