@@ -20,7 +20,7 @@
     
     {%- for answerSet in testingEnvironment.answerSets -%}
     {%- if answerSet.isTested -%}
-    {{ AnswerSet(answerSet, 3, getTopicName(answerSet.testBook.topic.id)) }}
+    {{ AnswerSet(answerSet, 3, displayUtils.getTopicName(answerSet.testBook.topic.id)) }}
     {%- endif -%}
     {%- endfor -%}
 </main>
@@ -94,6 +94,31 @@
     cssurl="/css/data-table.css">
 </data-table>
 
+<noscript>
+<table class="striped" summary="Test results" id="data-{{answerSet.id}}">
+    <thead>
+        <tr>
+            <th>Test ID</th>
+            <th>Name</th>
+            <th>Description</th>
+            <th>Result</th>
+            <th>Notes</th>
+        </tr>
+    </thead>
+    <tbody>
+    {%- for answer in answerSet.answers -%}
+        <tr>
+            <td>{{answer.test.testId}}</td>
+            <td>{{answer.test.name}}</td>
+            <td>{{answer.test.description}}</td>
+            <td>{{displayUtils.resultNames[answer.value]}}</td>
+            <td>{%- if answer.notesArePublic -%}{{answer.notes}}{%- endif -%}</td>
+        </tr>
+    {%- endfor -%}
+    </tbody>
+</table>
+</noscript>
+
 
 {%- endmacro -%}
 
@@ -103,7 +128,7 @@
     <ul>
         {%- for answerSet in testingEnvironment.answerSets -%}
         {%- if answerSet.isTested -%}
-        <li><a href="#{{answerSet.testBook.topic.id}}">{{getTopicName(answerSet.testBook.topic.id)}}</a></li>
+        <li><a href="#{{answerSet.testBook.topic.id}}">{{displayUtils.getTopicName(answerSet.testBook.topic.id)}}</a></li>
         {%- endif -%}
         {%- endfor -%}
     </ul>        
