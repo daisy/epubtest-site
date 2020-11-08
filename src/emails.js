@@ -11,6 +11,8 @@ Reading System Accessibility Testing at epubtest.org.
 To accept this invitation, paste this link into your browser:
 ${linkTokenUrl}
 
+And, please don't share your invitation link with anyone - it was generated for your use only.
+
 Don't hesitate to write back with any questions!
 
 Best regards,
@@ -27,7 +29,8 @@ inclusivepublishing.org
 <p>This is a message from the <a href="http://daisy.org">DAISY Consortium</a>, to invite you to participate in
 Reading System Accessibility Testing at <a href="http://epubtest.org">epubtest.org</a>.
 
-<p><a href="${linkTokenUrl}">Accept this invitation</a> to proceed.</p>
+<p><a href="${linkTokenUrl}">Accept this invitation</a> to proceed. And, please don't share your invitation link with anyone - it was generated for your use only.</p>
+
 
 <p>Don't hesitate to write back with any questions!</p>
 
@@ -53,6 +56,8 @@ Someone has requested a password reset for this account on epubtest.org. If it w
 To reset your password, paste this link into your browser:
 ${linkTokenUrl}
 
+Please don't share your reset link with anyone - it was generated for your use only.
+
 Don't hesitate to write back with any questions.
 
 Best regards,
@@ -70,6 +75,8 @@ inclusivepublishing.org
 If it was not you, then please disregard this message.</p>
 
 <p><a href="${linkTokenUrl}">Reset your password</a></p>
+
+<p>Please don't share your reset link with anyone - it was generated for your use only.</p>
 
 <p>Don't hesitate to write back with any questions.</p>
 
