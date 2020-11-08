@@ -2524,7 +2524,173 @@ const unsafeHTML = directive((value) => (part) => {
 
 class DataTable extends LitElement {
     static get styles() {
-        return css``;
+        return css`
+        fieldset {
+    border: none;
+    padding: 0;
+}
+.data-table {
+    display: grid;
+    gap: 1rem;
+}
+.data-table > * {
+    height: min-content;
+}
+.filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2rem;
+    padding-right: 20%;
+}
+.filters legend {
+    visibility: hidden;
+}
+.filters label::after {
+    content: ': ';
+}
+
+.filters label {
+    font-size: smaller;
+}
+
+.column-selectors input[type=radio] {
+    opacity: 0;
+    position: fixed;
+    width: 0;
+}
+.column-selectors label {
+    border: thin gray solid;
+    padding: 0.25rem;
+    background-color: rgb(212, 212, 212);
+    display: inline-block;
+    white-space: nowrap;
+    margin: 1px;
+    border-radius: 4px;
+    opacity: 60%;
+}
+.column-selectors input[type="radio"] + label:hover {
+    border-color: var(--primary);
+    background-color: rgba(212, 212, 212, 0.4);
+}
+.column-selectors input[type="radio"]:checked + label {
+    background-color: var(--comp);
+    border-color: var(--primary);
+    text-decoration: underline;
+    opacity: 100%;
+}
+table {
+    border-collapse: collapse;
+    table-layout: fixed;
+    width: 100%;
+}
+thead {
+    border: 1px solid var(--primary);
+    background: var(--hardcomp);
+}
+
+th, td {
+    text-align: left;
+    font-size: smaller;
+    font-weight: normal;
+    vertical-align: top;
+    padding: 2vh;
+}
+th {
+    vertical-align: middle;
+    font-weight: bolder;
+    position: -webkit-sticky;
+    position: sticky;
+    top: 0;
+    z-index: 2;
+    background: var(--hardcomp);
+}
+th:first-of-type, td:first-of-type {
+    width: 10rem;
+}
+table a {
+    display: block;
+    padding-bottom: 1vh;
+    color: var(--primary);
+}
+thead th.sortable {
+    cursor: pointer;
+}
+thead th.sortable::after {
+    color: gray;
+}
+thead th.sortable[aria-sort='ascending']::after {
+    content: '▲';
+}
+thead th.sortable[aria-sort='descending']::after {
+    content: '▼';
+}
+tbody tr:nth-child(even) {
+    background-color: var(--softcomp);
+}
+table tr span.sw {
+    display: block;
+}
+.not-tested {
+    font-weight: lighter;
+    font-style: italic;
+}
+.readingSystem {
+    font-size: larger;
+}
+.sw:not(.readingSystem) {
+    padding-left: 0.5rem;
+}
+.sw {
+    /* white-space: nowrap; */
+}
+/* specific to the test results tables */
+div.test-results th:first-of-type, div.test-results td:first-of-type {
+    width: 5rem;
+}
+div.test-results {
+    width: 100%;
+}
+/* hide the column selector buttons on the desktop */
+@media(min-width: 769px) {
+    .column-selectors {
+        display: none;
+    }
+}
+@media(max-width: 768px) {
+    .filters {
+        display: grid;
+        gap: .5rem;
+        padding-right: 0;
+    }
+    .filters label, .filters input {
+        font-size: inherit;
+    }
+    .filters label {
+        white-space: nowrap;
+    }
+    .filters div {
+        display: grid;
+        grid-template-columns: 40% 60%;
+        gap: .5rem;
+    }
+    
+    .filters button {
+        width: min-content;
+        padding: .25rem;
+        justify-self: right;
+    }
+    .filters div label {
+        justify-self: right;
+    }    
+    /* if there is only one filter, don't center it, it looks weird */
+    .filters div:first-of-type:last-of-type {
+        grid-template-columns: auto auto;
+    }
+    .filters div:first-of-type:last-of-type label{
+        justify-self: left;
+    }
+}
+`;
     }
 
     /*
@@ -2551,7 +2717,8 @@ class DataTable extends LitElement {
         textSearchFilter: (text, row, headers, hiddenColumns) evaluation function for text searching,
         showTextSearch: boolean,
         columnSelectorLabel: "Select a column",
-        filtersLabel: "Filters"
+        filtersLabel: "Filters",
+        customClass: 'Class name(s)' to add to the wrapper <div class="data-table">
     }
     */
     static get properties() {
@@ -2573,6 +2740,7 @@ class DataTable extends LitElement {
             hiddenColumns: {type: Array, attribute: false}, // this property doesn't get set, just observed internally
             summary: {type: String},
             cssUrl: {type: String},
+            customClass: {type: String}
         };
     }
 
@@ -2595,6 +2763,7 @@ class DataTable extends LitElement {
         };
         this.cssUrl = '';
         this.hiddenColumns = [];
+        this.customClass = '';
     }
 
     setFilterValue(filterName, filterValue) {
@@ -2708,12 +2877,14 @@ class DataTable extends LitElement {
         // get the unique values that this filter can have
         let filterValues = this.data.rows.map((row) => filter.path(row));
 
+        let isBoolean = filterValues.length && typeof filterValues[0] == 'boolean';
+
         // make sure 'undefined', null, and '' are not counted separately
         filterValues = filterValues.map((value) =>
             value == 'undefined' ||
             value == undefined ||
             value == null ||
-            value == ''
+            (!isBoolean && value == '')
                 ? null
                 : value
         );
@@ -2811,7 +2982,9 @@ class DataTable extends LitElement {
 
         let columnSelectorHtml = this.renderColumnSelectors();
 
-        return html`<link rel="stylesheet" href="${this.cssUrl}"><div class="data-table">${filtersHtml} ${columnSelectorHtml}<table summary="${this.summary}" aria-live="polite" aria-colcount="${this.data.headers.length}" aria-rowcount="${rows.length}"><thead><tr>${this.data.headers.map((header, idx) => {
+        return html`
+        ${false ? html`<link rel="stylesheet" href="${this.cssUrl}">` : ``}
+        <div class="data-table ${this.customClass}">${filtersHtml} ${columnSelectorHtml}<table summary="${this.summary}" aria-live="polite" aria-colcount="${this.data.headers.length}" aria-rowcount="${rows.length}"><thead><tr>${this.data.headers.map((header, idx) => {
                                 if (this.hiddenColumns.includes(idx)) {
                                     return '';
                                 }
@@ -2931,6 +3104,10 @@ class DataTable extends LitElement {
     }
 
     renderColumnSelectors() {
+        if (this.data.headers.length <= 2) {
+            return ``;
+        }
+
         return html`<fieldset class="column-selectors"><legend>${this.options.columnSelectorLabel}</legend>${this.data.headers.map((header, idx) =>
                     idx > 0
                         ? html`<input type="radio" name="column-selector" id="column-selector-${idx}" @change="${(e) => this.columnSelectChange(e)}" ?checked="${!this.hiddenColumns.includes(idx)}"> <label for="column-selector-${idx}">${header.title}</label>`

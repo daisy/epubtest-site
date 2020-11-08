@@ -1,5 +1,5 @@
 {%- extends 'base/base.njk' -%}
-{%- import "components/testing-environment-title.njk" as testingEnvironmentTitle -%}
+{%- import "components/testing-environment-labels.njk" as testingEnvironmentLabels -%}
 
 {%- block content -%}
 <main>
@@ -12,7 +12,7 @@
 
     <ul>
         {%- for answerSet in answerSets -%}
-            <li>{{ testingEnvironmentTitle.TestingEnvironmentOneLiner(answerSet.testingEnvironment) }}
+            <li>{{ testingEnvironmentLabels.TestingEnvironmentOneLinerPlainText(answerSet.testingEnvironment) }}
                 <br/>
                 {%- if answerSet.isPublic -%}
                 <span>Published</span>

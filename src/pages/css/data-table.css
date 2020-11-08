@@ -1,3 +1,9 @@
+/*
+
+this is useful for development, but to avoid style flickering, the css is pasted into data-tables.js for production.
+also in the data tables render() function, the line that inserts a css link is commented out.
+
+*/
 fieldset {
     border: none;
     padding: 0;
@@ -76,8 +82,8 @@ th {
     top: 0;
     z-index: 2;
     background: var(--hardcomp);
-  }
-th:first-of-type, tr td:first-of-type {
+}
+th:first-of-type, td:first-of-type {
     width: 10rem;
 }
 table a {
@@ -100,7 +106,7 @@ thead th.sortable[aria-sort='descending']::after {
 tbody tr:nth-child(even) {
     background-color: var(--softcomp);
 }
-table tr td:first-child span.sw {
+table tr span.sw {
     display: block;
 }
 .not-tested {
@@ -115,6 +121,13 @@ table tr td:first-child span.sw {
 }
 .sw {
     /* white-space: nowrap; */
+}
+/* specific to the test results tables */
+div.test-results th:first-of-type, div.test-results td:first-of-type {
+    width: 5rem;
+}
+div.test-results {
+    width: 100%;
 }
 /* hide the column selector buttons on the desktop */
 @media(min-width: 769px) {

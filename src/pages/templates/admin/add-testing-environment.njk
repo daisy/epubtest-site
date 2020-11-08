@@ -2,89 +2,159 @@
 {%- set title="Add Testing Environment" -%}
 {%- block content -%}
 
-<main>
-    <form action="/admin/forms/add-testing-environment" method="POST" class="simple">
-        <h1>Select a reading system</h1>
+<main class="center">
+    <form action="/admin/forms/add-testing-environment" method="POST" class="simple" id="new-testing-environment">
+        <h2>Select software</h2>
+        <p>Using the following dropdowns, select all the software/devices for this new testing environment. You may add new software/devices as well.</p>
 
-        <select name="readingSystemId">
-            {%- for rs in readingSystems -%}
-            <option value="{{rs.id}}">{{rs.name}} {{rs.version}} {%- if rs.vendor %} by {{rs.vendor}} {%- endif -%}</option>
-            {%- endfor -%}
-        </select>
+        {%- set softwareTypes = [
+            "readingSystem",
+            "assistiveTechnology", 
+            "os", 
+            "browser", 
+            "device"
+        ] -%}
+        
+        
+        {%- for swtype in softwareTypes -%}
+            {%- set swtypelabels = getSoftwareTypeLabels(swtype) -%}
+            
+            {%- set softwares = [] -%}
+            {%- if swtype == 'readingSystem' -%}
+            {%- set softwares = readingSystems -%}
+            {%- elif swtype == 'assistiveTechnology' -%}
+            {%- set softwares = assistiveTechnologies -%}
+            {%- elif swtype == 'os' -%}
+            {%- set softwares = operatingSystems -%}
+            {%- elif swtype == 'browser' -%}
+            {%- set softwares = browsers -%}
+            {%- elif swtype == 'device' -%}
+            {%- set softwares = devices -%}
+            {%- endif -%}
 
-        <p><a href="/admin/add-reading-system">Add new reading system</a></p>
+            <div>
+                <label for="{{swtypelabels.type}}">Select {{swtypelabels.humanLabel| lower}}</label>
+                <select name="{{swtype}}Id" id="{{swtype}}">
+                    {%- if swtype == 'assistiveTechnology' or swtype == 'browser' or swtype == "device" -%}
+                    <option value="none">None</option>
+                    {%- endif -%}
+                    {%- for sw in softwares -%}
+                    <option value="{{sw.id}}">{{sw.name}} {{sw.version}} {%- if sw.vendor %} by {{sw.vendor}} {%- endif -%}</option>
+                    {%- endfor -%}
+                </select>
+                <p><a href="/admin/add-software/{{swtypelabels.addressPart}}">Add new {{swtypelabels.humanLabel| lower}}</a></p>
+            </div>
+        {%- endfor -%}
 
-        <h1>Select an assistive technology</h1>
-        <select name="assistiveTechnologyId">
-            <option value="none">None</option>
-            {%- for at in assistiveTechnologies -%}
-            <option value="{{at.id}}">{{at.name}} {{at.version}}</option>
-            {%- endfor -%}
-        </select>
-
-        <p><a href="/admin/add-assistive-technology">Add new assistive technology</a></p>
-
-
-        <h1>Select operating system</h1>
-
-        <select name="operatingSystemId">
-            {%- for os in operatingSystems -%}
-            <option value="{{os.id}}">{{os.name}} {{os.version}}</option>
-            {%- endfor -%}
-        </select>
-
-        <p><a href="/admin/add-operating-system">Add new operating system</a></p>
-
-        <h1>Select browser</h1>
-
-        <select name="browserId">
-            <option value="none">None</option>
-            {%- for brw in browsers -%}
-            <option value="{{brw.id}}">{{brw.name}} {{brw.version}}</option>
-            {%- endfor -%}
-        </select>
-
-        <p><a href="/admin/add-browser">Add new browser</a></p>
-
-        <h1>Select options</h1>
-        <p>
-            <input type="checkbox" name="testedWithBraille">
-            <label for="testedWithBraille">Tested with Braille</label>
-        </p>
-
-        <p>
-            <input type="checkbox" name="testedWithScreenreader">
-            <label for="testedWithScreenreader">Tested with Screenreader</label>
-        </p>
-
-        <p>
-            <label for="input-type">Select the type of input:</label>
-            <select name="input" id="input-type">
-                <option value="KEYBOARD">Keyboard</option>
-                <option value="MOUSE">Mouse</option>
-                <option value="TOUCH">Touch</option>
-            </select>
-        </p>
-
-        <h1>Select one or more topics</h1>
-        <ul>
-            {%- for topic in topics -%}
-            <li>
-                <input type="checkbox" value="{{topic.id}}" name="topics[{{loop.index}}]">
-                <label for="{{topicId}}">{{getTopicName(topic.id)}}</label>
-            </li>
-            {%- endfor -%}
-        </ul>
-
-        <h1>Assign a user</h1>
-        <p>
-            <label for="user">Select a user to assign testing to:</label>
-            <select name="user">
-                {%- for user in users -%}
-                <option value="{{user.id}}">{{user.name}}</option>
+        {#<div>
+            <label for="readingSystem">Select a reading system</label>
+            <select name="readingSystemId" id="readingSystem">
+                {%- for rs in readingSystems -%}
+                <option value="{{rs.id}}">{{rs.name}} {{rs.version}} {%- if rs.vendor %} by {{rs.vendor}} {%- endif -%}</option>
                 {%- endfor -%}
             </select>
-        </p>
+            <p><a href="/admin/add-reading-system">Add new reading system</a></p>
+        </div>
+
+        <div>
+            <label for="assistiveTechnology">Select an assistive technology</label>
+            <select name="assistiveTechnologyId" id="assistiveTechnology">
+                <option value="none">None</option>
+                {%- for at in assistiveTechnologies -%}
+                <option value="{{at.id}}">{{at.name}} {{at.version}}</option>
+                {%- endfor -%}
+            </select>
+            <p><a href="/admin/add-assistive-technology">Add new assistive technology</a></p>
+        </div>
+
+
+        <div>
+            <h2>Select operating system</h2>
+    
+            <select name="operatingSystemId">
+                {%- for os in operatingSystems -%}
+                <option value="{{os.id}}">{{os.name}} {{os.version}}</option>
+                {%- endfor -%}
+            </select>
+    
+            <p><a href="/admin/add-operating-system">Add new operating system</a></p>
+        </div>
+
+        <div>
+            <h2>Select browser</h2>
+    
+            <select name="browserId">
+                <option value="none">None</option>
+                {%- for brw in browsers -%}
+                <option value="{{brw.id}}">{{brw.name}} {{brw.version}}</option>
+                {%- endfor -%}
+            </select>
+    
+            <p><a href="/admin/add-browser">Add new browser</a></p>
+        </div>
+
+        <div>
+            <h2>Select device</h2>
+    
+            <select name="deviceId">
+                <option value="none">None</option>
+                {%- for dev in devices -%}
+                <option value="{{dev.id}}">{{dev.name}} {{dev.version}}</option>
+                {%- endfor -%}
+            </select>
+    
+            <p><a href="/admin/add-device">Add new device</a></p>
+        </div>
+        #}
+        <div>
+            <h2>Select options</h2>
+            <p>
+                
+                <label for="testedWithBraille">Tested with Braille</label>
+                <input type="checkbox" name="testedWithBraille">
+            </p>
+    
+            <p>
+                
+                <label for="testedWithScreenreader">Tested with Screenreader</label>
+                <input type="checkbox" name="testedWithScreenreader">
+            </p>
+    
+            <p>
+                <label for="input-type">Select the type of input:</label>
+                <select name="input" id="input-type">
+                    <option value="KEYBOARD">Keyboard</option>
+                    <option value="MOUSE">Mouse</option>
+                    <option value="TOUCH">Touch</option>
+                </select>
+            </p>
+        </div>
+
+        {#
+        <div>
+            <h2>Select one or more topics</h2>
+            <ul>
+                {%- for topic in topics -%}
+                <li>
+                    <input type="checkbox" value="{{topic.id}}" name="topics[{{loop.index}}]">
+                    <label for="{{topicId}}">{{getTopicName(topic.id)}}</label>
+                </li>
+                {%- endfor -%}
+            </ul>
+        </div>
+
+        <div>
+            <h2>Assign a user</h2>
+            <p>
+                <label for="user">Select a user to assign testing to:</label>
+                <select name="user">
+                    {%- for user in users -%}
+                    <option value="{{user.id}}">{{user.name}}</option>
+                    {%- endfor -%}
+                </select>
+            </p>
+        </div>
+        #}
         
         <input type="submit" value="Save">
     </form>

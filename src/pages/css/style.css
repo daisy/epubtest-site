@@ -74,21 +74,20 @@ header nav.user ul {
 /* regular main content area, just a big block */
 main {
     grid-area: main;
-    margin-right: 10%;
+    margin-right: 1rem;
     margin-left: 1rem;
     grid-column-start: 1;
     grid-column-end: 4;
 }
 /* if there's a secondary nav area, start the main section in column 2*/
-nav + main {
+nav ~ main {
     grid-column-start: 2;
 }
+
 /* centered main area */
 main.center {
-    display: grid;
     margin-left: calc(20% + 1rem);
     margin-right: 20%;
-    grid-template-columns: 60% auto;
 }
 /* main area with a logo on the right */
 main.rightlogo {
@@ -97,7 +96,7 @@ main.rightlogo {
     gap: 5rem;
     grid-template-columns: 60% 30%;
 }
-main.rightlogo > p {
+main.rightlogo p {
     margin-right: 0;
 }
 main.rightlogo > *:nth-child(2) {
@@ -106,7 +105,7 @@ main.rightlogo > *:nth-child(2) {
     justify-self: center;
 }
 
-main > p {
+main p {
     margin-right: 30%;
 }
 footer {
@@ -122,12 +121,48 @@ footer > * {
 main > div {
     margin-bottom: 2rem;
 }
-div.center {
-    display: flex;
-    justify-content: center;
-    align-content: center;
+ul.detailslist {
+    list-style-type: none;
+    width: 30rem;
+    padding-left: 0;
+    display: grid;
+    gap: 0.25rem;
 }
-
+ul.detailslist.compact {
+    width: 100%;
+}
+ul.detailslist > li {
+    display: grid;
+    grid-template-columns: 50% 50%;
+    border-radius: 4px;
+    border: thin var(--darkgray) solid;
+}
+ul.detailslist.compact li {
+    border: none;
+}
+ul.detailslist span {
+    display: block;
+}
+ul.detailslist span:first-child::after {
+    content: ': ';
+}
+ul.detailslist span:first-child {
+    background-color: var(--darkgray);
+    color: white;
+    font-weight: bold;
+    padding-left: 0.5rem;
+}
+ul.detailslist span:last-child {
+    padding-left: 1rem;
+}
+ul.detailslist.compact li span:first-child {
+    display: none;
+}
+div.twocol {
+    display: grid;
+    grid-template-columns: 60% auto;
+    gap: 2rem;
+}
 p.message {
     border-radius: 10px;
     vertical-align: middle;
@@ -135,13 +170,6 @@ p.message {
     line-height: 2em;
     margin-bottom: 1vh;
     background-color: rgba(251, 255, 0, 0.2);
-    grid-column-start: 1;
-    grid-column-end: 4;
-}
-
-.sidebar {
-    display: grid;
-    grid-template-columns: 30% auto;
     grid-column-start: 1;
     grid-column-end: 4;
 }
@@ -172,12 +200,8 @@ span.na {
     font-weight: lighter;
     color: var(--grayed-out);
 }
-.spaced {
-    margin-top: 2rem;
-    margin-bottom: 2rem;
-}
 .limit {
-    max-width: 50vw;
+    max-height: 30vh;
     overflow: scroll;
 }
 .testenv span {
@@ -221,10 +245,20 @@ main > *:first-child, body > nav > :first-child {
     font-weight: normal;
 }
 
+.archived {
+    border: var(--primary) thin solid;
+    padding: 1vh;
+    border-radius: 4px;
+    background-color: var(--softlight);
+}
 #err em {
     font-size: larger;
     font-style: normal;
     display: block;
+}
+#local-error {
+    background-color: lightyellow;
+    border-radius: 4px;
 }
 em.title {
     font-weight: normal;
@@ -237,16 +271,15 @@ em.title {
     body {
         grid-template-areas:
             "header"
-            "main"
             "nav"
+            "main"
             "footer";
         grid-template-columns: 100%; 
         grid-template-rows:
             auto
-            1fr
             auto
+            1fr
             auto;
-        /*! grid-gap: 5vh; */
     }
     nav {
       margin: 0;
@@ -269,9 +302,10 @@ em.title {
     main {
         grid-template-columns: 1fr;
         margin-right: 0;
+        grid-column-end: 1;
     }
     /* if there's a secondary nav area, start the main section in column 1 on mobile */
-    nav + main {
+    nav ~ main {
         grid-column-start: 1;
     }
     main.center {
@@ -287,7 +321,7 @@ em.title {
         grid-template-columns: 1fr;
         gap: 0;
     }
-    main > p {
+    main p {
         margin-right: auto;
     }
     main.rightlogo > *:nth-child(1) {
@@ -303,12 +337,28 @@ em.title {
     body > nav {
         width: inherit;
         grid-template-columns: 1fr;
+        border: thin var(--darkgray) solid;
+        padding-left: 1rem;
+        padding-right: 1rem;
+
     }
     footer {
         border-top: none;
     }
+    ul.detailslist {
+        width: 100%;
+    }
+    ul.detailslist li {
+        grid-template-columns: 1fr;
+    }
+    div.twocol {
+        grid-template-columns: 1fr;
+    }
     .message {
         grid-area: message;
+    }
+    ul.cols {
+        columns: 1;
     }
 }
 

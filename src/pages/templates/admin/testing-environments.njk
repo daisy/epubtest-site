@@ -1,0 +1,96 @@
+{%- extends 'base/admin-base.njk' -%}
+{%- import "components/testing-environment-labels.njk" as testingEnvironmentLabels -%}
+{%- import "components/testing-environments-table.njk" as testingEnvironmentsTable -%}
+{%- set title = "Admin: Testing Environments" -%}
+
+{%- block content -%}
+<script type="module" src="/js/data-table.js"></script>
+<script type="module">
+    import { options } from '/js/tables/admin-testing-environments-table-options.js';
+    import * as helpers from '/js/tables/data-table-helpers.js';
+
+    let rows = {{ testingEnvironments | dump | safe}};
+
+    let headers = [
+        {
+            title: "ID",
+            id: "id",
+            sort: (a,b) => helpers.numberSort(a,b,row => row.id),
+            sortIs: 'asc'
+        },
+        {
+            title: "Reading System",
+            id: "readingSystem",
+            sort: (a, b) => helpers.sortBySoftwareName(a, b, row => row.readingSystem),
+            sortIs: 'asc'
+        },
+        {
+            title: "Assistive Technology",
+            id: "assistiveTechnology",
+            sort: (a, b) => helpers.sortBySoftwareName(a, b, row => row.assistiveTechnology),
+            sortIs: 'asc'
+        },
+        {
+            title: "Device",
+            id: "device",
+            sort: (a, b) => helpers.sortBySoftwareName(a, b, row => row.device),
+            sortIs: 'asc'
+        },   
+        {
+            title: "OS",
+            id: "os",
+            sort: (a, b) => helpers.sortBySoftwareName(a, b, row => row.os),
+            sortIs: 'asc'
+        },
+        {
+            title: "Browser",
+            id: "browser",
+            sort: (a, b) => helpers.sortBySoftwareName(a, b, row => row.browser),
+            sortIs: 'asc'
+        },
+        {
+            title: "Has published results",
+            id: "isPublic",
+            sort: (a, b) => helpers.booleanSort(a, b, row => row.isPublic),
+            sortIs: 'asc'
+        },
+        {
+            title: "Is archived",
+            id: "archived",
+            sort: (a, b) => helpers.booleanSort(a, b, row => row.isArchived),
+            sortIs: 'asc'
+        },
+        {
+            title: "Has any results",
+            id: "isTested",
+            sort: (a, b) => helpers.booleanSort(a, b, row => row.answerSets.find(aset => aset.isTested) != undefined),
+            sortIs: 'asc'
+        },
+        {
+            title: "Manage",
+            id: "manage"
+        }
+    ];
+    
+    document.querySelector("data-table").options = {
+        ...options,
+        showTextSearch: true,
+        columnSelectorLabel: "Select a column",
+        filtersLabel: "Filters",
+        defaultSortHeader: 1
+    };
+
+    document.querySelector("data-table").data = {
+        headers, rows
+    };  
+</script>
+<main>
+    <h2>Testing Environments</h2>
+
+    <p>Below, all testing environments are listed and organized into current, archived, published, and unpublished. Select one to view details and edit results per topic.</p>
+    <data-table cssurl="/css/data-table.css" summary="All testing environments"></data-table>
+
+    
+</main>
+
+{%- endblock -%}

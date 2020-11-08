@@ -2,59 +2,56 @@
 {%- set title="Test Books" -%}
 
 {%- block content -%}
+<script type="module" src="/js/data-table.js"></script>
+<script type="module">
+    import { options } from '/js/tables/test-books-table-options.js';
+
+    let rows = {{testBooks | dump | safe}};
+
+    let headers = [
+        {
+            title: "Topic",
+            id: "topic"
+        },
+        {
+            title: "Description",
+            id: "description"
+        },
+        {
+            title: "Title",
+            id: "title"
+        },   
+        {
+            title: "Version",
+            id: "version"
+        },
+        {
+            title: "Language",
+            id: "language"
+        },
+        {
+            title: "Download",
+            id: "download"
+        }
+    ];
+    
+    document.querySelector("data-table").options = {
+        ...options,
+        showTextSearch: true,
+        columnSelectorLabel: "Select a column",
+        filtersLabel: "Filters"
+    };
+
+    document.querySelector("data-table").data = {
+        headers, rows
+    };  
+</script>
 <main>
-    <script type="module" src="/js/data-table.js"></script>
-    <script type="module">
-        import { testBooksOptions, getTopicName} from '/js/data-table-options.js';
-
-        let rows = {{testBooks | dump | safe}};
-
-        let headers = [
-            {
-                title: "Topic",
-                id: "topic"
-            },
-            {
-                title: "Title",
-                id: "title"
-            },   
-            {
-                title: "Version",
-                id: "version"
-            },
-            {
-                title: "Language",
-                id: "language"
-            },
-            {
-                title: "Description",
-                id: "description"
-            },
-            {
-                title: "Download",
-                id: "download"
-            }
-        ];
-
-        
-        document.querySelector("data-table").options = {
-            ...testBooksOptions,
-            showTextSearch: true,
-            columnSelectorLabel: "Select a column",
-            filtersLabel: "Filters"
-        };
-
-        document.querySelector("data-table").cssUrl = "/css/data-table.css";
-
-        document.querySelector("data-table").data = {
-            headers, rows
-        };  
-    </script>
     <h2>Test books</h2>
 
     <p>Evaluations are completed with the same set of EPUB test books to ensure consistency. The test books are known to be accessible and free of errors. The different titles are described below, along with a link to download each.</p>
     
-    <data-table summary="Test book descriptions and downloads"></data-table>
+    <data-table summary="Test book descriptions and downloads" cssurl="/css/data-table.css"></data-table>
 </main>
     
 {%- endblock -%}

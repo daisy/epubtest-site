@@ -1,4 +1,5 @@
 {%- extends 'base/admin-base.njk' -%}
+{%- import "components/testing-environment-labels.njk" as testingEnvironmentLabels -%}
 {%- import "components/testing-environment-details.njk" as testingEnvironmentDetails -%}
 {%- import "components/software-name.njk" as softwareName -%}
 {%- set title = "Admin: Testing Environment" -%}
@@ -6,10 +7,9 @@
 
 <main>
     <h2>Manage Testing Environment</h2>
-    <h3>{{ softwareName.SoftwareName (testingEnvironment.readingSystem) }}</h3>
-    <div class="sidebar spaced">
-        {{ testingEnvironmentDetails.TestingEnvironmentDetails(testingEnvironment) }}
-    </div>
+    {{ testingEnvironmentLabels.TestingEnvironmentTitle (testingEnvironment, 'h3', 'p')}}
+    {{ testingEnvironmentDetails.TestingEnvironmentDetails(testingEnvironment) }}
+    
     {%- if answerSet.isPublic -%}
         <p><a href="/results/{{testingEnvironment.id}}#{{answerSet.id}}">Public link</a></p>
     {%- endif -%}
@@ -44,7 +44,7 @@
         <thead>
             <tr>
                 <th>Topic</th>
-                <th>Test Book</th>
+                <th>Test Book Version</th>
                 <th>Assigned to</th>
                 <th>Score</th>
                 <th>Edit</th>
@@ -116,8 +116,8 @@
         </tbody>
     </table>
 
-    <h3>Batch assign</h3>
-    <p>Instead of assigning each answer set individually, you can assign them all to one user here (warning: this overwrites any current assignments):</p>
+    <h3>Assign all</h3>
+    <p>Instead of assigning each answer set individually, you can assign them all to one user here (<em>warning</em>: this overwrites any current assignments):</p>
     <form method="POST" action="/admin/forms/set-user">
         <select name="userId">
             

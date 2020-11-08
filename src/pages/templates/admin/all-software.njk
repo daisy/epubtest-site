@@ -1,39 +1,77 @@
-{%- extends 'base/admin-base.njk' -%}
-{%- set title = "Admin: All Software" -%}
+{%- extends 'base/admin-software.njk' -%}
+{%- set title = "All " + title -%}
 {%- block content -%}
 
+
+<script type="module" src="/js/data-table.js"></script>
+<script type="module">
+    import { options } from '/js/tables/admin-all-software-table-options.js';
+    import * as helpers from '/js/tables/data-table-helpers.js';
+    let rows = {{software | dump | safe}};
+
+    let headers = [
+        {
+            title: "ID",
+            id: "id",
+            sort: (a,b) => helpers.numberSort(a, b, row => row.id),
+            sortIs: 'asc'
+        },
+        {
+            title: "Vendor",
+            id: "vendor",
+            sort: (a,b) => helpers.stringSort(a, b, row => row.vendor),
+            sortIs: 'asc'
+        },
+        {
+            title: "Name",
+            id: "name",
+            sort: (a,b) => helpers.stringSort(a, b, row => row.name),
+            sortIs: 'asc'
+        },   
+        {
+            title: "Version",
+            id: "version"
+        },
+        {
+            title: "Shown in dropdown",
+            id: "shownInDropdown",
+            sort: (a,b) => helpers.booleanSort(a, b, row => row.active),
+            sortIs: 'asc'
+        },
+        {
+            title: "Usage",
+            id: "usage",
+            sort: (a,b) => helpers.numberSort(a, b, row => row.testingEnvironments.length),
+            sortIs: 'asc'
+        },
+        {
+            title: "Actions",
+            id: "actions"
+        }
+    ];
+    
+    document.querySelector("data-table").options = {
+        ...options,
+        showTextSearch: true,
+        columnSelectorLabel: "Select a column",
+        filtersLabel: "Filters",
+        defaultSortHeader: 2
+    };
+
+    document.querySelector("data-table").data = {
+        headers, rows
+    };  
+</script>
+
 <main>
-    <h1 id="reading-systems">Reading Systems</h1>
-    {{ SoftwareTable(readingSystems, "reading-system") }}
-
-    <h1 id="assistive-technologies">Assistive Technologies</h1>
-    <a href="#main">Back to top</a>
-    {{ SoftwareTable(assistiveTechnologies, "assistive-technology") }}
-
-    <h1 id="operating-systems">Operating Systems</h1>
-    <a href="#main">Back to top</a>
-    {{ SoftwareTable(operatingSystems, "os") }}
-
-    <h2 id="browsers">Browsers</h2>
-    <a href="#main">Back to top</a>
-    {{ SoftwareTable(browsers, "browser") }}
+    <h2>{{title}}</h2>
+    <data-table cssurl="/css/data-table.css" summary="All {{title}}"></data-table>    
 </main>
 
 {% endblock %}  
 
-{%- block nav -%}
-<nav aria-label="Software categories">
-    <h1>All Software</h1>
-    <ul>
-        <li><a href="#reading-systems">Reading Systems</a></li>
-        <li><a href="#assistive-technologies">Assistive Technologies</a></li>
-        <li><a href="#operating-systems">Operating Systems</a></li>
-        <li><a href="#browsers">Browsers</a></li>
-    </ul>
-</nav>
-{%- endblock -%}
 
-{%- macro SoftwareTable(softwares, route) -%}
+{%- macro SoftwareTable(software, route) -%}
 <table>
     <thead>
         <tr>
@@ -48,7 +86,7 @@
         </tr>
     </thead>
     <tbody>
-        {%- for sw in softwares -%}
+        {%- for sw in software -%}
             <tr>
                 <td>
                     {{sw.id}}

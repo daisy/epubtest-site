@@ -3,12 +3,14 @@
 
 <main>
     <h2>{{title}}</h2>
-    <p>{{content}}</p>
-    <form method="POST" action="{{formAction}}">
+    <p>{{content | safe}}</p>
+    <form method="POST" action="{{formAction}}" class="simple">
         <input type="hidden" name="nextIfYes" value="{{nextIfYes}}"/>
         <input type="hidden" name="nextIfNo" value="{{nextIfNo}}"/>
-        <input type="submit" name="no" value="No"/>
-        <input type="submit" name="yes" value="Yes"/>
+        <div class="action">
+            <input type="submit" name="no" value="No"/>
+            <input type="submit" name="yes" value="Yes"/>
+        </div>
     </form>
 </main>
 

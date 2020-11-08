@@ -1,16 +1,62 @@
 {%- extends 'base/admin-base.njk' -%}
 {%- import "components/software-name.njk" as softwareName -%}
-{%- import "components/testing-environments-table.njk" as testingEnvironmentsTable -%}
 {%- set title = "Admin: Software: " + softwareName.SoftwareName(software) | cleanString -%}
 {%- block content -%}
+<script type="module" src="/js/data-table.js"></script>
+<script type="module">
+    import { options } from '/js/tables/admin-software-table-options.js';
 
+    let rows = {{ software.testingEnvironments | dump | safe}};
+
+    let headers = [
+        {
+            title: "ID",
+            id: "id"
+        },
+        {
+            title: "Reading System",
+            id: "readingSystem"
+        },
+        {
+            title: "Assistive Technology",
+            id: "assistiveTechnology"
+        },
+        {
+            title: "Device",
+            id: "device"
+        },   
+        {
+            title: "OS",
+            id: "os"
+        },
+        {
+            title: "Browser",
+            id: "browser"
+        },
+        {
+            title: "Manage",
+            id: "manage"
+        }
+    ];
+    
+    document.querySelector("data-table").options = {
+        ...options,
+        showTextSearch: true,
+        columnSelectorLabel: "Select a column",
+        filtersLabel: "Filters"
+    };
+
+    document.querySelector("data-table").data = {
+        headers, rows
+    };  
+</script>
 <main>
-    <h2>{{ softwareName.SoftwareName(software) }}</h2>
+    <h2>{{ softwareName.SoftwareName(software, true) }}</h2>
 
     <h3>Usage</h3>
-    <p>This software is used in the following testing environments:</p>
+    <p>This is used in the following testing environments:</p>
 
-    {{testingEnvironmentsTable.TestingEnvironmentsTable(software.testingEnvironments)}}
+    <data-table cssurl="/css/data-table.css" summary="Testing environments where this software is used"></data-table>
 </main>
 
 {% endblock %}  

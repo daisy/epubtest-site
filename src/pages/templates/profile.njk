@@ -3,7 +3,7 @@
 
 {%- set title = "Profile" -%}
 {%- block content -%}
-<main>
+<main class="center">
     <h2>Profile</h2>
     <p>View and edit your profile below. You may also change your password.</p>
 
@@ -17,7 +17,7 @@
     <div>
         <h3>Edit Profile</h3>
         <p id="local-error" aria-live="polite"></p>
-        <form action="/user/forms/profile" method="POST" id="profile-form" class="simple">
+        <form action="/user/forms/profile" method="POST" class="simple email profile">
             <h4>Profile information</h4>
             <div>
                 <label for="name">Name</label>
@@ -31,7 +31,7 @@
                 <label for="website">Website</label>
                 <input type="text" name="website" id="website" value="{{user.website}}">
             </div>
-            <div class="row">
+            <div>
                 <label for="includeCredit">Include credit</label>
                 <input type="checkbox" name="includeCredit" id="includeCredit" {%- if user.includeCredit -%}checked="checked"{%-endif-%}>
             </div>

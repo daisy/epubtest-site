@@ -1,82 +1,62 @@
-{%- macro TestingEnvironmentDetails(testingEnvironment) -%}
+{%- import "components/software-name.njk" as softwareName -%}
+{%- macro TestingEnvironmentDetails(testingEnvironment, compact = false) -%}
 {%- set rs = testingEnvironment.readingSystem -%}
 {%- set at = testingEnvironment.assistiveTechnology -%}
 {%- set os = testingEnvironment.os -%}
 {%- set dev = testingEnvironment.device -%}
 {%- set brw = testingEnvironment.browser -%}
 
-<ul>
+<ul class="detailslist {% if compact %}compact{%-endif-%}">
     {%- if at.name -%}
     <li>
-        <b>Assistive Technology</b>: &nbsp;
-        {%- if at.name -%}
-            {%- if at.vendor -%}
-            {{ at.vendor }}&nbsp;
-            {%- endif -%}
-            
-            {{ at.name }}&nbsp;
-            
-            {%- if at.version -%}
-            {{ at.version }}
-            {%- endif -%},&nbsp;
-        {%- endif -%}
-        {%- if dev -%}
-        {%- if dev.vendor -%}
-        {{ dev.vendor }}&nbsp;
-        {%- endif -%}
-        {%- if dev.name -%}
-        {{ dev.name }}&nbsp;
-        {%- endif -%}
-        {%- if dev.version -%}
-        {{ dev.version }}
-        {%- endif -%}
+        <span>Assistive Technology</span>
+        {%- if at and dev -%}
+        <ul>
+            <li>{{softwareName.SoftwareName(at)}}</li>
+            <li>{{softwareName.SoftwareName(dev)}}</li>
+        </ul>
+        {%- elif at -%}
+        <span>{{softwareName.SoftwareName(at)}}</span>
+        {%- elif dev -%}
+        <span>{{softwareName.SoftwareName(dev)}}</span>
+        {%- else -%}
+        <span>None</span>
         {%- endif -%}
     </li>
     {%- endif -%}
     <li>
-        <b>OS</b>: &nbsp;
-        {%- if os.vendor -%}
-        {{ os.vendor }}&nbsp;
-        {%- endif -%}
-        {%- if os.name -%}
-        {{ os.name }}&nbsp;
-        {%- endif -%}
-        {%- if os.version -%}
-        {{ os.version }}
-        {%- endif -%}
+        <span>OS</span>
+        <span>{{softwareName.SoftwareName(os)}}</span>
     </li>
+        
     {%- if brw -%}
     <li>
-        <b>Browser</b>: &nbsp;
-        {%- if brw.vendor -%}
-        {{ brw.vendor }}&nbsp;
-        {%- endif -%}
-        {%- if brw.name -%}
-        {{ brw.name }}&nbsp;
-        {%- endif -%}
-        {%- if brw.version -%}
-        {{ brw.version }}
-        {%- endif -%}
+        <span>Browser</span>
+        <span>{{softwareName.SoftwareName(brw)}}</span>
     </li>
     {%- endif -%}
 
 </ul>
-<ul>
+{%- if compact == false -%}
+<ul class="detailslist">
 
     <li>
-        <b>Tested with Braille</b>:&nbsp;
-        {%- if testingEnvironment.testedWithBraille -%}Yes{%-else-%}No{%-endif-%}
+        <span>Tested with Braille</span>
+        <span>{%- if testingEnvironment.testedWithBraille -%}Yes{%-else-%}No{%-endif-%}</span>
     </li>
     <li>
-        <b>Tested with Screenreader</b>:&nbsp;
-        {%- if testingEnvironment.testedWithScreenreader -%}Yes{%-else-%}No{%-endif-%}
+        <span>Tested with Screenreader</span>
+        <span>{%- if testingEnvironment.testedWithScreenreader -%}Yes{%-else-%}No{%-endif-%}</span>
     </li>
     <li>
-        <b>Input type</b>:&nbsp;
+        <span>Input type</span>
+        <span>
         {%- if testingEnvironment.input == 'KEYBOARD' -%} Keyboard
         {%- elif testingEnvironment.input == 'MOUSE' -%} Mouse
         {%- elif testingEnvironment.input == 'TOUCH' -%} Touch
         {%-endif-%}
+        </span>
     </li>
 </ul>
+{%- endif -%}
 {%- endmacro -%}
