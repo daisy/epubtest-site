@@ -38,9 +38,9 @@ async function inviteUser(userId, jwt) {
             : 
             `http://epubtest.org/accept-invitation?token=${temporaryJwt}`;
         await mail.sendEmail(user.login.email, 
-            emails.reinvite.subject, 
-            emails.reinvite.text(inviteUrl), 
-            emails.reinvite.html(inviteUrl));   
+            emails.invite.subject, 
+            emails.invite.text(inviteUrl), 
+            emails.invite.html(inviteUrl));   
         
         dbres = await db.query(
             Q.INVITATIONS.CREATE, 
