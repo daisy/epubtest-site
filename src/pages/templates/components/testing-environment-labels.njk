@@ -14,16 +14,16 @@
 {%- set dev = testingEnvironment.device -%}
 {%- set brw = testingEnvironment.browser -%}
 {{SoftwareTitle(rs)}}
-{%- if at -%}
+{%- if at and at.name -%}
 , {{SoftwareTitle(at)}}
 {%- endif -%}
 {%- if os -%}
 , {{SoftwareTitle(os)}}
 {%- endif -%}
-{%- if brw -%}
+{%- if brw and brw.name -%}
 , {{SoftwareTitle(brw)}}
 {%- endif -%}
-{%- if dev -%}
+{%- if dev and dev.name -%}
 , {{SoftwareTitle(dev)}}
 {%- endif -%}
 
