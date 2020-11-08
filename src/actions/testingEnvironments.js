@@ -9,6 +9,8 @@ async function add(testingEnvironmentInput, jwt) {
     let transactions = [];
     let testingEnvironmentId;
     try {
+        await db.query(Q.ETC.DISABLE_TRIGGERS, {}, jwt);
+
         let dbres = await db.query(
             Q.TESTING_ENVIRONMENTS.CREATE, 
             {
@@ -45,9 +47,17 @@ async function add(testingEnvironmentInput, jwt) {
     }
     catch(err) {
         undo(transactions, jwt);
+         // reenable the triggers
+        await db.query(Q.ETC.ENABLE_TRIGGERS, {}, jwt);
+        // call the function that does what the triggers would have done had they been active
+        await db.query(Q.ETC.RUN_ANSWERSET_TRIGGER_OPERATIONS, {}, jwt);
         return {success: false, errors, testingEnvironmentId};
     }
 
+    // reenable the triggers
+    await db.query(Q.ETC.ENABLE_TRIGGERS, {}, jwt);
+    // call the function that does what the triggers would have done had they been active
+    await db.query(Q.ETC.RUN_ANSWERSET_TRIGGER_OPERATIONS, {}, jwt);
     return {success: true, errors, testingEnvironmentId};
 }
 
@@ -55,9 +65,11 @@ async function add(testingEnvironmentInput, jwt) {
 async function remove(testingEnvironmentId, jwt) {
     let errors = [];
     try {
+        await db.query(Q.ETC.DISABLE_TRIGGERS, {}, jwt);
+
         // get testing environment
         let dbres = await db.query(
-            Q.TESTING_ENVIRONMENTS_WITH_ANSWERS.GET, 
+            Q.TESTING_ENVIRONMENTS.GET, 
             { id: testingEnvironmentId }, 
             jwt);
         if (!dbres.success) {
@@ -66,27 +78,31 @@ async function remove(testingEnvironmentId, jwt) {
         }
         
         let testenv = dbres.data.testingEnvironment;
-        // delete answers and answer sets
-        let answerSets = testenv.answerSets;
-        for (answerSet of answerSets) {
-            let answers = answerSet.answers;
-            for (answer of answers) {
-                dbres = await db.query(Q.ANSWERS.DELETE, 
-                    {id: answer.id}, 
-                    jwt);
-                if (!dbres.success) {
-                    errors = dbres.errors;
-                    throw new Error();
-                }
-            }
-            dbres = await db.query(Q.ANSWER_SETS.DELETE, 
-                {id: answerSet.id}, 
-                jwt);
-            if (!dbres.success) {
-                errors = dbres.errors;
-                throw new Error();
-            }
+        for (answerSet of testenv.answerSets) {
+            await answerSets.remove(answerSet.id, jwt);
         }
+        // delete answers and answer sets
+        // let answerSets = testenv.answerSets;
+        // for (answerSet of answerSets) {
+            
+        //     let answers = answerSet.answers;
+        //     for (answer of answers) {
+        //         dbres = await db.query(Q.ANSWERS.DELETE, 
+        //             {id: answer.id}, 
+        //             jwt);
+        //         if (!dbres.success) {
+        //             errors = dbres.errors;
+        //             throw new Error();
+        //         }
+        //     }
+        //     dbres = await db.query(Q.ANSWER_SETS.DELETE, 
+        //         {id: answerSet.id}, 
+        //         jwt);
+        //     if (!dbres.success) {
+        //         errors = dbres.errors;
+        //         throw new Error();
+        //     }
+        // }
         
         // delete testing environment
         dbres = await db.query(Q.TESTING_ENVIRONMENTS.DELETE,
@@ -98,9 +114,17 @@ async function remove(testingEnvironmentId, jwt) {
         }
     }
     catch (err) {
+        // reenable the triggers
+        await db.query(Q.ETC.ENABLE_TRIGGERS, {}, jwt);
+        // call the function that does what the triggers would have done had they been active
+        await db.query(Q.ETC.RUN_ANSWERSET_TRIGGER_OPERATIONS, {}, jwt);
         return {success: false, errors};
     }
 
+    // reenable the triggers
+    await db.query(Q.ETC.ENABLE_TRIGGERS, {}, jwt);
+    // call the function that does what the triggers would have done had they been active
+    await db.query(Q.ETC.RUN_ANSWERSET_TRIGGER_OPERATIONS, {}, jwt);
     return {success: true, errors: []};
 }
 
