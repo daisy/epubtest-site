@@ -20,6 +20,9 @@
     
 {%- for testingEnvironment in testingEnvironments -%}
 {{ testingEnvironmentLabels.TestingEnvironmentTitle (testingEnvironment, 'h3', 'p') }}
+{%- if testingEnvironment.isArchived -%}
+<p class="archived">This testing environment has been archived.</p>
+{%- endif -%}
 {{ testingEnvironmentDetails.TestingEnvironmentDetails(testingEnvironment) }}
 {{ TestingEnvironmentTable(testingEnvironment)}}
 
