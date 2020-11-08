@@ -43,7 +43,6 @@ router.post('/results',
         let answers = req.body.answers;
         if (answers && answers.length > 0) {
             let passed = answers.filter(a=>a.value === 'PASS');
-            let score = passed.length / answers.length * 100;
             let data = {
                 answerSetId: parseInt(req.body.answerSetId),
                 summary,
@@ -51,8 +50,6 @@ router.post('/results',
                 answerValues: answers.map(a=>a.value),
                 notes: answers.map(a=>a.notes),
                 notesArePublic: answers.map(a=>a.publishNotes === 'on')
-                //,
-                //score: String(score)
             }
         
             let dbres = await db.query(Q.ANSWER_SETS.UPDATE_ANSWERSET_AND_ANSWERS, {input: data}, req.cookies.jwt);
@@ -71,7 +68,7 @@ router.post('/profile',
     [
       body("name").trim().escape(),
       body("includeCredit").isIn(['on', undefined]),
-      body("creditAs").trim().escape()
+      body("creditAs").trim()
 
     ],
     async (req, res) => {
