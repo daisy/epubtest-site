@@ -1,3 +1,5 @@
+import * as helpers from './data-table-helpers.js';
+
 function getBodyCellDisplay (header, row) {
     let cellContent = "";
     if (header.id == "testId") {
@@ -10,10 +12,10 @@ function getBodyCellDisplay (header, row) {
         cellContent = row.test.description;
     }
     else if (header.id == "result") {
-        cellContent = row.value;
+        cellContent = helpers.resultNames[row.value];
     }
     else if (header.id == "notes") {
-        cellContent = row.notes;
+        cellContent = row.notes != 'null' ? row.notes : '';
     }
     return {
         cellClass: "",

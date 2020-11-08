@@ -109,6 +109,10 @@ tbody tr:nth-child(even) {
 table tr span.sw {
     display: block;
 }
+tr .score a {
+    text-decoration: none;
+    color: inherit;
+}
 .not-tested {
     font-weight: lighter;
     font-style: italic;

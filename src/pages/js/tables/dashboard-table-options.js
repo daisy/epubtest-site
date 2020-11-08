@@ -6,7 +6,7 @@ function getBodyCellDisplay (header, row, requestsToPublish, isAdmin, testingEnv
         cellContent = helpers.getTopicName(row.testBook.topic.id);
     }
     else if (header.id == "score") {
-        cellContent = row.score;
+        cellContent = helpers.makeScoreSpan(row);
     }
     else if (header.id == "edit") {
         cellContent = `<a href="/user/edit-results/${row.id}">Edit</a>`;

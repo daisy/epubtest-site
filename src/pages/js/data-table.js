@@ -2524,8 +2524,8 @@ const unsafeHTML = directive((value) => (part) => {
 
 class DataTable extends LitElement {
     static get styles() {
-        return css`
-        fieldset {
+        let style = css`
+fieldset {
     border: none;
     padding: 0;
 }
@@ -2630,6 +2630,10 @@ tbody tr:nth-child(even) {
 table tr span.sw {
     display: block;
 }
+tr .score a {
+    text-decoration: none;
+    color: inherit;
+}
 .not-tested {
     font-weight: lighter;
     font-style: italic;
@@ -2691,6 +2695,7 @@ div.test-results {
     }
 }
 `;
+        return style;
     }
 
     /*
@@ -2982,6 +2987,7 @@ div.test-results {
 
         let columnSelectorHtml = this.renderColumnSelectors();
 
+        // disable the stylesheet link because it causes flickering
         return html`
         ${false ? html`<link rel="stylesheet" href="${this.cssUrl}">` : ``}
         <div class="data-table ${this.customClass}">${filtersHtml} ${columnSelectorHtml}<table summary="${this.summary}" aria-live="polite" aria-colcount="${this.data.headers.length}" aria-rowcount="${rows.length}"><thead><tr>${this.data.headers.map((header, idx) => {
