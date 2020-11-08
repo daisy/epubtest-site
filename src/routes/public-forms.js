@@ -167,6 +167,24 @@ router.post('/set-password',
                 .status(401)
                 .redirect(`/set-password?token=${jwt}&message=${encodeURIComponent(message)}`);
         }
+
+        // delete any invitations for this user
+        dbres = await db.query(
+            Q.INVITATIONS.GET_FOR_USER,
+            {userId: token.userId},
+            jwt
+        );
+        // there should just be one invitation per user but just in case there are more
+        for (invitation of dbres.data.invitations) {
+            // delete the invitation
+            dbres = await db.query(
+                Q.INVITATIONS.DELETE,
+                {
+                    id: invitation.id
+                }, 
+                jwt
+            );
+        }
         
         let message = "Success. Login with your new password."
         return res

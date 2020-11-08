@@ -152,18 +152,6 @@ router.get('/accept-invitation', async (req, res) => {
                     .status(401)
                     .redirect(`error?message=${encodeURIComponent(message)}`);
         }
-
-        // there should just be one invitation per user but just in case there are more
-        for (invitation of dbres.data.invitations) {
-            // delete the invitation
-            dbres = await db.query(
-                Q.INVITATIONS.DELETE,
-                {
-                    id: invitation.id
-                }, 
-                jwt
-            );
-        }
         
         return res
                 .status(200)
