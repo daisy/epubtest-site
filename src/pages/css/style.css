@@ -121,6 +121,9 @@ footer > * {
 main > div {
     margin-bottom: 2rem;
 }
+nav.secondary-nav h2 {
+    font-size: medium;
+}
 ul.detailslist {
     list-style-type: none;
     width: 30rem;

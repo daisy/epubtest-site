@@ -123,8 +123,8 @@
 {%- endmacro -%}
 
 {%- block nav -%}
-<nav aria-labelled-by="topics-title">
-    <h1 id="topics-title">Topics</h1>
+<nav aria-labelled-by="topics-title" class="secondary-nav">
+    <h2 id="topics-title">Topics</h2>
     <ul>
         {%- for answerSet in testingEnvironment.answerSets -%}
         {%- if answerSet.isTested -%}

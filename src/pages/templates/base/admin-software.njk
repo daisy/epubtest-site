@@ -1,7 +1,7 @@
 {%- extends 'base/admin-base.njk' -%}
 {%- block nav -%}
-<nav aria-label="Software categories">
-    <h2>Types of software</h2>
+<nav aria-labelled-by="navlabel" class="secondary-nav">
+    <h2 id="navlabel">Types of software</h2>
     {%- include "components/software-categories.njk" -%}
 </nav>
 {%- endblock -%}
