@@ -94,7 +94,8 @@ router.post('/forgot-password',
             Q.AUTH.TEMPORARY_TOKEN,
             {
                 input: {
-                    email: req.body.email
+                    email: req.body.email,
+                    duration: '4 hours'
                 }
             });
         if (!dbres.success) {
@@ -119,6 +120,10 @@ router.post('/forgot-password',
                 "Could not initiate password reset. Please contact an administrator."; 
             return res.status(200)
                 .redirect(`/?message=` + encodeURIComponent(message));
+        }
+        else {
+            let message = "Reset password error";
+            return res.redirect('/forgot-password?message=' + encodeURIComponent(message));
         }
     }
 );

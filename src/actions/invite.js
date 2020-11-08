@@ -19,7 +19,8 @@ async function inviteUser(userId, jwt) {
             Q.AUTH.TEMPORARY_TOKEN,
             {
                 input: {
-                    email: user.login.email
+                    email: user.login.email,
+                    duration: '7 days'
                 }
             });
         if (!dbres.success) {
