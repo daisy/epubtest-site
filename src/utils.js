@@ -47,6 +47,53 @@ function compareVersions(v1, v2) {
     
     return !(v1Maj != v2Maj || v1Min != v2Min);
 }
+const softwareTypeLabels = [
+    {
+        dbEnum: "READING_SYSTEM",
+        queryLabel: "ReadingSystem",
+        humanLabel: "Reading System",
+        humanLabelPlural: "Reading Systems",
+        addressPart: "reading-system"
+    },
+    {
+        dbEnum: "ASSISTIVE_TECHNOLOGY",
+        queryLabel: "AssistiveTechnology",
+        humanLabel: "Assistive Technology",
+        humanLabelPlural: "AssistiveTechnologies",
+        addressPart: "assistive-technology"
+    },
+    {
+        dbEnum: "OS",
+        queryLabel: "Os",
+        humanLabel: "Operating System",
+        humanLabelPlural: "Operating Systems",
+        addressPart: "os"
+    },
+    {
+        dbEnum: "BROWSER",
+        queryLabel: "Browser",
+        humanLabel: "Browser",
+        humanLabelPlural: "Browsers",
+        addressPart: "browser"
+    },
+    {
+        dbEnum: "DEVICE",
+        queryLabel: "Device",
+        humanLabel: "Device",
+        humanLabelPlural: "Devices",
+        addressPart: "device"
+    }
+];
+
+let getSoftwareTypeLabels = (value) => {
+    let match = softwareTypeLabels.find(entry => 
+        entry.dbEnum.toLowerCase() == value.toLowerCase()
+        || entry.queryLabel.toLowerCase() == value.toLowerCase() 
+        || entry.humanLabel.toLowerCase() == value.toLowerCase()
+        || entry.addressPart.toLowerCase() == value.toLowerCase());
+    return match ?? null;
+};
+
 let makeName = rs => `${rs.name}${rs.version != 'undefined' && rs.version != 'null' ? rs.version : ''}`;
 let sortAlpha = (a,b) => makeName(a) > makeName(b) ? 1 : makeName(a) === makeName(b) ? 0 : -1;
 let sortAlphaTestEnv = (a,b) => makeName(a.readingSystem) > makeName(b.readingSystem) ? 1 
@@ -61,5 +108,6 @@ module.exports = {
     sortAlphaTestEnv,
     sortTopicOrder,
     sortAlphaUsers,
-    compareVersions
+    compareVersions,
+    getSoftwareTypeLabels
 }
