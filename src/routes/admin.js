@@ -1,6 +1,7 @@
 var express = require('express');
 const db = require('../database');
 const Q = require('../queries');
+const displayUtils = require('../displayUtils');
 const utils = require('../utils');
 
 var router = express.Router()
@@ -96,7 +97,7 @@ router.get('/test-books', async (req, res, next) => {
     return res.render('admin/test-books.njk', 
         {
             testBooks: dbres.data.getLatestTestBooks,
-            getTopicName: utils.getTopicName
+            displayUtils
         }
     );
 });

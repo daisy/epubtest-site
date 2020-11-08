@@ -4,6 +4,7 @@ const router = express.Router()
 const db = require('../database');
 const Q = require('../queries');
 const utils = require('../utils');
+const displayUtils = require("../displayUtils");
 
 router.get('/test', (req, res) => res.render('test.njk'));
 
@@ -40,7 +41,7 @@ router.get('/results/:testingEnvironmentId', async (req, res, next) => {
 
     return res.render('testing-environment.njk', {
         testingEnvironment: dbres.data.testingEnvironment,
-        getTopicName: utils.getTopicName
+        displayUtils
     });
 });
 
@@ -61,9 +62,10 @@ router.get('/results', async (req, res, next) => {
     let testingEnvironments = dbres.data.testingEnvironments;
     
     return res.render('results.njk', {
-        testingEnvironments,
+        testingEnvironments: testingEnvironments.sort(utils.sortAlphaTestEnv),
         topics,
         isArchivesPage: false,
+        displayUtils
     });
 });
 
@@ -85,7 +87,8 @@ router.get('/archive', async (req, res, next) => {
     return res.render('results.njk', {
         testingEnvironments,
         topics,
-        isArchivesPage: true
+        isArchivesPage: true,
+        displayUtils
     });
 });
 
@@ -102,7 +105,7 @@ router.get('/test-books', async (req, res, next) => {
     return res.render('test-books.njk', 
         {
             testBooks: dbres.data.getLatestTestBooks,
-            getTopicName: utils.getTopicName
+            displayUtils
         }
     );
 });

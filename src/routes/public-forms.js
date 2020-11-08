@@ -10,24 +10,6 @@ const dayjs = require('dayjs');
 
 var router = express.Router()
 
-// test mail sending
-// router.post('/mail', [body('email').isEmail()], async(req, res) => {
-//     let success = await mail.testEmail(req.body.email);
-//     let message = success ? "Message sent" : "Error sending message";
-//     return res.redirect('/test?message=' + encodeURIComponent(message));
-// });
-
-// router.post('/token', async(req, res) => {
-//     let token = utils.parseToken(req.body.token);
-//     if (token) {
-//         token.expires_ = dayjs.unix(token.expires).format();
-//         res.send(JSON.stringify(token, null, 2));
-//     }
-//     else {
-//         res.send("Could not process token");
-//     }
-// });
-
 // submit login
 router.post('/login', 
     [
@@ -142,8 +124,6 @@ router.post('/set-password',
             return res.status(422).redirect(`/set-password?token=${jwt}&message=${encodeURIComponent(message)}`);
         }
 
-        //let token = utils.parseToken(req.cookies.jwt);
-        
         let token = utils.parseToken(jwt);
         let dbres = await db.query(
             Q.USERS.GET,

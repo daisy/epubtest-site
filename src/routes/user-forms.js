@@ -3,7 +3,6 @@ const db = require('../database');
 const Q = require('../queries');
 const { validator, validationResult, body } = require('express-validator');
 var router = express.Router()
-const utils = require('../utils');
 
 
 // submit request to publish

@@ -22,31 +22,6 @@ function parseToken (token) {
     }
 }
 
-// hack: english only for now
-const topicNames = {
-    "basic-functionality": "Basic Functionality",
-    "visual-adjustments": "Visual Adjustments",
-    "non-visual-reading": "Non-Visual Reading",
-    "read-aloud": "Read Aloud",
-    "media-overlays": "Media Overlays",
-    "extended-descriptions": "Extended Descriptions",
-    "math": "Mathematics"
-}
-function getTopicName(id) {
-    let retval = topicNames.hasOwnProperty(id) ? topicNames[id] : '';
-    return retval;
-}
-// returns true if maj and min are the same (disregards patch)
-function compareVersions(v1, v2) {
-    let v1Maj = parseInt(semver.major(v1));
-    let v1Min = parseInt(semver.minor(v1));
-    //let v1Patch = parseInt(semver.patch(v1));
-    let v2Maj = parseInt(semver.major(v2));
-    let v2Min = parseInt(semver.minor(v2));
-    //let v2Patch = parseInt(semver.patch(v2));
-    
-    return !(v1Maj != v2Maj || v1Min != v2Min);
-}
 const softwareTypeLabels = [
     {
         dbEnum: "READING_SYSTEM",
@@ -103,11 +78,9 @@ let sortAlphaUsers = (a,b) => a.name > b.name ? 1 : a.name === b.name ? 0 : -1;
 let sortTopicOrder = (a,b) => a.order > b.order ? 1 : -1;
 module.exports = {
     parseToken,
-    getTopicName,
     sortAlpha,
     sortAlphaTestEnv,
     sortTopicOrder,
     sortAlphaUsers,
-    compareVersions,
     getSoftwareTypeLabels
 }
