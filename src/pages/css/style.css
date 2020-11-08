@@ -121,8 +121,16 @@ footer > * {
 main > div {
     margin-bottom: 2rem;
 }
+
 nav.secondary-nav h2 {
     font-size: medium;
+}
+/* lineup with main content */
+nav.secondary-nav > h2:first-of-type {
+    margin-top: 1rem;
+}
+nav ~ main > h2:first-of-type {
+    margin-top: 1rem;
 }
 ul.detailslist {
     list-style-type: none;
@@ -238,6 +246,10 @@ body > nav ul li {
     margin-bottom: inherit;
 }
 
+span.cmd {
+    /* background-color: lightyellow; */
+    font-weight: bold;
+}
 /* make the local navigation and main body line up */
 main > *:first-child, body > nav > :first-child {
     /* margin-top: 0; */
@@ -266,6 +278,15 @@ main > *:first-child, body > nav > :first-child {
 em.title {
     font-weight: normal;
     /* font-style: italic; */
+}
+p.note {
+    font-style: italic;
+    background-color: var(--softcomp);
+    border-radius: 4px;
+}
+p.note::before {
+    content: '👉 ';
+    font-size: large;
 }
 /*****************************/
 /* MOBILE                    */

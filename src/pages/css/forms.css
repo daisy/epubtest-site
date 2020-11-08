@@ -13,6 +13,11 @@ form div label {
     display: block;
 }
 
+textarea.summary {
+    margin-top: 2vh;
+    margin-bottom: 2vh;
+}
+
 form.simple {
     display: grid;
     grid-template-rows: min-content;
@@ -29,6 +34,13 @@ form.simple div.actions {
     display: flex;
     justify-content: space-evenly;
 }
+form.simple {
+    width: 30rem;
+}
+form.simple input:not([type=submit]):not([type=checkbox]) {
+    width: 100%;
+}
+
 #new-testing-environment {
     gap: 0;
 }
@@ -36,30 +48,18 @@ form.simple div.actions {
     font-weight: bold;
     font-size: larger;
 }
-textarea.summary {
-    margin-top: 2vh;
-    margin-bottom: 2vh;
-}
-
-form.email {
-    width: 30rem;
-}
-form.email input:not([type=submit]):not([type=checkbox]) {
-    width: 100%;
-}
-
-form.profile {
+#profile-form {
     gap: 0.8rem;
 }
-form.profile .row {
+#profile-form .row {
     display: grid;
     grid-template-columns: 80% 20%;
 }
-form.profile .row > *:last-child {
+#profile-form .row > *:last-child {
     justify-self: right;
 }
 
-input#save {
+#save {
     margin-left: 50%;
     margin-right: 50%;
     margin-top: 2vh;
