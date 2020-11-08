@@ -10,7 +10,7 @@ body {
     "header header header"
     "nav main main"
     "footer footer footer";
-    grid-template-columns: minmax(min-content, 20rem) auto minmax(min-content, 20rem);
+    grid-template-columns: minmax(min-content, 20%) auto minmax(min-content, 20rem);
     grid-template-rows: auto 1fr auto;
     font-family: Helvetica Neue, Helvetica, Arial, Verdana, Geneva, sans-serif;
     letter-spacing: -0.00278rem;
