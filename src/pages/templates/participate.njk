@@ -9,7 +9,7 @@
     <div>
         <h3 id="becoming-a-contributor">Becoming a contributor</h3>
         <h4 id="getting-started">Getting started</h4>
-        <p>If you'd like to get involved, we welcome you to <a href="mailto:epubtest@daisy.org">contact us</a>. Once you have received an invitation, just follow the instructions in the email to set up your account.</p>
+        <p>If you'd like to get involved, we welcome you to <a href="mailto:epubtest@daisy.org">contact us</a>. We will then send you an invitation to create an account on this site. Once you have received your invitation, just follow the instructions in the email to set up your account.</p>
     </div>
         
     <div>
@@ -17,15 +17,27 @@
 
         <h4 id="performing-the-tests">Performing the tests</h4>
         
-        <p>After you login, go to your dashboard. There is a table showing testing environments and test books. If you don't have anything in your table, it means our administrators are still setting up your testing. As soon as you have items listed on your dashboard, you can start testing.</p>
-        <p>To enter results, choose a testing environment and a test book, and choose <span class="cmd">Start</span> to begin, or <span class="cmd">Edit Results</span> (to continue).</p>
-        <p>This will bring you to the testing page. There, you will see a link to download the test book itself (the EPUB file), followed by a form with rows for each test in the book. Download the book and open it in the reading system that you're testing.</p>
+        <p>After you login, go to your <span class="cmd">dashboard</span>. There, you'll find your assignments, organized by <span class="cmd">testing environment</span>. </p>
+
+        <p class="note">A <em>testing environment</em> is the combination of software used to evaluate a reading experience. It usually consists of a reading system, some assistive technology, and an operating system. It may also include a browser.</p>
+        
+        <p>If you don't have any assignments on your dashboard, it means our administrators are still setting up your testing, so please check back later. As soon as you have items listed on your dashboard, you can start testing.</p>
+        
+        <p>To enter results, choose a testing environment on your dashboard, and choose a topic from its table. Then select <span class="cmd">Edit</span> to go to the results editing page for that topic.</p>
+
+        <p>This will bring you to the testing page. There, you will see a link to download the <span class="cmd">test book</span> itself (the EPUB file). Download the book and open it in the reading system that you're testing.</p>
+
+        <p class="note">A <span class="cmd">test book</span> is a custom EPUB containing the tests for a topic. For example, there are test books for Math, Visual Adjustments, Media Overlays, and many more reading system testing topics. Using a consistent set of test books results increases the accuracy of the testing experience report.</p>
+
         <p>For each test in the book, there is a corresponding row on the testing page form. Follow the instructions in the book and record an answer for each test.</p>
+
         <p>Press <span class="cmd">Save</span> when you're done, or when you want to pause testing for now. You can return later to finish.</p>
             
         <h4 id="adding-summary-information">Adding summary information</h4>
         
         <p>Once you have performed the tests from a book for a testing environment, you may add some summary notes about your experience in the summary field on the testing page. This summary will become part of your results when they're published.</p>
+
+        <p>You may also enter notes for each test, and choose on a per-note basis whether they should be published when the results go live.</p>
         
         <h4 id="editing-your-results">Editing your results</h4>
         
@@ -33,16 +45,17 @@
         
         <h4 id="publishing-your-results">Publishing your results</h4>
         
-        <p>Results are not public until they have been published. Then they appear on the main page.</p>
-        <p>To publish your results, go to your Dashboard, find the results (listed per test book), and choose the <span class="cmd">request to publish</span> option. Our administrators will review and approve your request shortly!</p>
+        <p>Results are not public until they have been published. Then they appear on the main <a href="/results">results page</a>.</p>
+
+        <p>To publish your results, go to your dashboard, find the results (listed per test book), and choose the <span class="cmd">request to publish</span> option. Our administrators will review and approve your request shortly.</p>
     </div>
 
     <div>
         <h3 id="maintaining-your-results">Maintaining your results</h3>
         
-        <p>From time to time, the test books are updated to fix bugs or expand the number of tests. When this happens, you'll receive an email notification. The next time you login, check your dashboard to see what needs your attention.</p>
-        <p>Once you've made your updates, from your Dashboard, select <span class="cmd">request to publish</span> to update your public results on the main page.</p>
-        <p>In the time between the test books being updated and you updating your results, your score for the previous version of that test book will remain on the main page, with an indication that it is not current.</p>
+        <p>From time to time, the tests are updated to fix bugs or expand the number of tests. When this happens, you will see in your dashboard what needs attention.</p>
+
+        <p>In the time between the tests being updated and you updating your results for those tests, your score for the previous tests will remain visible on the main page, with an indication that it is not for the most current set of tests.</p>
     </div>
 </main>
 {% endblock %}
