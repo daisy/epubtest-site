@@ -46,3 +46,7 @@ table.narrow th, table.narrow td {
     width: min-content;
     white-space: nowrap;
 }
+span.not-tested {
+    font-style: italic;
+    font-weight: lighter;
+}

@@ -86,7 +86,7 @@ nav ~ main {
 
 /* centered main area */
 main.center {
-    margin-left: calc(20% + 1rem);
+    grid-column-start: 2;
     margin-right: 20%;
 }
 /* main area with a logo on the right */
@@ -153,9 +153,6 @@ ul.detailslist.compact li {
 }
 ul.detailslist span {
     display: block;
-}
-ul.detailslist span:first-child::after {
-    content: ': ';
 }
 ul.detailslist span:first-child {
     background-color: var(--darkgray);

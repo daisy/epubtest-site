@@ -9,7 +9,7 @@
 <ul class="detailslist {% if compact %}compact{%-endif-%}">
     {%- if at.name -%}
     <li>
-        <span>Assistive Technology</span>
+        <span>Assistive Technology: </span>
         {%- if at and dev -%}
         <ul>
             <li>{{softwareName.SoftwareName(at)}}</li>
@@ -25,13 +25,13 @@
     </li>
     {%- endif -%}
     <li>
-        <span>OS</span>
+        <span>OS: </span>
         <span>{{softwareName.SoftwareName(os)}}</span>
     </li>
         
     {%- if brw -%}
     <li>
-        <span>Browser</span>
+        <span>Browser: </span>
         <span>{{softwareName.SoftwareName(brw)}}</span>
     </li>
     {%- endif -%}
@@ -41,15 +41,15 @@
 <ul class="detailslist">
 
     <li>
-        <span>Tested with Braille</span>
+        <span>Tested with Braille: </span>
         <span>{%- if testingEnvironment.testedWithBraille -%}Yes{%-else-%}No{%-endif-%}</span>
     </li>
     <li>
-        <span>Tested with Screenreader</span>
+        <span>Tested with Screenreader: </span>
         <span>{%- if testingEnvironment.testedWithScreenreader -%}Yes{%-else-%}No{%-endif-%}</span>
     </li>
     <li>
-        <span>Input type</span>
+        <span>Input type: </span>
         <span>
         {%- if testingEnvironment.input == 'KEYBOARD' -%} Keyboard
         {%- elif testingEnvironment.input == 'MOUSE' -%} Mouse
