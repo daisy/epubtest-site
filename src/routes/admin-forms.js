@@ -148,7 +148,8 @@ router.post('/reinvite-users', async (req, res, next) => {
             return next(err);
         }
     }
-    return res.redirect('/admin/invite-users');
+    let message = `Invited ${req.body.users.length} new user(s)`;
+    return res.redirect('/admin/reinvite-users?message=' + encodeURIComponent(message));
 });
 
 router.post('/manage-invitations/:id', async (req, res, next) => {
@@ -167,7 +168,7 @@ router.post('/manage-invitations/:id', async (req, res, next) => {
     return res.redirect('/admin/invitations');
 });
 
-router.post('/invite-new-user', 
+router.post('/invite-user', 
 [
     body("name").trim().escape(),
     body("email").trim().isEmail()
@@ -177,7 +178,7 @@ async (req, res, next) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
         let message = `Invalid value for ${errors.array().map(err => `${err.param}`).join(', ')}`;
-        return res.status(422).redirect('/admin/invite-users?message=' + encodeURIComponent(message));
+        return res.status(422).redirect('/admin/add-user?message=' + encodeURIComponent(message));
     }
     
     let message = "";
@@ -195,7 +196,7 @@ async (req, res, next) => {
 
     if (!dbres.success) {
         message = `Could not create invitation: ${dbres.errors.map(err => err.message).join(', ')}`;
-        return res.status(422).redirect('/admin/invite-users?message=' + encodeURIComponent(message));
+        return res.status(422).redirect('/admin/add-user?message=' + encodeURIComponent(message));
     }
     let loginId = dbres.data.createNewLogin.integer;
 
@@ -213,7 +214,7 @@ async (req, res, next) => {
 
     if (!dbres.success) {
         message = `Could not create invitation`;
-        return res.status(422).redirect('/admin/invite-users?message=' + encodeURIComponent(message));
+        return res.status(422).redirect('/admin/add-user?message=' + encodeURIComponent(message));
     }
 
     let userId = dbres.data.createUser.user.id;
@@ -222,14 +223,14 @@ async (req, res, next) => {
     dbres = await invite.inviteUser(userId, req.cookies.jwt);
     if (!dbres.success) {
         message = `Could not create invitation`;
-        return res.status(422).redirect('/admin/invite-users?message=' + encodeURIComponent(message));
+        return res.status(422).redirect('/admin/add-user?message=' + encodeURIComponent(message));
     }
 
     message = `User ${req.body.email} has been invited.`;
-    return res.redirect('/admin/invite-users?message=' + encodeURIComponent(message));
+    return res.redirect('/admin/add-user?message=' + encodeURIComponent(message));
 });
 
-router.post("/upload-test-book", async (req, res, next) => {
+router.post("/add-test-book", async (req, res, next) => {
     new formidable.IncomingForm().parse(req, async (err, fields, files) => {
         if (err) {
             winston.error(err);
@@ -261,8 +262,8 @@ router.post("/upload-test-book", async (req, res, next) => {
         newTestIds = flaggedTestBook.tests.filter(t => t.flagNew).map(t => t.testId);
 
         // attach these properties
-        flaggedTestBook.experimental = req.body.experimental;
-        flaggedTestBook.translation = req.body.translation;
+        flaggedTestBook.experimental = fields.experimental == "on";
+        flaggedTestBook.translation = fields.translation == "on";
         
         // show page where admin can set own flags
         return res.render('./admin/ingest-test-book.njk', 
@@ -336,7 +337,7 @@ router.post("/confirm-delete-test-book/:id", async (req, res, next) => {
     else {
         return res.render('./confirm.njk', {
             title: "Confirm deletion",
-            content: `Please confirm that you would like to delete ${testBook.title} (${testBook.langId}, v. ${testBook.version})`,
+            content: `Please confirm that you would like to delete <em>${testBook.title} (${testBook.langId}, v. ${testBook.version})</em>`,
             nextIfYes: '/admin/test-books',
             nextIfNo: `/admin/test-books`,
             formAction: `/admin/forms/delete-test-book/${parseInt(req.params.id)}`
@@ -412,13 +413,14 @@ router.post('/add-software', async (req, res, next) => {
         return next(err);
     }
 
-    return res.redirect('/admin/add-testing-environment');
+    let message = `Created ${req.body.name} ${req.body.version}`;
+    return res.redirect('/admin/add-testing-environment?message=' + encodeURIComponent(message));
 });
 
 router.post('/add-testing-environment', async(req, res, next) => {
     let input = {
         readingSystemId: parseInt(req.body.readingSystemId),
-        osId: parseInt(req.body.operatingSystemId),
+        osId: parseInt(req.body.osId),
         testedWithBraille: req.body.testedWithBraille === "on",
         testedWithScreenreader: req.body.testedWithScreenreader === "on",
         input: req.body.input
@@ -429,25 +431,24 @@ router.post('/add-testing-environment', async(req, res, next) => {
     if (req.body.assistiveTechnologyId != 'none') {
         input = {...input, assistiveTechnologyId: parseInt(req.body.assistiveTechnologyId)};
     }
+    if (req.body.deviceId != 'none') {
+        input = {...input, deviceId: parseInt(req.body.deviceId)};
+    }
 
     // TODO separate form for assigning users
     // this just grabs the req user
-    let topicsUsers = [];
-    let user = parseInt(req.body.user);
-    if (req.body.hasOwnProperty("topics")) {    
-        topicsUsers = req.body.topics.map(t=>({topic: t, user}));
-    }
+    // let topicsUsers = [];
+    // let user = parseInt(req.body.user);
+    // if (req.body.hasOwnProperty("topics")) {    
+    //     topicsUsers = req.body.topics.map(t=>({topic: t, user}));
+    // }
     let result = await testingEnvironments.add(input, req.cookies.jwt);
 
     if (!result.success) {
         let err = new Error("Could not create testing environment.");
         return next(err);
     }
-    for (topicUser of topicsUsers) {
-        // TODO left off here
-        //await testingEnvironments.assign()
-        // do we have to assign testing environments upon creation? 
-    }
+    
 
     let newId = result.testingEnvironmentId;
     let message = `Testing environment created (${result.testingEnvironmentId}).`;
@@ -466,15 +467,20 @@ router.post("/confirm-delete-testing-environment/:id", async (req, res, next) =>
     }
     let testenv = dbres.data.testingEnvironment;
 
-    let testingEnvironmentTitle = `
-    ${testenv.readingSystem.name} ${testenv.readingSystem.version}
-    ${testenv.assistiveTechnology ? testenv.assistiveTechnology.name ? `${testenv.assistiveTechnology.name} ${testenv.assistiveTechnology.version}` : '' : ''}
-    ${testenv.os.name} ${testenv.os.version}`;
+    let testingEnvironmentTitleArr = [
+        `${testenv.readingSystem.name} ${testenv.readingSystem.version}`,
+        `${testenv?.assistiveTechnology?.name ?? ''} ${testenv?.assistiveTechnology?.version ?? ''}`,
+        `${testenv?.device?.name ?? ''} ${testenv?.device?.version ?? ''}`,
+        `${testenv?.device?.name ?? ''} ${testenv?.device?.version ?? ''}`,
+        `${testenv.os.name} ${testenv.os.version}`
+    ];
+    testingEnvironmentTitleArr = testingEnvironmentTitleArr.map(s => s.trim()).filter(s => s != '');
+    let testingEnvironmentTitle = testingEnvironmentTitleArr.join(' / ');
 
     return res.render('./confirm.njk', {
         title: "Confirm deletion",
-        content: `Please confirm that you would like to delete ${testingEnvironmentTitle}`,
-        nextIfYes: `/admin/testing`,
+        content: `Please confirm that you would like to delete <em>${testingEnvironmentTitle}</em>`,
+        nextIfYes: `/admin/testing-environments`,
         nextIfNo: `/admin/testing-environment/${req.params.id}`,
         formAction: `/admin/forms/delete-testing-environment/${req.params.id}`
     });
@@ -511,7 +517,8 @@ router.post("/software",
     body('version').trim()
 ],
 async (req, res, next) => {
-    let url='/admin/software';
+    let swlabel = utils.getSoftwareTypeLabels(req.body.type);
+    let url=`/admin/all-software/${swlabel.addressPart}`;
     if (req.body.hasOwnProperty("save")) {
         let dbres = await db.query(Q.SOFTWARE.UPDATE, {
             id: parseInt(req.body.id),
@@ -552,7 +559,7 @@ router.post("/confirm-delete-software/:id", async (req, res, next) => {
 
     return res.render('./confirm.njk', {
         title: "Confirm deletion",
-        content: `Please confirm that you would like to delete ${softwareTitle}`,
+        content: `Please confirm that you would like to delete <em>${softwareTitle}</em>`,
         nextIfYes: `/admin/software`,
         nextIfNo: `/admin/software`,
         formAction: `/admin/forms/delete-software/${req.params.id}`
