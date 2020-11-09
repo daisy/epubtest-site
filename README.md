@@ -70,3 +70,23 @@ GraphQL queries. Some comments:
 
 Workflow tests; run with mocha.
 
+## Caveats, other notes, etc
+
+### Forms and shadow DOM
+So forms do not pick up shadow DOM elements, for example if we used the `data-table` web component in the `edit-results` form, the data wouldn't be submitted. That's why this and the test book ingestion forms are do not use that table. 
+
+Elsewhere, the form controls are entirely contained within the table, so it's fine.
+
+### Postgraphile and column-level grant
+
+Postgraphile does not support column-level grants, which is why there is a separate logins vs users table. Otherwise the login information would be theoretically visible to anyone who could view the user information (which, some of it could be viewable, for example, if the user has chosen to get credited for their work, then the results page must display their `creditAs` value).
+
+Since we are controlling database access via the server, no outside querying is allowed, and the pages are tightly controlled. To be forward-thinking, however, the database API was setup with the possibility to one day have more client-side querying supported, therefore security tokens, row level security, and design decisions such as what's described above are in place.
+
+### Types of layouts
+
+* main: full width
+* main.center: contents are inset, line up with "results" nav item in the header
+* nav ~ main: main is inset, secondary nav is on the left
+* 768 is the mobile breakpoint
+
