@@ -3,6 +3,7 @@ const db = require('../database');
 const Q = require('../queries');
 const utils = require('../utils');
 var router = express.Router()
+const displayUtils = require('../displayUtils');
 
 // user dashboard page
 router.get('/dashboard', async (req, res, next) => {
@@ -75,7 +76,8 @@ router.get('/edit-results/:answerSetId', async (req, res, next) => {
     let nextUrl = req.query.hasOwnProperty('next') ? req.query.next : '/user/dashboard';
     return res.render('edit-results.njk', {
         answerSet: dbres.data.answerSet,
-        next: nextUrl
+        next: nextUrl,
+        displayUtils
     });
 });
 module.exports = router;

@@ -38,7 +38,7 @@ function getBodyCellDisplay (header, row, headerIdx, rowIdx, requestsToPublish, 
             let requestToPublish = requestsToPublish.hasOwnProperty(row.id);
 
             if (row.isPublic) {
-                cellContent = `<a href="/results/${testingEnvironment.id}}">Published</a>`;
+                cellContent = `<a href="/results/${testingEnvironment.id}#${row.testBook.topic.id}">Published</a>`;
             }
             else {
                 if (requestToPublish) {
