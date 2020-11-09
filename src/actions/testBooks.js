@@ -216,7 +216,6 @@ async function add(testBook, jwt) {
 
 // get the answer sets that use this test book
 // differentiate between empty and non-empty answer sets
-// TODO Throwing an error
 async function getUsage(testBookId, jwt) {
     let errors = [];
     let answerSets = {};
