@@ -17,6 +17,8 @@
 
         <h2>Results</h2>
         <p>Enter individual test results:</p>
+
+        
         <table class="striped">
             <thead>
                 <tr>
@@ -31,11 +33,11 @@
             <tbody>
                 {%- for answer in answerSet.answers -%}
                 <tr>
-                    <td>{{answer.test.testId}}<input type="hidden" value="{{answer.id}}" name="answers[{{loop.index}}][id]"></input></td>
+                    <td>{{answer.test.testId}}<input type="hidden" value="{{answer.id}}" name="answers[{{answer.id}}][id]"></input></td>
                     <td><label for="answer-{{answer.id}}">{{answer.test.name}}</label></td>
                     <td>{{answer.test.description}}</td>
                     <td>
-                        <select id="answer-{{answer.id}}" name="answers[{{loop.index}}][value]">
+                        <select id="answer-{{answer.id}}" name="answers[{{answer.id}}][value]">
                             <option value="PASS" {%- if answer.value == 'PASS' -%}selected{%- endif -%}>Pass</option>
                             <option value="FAIL" {%- if answer.value == 'FAIL' -%}selected{%- endif -%}>Fail</option>
                             <option value="NA" {%- if answer.value == 'NA' -%}selected{%- endif -%}>Not applicable</option>
@@ -43,9 +45,9 @@
                         </select>
                     </td>
                     <td>
-                        <textarea rows="5" cols="20" name="answers[{{loop.index}}][notes]">{%- if answer.notes != "null" -%}
+                        <textarea rows="5" cols="20" name="answers[{{answer.id}}][notes]">{%- if answer.notes != "null" -%}
                         {{answer.notes}}{%- endif -%}</textarea>
-                        <input type="checkbox" name="answers[{{loop.index}}][publishNotes]" 
+                        <input type="checkbox" name="answers[{{answer.id}}][publishNotes]" 
                             {%- if answer.notesArePublic -%}checked{%- endif -%}>
                             Publish Notes
                         </input>
@@ -55,6 +57,8 @@
                 {%- endfor -%}
             </tbody>
         </table>
+        
+
         <input type="hidden" name="answerSetId" value="{{answerSet.id}}"></input>
         <input type="hidden" name="next" value="{{next}}"></input>
         <input type="submit" name="submit" value="Save" id="save"></input>

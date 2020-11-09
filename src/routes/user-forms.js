@@ -39,7 +39,8 @@ router.post('/results',
             return res.status(422).redirect('/results?message=' + encodeURIComponent(message));
         }
         let summary = req.body.summary;
-        let answers = req.body.answers;
+        // convert to an array
+        let answers = Object.keys(req.body.answers).map(answerkey => req.body.answers[answerkey]); 
         if (answers && answers.length > 0) {
             let passed = answers.filter(a=>a.value === 'PASS');
             let data = {
@@ -49,7 +50,7 @@ router.post('/results',
                 answerValues: answers.map(a=>a.value),
                 notes: answers.map(a=>a.notes),
                 notesArePublic: answers.map(a=>a.publishNotes === 'on')
-            }
+            };
         
             let dbres = await db.query(Q.ANSWER_SETS.UPDATE_ANSWERSET_AND_ANSWERS, {input: data}, req.cookies.jwt);
             
