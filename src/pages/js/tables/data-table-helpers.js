@@ -142,7 +142,7 @@ let softwareNameString = (sw, vendor = false) => {
 
 function testingEnvironmentString(testenv, vendor = false) {
 
-    let testingEnvironmentString = softwareNameString(testenv.readingSystem)
+    let testingEnvironmentString = softwareNameString(testenv.readingSystem).toLowerCase()
     + " " + softwareNameString(testenv.assistiveTechnology, vendor).toLowerCase()
     + " " + softwareNameString(testenv.os, vendor).toLowerCase()
     + " " + softwareNameString(testenv.device, vendor).toLowerCase()

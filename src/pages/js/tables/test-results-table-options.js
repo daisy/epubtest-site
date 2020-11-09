@@ -15,7 +15,7 @@ function getBodyCellDisplay (header, row, headerIdx, rowIdx) {
         cellContent = helpers.resultNames[row.value];
     }
     else if (header.id == "notes") {
-        cellContent = row.notes != 'null' ? row.notes : '';
+        cellContent = row.notesArePublic ? row.notes != 'null' ? row.notes : '' : '';
     }
     return {
         cellClass: "",

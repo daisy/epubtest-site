@@ -1,6 +1,6 @@
 import * as helpers from './data-table-helpers.js';
 
-function getBodyCellDisplay (header, row, requestsToPublish, testingEnvironment, users) {
+function getBodyCellDisplay (header, row, headerIdx, rowIdx, requestsToPublish, testingEnvironment, users) {
     let cellContent = "";
     if (header.id == "topic") {
         cellContent = helpers.getTopicName(row.testBook.topic.id);
@@ -86,7 +86,8 @@ let filters = (requestsToPublish) => {
         },
         user: {
             name: "Assigned to",
-            path: row => row.user.name
+            path: row => row.user ? row.user.name : "None",
+            includeNone: true
         },
         published: {
             name: "Is published",

@@ -74,7 +74,7 @@ router.post('/publish', async (req, res, next) => {
 
     if (dbres.data && dbres.data.requests.length > 0) {
         dbres = await db.query(Q.REQUESTS.DELETE,
-            { id: requests.data.data[0].id },
+            { id: dbres.data.requests[0].id },
             req.cookies.jwt);
         
         if (!dbres.success) {
