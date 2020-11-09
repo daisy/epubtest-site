@@ -119,7 +119,7 @@ footer > * {
     font-size: smaller;
 }
 main > div {
-    margin-bottom: 2rem;
+    /* margin-bottom: 2rem; */
 }
 
 nav.secondary-nav h2 {
@@ -211,6 +211,8 @@ span.na {
 .limit {
     max-height: 30vh;
     overflow: scroll;
+    max-width: 40rem;
+    white-space: break-spaces;
 }
 .testenv span {
     margin-bottom: 1vh;
