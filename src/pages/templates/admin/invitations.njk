@@ -46,6 +46,9 @@
             headers, rows
         };  
     }
+    window.addEventListener("resize", () => {
+        document.querySelector("data-table").render();
+    }); 
 </script>
 <main>
     <h2>Pending invitations</h2>

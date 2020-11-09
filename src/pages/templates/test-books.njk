@@ -5,6 +5,7 @@
 <script type="module" src="/js/data-table.js"></script>
 <script type="module">
     import { options } from '/js/tables/test-books-table-options.js';
+    import * as helpers from '/js/tables/data-table-helpers.js';
 
     let rows = {{testBooks | dump | safe}};
 
@@ -44,7 +45,10 @@
 
     document.querySelector("data-table").data = {
         headers, rows
-    };  
+    }; 
+    window.addEventListener("resize", () => {
+        document.querySelector("data-table").render();
+    }); 
 </script>
 <main>
     <h2>Test books</h2>

@@ -49,6 +49,9 @@
     document.querySelector("data-table").data = {
         headers, rows
     };  
+    window.addEventListener("resize", () => {
+        document.querySelector("data-table").render();
+    }); 
 </script>
 
 <main>

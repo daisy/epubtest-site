@@ -65,7 +65,7 @@
     ];
     
     document.querySelector("data-table").options = {
-        getBodyCellDisplay: (row, header) => options.getBodyCellDisplay(row, header, requestsToPublish, testingEnvironment, users),
+        getBodyCellDisplay: (header, row) => options.getBodyCellDisplay(header, row, headerIdx, rowIdx, requestsToPublish, testingEnvironment, users),
         getHeaderCellDisplay: options.getHeaderCellDisplay,
         showTextSearch: false,
         columnSelectorLabel: "Select a column",
@@ -78,6 +78,9 @@
     document.querySelector("data-table").data = {
         headers, rows
     };
+    window.addEventListener("resize", () => {
+        document.querySelector("data-table").render();
+    }); 
 </script>
 <main>
     <h2>Manage Testing Environment</h2>

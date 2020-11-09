@@ -69,6 +69,9 @@
     document.querySelector("#data-{{answerSet.id}}").data = {
         headers, rows
     };
+    window.addEventListener("resize", () => {
+        document.querySelector("#data-{{answerSet.id}}").render();
+    });
 </script>
 
 <h{{headingLevel}} id="{{answerSet.testBook.topic.id}}">Results for {{topicName}}: {{formatScore.FormatScore(answerSet)}}</h{{headingLevel}}>

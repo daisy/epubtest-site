@@ -52,6 +52,9 @@
             headers, rows
         };  
     }
+    window.addEventListener("resize", () => {
+        document.querySelector("data-table").render();
+    }); 
 </script>
 <main>
     <h2>Manage Requests</h2>
