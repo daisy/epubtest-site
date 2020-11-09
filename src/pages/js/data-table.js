@@ -2534,6 +2534,7 @@ also in the data tables render() function, the line that inserts a css link is c
 fieldset {
     border: none;
     padding: 0;
+    margin-bottom: 1rem;
 }
 .data-table {
     display: grid;
