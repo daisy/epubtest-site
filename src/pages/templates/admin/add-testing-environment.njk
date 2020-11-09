@@ -45,67 +45,7 @@
                 <p><a href="/admin/add-software/{{swtypelabels.addressPart}}">Add new {{swtypelabels.humanLabel| lower}}</a></p>
             </div>
         {%- endfor -%}
-
-        {#<div>
-            <label for="readingSystem">Select a reading system</label>
-            <select name="readingSystemId" id="readingSystem">
-                {%- for rs in readingSystems -%}
-                <option value="{{rs.id}}">{{rs.name}} {{rs.version}} {%- if rs.vendor %} by {{rs.vendor}} {%- endif -%}</option>
-                {%- endfor -%}
-            </select>
-            <p><a href="/admin/add-reading-system">Add new reading system</a></p>
-        </div>
-
-        <div>
-            <label for="assistiveTechnology">Select an assistive technology</label>
-            <select name="assistiveTechnologyId" id="assistiveTechnology">
-                <option value="none">None</option>
-                {%- for at in assistiveTechnologies -%}
-                <option value="{{at.id}}">{{at.name}} {{at.version}}</option>
-                {%- endfor -%}
-            </select>
-            <p><a href="/admin/add-assistive-technology">Add new assistive technology</a></p>
-        </div>
-
-
-        <div>
-            <h2>Select operating system</h2>
-    
-            <select name="operatingSystemId">
-                {%- for os in operatingSystems -%}
-                <option value="{{os.id}}">{{os.name}} {{os.version}}</option>
-                {%- endfor -%}
-            </select>
-    
-            <p><a href="/admin/add-operating-system">Add new operating system</a></p>
-        </div>
-
-        <div>
-            <h2>Select browser</h2>
-    
-            <select name="browserId">
-                <option value="none">None</option>
-                {%- for brw in browsers -%}
-                <option value="{{brw.id}}">{{brw.name}} {{brw.version}}</option>
-                {%- endfor -%}
-            </select>
-    
-            <p><a href="/admin/add-browser">Add new browser</a></p>
-        </div>
-
-        <div>
-            <h2>Select device</h2>
-    
-            <select name="deviceId">
-                <option value="none">None</option>
-                {%- for dev in devices -%}
-                <option value="{{dev.id}}">{{dev.name}} {{dev.version}}</option>
-                {%- endfor -%}
-            </select>
-    
-            <p><a href="/admin/add-device">Add new device</a></p>
-        </div>
-        #}
+        
         <div>
             <h2>Select options</h2>
             <p>
@@ -129,32 +69,6 @@
                 </select>
             </p>
         </div>
-
-        {#
-        <div>
-            <h2>Select one or more topics</h2>
-            <ul>
-                {%- for topic in topics -%}
-                <li>
-                    <input type="checkbox" value="{{topic.id}}" name="topics[{{loop.index}}]">
-                    <label for="{{topicId}}">{{getTopicName(topic.id)}}</label>
-                </li>
-                {%- endfor -%}
-            </ul>
-        </div>
-
-        <div>
-            <h2>Assign a user</h2>
-            <p>
-                <label for="user">Select a user to assign testing to:</label>
-                <select name="user">
-                    {%- for user in users -%}
-                    <option value="{{user.id}}">{{user.name}}</option>
-                    {%- endfor -%}
-                </select>
-            </p>
-        </div>
-        #}
         
         <input type="submit" value="Save">
     </form>

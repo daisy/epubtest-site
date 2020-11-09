@@ -65,7 +65,7 @@
     ];
     
     document.querySelector("data-table").options = {
-        getBodyCellDisplay: (header, row) => options.getBodyCellDisplay(header, row, headerIdx, rowIdx, requestsToPublish, testingEnvironment, users),
+        getBodyCellDisplay: (header, row, headerIdx, rowIdx) => options.getBodyCellDisplay(header, row, headerIdx, rowIdx, requestsToPublish, testingEnvironment, users),
         getHeaderCellDisplay: options.getHeaderCellDisplay,
         showTextSearch: false,
         columnSelectorLabel: "Select a column",
@@ -118,7 +118,7 @@
         public answer sets. All answer sets are shown below.
     </p>
     
-    <data-table summary="Management of answer sets for the testing environment" cssurl="/css/data-table.css">
+    <data-table summary="Management of answer sets for the testing environment" stylesheet="/css/data-table.css">
     </data-table>
 
     <noscript>
