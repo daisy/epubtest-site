@@ -63,6 +63,10 @@ form.simple input:not([type=submit]):not([type=checkbox]) {
     margin-left: 50%;
     margin-right: 50%;
     margin-top: 2vh;
+    padding: 1vh;
+    padding-left: 2vh;
+    padding-right: 2vh;
+    font-size: larger;
 }
 
 @media (max-width: 768px) {

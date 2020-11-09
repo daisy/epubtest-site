@@ -247,10 +247,7 @@ span.cmd {
     /* background-color: lightyellow; */
     font-weight: bold;
 }
-/* make the local navigation and main body line up */
-main > *:first-child, body > nav > :first-child {
-    /* margin-top: 0; */
-}
+
 
 .deemph {
     /* font-style: italic; */
@@ -284,6 +281,16 @@ p.note {
 p.note::before {
     content: '👉 ';
     font-size: large;
+}
+div.testing-environment-title > * {
+    display: inline-block;
+}
+div.testing-environment-title > *:first-child {
+    margin-right: 0.75rem;
+}
+/* this table only has one column at the moment, so it doesn't have to be so wide */
+div#active-users {
+    width: 70%;
 }
 /*****************************/
 /* MOBILE                    */

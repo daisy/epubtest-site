@@ -435,20 +435,12 @@ router.post('/add-testing-environment', async(req, res, next) => {
         input = {...input, deviceId: parseInt(req.body.deviceId)};
     }
 
-    // TODO separate form for assigning users
-    // this just grabs the req user
-    // let topicsUsers = [];
-    // let user = parseInt(req.body.user);
-    // if (req.body.hasOwnProperty("topics")) {    
-    //     topicsUsers = req.body.topics.map(t=>({topic: t, user}));
-    // }
     let result = await testingEnvironments.add(input, req.cookies.jwt);
 
     if (!result.success) {
         let err = new Error("Could not create testing environment.");
         return next(err);
     }
-    
 
     let newId = result.testingEnvironmentId;
     let message = `Testing environment created (${result.testingEnvironmentId}).`;

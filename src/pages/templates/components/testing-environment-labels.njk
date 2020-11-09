@@ -3,8 +3,10 @@
 
 {%- macro TestingEnvironmentTitle(testingEnvironment, tagname1, tagname2) -%}
     {%- set rs = testingEnvironment.readingSystem -%}
-    <{{tagname1}} id="{{testingEnvironment.id}}">{{ SoftwareTitle (rs) }}</{{tagname1}}>
-    <{{tagname2}}>by {{ rs.vendor }}</{{tagname2}}>
+    <div class="testing-environment-title">
+        <{{tagname1}} id="{{testingEnvironment.id}}">{{ SoftwareTitle (rs) }}</{{tagname1}}>
+        <{{tagname2}}>by {{ rs.vendor }}</{{tagname2}}>
+    </div>
 {%- endmacro -%}
 
 {%- macro TestingEnvironmentOneLinerPlainText(testingEnvironment) -%}
