@@ -69,11 +69,15 @@
     let headers = [
         {
             title: "Topic",
-            id: "topic"
+            id: "topic",
+            sort: (a, b) => helpers.numberSort(a, b, row => row.testBook.topic.order),
+            sortIs: 'asc'
         },
         {
             title: "Score",
-            id: "score"
+            id: "score",
+            sort: (a, b) => helpers.numberSort(a, b, row => helpers.calcScore(row.score)),
+            sortIs: 'asc'
         },   
         {
             title: "Edit",
@@ -86,7 +90,7 @@
     ];
     
     document.querySelector("#data-{{testingEnvironment.id}}").options = {
-        getBodyCellDisplay: (row, header) => options.getBodyCellDisplay(row, header, requestsToPublish, isAdmin, testingEnvironment),
+        getBodyCellDisplay: (header, row, headerIdx, rowIdx) => options.getBodyCellDisplay(header, row, headerIdx, rowIdx, requestsToPublish, isAdmin, testingEnvironment),
         getHeaderCellDisplay: options.getHeaderCellDisplay,
         showTextSearch: false,
         columnSelectorLabel: "Select a column",
@@ -98,6 +102,9 @@
     document.querySelector("#data-{{testingEnvironment.id}}").data = {
         headers, rows
     };
+    window.addEventListener("resize", () => {
+        document.querySelector("data-table").render();
+    });
 </script>
 <data-table 
     summary="Edit and publish topics for {{testingEnvironment.readingSystem.name}} {{testingEnvironment.readingSystem.version}}"
