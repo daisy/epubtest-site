@@ -4,7 +4,7 @@ const cors = require('cors');
 
 const cookieParser = require('cookie-parser');
 const nunjucks = require('nunjucks');
-const nunjucksDate = require("nunjucks-date");
+const dayjs = require("dayjs");
 
 const rateLimit = require("express-rate-limit");  
 
@@ -31,18 +31,18 @@ const envFile = process.argv.length > 2 ?
 if (process.env.NODE_ENV != 'production') {
     require('dotenv').config({path: path.join(__dirname, `../${envFile}`)});
 }
-    
 
 var env = nunjucks.configure('src/pages/templates', {
     autoescape: true,
-    express: app
+    express: app,
+    noCache: process.env.NODE_ENV != 'production'
 });
 env.addFilter('cleanString', str => {
     return str.replace(/&nbsp;/g, " ");
 });
-
-nunjucksDate.setDefaultFormat("MMMM Do YYYY");
-nunjucksDate.install(env);
+env.addFilter('date', (date, format = defaultFormat) => {
+    return dayjs(date).format(format)
+});
 
 // Enable if you're behind a reverse proxy (Heroku, Bluemix, AWS ELB, Nginx, etc)
 // see https://expressjs.com/en/guide/behind-proxies.html

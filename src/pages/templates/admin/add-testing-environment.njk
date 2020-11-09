@@ -1,0 +1,77 @@
+{%- extends 'base/admin-base.njk' -%}
+{%- set title="Add Testing Environment" -%}
+{%- block content -%}
+
+<main class="center">
+    <form action="/admin/forms/add-testing-environment" method="POST" class="simple" id="new-testing-environment">
+        <h2>Select software</h2>
+        <p>Using the following dropdowns, select all the software/devices for this new testing environment. You may add new software/devices as well.</p>
+
+        {%- set softwareTypes = [
+            "readingSystem",
+            "assistiveTechnology", 
+            "os", 
+            "browser", 
+            "device"
+        ] -%}
+        
+        
+        {%- for swtype in softwareTypes -%}
+            {%- set swtypelabels = getSoftwareTypeLabels(swtype) -%}
+            
+            {%- set softwares = [] -%}
+            {%- if swtype == 'readingSystem' -%}
+            {%- set softwares = readingSystems -%}
+            {%- elif swtype == 'assistiveTechnology' -%}
+            {%- set softwares = assistiveTechnologies -%}
+            {%- elif swtype == 'os' -%}
+            {%- set softwares = operatingSystems -%}
+            {%- elif swtype == 'browser' -%}
+            {%- set softwares = browsers -%}
+            {%- elif swtype == 'device' -%}
+            {%- set softwares = devices -%}
+            {%- endif -%}
+
+            <div>
+                <label for="{{swtypelabels.type}}">Select {{swtypelabels.humanLabel| lower}}</label>
+                <select name="{{swtype}}Id" id="{{swtype}}">
+                    {%- if swtype == 'assistiveTechnology' or swtype == 'browser' or swtype == "device" -%}
+                    <option value="none">None</option>
+                    {%- endif -%}
+                    {%- for sw in softwares -%}
+                    <option value="{{sw.id}}">{{sw.name}} {{sw.version}} {%- if sw.vendor %} by {{sw.vendor}} {%- endif -%}</option>
+                    {%- endfor -%}
+                </select>
+                <p><a href="/admin/add-software/{{swtypelabels.addressPart}}">Add new {{swtypelabels.humanLabel| lower}}</a></p>
+            </div>
+        {%- endfor -%}
+        
+        <div>
+            <h2>Select options</h2>
+            <p>
+                
+                <label for="testedWithBraille">Tested with Braille</label>
+                <input type="checkbox" name="testedWithBraille">
+            </p>
+    
+            <p>
+                
+                <label for="testedWithScreenreader">Tested with Screenreader</label>
+                <input type="checkbox" name="testedWithScreenreader">
+            </p>
+    
+            <p>
+                <label for="input-type">Select the type of input:</label>
+                <select name="input" id="input-type">
+                    <option value="KEYBOARD">Keyboard</option>
+                    <option value="MOUSE">Mouse</option>
+                    <option value="TOUCH">Touch</option>
+                </select>
+            </p>
+        </div>
+        
+        <input type="submit" value="Save">
+    </form>
+</main>
+
+{%- endblock -%}

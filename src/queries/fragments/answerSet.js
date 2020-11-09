@@ -31,19 +31,15 @@ user {
 
 const FIELDS_WITH_ANSWERS = `
 ${FIELDS}
-answersByAnswerSetId {
-    nodes {
-        ${answerFrag.FIELDS}
-    }
+answers {
+    ${answerFrag.FIELDS}
 }
 `;
 
 const FIELDS_WITH_ANSWERS_WITH_USER_LOGIN = `
 ${FIELDS_WITH_USER_LOGIN}
-answersByAnswerSetId {
-    nodes {
-        ${answerFrag.FIELDS}
-    }
+answers {
+    ${answerFrag.FIELDS}
 }
 `;
 

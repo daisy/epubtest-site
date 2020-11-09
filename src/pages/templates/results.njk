@@ -1,0 +1,101 @@
+{%- extends 'base/base.njk' -%}
+
+{%- if isArchivesPage -%}
+{%- set title="Archived Results" -%}
+{%- else -%}
+{%- set title="Results" -%}
+{%- endif -%}
+
+{%- block content -%}
+
+<script type="module" src="/js/data-table.js"></script>
+<script type="module">
+    import { options } from '/js/tables/results-table-options.js';
+    import * as helpers from '/js/tables/data-table-helpers.js';
+    let headers = {{topics | dump | safe}};
+    let rows = {{testingEnvironments | dump | safe}};
+
+    headers = headers.map(header => ({
+        title: helpers.getTopicName(header.id),
+        topic: header.id,
+        order: header.order,
+        sort: (a, b) => helpers.sortByScore(header.id, a, b),
+        sortIs: 'desc'
+    }));
+
+    let firstColumn = {
+        title: "Testing Environment",
+        sort: (a, b) => helpers.sortBySoftwareName(a, b, row => row.readingSystem),
+        sortIs: 'asc',
+        order: 0
+    };
+
+    headers.splice(0, 0, firstColumn);
+
+    document.querySelector("data-table").options = {
+        ...options,
+        showTextSearch: true,
+        defaultSortHeader: 0,
+        columnSelectorLabel: "Select a topic",
+        filtersLabel: "Filters"
+    };
+
+    document.querySelector("data-table").data = {
+        headers, rows
+    };  
+    window.addEventListener("resize", () => {
+        document.querySelector("data-table").render();
+    });
+</script>
+<main>
+    
+    {%- if isArchivesPage -%}
+    <h2>Archives</h2>
+    <p>The following Testing Environments have been archived.</p>
+    {%- else -%}
+    <h2>Results</h2>
+    <p>The following represents how well each Testing Environment (Reading System or Reading System + Assistive Technology 
+        combination) performed in a series of tests, organized by topic. Learn more about the tests on 
+        the <a href="/test-books">test books page</a>.</p>
+    {%- endif -%}
+
+    <data-table summary="Reading system testing results" stylesheet="/css/data-table.css"></data-table>
+
+    <noscript>
+        <table class="striped" summary="Reading system testing results">
+            <thead>
+                <th>Testing Environment</th>
+                {%- for topic in topics -%}
+                    <th>{{displayUtils.getTopicName(topic.id) | safe}}</th>
+                {%- endfor -%}
+            </thead>
+            <tbody>
+                {%- for testingEnvironment in testingEnvironments -%}
+                <tr>
+                    <td>{{displayUtils.testingEnvironmentLink(testingEnvironment, 'results') | safe}}</td>
+                
+                    {%- for topic in topics -%}
+                    {%- set answerSet = displayUtils.getAnswerSetForTopic(testingEnvironment, topic.id) -%}
+                    <td>
+                        {%- if answerSet and answerSet.isTested -%}
+                        <a href="/results/{{testingEnvironment.id}}/#{{answerSet.testBook.topic.id}}">
+                        {{displayUtils.makeScoreSpan(answerSet) | safe }}
+                        </a>
+                        {%- else -%}
+                        {{displayUtils.makeScoreSpan(answerSet) | safe }}
+                        {%- endif -%}
+                    </td>
+                    {%- endfor -%}
+                </tr>
+                
+                {%- endfor -%}
+            </tbody>
+        </table>
+    </noscript>
+
+    {%- if isArchivesPage == false -%}
+    <p><a href="/archive">Archived Results</a></p>
+    {%- endif -%}
+</main>
+
+{%- endblock -%}

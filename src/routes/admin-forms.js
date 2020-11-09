@@ -72,9 +72,9 @@ router.post('/publish', async (req, res, next) => {
         return next(err);
     }
 
-    if (dbres.data && dbres.data.requests.nodes.length > 0) {
+    if (dbres.data && dbres.data.requests.length > 0) {
         dbres = await db.query(Q.REQUESTS.DELETE,
-            { id: requests.data.data.nodes[0].id },
+            { id: dbres.data.requests[0].id },
             req.cookies.jwt);
         
         if (!dbres.success) {
@@ -83,7 +83,8 @@ router.post('/publish', async (req, res, next) => {
         }
     }
 
-    return res.redirect(`/admin/testing-environment/${req.body.testingEnvironmentId}`);
+    let nextUrl = req.body.next ?? `/admin/testing-environment/${req.body.testingEnvironmentId}`
+    return res.redirect(nextUrl);
 });
 
 // unpublish an answer set
@@ -102,7 +103,8 @@ router.post('/unpublish', async (req, res, next) => {
         return next(err);
     }
 
-    return res.redirect(`/admin/testing-environment/${req.body.testingEnvironmentId}`);
+    let nextUrl = req.body.next ?? `/admin/testing-environment/${req.body.testingEnvironmentId}`
+    return res.redirect(nextUrl);
 });
 
 router.post('/archive', async (req, res, next) => {
@@ -137,18 +139,98 @@ router.post ('/unarchive', async (req, res) => {
     return res.redirect(`/admin/testing-environment/${req.body.testingEnvironmentId}`);
 });
 
-router.post('/reinvite-users', async (req, res) => {
+router.post('/reinvite-users', async (req, res, next) => {
+    // req.body.users is an array of IDs
     for (user of req.body.users) {
         let dbres = await invite.inviteUser(user, req.cookies.jwt);
         if (!dbres.success) {
-            let err = new Error(`Could not invite one or more user(s) (${req.body.users[i]}).`);
+            let err = new Error(`Could not invite one or more user(s) (ID=${user}).`);
             return next(err);
         }
     }
-    return res.redirect('/admin/users');
+    let message = `Invited ${req.body.users.length} new user(s)`;
+    return res.redirect('/admin/reinvite-users?message=' + encodeURIComponent(message));
 });
 
-router.post("/upload-test-book", async (req, res, next) => {
+router.post('/manage-invitations/:id', async (req, res, next) => {
+
+    let inviteId = parseInt(req.params.id);
+    if (req.body.hasOwnProperty("resend")) {
+        let dbres = await invite.resendInvitation(inviteId, req.cookies.jwt);
+        if (!dbres.success) {
+            let err  = new Error(`Could not resend invitation.`);
+            return next(err);
+        }
+    }
+    else if (req.body.hasOwnProperty("cancel")) {
+        await invite.cancelInvitation(inviteId, req.cookies.jwt);
+    }
+    return res.redirect('/admin/invitations');
+});
+
+router.post('/invite-user', 
+[
+    body("name").trim().escape(),
+    body("email").trim().isEmail()
+],
+async (req, res, next) => {
+
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        let message = `Invalid value for ${errors.array().map(err => `${err.param}`).join(', ')}`;
+        return res.status(422).redirect('/admin/add-user?message=' + encodeURIComponent(message));
+    }
+    
+    let message = "";
+
+    // create new inactive login
+    let dbres = await db.query(
+        Q.LOGINS.CREATE_NEW_LOGIN, 
+        {
+            email: req.body.email,
+            password: '',
+            active: false
+        },
+        req.cookies.jwt
+    );
+
+    if (!dbres.success) {
+        message = `Could not create invitation: ${dbres.errors.map(err => err.message).join(', ')}`;
+        return res.status(422).redirect('/admin/add-user?message=' + encodeURIComponent(message));
+    }
+    let loginId = dbres.data.createNewLogin.integer;
+
+    // create new user (will default to type = 'USER')
+    dbres = await db.query(
+        Q.USERS.CREATE, 
+        {
+            input: {
+                name: req.body.name,
+                loginId
+            }
+        },
+        req.cookies.jwt
+    );
+
+    if (!dbres.success) {
+        message = `Could not create invitation`;
+        return res.status(422).redirect('/admin/add-user?message=' + encodeURIComponent(message));
+    }
+
+    let userId = dbres.data.createUser.user.id;
+
+    // send invitation
+    dbres = await invite.inviteUser(userId, req.cookies.jwt);
+    if (!dbres.success) {
+        message = `Could not create invitation`;
+        return res.status(422).redirect('/admin/add-user?message=' + encodeURIComponent(message));
+    }
+
+    message = `User ${req.body.email} has been invited.`;
+    return res.redirect('/admin/add-user?message=' + encodeURIComponent(message));
+});
+
+router.post("/add-test-book", async (req, res, next) => {
     new formidable.IncomingForm().parse(req, async (err, fields, files) => {
         if (err) {
             winston.error(err);
@@ -179,8 +261,12 @@ router.post("/upload-test-book", async (req, res, next) => {
         }
         newTestIds = flaggedTestBook.tests.filter(t => t.flagNew).map(t => t.testId);
 
+        // attach these properties
+        flaggedTestBook.experimental = fields.experimental == "on";
+        flaggedTestBook.translation = fields.translation == "on";
+        
         // show page where admin can set own flags
-        return res.render('./admin/ingest-test-book.html', 
+        return res.render('./admin/ingest-test-book.njk', 
         {
             testBook: flaggedTestBook,
             affectedAnswerSets: usage ? usage?.answerSets?.all : [],
@@ -233,12 +319,12 @@ router.post("/confirm-delete-test-book/:id", async (req, res, next) => {
     if (!canRemove) {
         let usageResult = await testBooks.getUsage(parseInt(req.params.id), req.cookies.jwt);
         if (usageResult.success) {
-            return res.render('./admin/confirm-remove-test-book-and-answer-sets.html', {
+            return res.render('./admin/confirm-remove-test-book-and-answer-sets.njk', {
                 testBook,
                 answerSets: usageResult.answerSets.nonEmpty,
-                redirectUrlYes: '/admin/test-books',
-                redirectUrlNo: `/admin/test-books`,
-                actionUrl: `/admin/forms/delete-test-book-and-answer-sets/${parseInt(req.params.id)}`
+                nextIfYes: '/admin/test-books',
+                nextIfNo: `/admin/test-books`,
+                formAction: `/admin/forms/delete-test-book-and-answer-sets/${parseInt(req.params.id)}`
             });
         }
         else {
@@ -249,12 +335,12 @@ router.post("/confirm-delete-test-book/:id", async (req, res, next) => {
         
     }
     else {
-        return res.render('./confirm.html', {
+        return res.render('./confirm.njk', {
             title: "Confirm deletion",
-            content: `Please confirm that you would like to delete ${testBook.title} (${testBook.langId}, v. ${testBook.version})`,
-            redirectUrlYes: '/admin/test-books',
-            redirectUrlNo: `/admin/test-books`,
-            actionUrl: `/admin/forms/delete-test-book/${parseInt(req.params.id)}`
+            content: `Please confirm that you would like to delete <em>${testBook.title} (${testBook.langId}, v. ${testBook.version})</em>`,
+            nextIfYes: '/admin/test-books',
+            nextIfNo: `/admin/test-books`,
+            formAction: `/admin/forms/delete-test-book/${parseInt(req.params.id)}`
         });
     }
     
@@ -272,11 +358,11 @@ router.post('/delete-test-book/:id', async (req, res, next) => {
         }
         
         let message = encodeURIComponent("Test book deleted.");
-        redirect = req.body.redirectUrlYes + "?message=" + message;
+        redirect = req.body.nextIfYes + "?message=" + message;
     }
     else {
         // else cancel was pressed: do nothing
-        redirect = req.body.redirectUrlNo;
+        redirect = req.body.nextIfNo;
     }
 
     // redirect
@@ -299,11 +385,11 @@ router.post('/delete-test-book-and-answer-sets/:id', async (req, res, next) => {
         // TODO remove file from downloads folder
 
         let message = encodeURIComponent("Test book and answer sets deleted.");
-        redirect = req.body.redirectUrlYes + "?message=" + message;
+        redirect = req.body.nextIfYes + "?message=" + message;
     }
     else {
         // else cancel was pressed: do nothing
-        redirect = req.body.redirectUrlNo;
+        redirect = req.body.nextIfNo;
     }
     // redirect
     return res.redirect(redirect);
@@ -327,13 +413,14 @@ router.post('/add-software', async (req, res, next) => {
         return next(err);
     }
 
-    return res.redirect('/admin/add-testing-environment');
+    let message = `Created ${req.body.name} ${req.body.version}`;
+    return res.redirect('/admin/add-testing-environment?message=' + encodeURIComponent(message));
 });
 
 router.post('/add-testing-environment', async(req, res, next) => {
     let input = {
         readingSystemId: parseInt(req.body.readingSystemId),
-        osId: parseInt(req.body.operatingSystemId),
+        osId: parseInt(req.body.osId),
         testedWithBraille: req.body.testedWithBraille === "on",
         testedWithScreenreader: req.body.testedWithScreenreader === "on",
         input: req.body.input
@@ -344,27 +431,20 @@ router.post('/add-testing-environment', async(req, res, next) => {
     if (req.body.assistiveTechnologyId != 'none') {
         input = {...input, assistiveTechnologyId: parseInt(req.body.assistiveTechnologyId)};
     }
-
-    // TODO separate form for assigning users
-    // this just grabs the req user
-    let topicsUsers = [];
-    let user = parseInt(req.body.user);
-    if (req.body.hasOwnProperty("topics")) {    
-        topicsUsers = req.body.topics.map(t=>({topic: t, user}));
+    if (req.body.deviceId != 'none') {
+        input = {...input, deviceId: parseInt(req.body.deviceId)};
     }
+
     let result = await testingEnvironments.add(input, req.cookies.jwt);
 
     if (!result.success) {
         let err = new Error("Could not create testing environment.");
         return next(err);
     }
-    for (topicUser of topicsUsers) {
-        // TODO left off here
-        //await testingEnvironments.assign()
-    }
 
+    let newId = result.testingEnvironmentId;
     let message = `Testing environment created (${result.testingEnvironmentId}).`;
-    return res.redirect('/admin?message=' + encodeURIComponent(message));
+    return res.redirect(`/admin/testing-environment/${newId}?message=${encodeURIComponent(message)}`);
 });
 
 router.post("/confirm-delete-testing-environment/:id", async (req, res, next) => {
@@ -379,17 +459,22 @@ router.post("/confirm-delete-testing-environment/:id", async (req, res, next) =>
     }
     let testenv = dbres.data.testingEnvironment;
 
-    let testingEnvironmentTitle = `
-    ${testenv.readingSystem.name} ${testenv.readingSystem.version}
-    ${testenv.assistiveTechnology ? testenv.assistiveTechnology.name ? `${testenv.assistiveTechnology.name} ${testenv.assistiveTechnology.version}` : '' : ''}
-    ${testenv.os.name} ${testenv.os.version}`;
+    let testingEnvironmentTitleArr = [
+        `${testenv.readingSystem.name} ${testenv.readingSystem.version}`,
+        `${testenv?.assistiveTechnology?.name ?? ''} ${testenv?.assistiveTechnology?.version ?? ''}`,
+        `${testenv?.device?.name ?? ''} ${testenv?.device?.version ?? ''}`,
+        `${testenv?.device?.name ?? ''} ${testenv?.device?.version ?? ''}`,
+        `${testenv.os.name} ${testenv.os.version}`
+    ];
+    testingEnvironmentTitleArr = testingEnvironmentTitleArr.map(s => s.trim()).filter(s => s != '');
+    let testingEnvironmentTitle = testingEnvironmentTitleArr.join(' / ');
 
-    return res.render('./confirm.html', {
+    return res.render('./confirm.njk', {
         title: "Confirm deletion",
-        content: `Please confirm that you would like to delete ${testingEnvironmentTitle}`,
-        redirectUrlYes: `/admin/testing`,
-        redirectUrlNo: `/admin/testing-environment/${req.params.id}`,
-        actionUrl: `/admin/forms/delete-testing-environment/${req.params.id}`
+        content: `Please confirm that you would like to delete <em>${testingEnvironmentTitle}</em>`,
+        nextIfYes: `/admin/testing-environments`,
+        nextIfNo: `/admin/testing-environment/${req.params.id}`,
+        formAction: `/admin/forms/delete-testing-environment/${req.params.id}`
     });
 });
 
@@ -404,12 +489,12 @@ router.post('/delete-testing-environment/:id', async (req, res, next) => {
         }
         else {
             let message = encodeURIComponent("Testing environment deleted");
-            redirect = req.body.redirectUrlYes + "?message=" + message;
+            redirect = req.body.nextIfYes + "?message=" + message;
         }
     }
     else {
         // else cancel was pressed: do nothing
-        redirect = req.body.redirectUrlNo;
+        redirect = req.body.nextIfNo;
     }
 
     // redirect
@@ -424,7 +509,8 @@ router.post("/software",
     body('version').trim()
 ],
 async (req, res, next) => {
-    let url='/admin/software';
+    let swlabel = utils.getSoftwareTypeLabels(req.body.type);
+    let url=`/admin/all-software/${swlabel.addressPart}`;
     if (req.body.hasOwnProperty("save")) {
         let dbres = await db.query(Q.SOFTWARE.UPDATE, {
             id: parseInt(req.body.id),
@@ -463,12 +549,12 @@ router.post("/confirm-delete-software/:id", async (req, res, next) => {
 
     let softwareTitle = `${software.vendor} ${software.name} ${software.version}`;
 
-    return res.render('./confirm.html', {
+    return res.render('./confirm.njk', {
         title: "Confirm deletion",
-        content: `Please confirm that you would like to delete ${softwareTitle}`,
-        redirectUrlYes: `/admin/software`,
-        redirectUrlNo: `/admin/software`,
-        actionUrl: `/admin/forms/delete-software/${req.params.id}`
+        content: `Please confirm that you would like to delete <em>${softwareTitle}</em>`,
+        nextIfYes: `/admin/software`,
+        nextIfNo: `/admin/software`,
+        formAction: `/admin/forms/delete-software/${req.params.id}`
     });
 });
 
@@ -483,16 +569,69 @@ router.post('/delete-software/:id', async (req, res, next) => {
         }
         else {
             let message = encodeURIComponent("Software deleted");
-            redirect = req.body.redirectUrlYes + "?message=" + message;
+            redirect = req.body.nextIfYes + "?message=" + message;
         }
     }
     else {
         // else cancel was pressed: do nothing
-        redirect = req.body.redirectUrlNo;
+        redirect = req.body.nextIfNo;
     }
 
     // redirect
     return res.redirect(redirect);
+});
+
+router.post('/set-user', async (req, res, next) => {
+    let message = '';
+    if (req.body.hasOwnProperty('userId')) {
+        if (req.body.hasOwnProperty('answerSetId')) {
+            let userId, answerSetId;
+            userId = req.body.userId == 'None' ? null : parseInt(req.body.userId);
+            answerSetId = req.body.answerSetId ? parseInt(req.body.answerSetId) : null;
+            
+            let dbres = await db.query(Q.ANSWER_SETS.UPDATE, {
+                id: answerSetId,
+                patch: {
+                    userId: userId
+                }
+            }, req.cookies.jwt);
+            if (dbres.success) {
+                message = "User successfully assigned.";
+            }
+            else {
+                message = "Could not assign user";
+            }
+            return res.redirect(`${req.body.next}?message=${encodeURIComponent(message)}`);
+        }
+        // else we are assigning all the answer sets in this test env
+        else if (req.body.hasOwnProperty("testingEnvironmentId")) {
+            let userId, answerSetId;
+            userId = req.body.userId == 'None' ? null : parseInt(req.body.userId);
+            let dbres = await db.query(
+                Q.TESTING_ENVIRONMENTS.GET, 
+                {id: parseInt(req.body.testingEnvironmentId)}, 
+                req.cookies.jwt);
+            let testingEnvironment = dbres.data.testingEnvironment;
+            for (answerSet of testingEnvironment.answerSets) {
+                dbres = await db.query(Q.ANSWER_SETS.UPDATE, {
+                    id: answerSet.id,
+                    patch: {
+                        userId: userId
+                    }
+                }, req.cookies.jwt);
+                if (!dbres.success) {
+                    message = "Could not assign user";
+                }    
+            }
+            // hacky error handling, oh well
+            if (message == "") {
+                message = "User successfully assigned.";
+            }
+            return res.redirect(`${req.body.next}?message=${encodeURIComponent(message)}`);
+        }
+    }
+    message = "Could not assign user";
+    return res.redirect(`${req.body.next}?message=${encodeURIComponent(message)}`);
 });
 
 module.exports = router;

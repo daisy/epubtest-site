@@ -6,15 +6,9 @@ const mail = require('../actions/mail');
 const emails = require('../emails');
 const { validationResult, body } = require('express-validator');
 const LANGS = require('../l10n/langs');
+const dayjs = require('dayjs');
 
 var router = express.Router()
-
-// test mail sending
-router.post('/mail', [body('email').isEmail()], async(req, res) => {
-    await mail.testEmail(req.body.email);
-    let message = "Message sent";
-    return res.redirect('/test?message=' + encodeURIComponent(message));
-});
 
 // submit login
 router.post('/login', 
@@ -82,7 +76,8 @@ router.post('/forgot-password',
             Q.AUTH.TEMPORARY_TOKEN,
             {
                 input: {
-                    email: req.body.email
+                    email: req.body.email,
+                    duration: '4 hours'
                 }
             });
         if (!dbres.success) {
@@ -92,20 +87,102 @@ router.post('/forgot-password',
         let jwt = dbres.data.createTemporaryToken.jwtToken;
         let token = utils.parseToken(jwt);
         if (token) {
-            let resetUrl = process.env.MODE === 'LOCALDEV' ? 
+            let resetUrl = process.env.NODE_ENV != 'production' ? 
                 `http://localhost:${process.env.PORT}/set-password?token=${jwt}`
                 : 
                 `http://epubtest.org/set-password?token=${jwt}`;
-            await mail.sendEmail(req.body.email, 
+            let success = await mail.sendEmail(req.body.email, 
                 emails.reset.subject,
                 emails.reset.text(resetUrl),
                 emails.reset.html(resetUrl));  
-            let message = "Password reset initiated. Please check your email for further instructions."; 
+            
+            let message = success ? 
+                "Password reset initiated. Please check your email for further instructions." 
+                : 
+                "Could not initiate password reset. Please contact an administrator."; 
             return res.status(200)
                 .redirect(`/?message=` + encodeURIComponent(message));
         }
+        else {
+            let message = "Reset password error";
+            return res.redirect('/forgot-password?message=' + encodeURIComponent(message));
+        }
     }
 );
+
+// submit set password (requires a "token" field in the form body)
+router.post('/set-password', 
+    [
+        body('password').isLength({ min: 8, max: 20 })
+    ],
+    async (req, res) => {
+        let jwt = req.body.token;
+        
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            let message = "Password must be 8-20 characters";
+            return res.status(422).redirect(`/set-password?token=${jwt}&message=${encodeURIComponent(message)}`);
+        }
+
+        let token = utils.parseToken(jwt);
+        let dbres = await db.query(
+            Q.USERS.GET,
+            {id: token.userId},
+            jwt
+        );
+        if (!dbres.success) {
+            let message = "Could not identify user";
+            return res.redirect("/");
+        }
+        
+        dbres = await db.query(
+            Q.AUTH.SET_PASSWORD, 
+            {
+                input: {
+                    userId: token.userId, 
+                    newPassword: req.body.password
+                }
+            }, 
+            jwt
+        );
+        
+        if (!dbres.success) {
+            let message = "Error setting password";
+            return res
+                .status(401)
+                .redirect(`/set-password?token=${jwt}&message=${encodeURIComponent(message)}`);
+        }
+
+        // delete any invitations for this user
+        dbres = await db.query(
+            Q.INVITATIONS.GET_FOR_USER,
+            {userId: token.userId},
+            jwt
+        );
+        // there should just be one invitation per user but just in case there are more
+        for (invitation of dbres.data.invitations) {
+            // delete the invitation
+            dbres = await db.query(
+                Q.INVITATIONS.DELETE,
+                {
+                    id: invitation.id
+                }, 
+                jwt
+            );
+        }
+        
+        let message = "Success. Login with your new password."
+        return res
+                .status(200)
+                // clear the temporary cookie
+                // .clearCookie('jwt', {
+                //     path: '/'
+                // })
+                .redirect('/login?message=' + encodeURIComponent(message));
+                
+    }
+);
+
     
 router.post('/choose-language', [
     body("language").isIn(LANGS)
@@ -116,6 +193,8 @@ router.post('/choose-language', [
         return next(new Error(`Could not set language to ${req.body.language}`));
     }
 
+    req.i18n.language = req.body.language;
+    
     return res.status(200)
             .cookie('currentLanguage', 
                 req.body.language, 

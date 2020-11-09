@@ -4,32 +4,30 @@ const router = express.Router()
 const db = require('../database');
 const Q = require('../queries');
 const utils = require('../utils');
+const displayUtils = require("../displayUtils");
 
-router.get('/test', (req, res) => res.render('test.html'));
+router.get('/test', (req, res) => res.render('test.njk'));
 
 // home page
 router.get('/', (req, res) => {
-    return res.render('index.html');
+    return res.render('index.njk');
 });
 
 // about page
-router.get('/about', (req, res) => res.render('about.html'));
+router.get('/about', (req, res) => res.render('about.njk'));
 
 // participate page
-router.get('/participate', (req, res) => res.render('participate.html'));
+router.get('/participate', (req, res) => res.render('participate.njk'));
 
 // instructions page
 router.get('/instructions', (req, res) => 
     res.redirect('https://dl.daisy.org/Notes_on_Testing_EPUB_reading_systems.docx'));
 
 // server error
-router.get('/error', (req, res) => res.render('error.html'));
+router.get('/error', (req, res) => res.render('error.njk'));
 
 // forgot password page
-router.get('/forgot-password', (req, res) => res.render('auth/forgot-password.html'));
-
-// check your email (for a reset password link) page
-//router.get('/check-your-email', (req, res) => res.render('auth/check-your-email.html'));
+router.get('/forgot-password', (req, res) => res.render('auth/forgot-password.njk'));
 
 // testing environment results
 router.get('/results/:testingEnvironmentId', async (req, res, next) => {
@@ -41,9 +39,9 @@ router.get('/results/:testingEnvironmentId', async (req, res, next) => {
         return next(err);
     }
 
-    return res.render('testing-environment.html', {
+    return res.render('testing-environment.njk', {
         testingEnvironment: dbres.data.testingEnvironment,
-        getTopicName: utils.getTopicName
+        displayUtils
     });
 });
 
@@ -54,24 +52,20 @@ router.get('/results', async (req, res, next) => {
         let err = new Error("Could not get topics.");
         return next(err);
     }
-    let topics = dbres.data.topics.nodes;
+    let topics = dbres.data.topics;
     
     dbres = await db.query(Q.TESTING_ENVIRONMENTS.GET_ALL_PUBLISHED);
     if (!dbres.success) {
         let err = new Error("Could not get published testing environments");
         return next(err);
     }
-    //let testingEnvironments = dbres.data.getPublishedTestingEnvironments.nodes;
-    let testingEnvironments = dbres.data.testingEnvironments.nodes;
+    let testingEnvironments = dbres.data.testingEnvironments;
     
-    return res.render('results.html', {
-        testingEnvironments,
+    return res.render('results.njk', {
+        testingEnvironments: testingEnvironments.sort(utils.sortAlphaTestEnv),
         topics,
-        getfortopic: (answerSets, topic) => {
-            return answerSets.find(a => a.testBook.topic.id === topic.id)
-        },
-        getTopicName: utils.getTopicName,
         isArchivesPage: false,
+        displayUtils
     });
 });
 
@@ -81,23 +75,20 @@ router.get('/archive', async (req, res, next) => {
         let err = new Error("Could not get topics.");
         return next(err);
     }
-    let topics = dbres.data.topics.nodes;
+    let topics = dbres.data.topics;
     
     dbres = await db.query(Q.TESTING_ENVIRONMENTS.GET_ALL_ARCHIVED);
     if (!dbres.success) {
         let err = new Error("Could not get archived testing environments");
         return next(err);
     }
-    let testingEnvironments = dbres.data.getArchivedTestingEnvironments.nodes;
+    let testingEnvironments = dbres.data.getArchivedTestingEnvironments;
     
-    return res.render('results.html', {
+    return res.render('results.njk', {
         testingEnvironments,
         topics,
         isArchivesPage: true,
-        getfortopic: (answerSets, topic) => {
-            return answerSets.find(a => a.testBook.topic.id === topic.id)
-        },
-        getTopicName: utils.getTopicName
+        displayUtils
     });
 });
 
@@ -111,16 +102,16 @@ router.get('/test-books', async (req, res, next) => {
         return next(err);
     }
 
-    return res.render('test-books.html', 
+    return res.render('test-books.njk', 
         {
-            testBooks: dbres.data.getLatestTestBooks.nodes,
-            getTopicName: utils.getTopicName
+            testBooks: dbres.data.getLatestTestBooks,
+            displayUtils
         }
     );
 });
 
 // login page
-router.get('/login', (req, res) => res.render('auth/login.html', {
+router.get('/login', (req, res) => res.render('auth/login.njk', {
     next: req.query.hasOwnProperty('next') ? req.query.next : ''
 }));
 
@@ -133,40 +124,56 @@ router.get('/set-password', (req, res) => {
     if (token) {
         return res
                 .status(200)
-                .cookie('jwt', jwt, { httpOnly: true/*, secure: true */ , maxAge: token.expires})
-                .render('auth/set-password.html');
+                //.cookie('jwt', jwt, { httpOnly: true/*, secure: true */ , maxAge: token.expires})
+                .render('auth/set-password.njk', {token: jwt});
     }
     else {
         let message = "Please try again";
         return res
                 .status(401)
-                .redirect('/forgot-password?message=' + encodeURIComponent(message));
+                .redirect(`/forgot-password?message=${encodeURIComponent(message)}`);
     }
 });
 
 // invitation accept page
-router.get('/accept-invitation', (req, res) => {
+router.get('/accept-invitation', async (req, res) => {
     // verify token
     let jwt = req.query.token;
     let token = utils.parseToken(jwt);
     if (token) {
+        // ensure that this user has an invitation
+        let dbres = await db.query(
+            Q.INVITATIONS.GET_FOR_USER,
+            {userId: token.userId},
+            jwt
+        );
+        
+        if (!dbres.success || dbres.data.invitations.length == 0) {
+            // could not get invitation
+            let message = "Could not retrieve invitation.";
+            return res
+                    .status(401)
+                    .redirect(`error?message=${encodeURIComponent(message)}`);
+        }
+        
         return res
                 .status(200)
-                .cookie('jwt', jwt, { httpOnly: true/*, secure: true */ , maxAge: token.expires})
-                .render('auth/set-password.html',
+                //.cookie('jwt', jwt, { httpOnly: true/*, secure: true */ , maxAge: token.expires})
+                .render(`auth/set-password.njk`,
                     {
                         pageTitle: "Welcome",
                         pageMessage: `Thank you for participating in EPUB Accessibility Testing! 
                         Because you'll login to contribute to this site, please set a password. 
-                        Then after you've logged in, don't forget to update your profile.`
+                        Then after you've logged in, don't forget to update your profile.`,
+                        token: jwt
                     });
-        }
-        else {
-            return res
-                    .status(401)
-                    .redirect('/request-error');
-        }
     }
-);
+    else {
+        let message = "Could not verify invitation."
+        return res
+                .status(401)
+                .redirect(`/error?message=${message}`);
+    }
+});
 
 module.exports = router;

@@ -1,10 +1,9 @@
+const testFrag = require('./test');
+
 const FIELDS = `
 id
 test {
-    id
-    testId
-    description
-    name
+    ${testFrag.FIELDS}
 }
 value
 flag

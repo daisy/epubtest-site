@@ -5,9 +5,11 @@
   
     --primary: rgba(var(--pink), 1);
     --soft: rgba(var(--pink), .6);
+    --softlight: rgba(var(--pink), .2);
     --comp: rgba(var(--brightgreen), .2);
     --softcomp: rgba(var(--yellowgreen), .2);
-  
+    --hardcomp: #ecf1e6; /* no alpha */
     --grayed-out: rgba(0, 0, 0, .6);
+    --darkgray: rgb(87, 87, 87);
   }
   

@@ -1,0 +1,69 @@
+{%- extends 'base/admin-base.njk' -%}
+{%- import "components/software-name.njk" as softwareName -%}
+{%- set title = "Admin: Software: " + softwareName.SoftwareName(software) | cleanString -%}
+{%- block content -%}
+<script type="module" src="/js/data-table.js"></script>
+<script type="module">
+    import { options } from '/js/tables/admin-software-table-options.js';
+
+    let rows = {{ software.testingEnvironments | dump | safe}};
+
+    let headers = [
+        {
+            title: "ID",
+            id: "id"
+        },
+        {
+            title: "Reading System",
+            id: "readingSystem"
+        },
+        {
+            title: "Assistive Technology",
+            id: "assistiveTechnology"
+        },
+        {
+            title: "Device",
+            id: "device"
+        },   
+        {
+            title: "OS",
+            id: "os"
+        },
+        {
+            title: "Browser",
+            id: "browser"
+        },
+        {
+            title: "Manage",
+            id: "manage"
+        }
+    ];
+    
+    document.querySelector("data-table").options = {
+        ...options,
+        showTextSearch: true,
+        columnSelectorLabel: "Select a column",
+        filtersLabel: "Filters"
+    };
+
+    document.querySelector("data-table").data = {
+        headers, rows
+    };  
+    window.addEventListener("resize", () => {
+        document.querySelector("data-table").render();
+    }); 
+</script>
+<main>
+    <h2>{{ softwareName.SoftwareName(software, true) }}</h2>
+
+    <h3>Usage</h3>
+    <p>This is used in the following testing environments:</p>
+
+    <data-table stylesheet="/css/data-table.css" summary="Testing environments where this software is used"></data-table>
+    <noscript>
+    Javascript is required to view table(s) on this page.
+    </noscript>
+</main>
+
+{% endblock %}  
+

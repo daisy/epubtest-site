@@ -1,0 +1,32 @@
+{%- macro UserCredit (user) -%}
+
+{%- if user.creditAs -%}
+
+<span class="user-credit">
+    {%- if user.website -%}
+    <a href="{{user.website}}">{{user.creditAs}}</a>
+    {%- else -%}
+    {{user.creditAs}}
+    {%- endif -%}
+</span>
+
+{%- else -%}
+
+<span class="user-credit">
+{%- if not user.organization and user.website and user.website != 'http://' and user.website != 'https://' -%}
+<a href="{{user.website}}">{{user.name}}</a>
+{%- else -%}
+{{user.name}}
+{%- endif -%}
+{%- if user.organization -%}
+    &nbsp;
+    {%- if user.website and user.website != 'http://' and user.website != 'https://' -%}
+    (<a href="{{user.website}}">{{user.organization}}</a>)
+    {%- else -%}
+    ({{user.organization}})
+    {%- endif -%}
+{%- endif -%}
+</span>
+
+{%- endif -%}
+{%- endmacro -%}

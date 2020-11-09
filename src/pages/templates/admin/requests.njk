@@ -1,0 +1,71 @@
+{%- extends 'base/admin-base.njk' -%}
+{%- set title = "Admin: Requests" -%}
+{%- block content -%}
+<script type="module" src="/js/data-table.js"></script>
+<script type="module">
+    import { options } from '/js/tables/admin-requests-table-options.js';
+    import * as helpers from '/js/tables/data-table-helpers.js';
+
+    let rows = {{requests | dump | safe}};
+
+    let headers = [
+        {
+            title: "Topic",
+            id: "topic",
+            sort: (a, b) => helpers.stringSort(a, b, row => row.answerSet.testBook.topic.id),
+            sortIs: 'asc'
+        },
+        {
+            title: "Testing Environment",
+            id: "testingEnvironment",
+            sort: (a, b) => helpers.sortBySoftwareName(a, b, row => row.answerSet.testingEnvironment.readingSystem),
+            sortIs: 'asc',
+        },
+        {
+            title: "Requested on",
+            id: "requestedOn",
+            sort: (a, b) => helpers.dateSort(a, b, row => row.created),
+            sortIs: 'desc'
+        },
+        {
+            title: "User",
+            id: "user",
+            sort: (a, b) => helpers.stringSort(a, b, row => row.answerSet.user.name),
+            sortIs: 'asc'
+        },
+        {
+            title: "Action",
+            id: "action"
+        }
+    ];
+    
+    if (rows.length) {
+        document.querySelector("data-table").options = {
+            ...options,
+            showTextSearch: true,
+            columnSelectorLabel: "Select a column",
+            filtersLabel: "Filters",
+            defaultSortHeader: 2
+        };
+
+        document.querySelector("data-table").data = {
+            headers, rows
+        };  
+    }
+    window.addEventListener("resize", () => {
+        document.querySelector("data-table").render();
+    }); 
+</script>
+<main>
+    <h2>Manage Requests</h2>
+    {%- if requests.length == 0 -%}
+    <p>No pending requests</p>
+    {%- else -%}
+        <data-table summary="Requests to publish answer sets" stylesheet="/css/data-table.css"></data-table>
+        <noscript>
+        Javascript is required to view table(s) on this page.
+        </noscript>
+    {%- endif -%}
+</main>
+
+{%- endblock -%}

@@ -28,9 +28,6 @@ th {
 tbody ul {
     line-height: 1.5rem;
 }
-tbody span {
-    display: inline-block;
-}
 table .testenv a {
     display: block;
     padding-bottom:1vh;
@@ -41,9 +38,6 @@ table.striped thead th:first-child {
 table.striped tbody tr:nth-child(even) {
     background-color: var(--softcomp);
 }
-table.sortable th {
-    cursor: pointer;
-}
 table.narrow {
     width: unset;
     line-height: 0.5;
@@ -51,4 +45,8 @@ table.narrow {
 table.narrow th, table.narrow td {
     width: min-content;
     white-space: nowrap;
+}
+span.not-tested {
+    font-style: italic;
+    font-weight: lighter;
 }

@@ -10,7 +10,8 @@ async function addUsers(data, jwt, errors) {
             Q.LOGINS.CREATE_NEW_LOGIN,
             {
                 email: user.email,
-                password: user.password 
+                password: user.password,
+                active: true
             }, 
             jwt
         );

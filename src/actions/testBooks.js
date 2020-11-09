@@ -79,7 +79,7 @@ async function canAdd(parsedTestBook, jwt) {
             errors = dbres.errors;
             throw new Error();
         }
-        if (!dbres.data.topics.nodes.find(t=>t.id === parsedTestBook.topicId)) {
+        if (!dbres.data.topics.find(t=>t.id === parsedTestBook.topicId)) {
             throw new Error(`Topic ${parsedTestBook.topicId} not found.`);
         }
         // compare versions
@@ -88,7 +88,7 @@ async function canAdd(parsedTestBook, jwt) {
             errors = dbres.errors;
             throw new Error();
         }
-        currentBookForTopicAndLang = dbres.data.getLatestTestBooks.nodes
+        currentBookForTopicAndLang = dbres.data.getLatestTestBooks
             .find(book => book.topicId === parsedTestBook.topicId && book.langId === parsedTestBook.langId);
         
         // are we upgrading an existing book? if so, does the new book have a newer version number?
@@ -117,7 +117,7 @@ async function setFlags(testBook, bookToUpgrade, jwt) {
                 errors = dbres.errors;
                 throw new Error();
             }
-            testsInCurrent = dbres.data.testBook.testsByTestBookId.nodes;    
+            testsInCurrent = dbres.data.testBook.tests;    
         }
     
         // flag whichever tests are new
@@ -155,7 +155,9 @@ async function add(testBook, jwt) {
                     title: testBook.title,
                     description: testBook.description,
                     filename: testBook.filename,
-                    epubId: testBook.epubId
+                    epubId: testBook.epubId,
+                    translation: testBook.translation,
+                    experimental: testBook.experimental
                 }
             }, 
             jwt);
@@ -167,32 +169,33 @@ async function add(testBook, jwt) {
         else {
             transactions.push({objectType: 'TEST_BOOKS', actionWas: 'CREATE', id: dbres.data.createTestBook.testBook.id});
             addBookResult = dbres.data.createTestBook.testBook;
-            // add the tests
-            let i; 
-            for (i = 0; i < testBook.tests.length; i++) {
-                let test = testBook.tests[i];
-                dbres = await db.query(
-                    Q.TESTS.CREATE, 
-                    {
-                        input: {
-                            testId: test.testId,
-                            testBookId: parseInt(addBookResult.id),
-                            name: test.name,
-                            description: test.description,
-                            xhtml: test.xhtml,
-                            order: i,
-                            flag: test.flagNew || test.flagChanged
-                        }
-                    }, 
-                    jwt);
-                if (!dbres.success) {
-                    winston.error(`Error adding test ${test.testId}`);
-                    errors = dbres.errors;
-                    throw new Error();                
+            if (testBook.experimental == undefined || testBook.experimental == false) {
+                // add the tests
+                let i; 
+                for (i = 0; i < testBook.tests.length; i++) {
+                    let test = testBook.tests[i];
+                    dbres = await db.query(
+                        Q.TESTS.CREATE, 
+                        {
+                            input: {
+                                testId: test.testId,
+                                testBookId: parseInt(addBookResult.id),
+                                name: test.name,
+                                description: test.description,
+                                xhtml: test.xhtml,
+                                order: i,
+                                flag: test.flagNew || test.flagChanged
+                            }
+                        }, 
+                        jwt);
+                    if (!dbres.success) {
+                        winston.error(`Error adding test ${test.testId}`);
+                        errors = dbres.errors;
+                        throw new Error();                
+                    }
+                    transactions.push({objectType: 'TESTS', actionWas: 'CREATE', id: dbres.data.createTest.test.id});
                 }
-                transactions.push({objectType: 'TESTS', actionWas: 'CREATE', id: dbres.data.createTest.test.id});
             }
-
             // copy EPUB file to downloads dir
             let destDir = path.join(__dirname, '../pages/books/');
             try {
@@ -225,12 +228,15 @@ async function getUsage(testBookId, jwt) {
         }
 
         // count empty vs non-empty answer sets
-        let nonEmpty = dbres.data.answerSets.nodes.filter(answerSet => answerSet.isTested);
+        let nonEmpty = dbres.data.answerSets
+            .filter(answerSet => answerSet.answers
+                    .filter(ans => ans.value != 'NOANSWER')
+                    .length > 0); 
         
-        let empty = dbres.data.answerSets.nodes.filter(answerSet => answerSet.isTested === false);//!nonEmpty.includes(answerSet));
+        let empty = dbres.data.answerSets.filter(answerSet => !nonEmpty.includes(answerSet));
 
         answerSets = {
-            all: dbres.data.answerSets.nodes,
+            all: dbres.data.answerSets,
             empty,
             nonEmpty
         };
@@ -267,7 +273,7 @@ async function remove(testBookId, jwt) {
             }
             
             // delete tests
-            let tests = dbres.data.testBook.testsByTestBookId.nodes;
+            let tests = dbres.data.testBook.tests;
             for (test of tests) {
                 dbres = await db.query(Q.TESTS.DELETE, {id: parseInt(test.id)}, jwt);
                 if (!dbres.success) {
@@ -312,7 +318,7 @@ async function getLatestForTopic(topicId, langId='en') {
             errors = dbres.errors;
             throw new Error();
         }
-        let testBooks = dbres.data.getLatestTestBooks.nodes;
+        let testBooks = dbres.data.getLatestTestBooks;
         //let topicId = topic;
         book = testBooks.find(tb => tb.topicId === topicId && tb.langId === langId);
 
@@ -336,7 +342,7 @@ async function getLatestForTopicWithTests(topicId, langId='en') {
             errors = dbres.errors;
             throw new Error();
         }
-        let testBooks = dbres.data.getLatestTestBooks.nodes;
+        let testBooks = dbres.data.getLatestTestBooks;
         //let topicId = topic;
         book = testBooks.find(tb => tb.topicId === topicId && tb.langId === langId);
 

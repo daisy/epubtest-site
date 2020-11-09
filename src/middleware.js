@@ -63,7 +63,7 @@ async function translate (req, res, next) {
 }
 
 function error (err, req, res, next) {
-    console.log("Error: ", err.statusCode);
+    console.log("Error: ", err?.statusCode);
     // use a generic status code if not present
     if (!err.statusCode) {
         err.statusCode = 500;

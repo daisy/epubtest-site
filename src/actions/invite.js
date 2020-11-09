@@ -13,13 +13,14 @@ async function inviteUser(userId, jwt) {
             errors = dbres.errors;
             throw new Error();
         }
-        let userEmail = dbres.data.user.login.email;
+        let user = dbres.data.user;
                 
         dbres = await db.query(
             Q.AUTH.TEMPORARY_TOKEN,
             {
                 input: {
-                    email: userEmail
+                    email: user.login.email,
+                    duration: '7 days'
                 }
             });
         if (!dbres.success) {
@@ -37,10 +38,10 @@ async function inviteUser(userId, jwt) {
             `http://localhost:${process.env.PORT}/accept-invitation?token=${temporaryJwt}`
             : 
             `http://epubtest.org/accept-invitation?token=${temporaryJwt}`;
-        await mail.sendEmail(userEmail, 
-            emails.reinvite.subject, 
-            emails.reinvite.text(inviteUrl), 
-            emails.reinvite.html(inviteUrl));   
+        await mail.sendEmail(user.login.email, 
+            emails.invite.subject, 
+            emails.invite.text(inviteUrl), 
+            emails.invite.html(inviteUrl));   
         
         dbres = await db.query(
             Q.INVITATIONS.CREATE, 
@@ -62,6 +63,33 @@ async function inviteUser(userId, jwt) {
     return { success: true, errors };
 }
 
+async function resendInvitation(invitationId, jwt) {
+    let errors = [];
+    // get the user ID for this invitation
+    let dbres = await db.query(Q.INVITATIONS.GET, {id: invitationId}, jwt);
+
+    if (!dbres.success) {
+        errors = dbres.errors;
+        throw new Error();
+    }
+
+    let userId = dbres.data.invitation.user.id;
+
+    // then delete the invitation
+    await db.query(Q.INVITATIONS.DELETE, {id: invitationId}, jwt);
+
+    // and send a new one
+    let res = await inviteUser(userId, jwt);
+    return res;
+}
+
+async function cancelInvitation(invitationId, jwt) {
+    // delete the invitation
+    await db.query(Q.INVITATIONS.DELETE, {id: invitationId}, jwt);
+}
+
 module.exports = {
-    inviteUser
+    inviteUser,
+    resendInvitation,
+    cancelInvitation
 };

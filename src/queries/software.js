@@ -10,14 +10,9 @@ const {CREATE, DELETE, UPDATE, GET, GET_ALL}
 let GET_ALL_BY_TYPE = type => `
 query {
     softwares(condition: {type: ${type.replace(/([a-z])([A-Z])/g, '$1_$2').toUpperCase()}}) {
-        nodes{
-            ${softwareFrag.FIELDS}
-            testingEnvironmentsBy${type}Id {
-                totalCount
-                nodes {
-                    ${testEnvFrag.FIELDS}
-                }
-            }
+        ${softwareFrag.FIELDS}
+        testingEnvironmentsBy${type}Id {
+            ${testEnvFrag.FIELDS}
         }
     }
 }`;
@@ -28,9 +23,7 @@ let GET_EXTENDED = type => `
         software(id: $id) {
             ${softwareFrag.FIELDS}
             testingEnvironmentsBy${type}Id {
-                nodes {
-                    ${testEnvFrag.FIELDS}
-                }
+                ${testEnvFrag.FIELDS}
             }
         }
     }`;

@@ -28,10 +28,8 @@ langId
 
 const FIELDS_WITH_TESTS = `
 ${FIELDS}
-testsByTestBookId {
-    nodes {
-        ${testFrag.FIELDS}
-    }
+tests {
+    ${testFrag.FIELDS}
 }
 `
 

@@ -7,21 +7,10 @@ const {CREATE, DELETE, UPDATE, GET, GET_ALL}
 const {GET: GET_PUBLISHED}
     = generate("testingEnvironment", "testingEnvironments", testEnvFrag.PUBLIC_FIELDS_WITH_ANSWERS);
 
-// get all public results
-// const GET_ALL_PUBLISHED = `
-// query {
-//     getPublishedTestingEnvironments {
-//         nodes {
-//             ${testEnvFrag.PUBLIC_FIELDS_WITH_ANSWERS}
-//         }
-//     }
-// }`;
 const GET_ALL_PUBLISHED = `
 query {
     testingEnvironments(condition: {isPublic: true}) {
-        nodes {
-            ${testEnvFrag.PUBLIC_FIELDS_WITH_ANSWERS}
-        }
+        ${testEnvFrag.PUBLIC_FIELDS_WITH_ANSWERS}
     }
 }`;
 
@@ -29,9 +18,7 @@ query {
 const GET_ALL_ARCHIVED =`
 query {
     getArchivedTestingEnvironments {
-        nodes {
-            ${testEnvFrag.FIELDS_WITH_ANSWERS}
-        }
+        ${testEnvFrag.FIELDS_WITH_ANSWERS}
     }
 }`;
 
@@ -39,9 +26,7 @@ query {
 const GET_ALL_BY_USER =`
 query($userId: Int!) {
     getUserTestingEnvironments(userId: $userId) {
-        nodes {
-            ${testEnvFrag.FIELDS_WITH_ANSWERS}
-        }
+        ${testEnvFrag.FIELDS_WITH_ANSWERS}
     }
 }`;
 

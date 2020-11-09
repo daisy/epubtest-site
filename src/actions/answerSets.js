@@ -15,7 +15,7 @@ async function add(testBookId, testingEnvironmentId, jwt) {
             errors = dbres.errors;
             throw new Error();
         }
-        let testsForBook = dbres.data.testBook.testsByTestBookId.nodes;
+        let testsForBook = dbres.data.testBook.tests;
 
         // add an answer set for the book
         dbres = await db.query(
@@ -78,7 +78,7 @@ async function migrate(newAnswerSetId, oldAnswerSetId, jwt) {
             errors = dbres.errors;
             throw new Error();
         }
-        let newAnswers = dbres.data.answerSet.answersByAnswerSetId.nodes;
+        let newAnswers = dbres.data.answerSet.answers;
 
         dbres = await db.query(Q.ANSWER_SETS.GET, {id: oldAnswerSetId}, jwt);
         if (!dbres.success) {
@@ -86,7 +86,7 @@ async function migrate(newAnswerSetId, oldAnswerSetId, jwt) {
             throw new Error();
         }
         let oldAnswerSet = dbres.data.answerSet;
-        let oldAnswers = dbres.data.answerSet.answersByAnswerSetId.nodes;
+        let oldAnswers = dbres.data.answerSet.answers;
 
         // get the new tests
         dbres = await db.query(Q.TEST_BOOKS_WITH_TESTS.GET, {id: newAnswerSet.testBook.id}, jwt);
@@ -94,7 +94,7 @@ async function migrate(newAnswerSetId, oldAnswerSetId, jwt) {
             errors = dbres.errors;
             throw new Error();
         }
-        let tests = dbres.data.testBook.testsByTestBookId.nodes;
+        let tests = dbres.data.testBook.tests;
         
         let flaggedAnswer = false;
         // loop through all the tests: for the flagged ones (i.e. new or changed), set the answer.flag = true
@@ -169,10 +169,10 @@ async function createAnswerSetsForNewTestBook(newTestBookId, jwt) {
     if (!dbres.success) {
         return dbres;
     }
-    let testingEnvironments = dbres.data.testingEnvironments.nodes;
+    let testingEnvironments = dbres.data.testingEnvironments;
 
     // pause the triggers
-    db.query(Q.ETC.DISABLE_TRIGGERS, {}, jwt);
+    await db.query(Q.ETC.DISABLE_TRIGGERS, {}, jwt);
 
     for (testingEnvironment of testingEnvironments) {
         let result = await add(newTestBookId, testingEnvironment.id, jwt);
@@ -182,9 +182,9 @@ async function createAnswerSetsForNewTestBook(newTestBookId, jwt) {
     }
 
     // reenable the triggers
-    db.query(Q.ETC.ENABLE_TRIGGERS, {}, jwt);
+    await db.query(Q.ETC.ENABLE_TRIGGERS, {}, jwt);
     // call the function that does what the triggers would have done had they been active
-    db.query(Q.ETC.RUN_ANSWERSET_TRIGGER_OPERATIONS, {}, jwt);
+    await db.query(Q.ETC.RUN_ANSWERSET_TRIGGER_OPERATIONS, {}, jwt);
 
     return { success: errors.length === 0, errors };
 }
@@ -200,7 +200,7 @@ async function upgrade(newTestBookId, oldTestBookId, jwt) {
     let created = {}; // {oldAnswerSetId: newAnswerSetId}
 
     // pause the triggers
-    db.query(Q.ETC.DISABLE_TRIGGERS, {}, jwt);
+    await db.query(Q.ETC.DISABLE_TRIGGERS, {}, jwt);
 
     // add new answer sets
     if (usage.answerSets.hasOwnProperty("all")) {
@@ -230,9 +230,9 @@ async function upgrade(newTestBookId, oldTestBookId, jwt) {
         }
     }
     // reenable the triggers
-    db.query(Q.ETC.ENABLE_TRIGGERS, {}, jwt);
+    await db.query(Q.ETC.ENABLE_TRIGGERS, {}, jwt);
     // call the function that does what the triggers would have done had they been active
-    db.query(Q.ETC.RUN_ANSWERSET_TRIGGER_OPERATIONS, {}, jwt);
+    await db.query(Q.ETC.RUN_ANSWERSET_TRIGGER_OPERATIONS, {}, jwt);
 
     return { success: errors.length === 0, errors };
 }
@@ -251,7 +251,25 @@ async function remove(answerSetId, jwt) {
             throw new Error();
         }
         let answerSet = dbres.data.answerSet;
-        for (answer of answerSet.answersByAnswerSetId.nodes) {
+        dbres = await db.query(Q.REQUESTS.GET_FOR_ANSWERSETS, 
+            {
+                ids: [answerSetId]
+            }, jwt);
+        if (dbres.success) {
+            let requests = dbres.data.requests;
+            for (request of requests) { // there will be only one request per answer set but this is just how the query happens to be setup
+                dbres = await db.query(Q.REQUESTS.DELETE,
+                    { id: request.id },
+                    jwt);
+                
+                if (!dbres.success) {
+                    errors = errors.concat(dbres.errors);
+                }
+            }
+        }
+
+        
+        for (answer of answerSet.answers) {
             dbres = await db.query(
                 Q.ANSWERS.DELETE, 
                 { id: answer.id}, 

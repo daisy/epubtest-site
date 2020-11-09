@@ -11,9 +11,7 @@ const { GET: GET_EXTENDED, GET_ALL: GET_ALL_EXTENDED }
 const GET_FOR_BOOK = 
     `query ($testBookId:Int!) {
         answerSets(condition:{testBookId: $testBookId}) {
-            nodes {
-                ${answerSetFrag.FIELDS_WITH_ANSWERS}
-            }
+            ${answerSetFrag.FIELDS_WITH_ANSWERS}
         }
     }
     `;
@@ -21,9 +19,7 @@ const GET_FOR_BOOK =
 const GET_FOR_BOOK_AND_TESTING_ENVIRONMENT = 
 `query ($testBookId:Int!, $testingEnvironmentId:Int!) {
     answerSets(condition:{testBookId: $testBookId, testingEnvironmentId: $testingEnvironmentId}) {
-        nodes {
-            ${answerSetFrag.FIELDS_WITH_ANSWERS}
-        }
+        ${answerSetFrag.FIELDS_WITH_ANSWERS}
     }
 }
 `;
@@ -31,9 +27,7 @@ const GET_FOR_BOOK_AND_TESTING_ENVIRONMENT =
 const GET_FOR_BOOK_EXTENDED = 
 `query ($testBookId:Int!) {
     answerSets(condition:{testBookId: $testBookId}) {
-        nodes {
-            ${answerSetFrag.FIELDS_WITH_ANSWERS_WITH_USER_LOGIN}
-        }
+        ${answerSetFrag.FIELDS_WITH_ANSWERS_WITH_USER_LOGIN}
     }
 }`;
 
@@ -44,6 +38,12 @@ const UPDATE_ANSWERSET_AND_ANSWERS =
         }
     }`;
 
+const GET_FOR_USER = 
+`query ($userId:Int!) {
+    answerSets(condition: {userId: $userId}) {
+        ${answerSetFrag.FIELDS_WITH_ANSWERS}
+    }
+}`;
 
 module.exports = {
     CREATE, DELETE, UPDATE, GET, GET_ALL, 
@@ -52,6 +52,7 @@ module.exports = {
     UPDATE_ANSWERSET_AND_ANSWERS,
     GET_EXTENDED,
     GET_ALL_EXTENDED,
-    GET_FOR_BOOK_EXTENDED
+    GET_FOR_BOOK_EXTENDED,
+    GET_FOR_USER
 };
 

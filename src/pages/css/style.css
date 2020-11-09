@@ -10,7 +10,7 @@ body {
     "header header header"
     "nav main main"
     "footer footer footer";
-    grid-template-columns: minmax(min-content, 20rem) auto minmax(min-content, 20rem);
+    grid-template-columns: minmax(min-content, 20%) auto minmax(min-content, 20rem);
     grid-template-rows: auto 1fr auto;
     font-family: Helvetica Neue, Helvetica, Arial, Verdana, Geneva, sans-serif;
     letter-spacing: -0.00278rem;
@@ -22,9 +22,9 @@ a, a:visited {
     color: var(--primary);  
 }
 a:hover {
-    text-decoration: underline !important;
+    text-decoration-thickness: 2px;
 }
-a:link, a:visited, a:hover {
+header a:link, header a:visited {
     text-decoration: none;
 }
 em {
@@ -35,10 +35,11 @@ header {
     grid-area: header;
     display: grid;
     grid-template-areas: "title nav login";
-    grid-template-columns: 20rem auto 20rem;
+    grid-template-columns: 20% auto 20%;
     align-items: center;
     border-bottom: 1vh solid var(--primary);
     margin-bottom: 1rem;
+    padding-left: 1rem;
 }
 header h1 {
     grid-area: title;
@@ -70,20 +71,42 @@ header nav.user {
 header nav.user ul {
     justify-content: right;
 }
+/* regular main content area, just a big block */
 main {
     grid-area: main;
-}
-main.landing {
-    display: grid;
-    grid-template-rows: 10rem 10rem;
-    margin-top: 3rem;
-}
-main.wide {
+    margin-right: 1rem;
+    margin-left: 1rem;
     grid-column-start: 1;
+    grid-column-end: 4;
 }
-main.inset {
-    margin-left: 5rem;
-    margin-right: 5rem;
+/* if there's a secondary nav area, start the main section in column 2*/
+nav ~ main {
+    grid-column-start: 2;
+}
+
+/* centered main area */
+main.center {
+    grid-column-start: 2;
+    margin-right: 20%;
+}
+/* main area with a logo on the right */
+main.rightlogo {
+    margin-right: 1rem;
+    display: grid;
+    gap: 5rem;
+    grid-template-columns: 60% 30%;
+}
+main.rightlogo p {
+    margin-right: 0;
+}
+main.rightlogo > *:nth-child(2) {
+    padding-bottom: 50%;
+    align-self: center;
+    justify-self: center;
+}
+
+main p {
+    margin-right: 30%;
 }
 footer {
     grid-area: footer;
@@ -96,14 +119,58 @@ footer > * {
     font-size: smaller;
 }
 main > div {
-    margin-bottom: 2rem;
-}
-div.center {
-    display: flex;
-    justify-content: center;
-    align-content: center;
+    /* margin-bottom: 2rem; */
 }
 
+nav.secondary-nav h2 {
+    font-size: medium;
+}
+/* lineup with main content */
+nav.secondary-nav > h2:first-of-type {
+    margin-top: 1rem;
+}
+nav ~ main > h2:first-of-type {
+    margin-top: 1rem;
+}
+ul.detailslist {
+    list-style-type: none;
+    width: 30rem;
+    padding-left: 0;
+    display: grid;
+    gap: 0.25rem;
+}
+ul.detailslist.compact {
+    width: 100%;
+}
+ul.detailslist > li {
+    display: grid;
+    grid-template-columns: 50% 50%;
+    border-radius: 4px;
+    border: thin var(--darkgray) solid;
+}
+ul.detailslist.compact li {
+    border: none;
+}
+ul.detailslist span {
+    display: block;
+}
+ul.detailslist span:first-child {
+    background-color: var(--darkgray);
+    color: white;
+    font-weight: bold;
+    padding-left: 0.5rem;
+}
+ul.detailslist span:last-child {
+    padding-left: 1rem;
+}
+ul.detailslist.compact li span:first-child {
+    display: none;
+}
+div.twocol {
+    display: grid;
+    grid-template-columns: 60% auto;
+    gap: 2rem;
+}
 p.message {
     border-radius: 10px;
     vertical-align: middle;
@@ -113,11 +180,6 @@ p.message {
     background-color: rgba(251, 255, 0, 0.2);
     grid-column-start: 1;
     grid-column-end: 4;
-}
-
-div.twocol {
-    display: grid;
-    grid-template-columns: 30% auto;
 }
 
 .big {
@@ -132,7 +194,8 @@ div.twocol {
     border-bottom: none !important;  
     text-align: center !important;
     margin-top: 3rem;
-    
+    border-radius: 4px;
+    font-size: larger;
 }
 
 div.selection {
@@ -140,18 +203,16 @@ div.selection {
     padding: 1vh;
     margin: 1vh;   
 }
-span.notTested, span.na {
+span.na {
     font-style: italic;
     font-weight: lighter;
     color: var(--grayed-out);
 }
-.spaced {
-    margin-top: 2rem;
-    margin-bottom: 2rem;
-}
 .limit {
-    max-width: 50vw;
+    max-height: 30vh;
     overflow: scroll;
+    max-width: 40rem;
+    white-space: break-spaces;
 }
 .testenv span {
     margin-bottom: 1vh;
@@ -161,7 +222,8 @@ ul.cols {
     columns: 3;
 }
 body > nav {
-    margin-right: 2rem;
+    margin-left: 1rem;
+    grid-area: nav;
 }
 body > nav > h1 {
     font-size: 1.3rem;
@@ -183,33 +245,54 @@ body > nav ul li {
     margin-bottom: inherit;
 }
 
-/* make the local navigation and main body line up */
-main > *:first-child, body > nav > :first-child {
-    margin-top: 0;
+span.cmd {
+    /* background-color: lightyellow; */
+    font-weight: bold;
 }
+
 
 .deemph {
     /* font-style: italic; */
     font-weight: normal;
 }
 
+.archived {
+    border: var(--primary) thin solid;
+    padding: 1vh;
+    border-radius: 4px;
+    background-color: var(--softlight);
+}
 #err em {
     font-size: larger;
     font-style: normal;
     display: block;
 }
+#local-error {
+    background-color: lightyellow;
+    border-radius: 4px;
+}
 em.title {
     font-weight: normal;
     /* font-style: italic; */
 }
-.boxed {
-    border: thin solid black;
-    padding: 2rem;
-    font-size: smaller;
-    columns: 2;
+p.note {
+    font-style: italic;
+    background-color: var(--softcomp);
+    border-radius: 4px;
 }
-.boxed li {
-    break-inside: avoid;
+p.note::before {
+    content: '👉 ';
+    font-size: large;
+}
+div.testing-environment-title > * {
+    display: inline-block;
+}
+div.testing-environment-title > *:first-child {
+    margin-right: 0.75rem;
+}
+/* this table only has one column at the moment, so it doesn't have to be so wide */
+div#active-users {
+    width: 70%;
 }
 /*****************************/
 /* MOBILE                    */
@@ -218,16 +301,15 @@ em.title {
     body {
         grid-template-areas:
             "header"
-            "main"
             "nav"
+            "main"
             "footer";
         grid-template-columns: 100%; 
         grid-template-rows:
             auto
-            1fr
             auto
+            1fr
             auto;
-        grid-gap: 5vh;
     }
     nav {
       margin: 0;
@@ -237,43 +319,76 @@ em.title {
         "message"
         "title"
         "nav"
-        "login"
-        "search";
-        grid-row-gap: 1vh;
-        grid-column-gap: inherit;
+        "login";
         grid-template-columns: 1fr;
-        grid-template-rows: minmax(0, min-content) auto auto auto;  
-        border-bottom: none;
-        justify-content: center;
-        padding-bottom: 1rem;
     }
     header nav ul {
         justify-content: center !important;
     }
     header h1 {
-        font-size: inherit;
-        padding-left: inherit;
+        font-size: x-large;
         justify-self: center;
     }
     main {
         grid-template-columns: 1fr;
+        margin-right: 0;
+        grid-column-end: 1;
     }
-    main.landing {
-        grid-template-rows: inherit;
+    /* if there's a secondary nav area, start the main section in column 1 on mobile */
+    nav ~ main {
+        grid-column-start: 1;
     }
+    main.center {
+        margin-left: 0;
+        margin-right: 0;
+        grid-template-rows: auto;
+        grid-template-columns: 1fr;
+    }
+    main.rightlogo {
+        grid-template-areas: 
+        "logo" 
+        "content";
+        grid-template-columns: 1fr;
+        gap: 0;
+    }
+    main p {
+        margin-right: auto;
+    }
+    main.rightlogo > *:nth-child(1) {
+        grid-area:content;
+    }
+    main.rightlogo > *:nth-child(2) {
+        grid-area: logo;
+        justify-self: center;
+        margin-right: 0;
+        padding-bottom: 0;
+    }
+    
     body > nav {
         width: inherit;
         grid-template-columns: 1fr;
+        border: thin var(--darkgray) solid;
+        padding-left: 1rem;
+        padding-right: 1rem;
+
     }
     footer {
         border-top: none;
     }
+    ul.detailslist {
+        width: 100%;
+    }
+    ul.detailslist li {
+        grid-template-columns: 1fr;
+    }
+    div.twocol {
+        grid-template-columns: 1fr;
+    }
     .message {
         grid-area: message;
     }
-    th, td {
-        /* word-wrap: break-word; */
-        white-space: break-spaces;
+    ul.cols {
+        columns: 1;
     }
 }
 

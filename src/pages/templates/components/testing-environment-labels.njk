@@ -1,0 +1,42 @@
+{%- import "components/software-name.njk" as softwareName -%}
+
+
+{%- macro TestingEnvironmentTitle(testingEnvironment, tagname1, tagname2) -%}
+    {%- set rs = testingEnvironment.readingSystem -%}
+    <div class="testing-environment-title">
+        <{{tagname1}} id="{{testingEnvironment.id}}">{{ SoftwareTitle (rs) }}</{{tagname1}}>
+        <{{tagname2}}>by {{ rs.vendor }}</{{tagname2}}>
+    </div>
+{%- endmacro -%}
+
+{%- macro TestingEnvironmentOneLinerPlainText(testingEnvironment) -%}
+{%- set rs = testingEnvironment.readingSystem -%}
+{%- set at = testingEnvironment.assistiveTechnology -%}
+{%- set os = testingEnvironment.os -%}
+{%- set dev = testingEnvironment.device -%}
+{%- set brw = testingEnvironment.browser -%}
+{{SoftwareTitle(rs)}}
+{%- if at and at.name -%}
+, {{SoftwareTitle(at)}}
+{%- endif -%}
+{%- if os -%}
+, {{SoftwareTitle(os)}}
+{%- endif -%}
+{%- if brw and brw.name -%}
+, {{SoftwareTitle(brw)}}
+{%- endif -%}
+{%- if dev and dev.name -%}
+, {{SoftwareTitle(dev)}}
+{%- endif -%}
+
+{%- endmacro -%}
+
+{%- macro SoftwareTitle(software) -%}
+    {%- if software.name -%}
+        {{software.name}}
+        {%- if software.version -%}
+            &nbsp;{{software.version}}
+        {%- endif -%}
+    {%- endif -%}    
+{%- endmacro -%}
+

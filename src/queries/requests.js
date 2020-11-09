@@ -8,9 +8,7 @@ const {CREATE, DELETE, UPDATE, GET, GET_ALL}
 const GET_FOR_ANSWERSETS =
     `query($ids: [Int!]) {
         requests(filter:{answerSetId:{in: $ids}}) {
-            nodes {
-                ${requestFrag.FIELDS}
-            }
+            ${requestFrag.FIELDS}
         }
     }`;
 

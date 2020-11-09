@@ -3,6 +3,7 @@ const db = require('../database');
 const Q = require('../queries');
 const utils = require('../utils');
 var router = express.Router()
+const displayUtils = require('../displayUtils');
 
 // user dashboard page
 router.get('/dashboard', async (req, res, next) => {
@@ -12,10 +13,18 @@ router.get('/dashboard', async (req, res, next) => {
         let err = new Error("Could not get user's testing environments.");
         return next(err);
     }
-    let userTestingEnvironments = dbres.data.getUserTestingEnvironments.nodes;
+    let userTestingEnvironments = dbres.data.getUserTestingEnvironments;
+    
+    // admins can view everything, so their testing environments will have all the answer sets
+    // we need to filter it to only include their assignments
+    if (res.locals.accessLevel == 'admin') {
+        for (testingEnvironment of userTestingEnvironments) {
+            testingEnvironment.answerSets = testingEnvironment.answerSets.filter(aset => aset.user && aset.user.id == req.userId);
+        }
+    }
 
     let answerSetIds = userTestingEnvironments.map(tenv => 
-        tenv.answerSetsByTestingEnvironmentId.nodes.map(ans => ans.id))
+        tenv.answerSets.map(ans => ans.id))
         .reduce((acc, curr) => acc.concat(curr), []);
     
     dbres = await db.query(Q.REQUESTS.GET_FOR_ANSWERSETS, {ids: answerSetIds}, req.cookies.jwt);
@@ -25,8 +34,8 @@ router.get('/dashboard', async (req, res, next) => {
         return next(err);
     }
 
-    let requests = dbres.data.requests.nodes;
-    return res.render('dashboard.html', 
+    let requests = dbres.data.requests;
+    return res.render('dashboard.njk', 
         {
             testingEnvironments: userTestingEnvironments.sort(utils.sortAlphaTestEnv),
             getRequestToPublish: answerSetId => {
@@ -46,7 +55,7 @@ router.get('/profile', async (req, res, next) => {
         return next(err);
     }
 
-    return res.render('profile.html', 
+    return res.render('profile.njk', 
         {
             user: dbres.data.user
         }
@@ -65,9 +74,10 @@ router.get('/edit-results/:answerSetId', async (req, res, next) => {
         return next(err);
     }
     let nextUrl = req.query.hasOwnProperty('next') ? req.query.next : '/user/dashboard';
-    return res.render('edit-results.html', {
+    return res.render('edit-results.njk', {
         answerSet: dbres.data.answerSet,
-        next: nextUrl
+        next: nextUrl,
+        displayUtils
     });
 });
 module.exports = router;

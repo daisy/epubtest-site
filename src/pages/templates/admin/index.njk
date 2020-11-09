@@ -1,0 +1,41 @@
+{%- extends 'base/admin-base.njk'-%}
+
+{%- set title="Admin: Home" -%}
+{%- block content -%}
+<main class="center">
+    <h2>Admin</h2>
+
+    <h3>Requests</h3>
+    <ul>
+        <li><a href="/admin/requests">Requests</a>: Approve or deny requests to publish</li>
+    </ul>
+
+    <h3>Testing Environments</h3>
+
+    <ul>
+        <li><a href="/admin/testing-environments">View and manage testing environments</a></li>
+        <li><a href="/admin/add-testing-environment">Add testing environment</a>: Add new software and new testing environments</li>
+    </ul>
+
+    <h3>Software</h3>
+    {%- include "components/software-categories.njk" -%}
+    
+    <h3>Test Books</h3>
+    <ul> 
+        <li><a href="/admin/test-books">View and manage test books</a></li>
+    </ul>
+
+    <h3>Users</h3>
+    <ul>
+        <li><a href="/admin/users">View active users</a></li>
+        <li><a href="/admin/add-user">Invite a new user</a></li>
+        <li><a href="/admin/reinvite-users">Re-invite former users</a></li>
+        <li><a href="/admin/invitations">View pending invitations</a></li>
+    </ul>
+
+    <h3>Other</h3>
+    <ul>
+        <li><a href="/admin/server-info">Server info</a></li>
+    </ul>
+</main>
+{%- endblock -%}

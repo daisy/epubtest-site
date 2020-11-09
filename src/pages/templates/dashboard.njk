@@ -1,0 +1,118 @@
+{%- extends 'base/base.njk' -%}
+{%- import "components/testing-environment-labels.njk" as testingEnvironmentLabels -%}
+{%- import "components/testing-environment-details.njk" as testingEnvironmentDetails -%}
+{%- import "components/software-name.njk" as softwareName -%}
+
+{%- set title = "Dashboard" -%}
+{%- block content -%}
+<script type="module" src="/js/data-table.js"></script>
+
+<main>
+<h2>Dashboard</h2>
+{%- if testingEnvironments.length == 0 -%}
+<p>Looks like you don't have any tasks assigned yet - check back soon!</p>
+{%- else -%}
+<p>Your dashboard shows what you've been assigned to work on.</p>
+
+{%- if accessLevel == 'admin' -%}
+<p>You may directly publish or unpublish your own answer sets from this page because you are an administrator (regular users have "request to publish" buttons instead).</p>
+{%- endif -%}
+    
+{%- for testingEnvironment in testingEnvironments -%}
+{{ testingEnvironmentLabels.TestingEnvironmentTitle (testingEnvironment, 'h3', 'p') }}
+{%- if testingEnvironment.isArchived -%}
+<p class="archived">This testing environment has been archived.</p>
+{%- endif -%}
+{{ testingEnvironmentDetails.TestingEnvironmentDetails(testingEnvironment) }}
+{{ TestingEnvironmentTable(testingEnvironment)}}
+
+
+{%- endfor -%}
+{%- endif -%}
+</main>
+
+{%- endblock -%}
+
+{%- block nav -%}
+{%- if testingEnvironments.length != 0 -%}
+<nav aria-labelled-by="navlabel" class="secondary-nav">
+    <h2 id="navlabel">Testing environments</h2>
+    <ul>    
+        {%- for testingEnvironment in testingEnvironments -%}
+        {%- set rs = testingEnvironment.readingSystem -%}
+        <li>
+            <a href="#{{testingEnvironment.id}}">{{ softwareName.SoftwareName (rs)}}</a>
+            {{ testingEnvironmentDetails.TestingEnvironmentDetails (testingEnvironment, true) }}
+        </li>
+        {%- endfor -%}
+    </ul>
+</nav>
+{%- endif -%}
+{%- endblock -%}
+
+{%- macro TestingEnvironmentTable(testingEnvironment) -%}
+<script type="module">
+    import * as helpers from '/js/tables/data-table-helpers.js';
+    import { options } from '/js/tables/dashboard-table-options.js';
+
+    let rows = {{testingEnvironment.answerSets | dump | safe}};
+    let requestsToPublish = {
+        {%- for answerSet in testingEnvironment.answerSets -%}
+        {%set requestToPublish = getRequestToPublish(answerSet.id) %}
+        {%- if requestToPublish -%}
+        {{answerSet.id}}: {{getRequestToPublish(answerSet.id) | dump | safe }},
+        {%- endif -%}
+        {%- endfor -%}
+    };
+    let isAdmin = "{{accessLevel}}" == 'admin';
+    let testingEnvironment = {{testingEnvironment | dump | safe}};
+    let headers = [
+        {
+            title: "Topic",
+            id: "topic",
+            sort: (a, b) => helpers.numberSort(a, b, row => row.testBook.topic.order),
+            sortIs: 'asc'
+        },
+        {
+            title: "Score",
+            id: "score",
+            sort: (a, b) => helpers.numberSort(a, b, row => helpers.calcScore(row.score)),
+            sortIs: 'asc'
+        },   
+        {
+            title: "Edit",
+            id: "edit"
+        },
+        {
+            title: "Publish",
+            id: "publish"
+        }
+    ];
+    
+    document.querySelector("#data-{{testingEnvironment.id}}").options = {
+        getBodyCellDisplay: (header, row, headerIdx, rowIdx) => options.getBodyCellDisplay(header, row, headerIdx, rowIdx, requestsToPublish, isAdmin, testingEnvironment),
+        getHeaderCellDisplay: options.getHeaderCellDisplay,
+        showTextSearch: false,
+        columnSelectorLabel: "Select a column",
+        filtersLabel: "Filters",
+        textSearchFilter: options.textSearchFilter,
+        filters: {}
+    };
+
+    document.querySelector("#data-{{testingEnvironment.id}}").data = {
+        headers, rows
+    };
+    window.addEventListener("resize", () => {
+        document.querySelector("data-table").render();
+    });
+</script>
+<data-table 
+    summary="Edit and publish topics for {{testingEnvironment.readingSystem.name}} {{testingEnvironment.readingSystem.version}}"
+    stylesheet="/css/data-table.css"
+    id="data-{{testingEnvironment.id}}">
+</data-table>
+<noscript>
+Javascript is required to view table(s) on this page.
+</noscript>
+
+{%- endmacro -%}

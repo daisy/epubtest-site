@@ -1,0 +1,17 @@
+{%- extends 'base/base.njk' -%}
+{%- block content -%}
+
+<main class="center">
+    <h2>{{title}}</h2>
+    <p>{{content | safe}}</p>
+    <form method="POST" action="{{formAction}}" class="simple">
+        <input type="hidden" name="nextIfYes" value="{{nextIfYes}}"/>
+        <input type="hidden" name="nextIfNo" value="{{nextIfNo}}"/>
+        <div class="action">
+            <input type="submit" name="no" value="No"/>
+            <input type="submit" name="yes" value="Yes"/>
+        </div>
+    </form>
+</main>
+
+{%- endblock -%}

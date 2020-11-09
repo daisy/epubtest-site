@@ -12,6 +12,7 @@ login {
     type
     lastSeen
     active
+    email
 }
 `;
 

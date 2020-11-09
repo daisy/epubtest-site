@@ -1,42 +1,16 @@
 @import url("colors.css");
 
-/* forms */
-
 input, button, textarea {
     padding: .5vh;
     border-radius: 4px;
 }
+
 textarea {
     display: block;
 }
 
-input#save {
-    margin-left: 50%;
-    margin-right: 50%;
-    margin-top: 2vh;
-}
-
-form.simple {
-    display: grid;
-    grid-gap: 3vh;
-    width: 30%;
-    margin: auto;
-}
-
-form.simple > div {
-    margin-top: 2vh;
-    display: grid;
-    grid-template-columns: 1fr;
-    grid-gap: 1vh;
-    align-items: center;
-}
-
-form.simple > .actions {
-    grid-template-columns: 50% auto;
-}
-
-form.simple input[type=submit] {
-    max-width: 5rem;
+form div label {
+    display: block;
 }
 
 textarea.summary {
@@ -44,20 +18,62 @@ textarea.summary {
     margin-bottom: 2vh;
 }
 
-/* testing environment page */
-
-/* div.testenv ul {
-    display: flex;
-    margin-top: 4vh;
-    margin-bottom: 4vh;
+form.simple {
+    display: grid;
+    grid-template-rows: min-content;
+    grid-template-columns: auto;
+    gap: 2rem;
 }
-div.testenv li {
-    flex: 0 1;
-    margin-right: 2vw;
-    white-space: nowrap;
-    text-decoration: none;
-} */
+form.simple input[type=submit] {
+    justify-self: center;
+    padding: 1vh;
+    padding-left: 4vh;
+    padding-right: 4vh;
+}
+form.simple div.actions {
+    display: flex;
+    justify-content: space-evenly;
+}
+form.simple {
+    width: 30rem;
+}
+form.simple input:not([type=submit]):not([type=checkbox]) {
+    width: 100%;
+}
 
+#new-testing-environment {
+    gap: 0;
+}
+#new-testing-environment label {
+    font-weight: bold;
+    font-size: larger;
+}
 #profile-form {
-    margin: inherit;
+    gap: 0.8rem;
+}
+#profile-form .row {
+    display: grid;
+    grid-template-columns: 80% 20%;
+}
+#profile-form .row > *:last-child {
+    justify-self: right;
+}
+
+#save {
+    margin-left: 50%;
+    margin-right: 50%;
+    margin-top: 2vh;
+    padding: 1vh;
+    padding-left: 2vh;
+    padding-right: 2vh;
+    font-size: larger;
+}
+
+@media (max-width: 768px) {
+    form.simple {
+        width: 100%;
+    }
+    textarea {
+        width: 100%;
+    }
 }

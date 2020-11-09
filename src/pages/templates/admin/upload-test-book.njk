@@ -1,0 +1,25 @@
+{%- extends 'base/admin-base.njk' -%}
+{%- set title = "Admin: Import Tests" -%}
+{%- block content -%}
+
+<main class="center">
+    <h2>Upload New Test Book</h2>
+
+    <p>Please ensure the book conforms to the 
+        <a href="https://github.com/daisy/epub-accessibility-tests/#epub-accessibility-tests">Guidelines</a> and that it passes EPUBCheck.</p>
+
+    <form method="POST" action="/admin/forms/add-test-book" enctype="multipart/form-data">
+        <input type="file" name="epub" required>
+        <div>
+            <label for="experimental">This book is experimental</label>
+            <input type="checkbox" name="experimental" id="experimental">
+        </div>
+        <div>
+            <label for="translation">This book is a translation</label>
+            <input type="checkbox" name="translation" id="translation">
+        </div>
+        <input type="submit" value="Add book">
+    </form>
+</main>
+
+{%- endblock -%}

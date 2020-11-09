@@ -1,0 +1,7 @@
+{%- macro FormatScore(answerSet) -%}
+{%-if answerSet.isTested-%}
+<span>{{answerSet.score | round(2)}}%</span>
+{%- else -%}
+<span class="not-tested">Not tested</span>
+{%- endif -%}
+{%- endmacro -%}

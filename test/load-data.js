@@ -1,6 +1,11 @@
 const fs = require('fs-extra');
 const path = require('path');
-require('dotenv').config({path: path.join(__dirname, `../.testenv`)});
+const envFile = process.argv.length > 2 ? 
+    process.argv[2] : ".env";
+if (process.env.NODE_ENV != 'production') {
+    require('dotenv').config({path: path.join(__dirname, `../.testenv`)});
+}
+
 const winston = require('winston');
 
 const { spawn } = require('child_process')
@@ -21,7 +26,7 @@ let errmgr = require('./errmgr');
 module.exports.errmgr = errmgr;
 
 module.exports.initDb = async function (dataProfile) {
-    // test query
+    // test that we can execute a query
     let dbres = await db.query(Q.TEST_BOOKS.GET_ALL, {});
     if (!dbres.success) {
         winston.error("COULD NOT REACH THE DB API SERVER");
@@ -103,7 +108,7 @@ async function initializeDb (dataProfile) {
     }
     
     
-    let jwt = await login();
+    let jwt = await login("admin@example.com", "password");
     if (jwt) {
         try {
             
@@ -138,7 +143,7 @@ async function initializeDb (dataProfile) {
 
 // clear all data from the database
 async function wipeDb() {
-    let jwt = await login();
+    let jwt = await login("admin@example.com", "password");
     // delete all rows from all tables except for DbInfo
     let dbres = await db.query(Q.ETC.DELETE_ALL_DATA, {}, jwt);
     if (!dbres.success) {
@@ -151,7 +156,8 @@ async function wipeDb() {
     dbres = await db.query(Q.LOGINS.CREATE_NEW_LOGIN, 
         {
             email: "admin@example.com",
-            password: "password"
+            password: "password",
+            active: true
         }, 
         jwt);
     if (!dbres.success) {
@@ -177,11 +183,11 @@ async function wipeDb() {
     winston.info("Cleared data");
 }
 
-async function login() {
+async function login (email, password) {
     let dbres = await db.query(Q.AUTH.LOGIN, {
         input: {
-            "email": "admin@example.com",
-            "password": "password"
+            email, 
+            password
         }
     });
 
@@ -192,6 +198,7 @@ async function login() {
 
     return dbres.data.authenticate.jwtToken;
 }
+module.exports.login = login;
 
 async function readJson(filename) {
     let data = await fs.readFile(path.resolve(__dirname, filename), {encoding: "utf-8"});

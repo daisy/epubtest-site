@@ -1,11 +1,12 @@
 var express = require('express');
 const db = require('../database');
 const Q = require('../queries');
+const displayUtils = require('../displayUtils');
 const utils = require('../utils');
 
 var router = express.Router()
 
-router.get('/', async(req, res) => res.render('admin/index.html'));
+router.get('/', async(req, res) => res.render('admin/index.njk'));
 
 // admin requests
 router.get('/requests', async (req, res, next) => {
@@ -16,74 +17,25 @@ router.get('/requests', async (req, res, next) => {
         return next(err);
     }
     
-    return res.render('./admin/requests.html', 
+    return res.render('./admin/requests.njk', 
         { 
-            requests: dbres.data.requests.nodes 
+            requests: dbres.data.requests 
         }
     );
 });
 
 // admin testing
-router.get('/testing', async (req, res, next) => {
-    let dbres = await db.query(Q.REQUESTS.GET_ALL, {}, req.cookies.jwt);
-    if (!dbres.success) {
-        let err = new Error("Could not get requests.");
-        return next(err);
-    }
-    let requests = dbres.data.requests.nodes;
-    dbres = await db.query(Q.TESTING_ENVIRONMENTS.GET_ALL, {}, req.cookies.jwt);
+router.get('/testing-environments', async (req, res, next) => {
+    let dbres = await db.query(Q.TESTING_ENVIRONMENTS.GET_ALL, {}, req.cookies.jwt);
     if (!dbres.success) {
         let err = new Error("Could not get testing environments.");
         return next(err);
     }
-    let allTestEnvs = dbres.data.testingEnvironments.nodes;
+    let allTestEnvs = dbres.data.testingEnvironments;
 
-    // the following two are public datasets so no jwt required
-    dbres = await db.query(Q.TESTING_ENVIRONMENTS.GET_ALL_PUBLISHED);
-    if (!dbres.success) {
-        let err = new Error("Could not get published testing environments.");
-        return next(err);
-    }
-   // let publishedTestEnvs = dbres.data.getPublishedTestingEnvironments.nodes;
-   let publishedTestEnvs = dbres.data.testingEnvironments.nodes;
-    dbres = await db.query(Q.TESTING_ENVIRONMENTS.GET_ALL_ARCHIVED);
-    if (!dbres.success) {
-        let err = new Error("Could not get archived testing environments.");
-        return next(err);
-    }
-    let archivedTestEnvs = dbres.data.getArchivedTestingEnvironments.nodes;
-
-    let publicTestingEnvironments = publishedTestEnvs.sort(utils.sortAlphaTestEnv);
-    let publicArchivedTestingEnvironments = archivedTestEnvs.sort(utils.sortAlphaTestEnv);
-    let unpublishedTestingEnvironments = allTestEnvs.filter(tenv => !tenv.isArchived
-            && publicTestingEnvironments.find(n=>n.id === tenv.id) == undefined )
-            .sort(utils.sortAlphaTestEnv);
-    let unpublishedArchivedTestingEnvironments = allTestEnvs.filter(tenv => tenv.isArchived 
-            && publicArchivedTestingEnvironments.find(n=>n.id === tenv.id) == undefined )
-            .sort(utils.sortAlphaTestEnv);
-    // too slow
-    // TODO write pgsql function
-    /*let noResultsTestingEnvironments = results[1].data.data.testingEnvironments.nodes
-        .filter(tenv => {
-            let answerSets = tenv.answerSetsByTestingEnvironmentId.nodes;
-            let completedAnswerSets = answerSets.filter(aset => {
-                let answered = aset.answersByAnswerSetId.nodes
-                    .filter(ans => ans.value != 'NOANSWER');
-                return answered.length !== 0;
-            });
-            return completedAnswerSets.length === 0;
-        });*/
-    return res.render('admin/testing.html', 
+    return res.render('admin/testing-environments.njk', 
         {
-            publicTestingEnvironments,
-            publicArchivedTestingEnvironments,
-            unpublishedTestingEnvironments,
-            unpublishedArchivedTestingEnvironments,
-            // noResultsTestingEnvironments,
-            getRequestToPublish: answerSetId => {
-                let retval = requests.find(r => r.answerSetId === answerSetId);
-                return retval;
-            }
+            testingEnvironments: allTestEnvs
         }
     );
 });
@@ -97,30 +49,42 @@ router.get('/testing-environment/:id', async (req, res, next) => {
         return next(err);
     }
     let testingEnvironment = dbres.data.testingEnvironment;
-
+    if (testingEnvironment == null) {
+        let err = new Error(`Could not get testing environment (${req.params.id}).`);
+        return next(err);
+    }
     dbres = await db.query(Q.USERS.GET_ACTIVE, {}, req.cookies.jwt);
     if (!dbres.success) {
         let err = new Error(`Could not get active users.`);
         return next(err);
     }
-    let users = dbres.data.getActiveUsers.nodes;
+    let users = dbres.data.getActiveUsers;
     
     dbres = await db.query(
         Q.REQUESTS.GET_FOR_ANSWERSETS, 
-        { ids: testingEnvironment.answerSetsByTestingEnvironmentId.nodes.map(ans => ans.id)},
+        { ids: testingEnvironment.answerSets.map(ans => ans.id)},
         req.cookies.jwt
     );
     if (!dbres.success) {
         let err = new Error(`Could not get requests.`);
         return next(err);
     }
-    let requests = dbres.data.requests.nodes;
-    return res.render('admin/testing-environment.html', 
+    let requests = dbres.data.requests;
+    let requestsToPublish = {};
+    testingEnvironment.answerSets.map(aset => {
+        let foundRequest = requests.find(r => r.answerSet.id == aset.id);
+        if (foundRequest) {
+            requestsToPublish[aset.id] = foundRequest;
+        }
+    });
+
+    return res.render('admin/testing-environment.njk', 
         {
             testingEnvironment,
             users,
+            requestsToPublish,
             getRequestToPublish: answerSetId => {
-                let retval = requests.find(r => r.answerSetId === answerSetId);
+                let retval = requests.find(r => r.answerSet.id === answerSetId);
                 return retval;
             }
         }
@@ -128,8 +92,8 @@ router.get('/testing-environment/:id', async (req, res, next) => {
 });
 
 // admin test books
-router.get('/upload-test-book', async (req, res, next) => {
-    return res.render('admin/upload-test-book.html');
+router.get('/add-test-book', async (req, res, next) => {
+    return res.render('admin/upload-test-book.njk');
 });
 
 router.get('/test-books', async (req, res, next) => {
@@ -139,279 +103,277 @@ router.get('/test-books', async (req, res, next) => {
         return next(err);
     }
     
-    return res.render('admin/test-books.html', 
+    return res.render('admin/test-books.njk', 
         {
-            testBooks: dbres.data.getLatestTestBooks.nodes,
-            getTopicName: utils.getTopicName
+            testBooks: dbres.data.getLatestTestBooks,
+            displayUtils
         }
     );
 });
 
+
+// sort functions for users
+let alpha = (a,b) => a.name > b.name ? 1 : a.name == b.name ? 0 : -1;
+let alpha2 = (a,b) => a.user.name > b.user.name ? 1 : a.user.name == b.user.name ? 0 : -1;
+    
 // admin users
 router.get('/users', async (req, res, next) => {
-    let alpha = (a,b) => a.name > b.name ? 1 : a.name == b.name ? 0 : -1;
-    let alpha2 = (a,b) => a.user.name > b.user.name ? 1 : a.user.name == b.user.name ? 0 : -1;
-    
+    dbres = await db.query(Q.USERS.GET_ACTIVE, {}, req.cookies.jwt);
+    if (!dbres.success) {
+        let err = new Error(`Could not get active users.`);
+        return next(err);
+    }
+    let activeUsers = dbres.data.getActiveUsers;
+    // experiment to show a user's assignments
+    // practically speaking, there are too many (could be hundreds) for it to be meaningfully displayed
+    // for (user of activeUsers) {
+    //     dbres = await db.query(Q.ANSWER_SETS.GET_FOR_USER, {
+    //         userId: user.id
+    //     },
+    //     req.cookies.jwt);
+    //     if (dbres.success) {
+    //         user.assignments = dbres.data.answerSets
+    //     }
+    //     else {
+    //         user.assignments = [];
+    //     }
+    // }
+
+    return res.render('admin/view-users.njk', 
+        {
+            activeUsers: activeUsers.sort(alpha)
+        }
+    );
+});
+
+router.get('/invitations', async(req, res, next) => {
+    dbres = await db.query(Q.INVITATIONS.GET_ALL, {}, req.cookies.jwt);
+    if (!dbres.success) {
+        let err = new Error(`Could not get invitations.`);
+        return next(err);
+    }
+    let invitations = dbres.data.invitations;
+
+    return res.render('admin/invitations.njk', 
+        {
+            invitations: invitations.sort(alpha2)
+        }
+    );
+});
+
+router.get('/add-user', async(req, res, next) => {
+    return res.render('admin/invite-user.njk');
+});
+
+router.get('/reinvite-users', async(req, res, next) => {
     let dbres = await db.query(Q.USERS.GET_INACTIVE, {}, req.cookies.jwt);
     if (!dbres.success) {
         let err = new Error(`Could not get inactive users.`);
         return next(err);
     }
-    let inactiveUsers = dbres.data.getInactiveUsers.nodes;
+    let inactiveUsers = dbres.data.getInactiveUsers;
 
     dbres = await db.query(Q.INVITATIONS.GET_ALL, {}, req.cookies.jwt);
     if (!dbres.success) {
         let err = new Error(`Could not get invitations.`);
         return next(err);
     }
-    let invitations = dbres.data.invitations.nodes;
-
-    dbres = await db.query(Q.USERS.GET_ACTIVE, {}, req.cookies.jwt);
-    if (!dbres.success) {
-        let err = new Error(`Could not get active users.`);
-        return next(err);
-    }
-    let activeUsers = dbres.data.getActiveUsers.nodes;
+    let invitations = dbres.data.invitations;
 
     // filter out users who've been invited
     inactiveUsers = inactiveUsers.filter(u => invitations.find(a => a.user.id === u.id) === undefined);
     
-    return res.render('admin/users.html', 
+    return res.render('admin/reinvite-users.njk', 
         {
-            invitations: invitations.sort(alpha2),
             inactiveUsers: inactiveUsers.sort(alpha),
-            activeUsers: activeUsers.sort(alpha),
             duplicateName: name => inactiveUsers.filter(u => u.name === name).length > 1
         }
     );
 });
-router.get('/reading-system/:id', async (req, res, next) => {
-    let software = await getSoftwareById(req, res, next, "ReadingSystem");
-    return res.status(200).render('./admin/software.html', {software});
-});
-router.get('/assistive-technology/:id', async (req, res, next) => {
-    let software = await getSoftwareById(req, res, next, "AssistiveTechnology");
-    return res.status(200).render('./admin/software.html', {software});
-});
-router.get('/os/:id', async (req, res, next) => {
-    let software = await getSoftwareById(req, res, next, "Os");
-    return res.status(200).render('./admin/software.html', {software});
-});
-router.get('/browser/:id', async (req, res, next) => {
-    let software = await getSoftwareById(req, res, next, "Browser");
-    return res.status(200).render('./admin/software.html', {software});
+
+router.get("/software/:id", async (req, res, next) => {
+    let result = await getSoftwareById(parseInt(req.params.id), req.cookies.jwt);
+    if (!result.success) {
+        let err = new Error ("Could not get software");
+        return next(err);
+    }
+    return res.status(200).render('./admin/software.njk', {software: result.software});
 });
 
+router.get("/all-software/:type", async (req, res, next) => {
+    let softwareTypeLabel = utils.getSoftwareTypeLabels(req.params.type);
 
-router.get("/software", async (req, res, next) => {
-    let allSw = await getAllSoftware(req.cookies.jwt);
+    let allSw = await getAllSoftware(softwareTypeLabel?.queryLabel, req.cookies.jwt);
     if (!allSw.success) {
         return next(allSw.error);
     }
     
-    return res.render('admin/all-software.html', {
-        readingSystems: allSw.readingSystems.sort(utils.sortAlpha),
-        assistiveTechnologies: allSw.assistiveTechnologies.sort(utils.sortAlpha),
-        operatingSystems: allSw.operatingSystems.sort(utils.sortAlpha),
-        browsers: allSw.browsers.sort(utils.sortAlpha)
+    return res.render('admin/all-software.njk', {
+        title: softwareTypeLabel?.humanLabelPlural,
+        software: allSw.software.sort(utils.sortAlpha)
     });
 });
+
 
 router.get('/add-testing-environment', async (req, res, next) => {
-    let allSw = await getAllSoftware(req.cookies.jwt, filterActive=true);
-    if (!allSw.success) {
-        return next(allSw.error);
+    let allRs = await getAllSoftware("ReadingSystem", req.cookies.jwt, filterActive=true);
+    if (!allRs.success) {
+        return next(allRs.error);
     }
 
-    let dbres = await db.query(Q.TOPICS.GET_ALL);
-    if (!dbres.success) {
-        let err = new Error("Could not get topics");
-        return next(err);
+    let allAt = await getAllSoftware("AssistiveTechnology", req.cookies.jwt, filterActive=true);
+    if (!allAt.success) {
+        return next(allAt.error);
     }
-    let topics = dbres.data.topics.nodes;
-    
-    dbres = await db.query(Q.USERS.GET_ACTIVE, {}, req.cookies.jwt);
-    if (!dbres.success) {
-        let err = new Error("Could not get active users");
-        return next(err);
-    }
-    let users = dbres.data.getActiveUsers.nodes;
 
-    return res.render("admin/add-testing-environment.html", {
-        readingSystems: allSw.readingSystems.sort(utils.sortAlpha),
-        assistiveTechnologies: allSw.assistiveTechnologies.sort(utils.sortAlpha),
-        operatingSystems: allSw.operatingSystems.sort(utils.sortAlpha),
-        browsers: allSw.browsers.sort(utils.sortAlpha),
-        getTopicName: utils.getTopicName,
-        topics: topics.sort(utils.sortTopicOrder),
-        users: users.sort(utils.sortAlphaUsers)
+    let allOs = await getAllSoftware("Os", req.cookies.jwt, filterActive=true);
+    if (!allOs.success) {
+        return next(allOs.error);
+    }
+
+    let allBrowser = await getAllSoftware("Browser", req.cookies.jwt, filterActive=true);
+    if (!allBrowser.success) {
+        return next(allBrowser.error);
+    }
+
+    let allDevice = await getAllSoftware("Device", req.cookies.jwt, filterActive=true);
+    if (!allDevice.success) {
+        return next(allDevice.error);
+    }
+
+    return res.render("admin/add-testing-environment.njk", {
+        readingSystems: allRs.software.sort(utils.sortAlpha),
+        assistiveTechnologies: allAt.software.sort(utils.sortAlpha),
+        operatingSystems: allOs.software.sort(utils.sortAlpha),
+        browsers: allBrowser.software.sort(utils.sortAlpha),
+        devices: allDevice.software.sort(utils.sortAlpha),
+        getSoftwareTypeLabels: utils.getSoftwareTypeLabels
     });
 });
 
-router.get('/add-reading-system', (req, res) => res.render(
-    'admin/add-edit-software.html', 
+router.get('/add-software/:type', (req, res) => {
+    let label = utils.getSoftwareTypeLabels(req.params.type);
+    return res.render('admin/add-edit-software.njk', 
     {
         action: "/admin/forms/add-software",
-        title: "Add Reading System",
-        type: "READING_SYSTEM",
+        title: `Add ${label.humanLabel}`,
+        type: label.dbEnum,
         showInDropdown: true
-    })
-);
-
-router.get('/add-assistive-technology', (req, res) => res.render(
-    'admin/add-edit-software.html', 
-    {
-        action: "/admin/forms/add-software",
-        title: "Add Assistive Technology",
-        type: "ASSISTIVE_TECHNOLOGY",
-        showInDropdown: true
-    })
-);
-
-router.get('/add-operating-system', (req, res) => res.render(
-    'admin/add-edit-software.html', 
-    {
-        action: "/admin/forms/add-software",
-        title: "Add Operating System",
-        type: "OS",
-        showInDropdown: true
-    })
-);
-
-router.get('/add-browser', (req, res) => res.render(
-    './admin/add-edit-software.html', 
-    {
-        action: "/admin/forms/add-software",
-        title: "Add Browser",
-        type: "BROWSER",
-        showInDropdown: true
-    })
-);
-
-router.get('/etc', (req, res) => {
-    return res.status(200).render('./admin/etc.html');
+    });
 });
 
-router.get('/version', async (req, res, next) => {
+router.get('/etc', (req, res) => {
+    return res.status(200).render('./admin/etc.njk');
+});
+
+router.get('/server-info', async (req, res, next) => {
     let dbres = await db.query(Q.ETC.DBVERSION, {}, req.cookies.jwt);
     
     if (!dbres.success) {
         let err = new Error("Error getting database version.");
         return next(err);
     }
-    return res.status(200).send(`Database migration version: ${dbres.data.dbInfo.value}`);
+    let info = `
+    <pre>
+    Database migration: ${dbres.data.dbInfo.value}
+    Node version: ${process.version}
+    </pre>
+    `;
+    return res.status(200).send(info);
 });
-
-router.get('/edit-reading-system/:id', async (req, res, next) => {
-    let software = await getSoftwareById(req, res, next, "ReadingSystem");
-    return res.render('./admin/add-edit-software.html', {title: "Edit Reading System", action: "/admin/forms/software", software});
-});
-
-router.get('/edit-assistive-technology/:id', async (req, res, next) => {
-    let software = await getSoftwareById(req, res, next, "AssistiveTechnology");
-    return res.render('./admin/add-edit-software.html', {title: "Edit Assistive Technology", action: "/admin/forms/software", software});
-});
-
-router.get('/edit-os/:id', async (req, res, next) => {
-    let software = await getSoftwareById(req, res, next, "Os");
-    return res.render('./admin/add-edit-software.html', {title: "Edit OS", action: "/admin/forms/software", software});
-});
-
-router.get('/edit-browser/:id', async (req, res, next) => {
-    let software = await getSoftwareById(req, res, next, "Browser");
-    return res.render('./admin/add-edit-software.html', {title: "Edit Browser", action: "/admin/forms/software", software});
+router.get('/edit-software/:id', async (req, res, next) => {
+    let result = await getSoftwareById(parseInt(req.params.id), req.cookies.jwt);
+    if (!result.success) {
+        let err = new Error ("Could not get software");
+        return next(err);
+    }
+    let software = result.software;
+    let label = utils.getSoftwareTypeLabels(software.type)?.humanLabel;
+    return res.render('./admin/add-edit-software.njk', {title: `Edit ${label}`, action: "/admin/forms/software", software});
 });
 
 
-async function getAllSoftware(jwt, filterActive = false) {
+
+async function getAllSoftware(type, jwt, filterActive = false) {
     try {
-        let dbres = await db.query(Q.SOFTWARE.GET_ALL_BY_TYPE("ReadingSystem"), 
+        let dbres = await db.query(Q.SOFTWARE.GET_ALL_BY_TYPE(type), 
             {}, jwt);
         if (!dbres.success) {
-            throw new Error(`Could not get reading systems`);
+            throw new Error(`Could not get software of type ${type}`);
         }
-        let readingSystems = aliasFieldArray(dbres.data.softwares.nodes, 
-            "testingEnvironmentsByReadingSystemId", "testingEnvironments");
+        let software = aliasFieldArray(dbres.data.softwares, 
+            `testingEnvironmentsBy${type}Id`, "testingEnvironments");
         if (filterActive) {
-            readingSystems = readingSystems.filter(sw => sw.active);
+            software = software.filter(sw => sw.active);
         }
         
-        dbres = await db.query(Q.SOFTWARE.GET_ALL_BY_TYPE("AssistiveTechnology"), 
-            {}, jwt);
-        if (!dbres.success) {
-            throw new Error(`Could not get assistive technologies`);
-        }
-        let assistiveTechnologies = aliasFieldArray(dbres.data.softwares.nodes, 
-            "testingEnvironmentsByAssistiveTechnologyId", "testingEnvironments");
-        if (filterActive) {
-            assistiveTechnologies = assistiveTechnologies.filter(sw => sw.active);
-        }
-
-        dbres = await db.query(Q.SOFTWARE.GET_ALL_BY_TYPE("Os"), 
-            {}, jwt);
-        if (!dbres.success) {
-            throw new Error(`Could not get operating systems`);
-        }
-        let operatingSystems = aliasFieldArray(dbres.data.softwares.nodes, 
-            "testingEnvironmentsByOsId", "testingEnvironments");
-        if (filterActive) {
-            operatingSystems = operatingSystems.filter(sw => sw.active);
-        }
-
-        dbres = await db.query(Q.SOFTWARE.GET_ALL_BY_TYPE("Browser"), 
-            {}, jwt);
-        if (!dbres.success) {
-            throw new Error(`Could not get browsers`);
-        }
-        let browsers = aliasFieldArray(dbres.data.softwares.nodes,
-            "testingEnvironmentsByBrowserId", "testingEnvironments");
-        if (filterActive) {
-            browsers = browsers.filter(sw => sw.active);
-        }
-
+        
         return {
             success: true, 
             error: null, 
-            operatingSystems, 
-            browsers, 
-            readingSystems, 
-            assistiveTechnologies};
+            software
+        };
     }
     catch(error) {
         return {
             success: false, 
             error, 
-            operatingSystems: [], 
-            browsers: [], 
-            readingSystems: [], 
-            assistiveTechnologies: []};
+            software: []
+        };
     }
 }
 
-// because of some annoying properties of graphql, we need to specify the type in order to get detailed usage info about the software
-async function getSoftwareById(req, res, next, type) {
-    let dbres = await db.query(Q.SOFTWARE.GET_EXTENDED(type), {id: parseInt(req.params.id)}, req.cookies.jwt);
+async function getSoftwareById(id, jwt) {
+    let errors = [];
+    try {
+        // first, find out the type of the software
+        let dbres = await db.query(Q.SOFTWARE.GET, {id}, jwt);
+        if (!dbres.success) {
+            let err = new Error(`Error getting software (id=${id}).`)
+            errors.push(err);
+        }
 
-    if (!dbres.success) {
-        let err = new Error(`Error getting software (id=${req.params.id}).`)
-        return next(err);
+        // then get more details based on its type
+        // because of some annoying properties of graphql, we need to specify the type in order to get detailed usage info about the software
+        let type = dbres.data.software.type;
+        let softwareTypeLabel = utils.getSoftwareTypeLabels(type);
+        dbres = await db.query(Q.SOFTWARE.GET_EXTENDED(softwareTypeLabel.queryLabel), {id}, jwt);
+
+        if (!dbres.success) {
+            let err = new Error(`Error getting software (id=${id}).`)
+            errors.push(err);
+        }
+        
+        let software = dbres.data.software;
+        if (type == "READING_SYSTEM") {
+            software = aliasField(software, "testingEnvironmentsByReadingSystemId", "testingEnvironments")
+        }
+        else if (type == "ASSISTIVE_TECHNOLOGY") {
+            software = aliasField(software, "testingEnvironmentsByAssistiveTechnologyId", "testingEnvironments")
+        }
+        else if (type == "OS") {
+            software = aliasField(software, "testingEnvironmentsByOsId", "testingEnvironments")
+        }
+        else if (type == "BROWSER") {
+            software = aliasField(software, "testingEnvironmentsByBrowserId", "testingEnvironments")
+        }
+        else if (type == "DEVICE") {
+            software = aliasField(software, "testingEnvironmentsByDeviceId", "testingEnvironments")
+        }
+        
+        return {
+            success: true,
+            errors: [],
+            software
+        };
     }
-    
-    let software = dbres.data.software;
-    if (type == "ReadingSystem") {
-        software = aliasField(software, "testingEnvironmentsByReadingSystemId", "testingEnvironments")
+    catch(err) {
+        return {
+            success: false,
+            errors,
+            software: null
+        };
     }
-    else if (type == "AssistiveTechnology") {
-        software = aliasField(software, "testingEnvironmentsByAssistiveTechnologyId", "testingEnvironments")
-    }
-    else if (type == "Os") {
-        software = aliasField(software, "testingEnvironmentsByOsId", "testingEnvironments")
-    }
-    else if (type == "Browser") {
-        software = aliasField(software, "testingEnvironmentsByBrowserId", "testingEnvironments")
-    }
-     
-    return software;
 }
 
 // for an array of objects, create newField and populate it with the contents of oldField
@@ -420,8 +382,10 @@ function aliasFieldArray(objs, oldField, newField) {
 }
 
 function aliasField(obj, oldField, newField) {
-    let newObj = obj;
-    newObj[newField] = obj[oldField];
+    let newObj = {...obj};
+    if (obj.hasOwnProperty(oldField)) {
+        newObj[newField] = obj[oldField];
+    }
     return newObj;
 }
 

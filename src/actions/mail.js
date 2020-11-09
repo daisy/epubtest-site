@@ -40,13 +40,19 @@ async function sendEmail(toAddress, subject, messageBodyText, messageBodyHtml) {
         };
     
     let transport = nodemailer.createTransport(opts);
-    let info = await transport.sendMail({
-        from: '"epubtest.org" <epubtest@daisy.org>',
-        to: toAddress,
-        subject: subject,
-        text: messageBodyText,
-        html: messageBodyHtml
-    });    
+    try {
+        await transport.sendMail({
+            from: '"epubtest.org" <epubtest@daisy.org>',
+            to: toAddress,
+            subject: subject,
+            text: messageBodyText,
+            html: messageBodyHtml
+        }); 
+    }
+    catch (err) {
+        return false;
+    } 
+    return true;
 }
 
 module.exports = {

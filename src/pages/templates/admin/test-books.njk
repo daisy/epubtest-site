@@ -1,0 +1,66 @@
+{%- extends 'base/admin-base.njk' -%}
+{%- set title = "Admin: Test Books" -%}
+{%- block content -%}
+
+<script type="module" src="/js/data-table.js"></script>
+<script type="module">
+    import { options } from '/js/tables/admin-test-books-table-options.js';
+
+    let rows = {{testBooks | dump | safe}};
+
+    let headers = [
+        {
+            title: "Topic",
+            id: "topic"
+        },
+        {
+            title: "Version",
+            id: "version"
+        },
+        {
+            title: "Language",
+            id: "language"
+        },
+        {
+            title: "Title",
+            id: "title"
+        },   
+        {
+            title: "Description",
+            id: "description"
+        },
+        {
+            title: "Download",
+            id: "download"
+        },
+        {
+            title: "Delete",
+            id: "delete"
+        }
+    ];
+    
+    document.querySelector("data-table").options = {
+        ...options,
+        showTextSearch: true,
+        columnSelectorLabel: "Select a column",
+        filtersLabel: "Filters"
+    };
+
+    document.querySelector("data-table").data = {
+        headers, rows
+    };  
+    window.addEventListener("resize", () => {
+        document.querySelector("data-table").render();
+    }); 
+</script>
+
+<main>
+    <h2>Test Books</h2>
+
+    <data-table stylesheet="/css/data-table.css" summary="All test books"></data-table>
+    <noscript>
+    Javascript is required to view table(s) on this page.
+    </noscript>
+</main>
+
+{%- endblock -%}
