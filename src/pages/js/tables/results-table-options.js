@@ -1,6 +1,6 @@
 import * as helpers from './data-table-helpers.js';
 
-function getBodyCellDisplay (header, row) {
+function getBodyCellDisplay (header, row, headerIdx, rowIdx) {
     if (header.hasOwnProperty('topic')) {
         let {answerSets} = row;
         let answerSet = answerSets.find(aset => aset.testBook.topic.id === header.topic);
@@ -24,7 +24,7 @@ function getBodyCellDisplay (header, row) {
     }
 }
 
-function getHeaderCellDisplay(header) {
+function getHeaderCellDisplay(header, idx) {
     return header.title;
 } 
 

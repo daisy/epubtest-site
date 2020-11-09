@@ -22,7 +22,7 @@ const topicNames = {
 const resultNames = {
     "PASS": "Pass",
     "FAIL": "Fail",
-    "NA": "N/A",
+    "NA": "Not applicable",
     "NOANSWER": "No answer"
 };
 

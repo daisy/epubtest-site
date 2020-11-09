@@ -1,6 +1,6 @@
 import * as helpers from './data-table-helpers.js';
 
-function getBodyCellDisplay (header, row, requestsToPublish, isAdmin, testingEnvironment) {
+function getBodyCellDisplay (header, row, headerIdx, rowIdx, requestsToPublish, isAdmin, testingEnvironment) {
     let cellContent = "";
     if (header.id == "topic") {
         cellContent = helpers.getTopicName(row.testBook.topic.id);
@@ -60,7 +60,7 @@ function getBodyCellDisplay (header, row, requestsToPublish, isAdmin, testingEnv
     };
 }
     
-function getHeaderCellDisplay(header) {
+function getHeaderCellDisplay(header, idx) {
     return header.title;
 }
 

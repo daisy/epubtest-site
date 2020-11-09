@@ -73,7 +73,7 @@ function getBodyCellDisplay (header, row, requestsToPublish, testingEnvironment,
     };
 }
     
-function getHeaderCellDisplay(header) {
+function getHeaderCellDisplay(header, idx) {
     return header.title;
 }
 

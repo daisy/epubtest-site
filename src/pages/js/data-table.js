@@ -2524,178 +2524,7 @@ const unsafeHTML = directive((value) => (part) => {
 
 class DataTable extends LitElement {
     static get styles() {
-        let style = css`
-fieldset {
-    border: none;
-    padding: 0;
-}
-.data-table {
-    display: grid;
-    gap: 1rem;
-}
-.data-table > * {
-    height: min-content;
-}
-.filters {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 2rem;
-    padding-right: 20%;
-}
-.filters legend {
-    visibility: hidden;
-}
-.filters label::after {
-    content: ': ';
-}
-
-.filters label {
-    font-size: smaller;
-}
-
-.column-selectors input[type=radio] {
-    opacity: 0;
-    position: fixed;
-    width: 0;
-}
-.column-selectors label {
-    border: thin gray solid;
-    padding: 0.25rem;
-    background-color: rgb(212, 212, 212);
-    display: inline-block;
-    white-space: nowrap;
-    margin: 1px;
-    border-radius: 4px;
-    opacity: 60%;
-}
-.column-selectors input[type="radio"] + label:hover {
-    border-color: var(--primary);
-    background-color: rgba(212, 212, 212, 0.4);
-}
-.column-selectors input[type="radio"]:checked + label {
-    background-color: var(--comp);
-    border-color: var(--primary);
-    text-decoration: underline;
-    opacity: 100%;
-}
-table {
-    border-collapse: collapse;
-    table-layout: fixed;
-    width: 100%;
-}
-thead {
-    border: 1px solid var(--primary);
-    background: var(--hardcomp);
-}
-
-th, td {
-    text-align: left;
-    font-size: smaller;
-    font-weight: normal;
-    vertical-align: top;
-    padding: 2vh;
-}
-th {
-    vertical-align: middle;
-    font-weight: bolder;
-    position: -webkit-sticky;
-    position: sticky;
-    top: 0;
-    z-index: 2;
-    background: var(--hardcomp);
-}
-th:first-of-type, td:first-of-type {
-    width: 10rem;
-}
-table a {
-    display: block;
-    padding-bottom: 1vh;
-    color: var(--primary);
-}
-thead th.sortable {
-    cursor: pointer;
-}
-thead th.sortable::after {
-    color: gray;
-}
-thead th.sortable[aria-sort='ascending']::after {
-    content: '▲';
-}
-thead th.sortable[aria-sort='descending']::after {
-    content: '▼';
-}
-tbody tr:nth-child(even) {
-    background-color: var(--softcomp);
-}
-table tr span.sw {
-    display: block;
-}
-tr .score a {
-    text-decoration: none;
-    color: inherit;
-}
-.not-tested {
-    font-weight: lighter;
-    font-style: italic;
-}
-.readingSystem {
-    font-size: larger;
-}
-.sw:not(.readingSystem) {
-    padding-left: 0.5rem;
-}
-.sw {
-    /* white-space: nowrap; */
-}
-/* specific to the test results tables */
-div.test-results th:first-of-type, div.test-results td:first-of-type {
-    width: 5rem;
-}
-div.test-results {
-    width: 100%;
-}
-/* hide the column selector buttons on the desktop */
-@media(min-width: 769px) {
-    .column-selectors {
-        display: none;
-    }
-}
-@media(max-width: 768px) {
-    .filters {
-        display: grid;
-        gap: .5rem;
-        padding-right: 0;
-    }
-    .filters label, .filters input {
-        font-size: inherit;
-    }
-    .filters label {
-        white-space: nowrap;
-    }
-    .filters div {
-        display: grid;
-        grid-template-columns: 40% 60%;
-        gap: .5rem;
-    }
-    
-    .filters button {
-        width: min-content;
-        padding: .25rem;
-        justify-self: right;
-    }
-    .filters div label {
-        justify-self: right;
-    }    
-    /* if there is only one filter, don't center it, it looks weird */
-    .filters div:first-of-type:last-of-type {
-        grid-template-columns: auto auto;
-    }
-    .filters div:first-of-type:last-of-type label{
-        justify-self: left;
-    }
-}
-`;
-        return style;
+        return css``;
     }
 
     /*
@@ -2710,8 +2539,8 @@ div.test-results {
     },
     options: {
         defaultSortHeader: index of header to sort by, initially. 0 by default.,
-        getHeaderCellDisplay: func(header) to get text displayed for a header cell,
-        getBodyCellDisplay: func(header, row) to get {cellClass, cellContent} displayed for a row cell,
+        getHeaderCellDisplay: func(header, idx) to get text displayed for a header cell,
+        getBodyCellDisplay: func(header, row, headerIdx, rowIdx) to get {cellClass, cellContent} displayed for a row cell,
         filters: Array [{
                 name, 
                 path: func(row) for what to filter,
@@ -2757,8 +2586,8 @@ div.test-results {
         this.textSearchString = '';
         this.options = {
             textSearchFilter: (text, row, headers, hiddenColumns) => true,
-            getHeaderCellDisplay: (header) => '',
-            getBodyCellDisplay: (row) => '',
+            getHeaderCellDisplay: (header, idx) => '',
+            getBodyCellDisplay: (header, row, headerIdx, rowIdx) => '',
             filters: [],
             sort: [],
             showTextSearch: false,
@@ -2859,22 +2688,26 @@ div.test-results {
 
     // actually sort the rows by whichever header sort is enabled (or by the default, if none is selected)
     sortRows(rows) {
-        if (!this.options.hasOwnProperty('defaultSortHeader')) {
-            return rows;
-        }
-        if (this.enabledSort.header == null) {
+        
+        if (this.enabledSort.header == null && this.options.hasOwnProperty('defaultSortHeader')) {
             this.enabledSort.header = this.data.headers[
                 this.options.defaultSortHeader
             ];
             this.enabledSort.dir = this.enabledSort.header?.sortIs ?? 'asc';
         }
         // what are we sorting on?
-        let sortedRows = rows.sort((a, b) =>
-            this.enabledSort.header.sort(a, b)
-        );
-        return this.enabledSort.dir == this.enabledSort.header?.sortIs
-            ? sortedRows
-            : sortedRows.reverse();
+        let sortedRows = this.enabledSort?.header?.hasOwnProperty('sort') ? 
+            rows.sort((a, b) => this.enabledSort.header.sort(a, b))
+            : 
+            rows;
+        
+        if (this.enabledSort.header 
+            && this.enabledSort.header.hasOwnProperty('sortIs')) {
+            return this.enabledSort.dir == this.enabledSort.header.sortIs ? sortedRows : sortedRows.reverse();
+        }
+        else {
+            return sortedRows;
+        }
     }
 
     // populate a filter with all the relevant options found in this dataset
@@ -2980,6 +2813,9 @@ div.test-results {
                 this.hideAllColumnsExcept(1);
             }
         }
+        else {
+            this.hiddenColumns = [];
+        }
 
         let rows = this.calculateDisplay();
 
@@ -2987,10 +2823,7 @@ div.test-results {
 
         let columnSelectorHtml = this.renderColumnSelectors();
 
-        // disable the stylesheet link because it causes flickering
-        return html`
-        ${false ? html`<link rel="stylesheet" href="${this.cssUrl}">` : ``}
-        <div class="data-table ${this.customClass}">${filtersHtml} ${columnSelectorHtml}<table summary="${this.summary}" aria-live="polite" aria-colcount="${this.data.headers.length}" aria-rowcount="${rows.length}"><thead><tr>${this.data.headers.map((header, idx) => {
+        return html`<link rel="stylesheet" href="${this.cssUrl}"><div class="data-table ${this.customClass}">${filtersHtml} ${columnSelectorHtml}<table summary="${this.summary}" aria-live="polite" aria-colcount="${this.data.headers.length}" aria-rowcount="${rows.length}"><thead><tr>${this.data.headers.map((header, idx) => {
                                 if (this.hiddenColumns.includes(idx)) {
                                     return '';
                                 }
@@ -3011,23 +2844,23 @@ div.test-results {
                                 }
                                 if (isSortable) {
                                     return html`<th class="sortable" @click="${() => this.enableSort(header)}" title="Sort by ${this.options.getHeaderCellDisplay(
-                                            header
+                                            header, idx
                                         )}" aria-sort="${sortDir}"><span tabIndex="0" role="button">${unsafeHTML(
                                                 this.options.getHeaderCellDisplay(
-                                                    header
+                                                    header, idx
                                                 )
                                             )}</span></th>`;
                                 } else {
                                     return html`<th>${unsafeHTML(
                                             this.options.getHeaderCellDisplay(
-                                                header
+                                                header, idx
                                             )
                                         )}</th>`;
                                 }
                             })}</tr></thead><tbody>${rows.map(
-                            (row) => html`<tr>${this.data.headers.map((header, idx) => {
+                            (row, rowIdx) => html`<tr>${this.data.headers.map((header, headerIdx) => {
                                     if (
-                                        this.hiddenColumns.includes(idx) ==
+                                        this.hiddenColumns.includes(headerIdx) ==
                                         false
                                     ) {
                                         let {
@@ -3035,7 +2868,9 @@ div.test-results {
                                             cellContent,
                                         } = this.options.getBodyCellDisplay(
                                             header,
-                                            row
+                                            row,
+                                            headerIdx,
+                                            rowIdx
                                         );
                                         return html`<td class="${cellClass}">${unsafeHTML(cellContent)}</td>`;
                                     } else {
