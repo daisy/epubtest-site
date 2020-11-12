@@ -1,0 +1,35 @@
+{%- extends 'base/admin-base.njk' -%}
+{%- import "components/testing-environment-labels.njk" as testingEnvironmentLabels -%}
+{%- set title = "Admin: Testing Environments" -%}
+
+{%- block content -%}
+
+<main>
+    <h2>Answer set assignments</h2>
+    <p>Snapshot of all answer set assignments</p>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Answer set ID</th>
+                <th>Testing environment description</th>
+                <th>Topic</th>
+                <th>User ID</th>
+                <th>User's name</th>
+            </tr>
+        </thead>
+        <tbody>
+            {%- for answerSet in answerSets -%}
+            <tr>
+                <td>{{answerSet.id}}</td>
+                <td>{{testingEnvironmentLabels.TestingEnvironmentOneLinerPlainText(answerSet.testingEnvironment)}}</td>
+                <td>{{answerSet.testBook.topic.id}}</td>
+                <td>{{answerSet.user.id}}</td>
+                <td>{{answerSet.user.name}}</td>
+            </tr>
+            {%- endfor -%}
+        </tbody>
+    </table>
+</main>
+
+{%- endblock -%}

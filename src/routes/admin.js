@@ -292,7 +292,15 @@ router.get('/edit-software/:id', async (req, res, next) => {
     return res.render('./admin/add-edit-software.njk', {title: `Edit ${label}`, action: "/admin/forms/software", software});
 });
 
-
+router.get("/assignments", async(req, res, next) => {
+    let dbres = await db.query(Q.ANSWER_SETS.GET_ALL_EXTENDED, {}, req.cookies.jwt);
+    if (!dbres.success) {
+        let err = new Error(`Could not get answer sets`);
+        return next(err);
+    }
+    let answerSets = dbres.data.answerSets.filter(aset => aset.user?.login?.type != 'ADMIN');
+    return res.render('./admin/assignments.njk', {answerSets});
+})
 
 async function getAllSoftware(type, jwt, filterActive = false) {
     try {
