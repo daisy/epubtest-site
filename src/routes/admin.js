@@ -298,7 +298,7 @@ router.get("/assignments", async(req, res, next) => {
         let err = new Error(`Could not get answer sets`);
         return next(err);
     }
-    let answerSets = dbres.data.answerSets.filter(aset => aset.user?.login?.type != 'ADMIN');
+    let answerSets = dbres.data.answerSets.filter(aset => aset.user?.login?.type != 'ADMIN' && aset.user != null);
     return res.render('./admin/assignments.njk', {answerSets});
 })
 
