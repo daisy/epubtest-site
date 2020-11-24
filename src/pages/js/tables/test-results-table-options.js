@@ -3,7 +3,7 @@ import * as helpers from './data-table-helpers.js';
 function getBodyCellDisplay (header, row, headerIdx, rowIdx) {
     let cellContent = "";
     if (header.id == "testId") {
-        cellContent = row.test.testId;
+        cellContent = `<a id="${row.test.testId}" href="#${row.test.testId}">${row.test.testId}</span>`;
     }
     else if (header.id == "name") {
         cellContent = row.test.name;

@@ -111,7 +111,7 @@
     <tbody>
     {%- for answer in answerSet.answers -%}
         <tr>
-            <td>{{answer.test.testId}}</td>
+            <td><a href="#{{answer.test.testId}}" id="{{answer.test.testId}}">{{answer.test.testId}}</a></td>
             <td>{{answer.test.name}}</td>
             <td>{{answer.test.description}}</td>
             <td>{{displayUtils.resultNames[answer.value]}}</td>

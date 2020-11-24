@@ -2971,6 +2971,18 @@ div.test-results {
         this.hiddenColumns = hiddenColumns;
     }
 
+    updated(changedProperties) {
+        let hash = document.location.hash;
+        if (hash) {
+            let elm = this.shadowRoot.querySelector(hash);
+            if (elm) {
+                elm.scrollIntoView();
+                elm.focus();
+                // adjust the scroll a little bit because otherwise the fixed table header blocks the row 
+                document.documentElement.scrollTop -= elm.clientHeight * 2;
+            }
+        }
+    }
     render() {
         // if we're on mobile and none of the column selector radio buttons are selected,
         // just show the first data column
