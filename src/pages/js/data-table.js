@@ -2264,6 +2264,16 @@ class CSSResult {
         return this.cssText;
     }
 }
+/**
+ * Wrap a value for interpolation in a css tagged template literal.
+ *
+ * This is unsafe because untrusted CSS text can be used to phone home
+ * or exfiltrate data to an attacker controlled site. Take care to only use
+ * this with trusted input.
+ */
+const unsafeCSS = (value) => {
+    return new CSSResult(String(value), constructionToken);
+};
 const textFromCSSResult = (value) => {
     if (value instanceof CSSResult) {
         return value.cssText;
@@ -2522,248 +2532,142 @@ const unsafeHTML = directive((value) => (part) => {
     previousValues.set(part, { value, fragment });
 });
 
+const dataTableStyles = css`.data-table{--default-table-stripes-background-color:rgba(174, 195, 240, 0.2);--default-table-header-background-color:#6690e9;--default-table-header-border:none;--default-button-active-background-color:rgba(174, 195, 240, 0.3);--default-button-background-color:rgba(0, 0, default-0, .6);--default-sort-icons-color:rgba(120, 120, 120);--table-stripes-background-color:var(--custom-table-stripes-background-color, var(--default-table-stripes-background-color));--table-header-background-color:var(--custom-table-header-background-color, var(--default-table-header-background-color));--table-header-border:var(--custom-table-header-border, var(--default-table-header-border));--button-active-background-color:var(--custom-button-active-background-color, var(--default-button-active-background-color));--button-background-color:var(--custom-button-background-color, var(--default-button-background-color));--sort-icons-color:var(--custom-sort-icons-color, var(--default-sort-icons-color));--button-padding:0.25rem;--button-border:thin solid rgba(0,0,0,0.4);--button-border-radius:4px}fieldset{border:none;padding:0;margin-bottom:1rem}table{border-collapse:collapse;table-layout:fixed;width:100%}colgroup,thead{border:var(--table-header-border)}td,th{text-align:left;font-size:smaller;font-weight:400;vertical-align:top;padding:2vh}th{vertical-align:middle;font-weight:bolder;position:-webkit-sticky;position:sticky;top:0;z-index:3;background:var(--table-header-background-color)}td:first-of-type{position:-webkit-sticky;position:sticky;top:0;z-index:2}button{border:var(--button-border);border-radius:var(--button-border-radius);padding:var(--button-padding);background-color:var(--button-normal-background-color);line-height:1.6}button:hover{background-color:var(--button-active-background-color)}select{border:var(--button-border);border-radius:var(--button-border-radius);height:1.5rem}input[type=text]{border:var(--button-border);border-radius:var(--button-border-radius);height:1.5rem}.data-table>*{height:min-content}.filters{display:flex;flex-wrap:wrap;gap:2rem;padding-right:20%}.filters legend{visibility:hidden}.filters label::after{content:': '}.filters label{font-size:smaller}.column-selectors input[type=radio]{opacity:0;position:fixed;width:0}.column-selectors label{border:var(--button-border);border-radius:var(--button-border-radius);background-color:var(--button-background-color);padding:var(--button-padding);display:inline-block;white-space:nowrap;margin:1px;opacity:60%}.column-selectors input[type=radio]:checked+label{background-color:var(--button-active-background-color);text-decoration:underline;opacity:100%}.column-selectors input[type=radio]:not(:checked)+label:hover{background-color:var(--button-active-background-color)}thead th.sortable{cursor:pointer}thead th.sortable::after{color:var(--sort-icons-color)}thead th.sortable[aria-sort=ascending]::after{content:'▲'}thead th.sortable[aria-sort=descending]::after{content:'▼'}tbody tr:nth-child(even){background-color:var(--table-stripes-background-color)}table tr td:first-child span.sw{display:block}@media(max-width:768px){.filters{display:grid;margin-top:1rem;gap:.5rem;padding-right:0}.filters input,.filters label{font-size:inherit}.filters label{white-space:nowrap}.filters div{display:grid;grid-template-columns:30% 40% auto;gap:.5rem}.filters button{width:min-content;justify-self:center}.filters div label{justify-self:right}}`;
+
+let simpleCellDisplay = cell => {
+    if (typeof cell === 'string') {
+        return cell;
+    }
+    else if (cell.hasOwnProperty('title')) {
+        return cell.title;
+    }
+    else if (cell.hasOwnProperty('name')) {
+        return cell.name;
+    }
+    else if (cell.hasOwnProperty('value')) {
+        return cell.value;
+    }
+    else {
+        return JSON.stringify(cell);
+    }
+};
+
+let textSearchFilter = (text, row, headers, hiddenColumns) => {
+    let keys = headers
+        .filter((header, idx) => !hiddenColumns.includes(idx))
+        .map(header => simpleCellDisplay(header).toLowerCase());
+    let rowString = keys.map(k => {
+        if (row.hasOwnProperty(k)) {
+            return simpleCellDisplay(row[k]);
+        }
+        else {
+            return '';
+        }
+    }).join(' ');
+    return rowString.toLowerCase().indexOf(text.toLowerCase()) != -1;
+};
+
+let headerCellDisplay = (header, idx) => simpleCellDisplay(header);
+
+let bodyCellDisplay = (header, row, headerIdx, rowIdx) => {
+    let headerText = simpleCellDisplay(header);
+    if (row.hasOwnProperty(headerText.toLowerCase())) {
+        return simpleCellDisplay(row[headerText.toLowerCase()]);
+    }
+    else {
+        return '';
+    }
+
+};
+
+let sortAlpha = (a, b, header) => {
+    let val1 = bodyCellDisplay(header, a);
+    let val2 = bodyCellDisplay(header, b);
+    if (!val1) return 1;
+    if (!val2) return -1;
+    if (typeof val1 == 'string') {
+        val1 = val1.toLowerCase();
+    }
+    if (typeof val2 == 'string') {
+        val2 = val2.toLowerCase();
+    }
+    return val1 > val2 ? 1 : val1 < val2 ? -1 : 0;
+};
+
 class DataTable extends LitElement {
     static get styles() {
-        return css`
-        /*
-
-this is useful for development, but to avoid style flickering, the css is pasted into data-tables.js for production.
-also in the data tables render() function, the line that inserts a css link is commented out.
-
-*/
-fieldset {
-    border: none;
-    padding: 0;
-    margin-bottom: 1rem;
-}
-.data-table {
-    display: grid;
-    gap: 1rem;
-}
-.data-table > * {
-    height: min-content;
-}
-.filters {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 2rem;
-    padding-right: 20%;
-}
-.filters legend {
-    visibility: hidden;
-}
-.filters label::after {
-    content: ': ';
-}
-
-.filters label {
-    font-size: smaller;
-}
-
-.column-selectors input[type=radio] {
-    opacity: 0;
-    position: fixed;
-    width: 0;
-}
-.column-selectors label {
-    border: thin gray solid;
-    padding: 0.25rem;
-    background-color: rgb(212, 212, 212);
-    display: inline-block;
-    white-space: nowrap;
-    margin: 1px;
-    border-radius: 4px;
-    opacity: 60%;
-}
-.column-selectors input[type="radio"] + label:hover {
-    border-color: var(--primary);
-    background-color: rgba(212, 212, 212, 0.4);
-}
-.column-selectors input[type="radio"]:checked + label {
-    background-color: var(--comp);
-    border-color: var(--primary);
-    text-decoration: underline;
-    opacity: 100%;
-}
-table {
-    border-collapse: collapse;
-    table-layout: fixed;
-    width: 100%;
-}
-thead {
-    border: 1px solid var(--primary);
-    background: var(--hardcomp);
-}
-
-th, td {
-    text-align: left;
-    font-size: smaller;
-    font-weight: normal;
-    vertical-align: top;
-    padding: 2vh;
-}
-th {
-    vertical-align: middle;
-    font-weight: bolder;
-    position: -webkit-sticky;
-    position: sticky;
-    top: 0;
-    z-index: 2;
-    background: var(--hardcomp);
-}
-th:first-of-type, td:first-of-type {
-    width: 10rem;
-}
-table a {
-    display: block;
-    padding-bottom: 1vh;
-    color: var(--primary);
-}
-thead th.sortable {
-    cursor: pointer;
-}
-thead th.sortable::after {
-    color: gray;
-}
-thead th.sortable[aria-sort='ascending']::after {
-    content: '▲';
-}
-thead th.sortable[aria-sort='descending']::after {
-    content: '▼';
-}
-tbody tr:nth-child(even) {
-    background-color: var(--softcomp);
-}
-table tr span.sw {
-    display: block;
-}
-tr .score a {
-    text-decoration: none;
-    color: inherit;
-}
-.not-tested {
-    font-weight: lighter;
-    font-style: italic;
-}
-.readingSystem {
-    font-size: larger;
-}
-.sw:not(.readingSystem) {
-    padding-left: 0.5rem;
-}
-.sw {
-    /* white-space: nowrap; */
-}
-/* specific to the test results tables */
-div.test-results th:first-of-type, div.test-results td:first-of-type {
-    width: 5rem;
-}
-div.test-results {
-    width: 100%;
-}
-/* hide the column selector buttons on the desktop */
-@media(min-width: 769px) {
-    .column-selectors {
-        display: none;
-    }
-}
-@media(max-width: 768px) {
-    .filters {
-        display: grid;
-        gap: .5rem;
-        padding-right: 0;
-    }
-    .filters label, .filters input {
-        font-size: inherit;
-    }
-    .filters label {
-        white-space: nowrap;
-    }
-    .filters div {
-        display: grid;
-        grid-template-columns: 40% 60%;
-        gap: .5rem;
-    }
-    
-    .filters button {
-        width: min-content;
-        padding: .25rem;
-        justify-self: right;
-    }
-    .filters div label {
-        justify-self: right;
-    }    
-    /* if there is only one filter, don't center it, it looks weird */
-    .filters div:first-of-type:last-of-type {
-        grid-template-columns: auto auto;
-    }
-    .filters div:first-of-type:last-of-type label{
-        justify-self: left;
-    }
-}
-
-        `;
+        return [
+            dataTableStyles
+        ];
     }
 
-    /*
-    <data-table summary="..."></data-table>
-    data: {
-        rows: [...your row data...], 
-        headers: [{
-            sort: (rowA, rowB) => func to sort,
-            sortIs: "asc" | "desc" which direction is the default sort behavior,
-            any other fields
-        }]
-    },
-    options: {
-        defaultSortHeader: index of header to sort by, initially. 0 by default.,
-        getHeaderCellDisplay: func(header, idx) to get text displayed for a header cell,
-        getBodyCellDisplay: func(header, row, headerIdx, rowIdx) to get {cellClass, cellContent} displayed for a row cell,
-        filters: Array [{
-                name, 
-                path: func(row) for what to filter,
-                includeNone: boolean, if true "None" is included in the filter list and matches when path returns null/undefined
-            }, 
-            ... 
-        ],
-        textSearchFilter: (text, row, headers, hiddenColumns) evaluation function for text searching,
-        showTextSearch: boolean,
-        columnSelectorLabel: "Select a column",
-        filtersLabel: "Filters",
-        customClass: 'Class name(s)' to add to the wrapper <div class="data-table">
-    }
-    */
     static get properties() {
         return {
-            data: {type: Object,attribute: false,},
-            options: {type: Object, attribute: false},
-            hiddenColumns: {type: Array, attribute: false}, // this property doesn't get set, just observed internally
+            // data: {headers, rows}
+            data: {type: Object},
+            // accessible table summary
             summary: {type: String},
+            // external stylesheet
             stylesheet: {type: String},
-            customClass: {type: String}
+            // TODO is this needed
+            customClass: {type: String},
+            // show a text search box
+            showTextSearch: {type: Boolean},
+            // default text search function
+            textSearchFilter: {attribute: false},
+            // default header cell display function
+            headerCellDisplay: {attribute: false},
+            // default body cell display function
+            bodyCellDisplay: {attribute: false},
+            // filters: {key: {name, path}, ...}
+            filters: {type: Object, attribute: false},
+            // header that gets sorted on by default (assuming there are sort functions on the headers)
+            defaultSortHeader: {type: Number},
+            // title for the column selectors
+            columnSelectorLabel: {type: String},
+            // title for the table filters
+            filtersLabel: {type: String},
+            // automatic sorting
+            useAutoSort: {type: Boolean},
+            // css
+            css: {type: String},
+            // this property doesn't get set, just observed internally
+            hiddenColumns: {type: Array, attribute: false}
         };
     }
-
+    
     constructor() {
         super();
-        this.data = {headers: [], rows: []};
+        this.version = "0.2";
+        
+        // internal state
         this.enabledFilters = {}; // {filterName: filterValue, ...}
         this.enabledSort = {header: null, dir: null};
         this.textSearchString = '';
-        this.options = {
-            textSearchFilter: (text, row, headers, hiddenColumns) => true,
-            getHeaderCellDisplay: (header, idx) => '',
-            getBodyCellDisplay: (header, row, headerIdx, rowIdx) => '',
-            filters: [],
-            sort: [],
-            showTextSearch: false,
-            defaultSortHeader: 0,
-            columnSelectorLabel: '',
-            filtersLabel: ''
-        };
+
+        // default functions
+        this.textSearchFilter = textSearchFilter;
+        this.headerCellDisplay = headerCellDisplay;
+        this.bodyCellDisplay = bodyCellDisplay;
+        // no filters by default
+        this.filters = {};
+        // don't show a search box by default
+        this.showTextSearch = false;
+        // disable sorting by default
+        this.useAutoSort = false;
+        // sort on the first header by default
+        this.defaultSortHeader = 0;
+        // default labels
+        this.columnSelectorLabel = 'Select a column';
+        this.filtersLabel = 'Filters';
+        // other defaults
         this.stylesheet = '';
-        this.hiddenColumns = [];
         this.customClass = '';
+        this.css = '';
+        // show all cols
+        this.hiddenColumns = [];
+        // initial empty dataset
+        this.data = {headers: [], rows: []};
     }
 
     setFilterValue(filterName, filterValue) {
@@ -2772,18 +2676,24 @@ div.test-results {
     }
 
     enableSort(header) {
-        if (
-            !header.hasOwnProperty('sort') ||
+        if (!header.hasOwnProperty('sort') ||
             header.sort == null ||
             header.sort == undefined
         ) {
-            return;
+            if (this.useAutoSort && header.sort != false) {
+                header.sort = (a, b) => sortAlpha(a, b, header);
+                header.sortIs = 'asc';
+            }
+            else {
+                return;
+            }
         }
         if (this.enabledSort.header != header) {
             this.enabledSort.dir = null; //reset dir if not clicking the same header multiple times
         }
         this.enabledSort.header = header;
         let chooseOppositeSort = (dir) => (dir == 'asc' ? 'desc' : 'asc');
+        
         let newSortDir =
             this.enabledSort.dir == null || this.enabledSort.dir == undefined
                 ? header.sortIs
@@ -2809,7 +2719,7 @@ div.test-results {
         });
         // apply the text search filter too
         filteredRows = filteredRows.filter((row) =>
-            this.options.textSearchFilter(
+            this.textSearchFilter(
                 this.textSearchString,
                 row,
                 this.data.headers,
@@ -2823,10 +2733,10 @@ div.test-results {
     // apply a filter to a row
     // e.g. applyFilter(row, "os", "Windows")
     applyFilter(row, filterId, filterValue) {
-        if (Object.keys(this.options.filters).length == 0) {
+        if (Object.keys(this.filters).length == 0) {
             return true;
         }
-        let rowValue = this.options.filters[filterId].path(row);
+        let rowValue = this.filters[filterId].path(row);
         // convert string to bool
         if (filterValue == 'true' || filterValue == 'false') {
             filterValue = filterValue == 'true';
@@ -2855,11 +2765,8 @@ div.test-results {
     // actually sort the rows by whichever header sort is enabled (or by the default, if none is selected)
     sortRows(rows) {
         
-        if (this.enabledSort.header == null && this.options.hasOwnProperty('defaultSortHeader')) {
-            this.enabledSort.header = this.data.headers[
-                this.options.defaultSortHeader
-            ];
-            this.enabledSort.dir = this.enabledSort.header?.sortIs ?? 'asc';
+        if (this.enabledSort.header == null && this.data.headers.length > 0) {
+            this.enableSort(this.data.headers[this.defaultSortHeader]);
         }
         // what are we sorting on?
         let sortedRows = this.enabledSort?.header?.hasOwnProperty('sort') ? 
@@ -2867,8 +2774,11 @@ div.test-results {
             : 
             rows;
         
-        if (this.enabledSort.header 
-            && this.enabledSort.header.hasOwnProperty('sortIs')) {
+        if (this.enabledSort.header) {
+            // make sure the sortIs property is set
+            if (!this.enabledSort.header.hasOwnProperty('sortIs')) {
+                this.enabledSort.header.sortIs = 'asc';
+            }
             return this.enabledSort.dir == this.enabledSort.header.sortIs ? sortedRows : sortedRows.reverse();
         }
         else {
@@ -2945,7 +2855,7 @@ div.test-results {
         Object.keys(this.enabledFilters).map(
             (filterId) => (this.enabledFilters[filterId] = 'all')
         );
-        Object.keys(this.options.filters).map((filterId) => {
+        Object.keys(this.filters).map((filterId) => {
             this.shadowRoot.querySelector(`#filter-${filterId}`).value = 'all';
         });
         this.requestUpdate();
@@ -2971,6 +2881,7 @@ div.test-results {
         this.hiddenColumns = hiddenColumns;
     }
 
+    // scroll to hash
     updated(changedProperties) {
         let hash = document.location.hash;
         if (hash) {
@@ -2983,6 +2894,7 @@ div.test-results {
             }
         }
     }
+
     render() {
         // if we're on mobile and none of the column selector radio buttons are selected,
         // just show the first data column
@@ -3005,14 +2917,14 @@ div.test-results {
                 html`<link rel="stylesheet" href="${this.stylesheet}">`
                 : 
                 ``
- }<div class="data-table ${this.customClass}">${filtersHtml} ${columnSelectorHtml}<table summary="${this.summary}" aria-live="polite" aria-colcount="${this.data.headers.length}" aria-rowcount="${rows.length}"><thead><tr>${this.data.headers.map((header, idx) => {
+ }<style>${unsafeCSS(this.css)}</style><div class="data-table ${this.customClass}" summary="${this.summary}">${filtersHtml} ${columnSelectorHtml}<table aria-live="polite" aria-colcount="${this.data.headers.length}" aria-rowcount="${rows.length}"><thead id="table-headers"><tr>${this.data.headers.map((header, idx) => {
                                 if (this.hiddenColumns.includes(idx)) {
                                     return '';
                                 }
 
                                 let isSortable =
-                                    header.hasOwnProperty('sort') &&
-                                    header.sort;
+                                    (header.hasOwnProperty('sort') &&
+                                    header.sort) || (this.useAutoSort && header.sort != false);
                                 let isSortEnabled =
                                     this.enabledSort.header == header;
                                 let sortDir = '';
@@ -3025,16 +2937,16 @@ div.test-results {
                                     sortDir = 'none';
                                 }
                                 if (isSortable) {
-                                    return html`<th class="sortable" @click="${() => this.enableSort(header)}" title="Sort by ${this.options.getHeaderCellDisplay(
+                                    return html`<th class="sortable" @click="${() => this.enableSort(header)}" title="Sort by ${this.headerCellDisplay(
                                             header, idx
                                         )}" aria-sort="${sortDir}"><span tabIndex="0" role="button">${unsafeHTML(
-                                                this.options.getHeaderCellDisplay(
+                                                this.headerCellDisplay(
                                                     header, idx
                                                 )
                                             )}</span></th>`;
                                 } else {
                                     return html`<th>${unsafeHTML(
-                                            this.options.getHeaderCellDisplay(
+                                            this.headerCellDisplay(
                                                 header, idx
                                             )
                                         )}</th>`;
@@ -3045,16 +2957,13 @@ div.test-results {
                                         this.hiddenColumns.includes(headerIdx) ==
                                         false
                                     ) {
-                                        let {
-                                            cellClass,
-                                            cellContent,
-                                        } = this.options.getBodyCellDisplay(
+                                        let cellContent = this.bodyCellDisplay(
                                             header,
                                             row,
                                             headerIdx,
                                             rowIdx
                                         );
-                                        return html`<td class="${cellClass}">${unsafeHTML(cellContent)}</td>`;
+                                        return html`<td>${unsafeHTML(cellContent)}</td>`;
                                     } else {
                                         return ``;
                                     }
@@ -3063,25 +2972,9 @@ div.test-results {
     }
 
     renderFilters() {
-        /*
-        Desktop
-
-        fieldset<filters? text search?>
-        table
-
-        Mobile
-        details/summary (if filters)
-            <fieldset filters? text search?>
-        if no filters
-            text search?
-        column selector
-        table
-
-        */
-
         let isMobile = window.matchMedia('(max-width: 768px)').matches;
-        let hasDropDownFilters = Object.keys(this.options.filters).length > 0;
-        let hasTextSearch = this.options.showTextSearch;
+        let hasDropDownFilters = Object.keys(this.filters).length > 0;
+        let hasTextSearch = this.showTextSearch;
 
         let textSearchHtml = hasTextSearch ? 
         html`<div class="text-search"><label for="search-filter">Search</label> <input type="text" id="search-filter" name="search" @keyup="${(e) =>
@@ -3094,8 +2987,8 @@ div.test-results {
         let filtersHtml = '';
 
         if (hasDropDownFilters) {
-            filtersHtml = html`<fieldset class="filters"><legend>${this.options.filtersLabel}</legend>${Object.keys(this.options.filters).map(filterId => {
-                    let filter = this.options.filters[filterId];
+            filtersHtml = html`<fieldset class="filters"><legend>${this.filtersLabel}</legend>${Object.keys(this.filters).map(filterId => {
+                    let filter = this.filters[filterId];
                     let filterOptions = this.generateFilterOptions(filter);
                     return html`<div><label for="filter-${filterId}">${filter.name}</label> <select id="filter-${filterId}" @change="${(e) =>
                                 this.setFilterValue(
@@ -3114,13 +3007,13 @@ div.test-results {
             
             // if we're on mobile, then the fieldset is labelled by the summary element
             if (isMobile) {
-                filtersHtml = html`<details ?open="${true}"><summary>${this.options.filtersLabel}</summary>${filtersHtml}</details>`;
+                filtersHtml = html`<details ?open="${true}"><summary>${this.filtersLabel}</summary>${filtersHtml}</details>`;
             }
         }
         // else does not have dropdown filters
         else {
             if (hasTextSearch) {
-                filtersHtml = html`<fieldset class="filters"><legend>${this.options.filtersLabel}</legend>${textSearchHtml}</fieldset>`;
+                filtersHtml = html`<fieldset class="filters"><legend>${this.filtersLabel}</legend>${textSearchHtml}</fieldset>`;
             }
         }
         return filtersHtml;
@@ -3130,8 +3023,12 @@ div.test-results {
         if (this.data.headers.length <= 2) {
             return ``;
         }
+        // if on desktop
+        if (window.matchMedia('(min-width: 769px)').matches) {
+            return ``;
+        }
 
-        return html`<fieldset class="column-selectors"><legend>${this.options.columnSelectorLabel}</legend>${this.data.headers.map((header, idx) =>
+        return html`<fieldset class="column-selectors"><legend>${this.columnSelectorLabel}</legend>${this.data.headers.map((header, idx) =>
                     idx > 0
                         ? html`<input type="radio" name="column-selector" id="column-selector-${idx}" @change="${(e) => this.columnSelectChange(e)}" ?checked="${!this.hiddenColumns.includes(idx)}"> <label for="column-selector-${idx}">${header.title}</label>`
                         : ``

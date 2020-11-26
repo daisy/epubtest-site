@@ -4,7 +4,8 @@
 
 <script type="module" src="/js/data-table.js"></script>
 <script type="module">
-    import { options } from '/js/tables/admin-test-books-table-options.js';
+    import * as tableSettings from '/js/tables/admin-test-books-table-settings.js';
+    import { style } from '/js/data-table-style.js';
 
     let rows = {{testBooks | dump | safe}};
 
@@ -39,25 +40,23 @@
         }
     ];
     
-    document.querySelector("data-table").options = {
-        ...options,
-        showTextSearch: true,
-        columnSelectorLabel: "Select a column",
-        filtersLabel: "Filters"
-    };
-
-    document.querySelector("data-table").data = {
-        headers, rows
-    };  
+    let dataTable = document.querySelector("data-table");
+    dataTable.bodyCellDisplay = tableSettings.bodyCellDisplay;
+    dataTable.textSearchFilter = tableSettings.textSearchFilter;
+    dataTable.data = { headers, rows };  
     window.addEventListener("resize", () => {
-        document.querySelector("data-table").render();
+        dataTable.render();
     }); 
 </script>
 
 <main>
     <h2>Test Books</h2>
 
-    <data-table stylesheet="/css/data-table.css" summary="All test books"></data-table>
+    <data-table 
+        summary="All test books"
+        showTextSearch="true"
+    >
+    </data-table>
     <noscript>
     Javascript is required to view table(s) on this page.
     </noscript>

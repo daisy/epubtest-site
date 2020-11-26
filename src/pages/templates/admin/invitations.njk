@@ -4,8 +4,9 @@
 
 <script type="module" src="/js/data-table.js"></script>
 <script type="module">
-    import { options } from '/js/tables/admin-invites-table-options.js';
+    import * as tableSettings from '/js/tables/admin-invites-table-settings.js';
     import * as helpers from '/js/tables/data-table-helpers.js';
+    import { style } from '/js/data-table-style.js';
 
     let rows = {{ invitations | dump | safe}};
 
@@ -33,21 +34,15 @@
             id: "action"
         }
     ];
+    let dataTable = document.querySelector("data-table");
     if (rows.length) {
-        document.querySelector("data-table").options = {
-            ...options,
-            showTextSearch: true,
-            columnSelectorLabel: "Select a column",
-            filtersLabel: "Filters",
-            defaultSortHeader: 2
-        };
-
-        document.querySelector("data-table").data = {
-            headers, rows
-        };  
+        dataTable.bodyCellDisplay = tableSettings.bodyCellDisplay;
+        dataTable.textSearchFilter = tableSettings.textSearchFilter;
+        dataTable.css = style;
+        dataTable.data = {headers, rows};
     }
     window.addEventListener("resize", () => {
-        document.querySelector("data-table").render();
+        dataTable.render();
     }); 
 </script>
 <main>
@@ -57,7 +52,11 @@
     {%- else -%}
     <p>These users have been invited but have not yet accepted the invitation. You may re-send invites or cancel them.</p>
 
-    <data-table summary="User account invitations" stylesheet="/css/data-table.css"></data-table>
+    <data-table 
+        summary="User account invitations"
+        showTextSearch="true"
+    >
+    </data-table>
     <noscript>
     Javascript is required to view table(s) on this page.
     </noscript>

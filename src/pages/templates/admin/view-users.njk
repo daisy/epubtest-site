@@ -4,8 +4,9 @@
 
 <script type="module" src="/js/data-table.js"></script>
 <script type="module">
-    import { options } from '/js/tables/admin-active-users-table-options.js';
+    import * as tableSettings from '/js/tables/admin-active-users-table-settings.js';
     import * as helpers from '/js/tables/data-table-helpers.js';
+    import {style} from '/js/data-table-style.js';
 
     let rows = {{activeUsers | dump | safe}};
 
@@ -18,26 +19,25 @@
         }
     ];
     
-    document.querySelector("data-table").options = {
-        ...options,
-        showTextSearch: true,
-        columnSelectorLabel: "Select a column",
-        filtersLabel: "Filters",
-        defaultSortHeader: 0
-    };
-
-    document.querySelector("data-table").data = {
-        headers, rows
-    };  
+    let dataTable = document.querySelector("data-table");
+    dataTable.bodyCellDisplay = tableSettings.bodyCellDisplay;
+    dataTable.textSearchFilter = tableSettings.textSearchFilter;
+    dataTable.css = style;
+    dataTable.data = {headers, rows};  
     window.addEventListener("resize", () => {
-        document.querySelector("data-table").render();
+        dataTable.render();
     }); 
 </script>
 <main class="center">
     <h2>Active users</h2>
 
     <div id="active-users">
-        <data-table stylesheet="/css/data-table.css" summary="User information"></data-table>
+        <data-table 
+            summary="User information"
+            showTextSearch="true"
+            defaultSortHeader="0"
+        >
+        </data-table>
     </div>
     <noscript>
     Javascript is required to view table(s) on this page.

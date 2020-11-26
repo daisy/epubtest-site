@@ -9,7 +9,8 @@
 <script type="module" src="/js/data-table.js"></script>
 <script type="module">
     import * as helpers from '/js/tables/data-table-helpers.js';
-    import { options } from '/js/tables/admin-testing-environment-table-options.js';
+    import * as tableSettings from '/js/tables/admin-testing-environment-table-settings.js';
+    import { style } from '/js/data-table-style.js';
 
     let rows = {{testingEnvironment.answerSets | dump | safe}};
     let requestsToPublish = {
@@ -64,22 +65,15 @@
         }
     ];
     
-    document.querySelector("data-table").options = {
-        getBodyCellDisplay: (header, row, headerIdx, rowIdx) => options.getBodyCellDisplay(header, row, headerIdx, rowIdx, requestsToPublish, testingEnvironment, users),
-        getHeaderCellDisplay: options.getHeaderCellDisplay,
-        showTextSearch: false,
-        columnSelectorLabel: "Select a column",
-        filtersLabel: "Filters",
-        textSearchFilter: options.textSearchFilter,
-        filters: options.filters(requestsToPublish),
-        defaultSortHeader: 0
-    };
-
-    document.querySelector("data-table").data = {
-        headers, rows
-    };
+    let dataTable = document.querySelector("data-table");
+    dataTable.bodyCellDisplay = (header, row, headerIdx, rowIdx) => 
+        tableSettings.bodyCellDisplay(header, row, headerIdx, rowIdx, requestsToPublish, testingEnvironment, users);
+    dataTable.textSearchFilter = tableSettings.textSearchFilter;
+    dataTable.filters = tableSettings.filters(requestsToPublish);
+    dataTable.css = style;
+    dataTable.data = { headers, rows };
     window.addEventListener("resize", () => {
-        document.querySelector("data-table").render();
+        dataTable.render();
     }); 
 </script>
 <main>
@@ -118,7 +112,10 @@
         public answer sets. All answer sets are shown below.
     </p>
     
-    <data-table summary="Management of answer sets for the testing environment" stylesheet="/css/data-table.css">
+    <data-table 
+        summary="Management of answer sets for the testing environment"
+        defaultSortHeader="0"
+    >
     </data-table>
 
     <noscript>

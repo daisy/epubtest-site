@@ -1,6 +1,4 @@
-import * as helpers from './data-table-helpers.js';
-
-function getBodyCellDisplay (header, row, headerIdx, rowIdx) {
+function bodyCellDisplay (header, row, headerIdx, rowIdx) {
     let cellContent = "";
     if (header.id == "name") {
         cellContent = row.user.name;
@@ -19,17 +17,8 @@ function getBodyCellDisplay (header, row, headerIdx, rowIdx) {
         </form>`;
     }
     
-    return {
-        cellClass: "",
-        cellContent
-    };
+    return cellContent;
 }
-    
-function getHeaderCellDisplay(header, idx) {
-    return header.title;
-}
-
-let filters = {};
 
 // return whether the row contains the text    
 function textSearchFilter (text, row, headers, hiddenColumns) {
@@ -46,9 +35,7 @@ function textSearchFilter (text, row, headers, hiddenColumns) {
     return found;
 }
 
-export let options = {
-    getBodyCellDisplay,
-    getHeaderCellDisplay,
-    filters,
+export {
+    bodyCellDisplay,
     textSearchFilter
 };

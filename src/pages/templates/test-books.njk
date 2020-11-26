@@ -4,8 +4,9 @@
 {%- block content -%}
 <script type="module" src="/js/data-table.js"></script>
 <script type="module">
-    import { options } from '/js/tables/test-books-table-options.js';
+    import * as tableSettings from '/js/tables/test-books-table-settings.js';
     import * as helpers from '/js/tables/data-table-helpers.js';
+    import { style } from '/js/data-table-style.js'; 
 
     let rows = {{testBooks | dump | safe}};
 
@@ -36,18 +37,14 @@
         }
     ];
     
-    document.querySelector("data-table").options = {
-        ...options,
-        showTextSearch: true,
-        columnSelectorLabel: "Select a column",
-        filtersLabel: "Filters"
-    };
-
-    document.querySelector("data-table").data = {
-        headers, rows
-    }; 
+    let dataTable = document.querySelector("data-table");
+    dataTable.bodyCellDisplay = tableSettings.bodyCellDisplay;
+    dataTable.textSearchFilter = tableSettings.textSearchFilter;
+    dataTable.css = style;
+    dataTable.data = {headers, rows}; 
+    
     window.addEventListener("resize", () => {
-        document.querySelector("data-table").render();
+        dataTable.render();
     }); 
 </script>
 <main>
@@ -55,7 +52,11 @@
 
     <p>Evaluations are completed with the same set of EPUB test books to ensure consistency. The test books are known to be accessible and free of errors. The different titles are described below, along with a link to download each.</p>
     
-    <data-table summary="Test book descriptions and downloads" stylesheet="/css/data-table.css"></data-table>
+    <data-table 
+        summary="Test book descriptions and downloads"
+        showTextSearch="true"
+    >
+    </data-table>
 
     <noscript>
         <table class="striped" summary="Test book descriptions and downloads">

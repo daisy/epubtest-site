@@ -10,8 +10,10 @@
 
 <script type="module" src="/js/data-table.js"></script>
 <script type="module">
-    import { options } from '/js/tables/results-table-options.js';
+    import * as tableSettings from '/js/tables/results-table-settings.js';
     import * as helpers from '/js/tables/data-table-helpers.js';
+    import {style} from '/js/data-table-style.js';
+
     let headers = {{topics | dump | safe}};
     let rows = {{testingEnvironments | dump | safe}};
 
@@ -32,19 +34,14 @@
 
     headers.splice(0, 0, firstColumn);
 
-    document.querySelector("data-table").options = {
-        ...options,
-        showTextSearch: true,
-        defaultSortHeader: 0,
-        columnSelectorLabel: "Select a topic",
-        filtersLabel: "Filters"
-    };
-
-    document.querySelector("data-table").data = {
-        headers, rows
-    };  
+    let dataTable = document.querySelector("data-table");
+    dataTable.bodyCellDisplay = tableSettings.bodyCellDisplay;
+    dataTable.filters = tableSettings.filters;
+    dataTable.textSearchFilter = tableSettings.textSearchFilter;
+    dataTable.css = style;
+    dataTable.data = {headers, rows};  
     window.addEventListener("resize", () => {
-        document.querySelector("data-table").render();
+        dataTable.render();
     });
 </script>
 <main>
@@ -59,7 +56,11 @@
         the <a href="/test-books">test books page</a>.</p>
     {%- endif -%}
 
-    <data-table summary="Reading system testing results" stylesheet="/css/data-table.css"></data-table>
+    <data-table 
+        summary="Reading system testing results"
+        showTextSearch="true"
+        defaultSortHeader="0">
+    </data-table>
 
     <noscript>
         <table class="striped" summary="Reading system testing results">

@@ -32,7 +32,8 @@
 {%- macro AnswerSet(answerSet, headingLevel, topicName = '') -%}
 <script type="module">
     import * as helpers from '/js/tables/data-table-helpers.js';
-    import { options } from '/js/tables/test-results-table-options.js';
+    import * as tableSettings from '/js/tables/test-results-table-settings.js';
+    import { style } from '/js/data-table-style.js';
 
     let rows = {{answerSet.answers | dump | safe}};
 
@@ -59,18 +60,13 @@
         }
     ];
     
-    document.querySelector("#data-{{answerSet.id}}").options = {
-        ...options,
-        showTextSearch: true,
-        columnSelectorLabel: "Select a column",
-        filtersLabel: "Filters"
-    };
-
-    document.querySelector("#data-{{answerSet.id}}").data = {
-        headers, rows
-    };
+    let dataTable = document.querySelector("#data-{{answerSet.id}}");
+    dataTable.bodyCellDisplay = tableSettings.bodyCellDisplay;
+    dataTable.textSearchFilter = tableSettings.textSearchFilter;
+    dataTable.css = style;
+    dataTable.data = {headers, rows};
     window.addEventListener("resize", () => {
-        document.querySelector("#data-{{answerSet.id}}").render();
+        dataTable.render();
     });
 </script>
 
@@ -94,7 +90,8 @@
     id="data-{{answerSet.id}}" 
     summary="Test results" 
     customclass="test-results"
-    stylesheet="/css/data-table.css">
+    showTextSearch="true"
+    >
 </data-table>
 
 <noscript>

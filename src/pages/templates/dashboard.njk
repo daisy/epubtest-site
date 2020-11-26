@@ -53,7 +53,8 @@
 {%- macro TestingEnvironmentTable(testingEnvironment) -%}
 <script type="module">
     import * as helpers from '/js/tables/data-table-helpers.js';
-    import { options } from '/js/tables/dashboard-table-options.js';
+    import * as tableSettings from '/js/tables/dashboard-table-settings.js';
+    import { style } from '/js/data-table-style.js';
 
     let rows = {{testingEnvironment.answerSets | dump | safe}};
     let requestsToPublish = {
@@ -89,26 +90,18 @@
         }
     ];
     
-    document.querySelector("#data-{{testingEnvironment.id}}").options = {
-        getBodyCellDisplay: (header, row, headerIdx, rowIdx) => options.getBodyCellDisplay(header, row, headerIdx, rowIdx, requestsToPublish, isAdmin, testingEnvironment),
-        getHeaderCellDisplay: options.getHeaderCellDisplay,
-        showTextSearch: false,
-        columnSelectorLabel: "Select a column",
-        filtersLabel: "Filters",
-        textSearchFilter: options.textSearchFilter,
-        filters: {}
-    };
-
-    document.querySelector("#data-{{testingEnvironment.id}}").data = {
-        headers, rows
-    };
+    let dataTable = document.querySelector("#data-{{testingEnvironment.id}}");
+    dataTable.bodyCellDisplay = (header, row, headerIdx, rowIdx) => 
+        tableSettings.bodyCellDisplay(header, row, headerIdx, rowIdx, requestsToPublish, isAdmin, testingEnvironment);
+    dataTable.css = style;
+    dataTable.data = { headers, rows };
     window.addEventListener("resize", () => {
-        document.querySelector("data-table").render();
+        let dataTables = Array.from(document.querySelectorAll("data-table"));
+        dataTables.map(table => table.render());
     });
 </script>
 <data-table 
     summary="Edit and publish topics for {{testingEnvironment.readingSystem.name}} {{testingEnvironment.readingSystem.version}}"
-    stylesheet="/css/data-table.css"
     id="data-{{testingEnvironment.id}}">
 </data-table>
 <noscript>

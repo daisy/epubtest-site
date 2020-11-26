@@ -98,9 +98,9 @@ function numberSort(rowA, rowB, path) {
     let valB = parseFloat(path(rowB));
     return valA > valB ? 1 : valA < valB ? -1 : 0;
 }
-function testingEnvironmentLink(testenv, urlpart) {
+function testingEnvironmentLink(testenv, urlpart, className="") {
     return `
-        <a href="./${urlpart}/${testenv.id}">
+        <a href="./${urlpart}/${testenv.id}" class="${className}">
             <span class="sw readingSystem">
                 <span class="name">${testenv.readingSystem.name}</span>
                 <span class="version">${testenv.readingSystem.version}</span>

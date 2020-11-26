@@ -1,32 +1,22 @@
 import * as helpers from './data-table-helpers.js';
 
-function getBodyCellDisplay (header, row, headerIdx, rowIdx) {
+function bodyCellDisplay (header, row, headerIdx, rowIdx) {
     if (header.hasOwnProperty('topic')) {
         let {answerSets} = row;
         let answerSet = answerSets.find(aset => aset.testBook.topic.id === header.topic);
         let score = helpers.makeScoreSpan(answerSet);
-        let cellClass = answerSet && answerSet.isTested ? "score" : "not-tested";
+        let className = answerSet && answerSet.isTested ? "score" : "not-tested";
         let cellContent = answerSet && answerSet.isTested ? 
-            `<a href="/results/${row.id}/#${answerSet.testBook.topic.id}">${score}</a>`
+            `<a class="${className}" href="/results/${row.id}/#${answerSet.testBook.topic.id}">${score}</a>`
             :
             score;
-        return {
-            cellClass,
-            cellContent
-        };
+        return cellContent;
     } 
     else {
-        let cellClass="testenv";
-        let cellContent = `
-        ${helpers.testingEnvironmentLink(row, 'results')}
-        `;   
-        return {cellClass, cellContent};     
+        let cellContent = `${helpers.testingEnvironmentLink(row, 'results', 'testenv')}`;   
+        return cellContent;     
     }
 }
-
-function getHeaderCellDisplay(header, idx) {
-    return header.title;
-} 
 
 let filters = {
     rs: {
@@ -64,9 +54,8 @@ function textSearchFilter (text, row, headers, hiddenColumns) {
     return found;
 }
 
-export let options = {
-    getBodyCellDisplay,
-    getHeaderCellDisplay,
+export {
+    bodyCellDisplay,
     filters,
     textSearchFilter
 };

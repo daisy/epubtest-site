@@ -3,8 +3,9 @@
 {%- block content -%}
 <script type="module" src="/js/data-table.js"></script>
 <script type="module">
-    import { options } from '/js/tables/admin-requests-table-options.js';
+    import * as tableSettings from '/js/tables/admin-requests-table-settings.js';
     import * as helpers from '/js/tables/data-table-helpers.js';
+    import { style } from '/js/data-table-style.js';
 
     let rows = {{requests | dump | safe}};
 
@@ -39,21 +40,16 @@
         }
     ];
     
+    let dataTable = document.querySelector("data-table");
     if (rows.length) {
-        document.querySelector("data-table").options = {
-            ...options,
-            showTextSearch: true,
-            columnSelectorLabel: "Select a column",
-            filtersLabel: "Filters",
-            defaultSortHeader: 2
-        };
-
-        document.querySelector("data-table").data = {
-            headers, rows
-        };  
+        
+        dataTable.bodyCellDisplay = tableSettings.bodyCellDisplay;
+        dataTable.textSearchFilter = tableSettings.textSearchFilter;
+        dataTable.css = style;
+        dataTable.data = { headers, rows};  
     }
     window.addEventListener("resize", () => {
-        document.querySelector("data-table").render();
+        dataTable.render();
     }); 
 </script>
 <main>
@@ -61,7 +57,12 @@
     {%- if requests.length == 0 -%}
     <p>No pending requests</p>
     {%- else -%}
-        <data-table summary="Requests to publish answer sets" stylesheet="/css/data-table.css"></data-table>
+        <data-table 
+            summary="Requests to publish answer sets"
+            showTextSearch="true"
+            defaultSortHeader="2"
+        >
+        </data-table>
         <noscript>
         Javascript is required to view table(s) on this page.
         </noscript>

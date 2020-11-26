@@ -1,6 +1,6 @@
 import * as helpers from './data-table-helpers.js';
 
-function getBodyCellDisplay (header, row, headerIdx, rowIdx) {
+function bodyCellDisplay (header, row, headerIdx, rowIdx) {
     let cellContent = "";
     if (header.id == "topic") {
         cellContent = helpers.getTopicName(row.topicId);
@@ -20,17 +20,14 @@ function getBodyCellDisplay (header, row, headerIdx, rowIdx) {
     else if (header.id == "download") {
         cellContent = `<a href="/books/${row.filename}" title="${row.title}">Download</a>`;
     }
-    return {
-        cellClass: "",
-        cellContent
-    };
+    else if (header.id == "delete") {
+        cellContent = `
+        <form action="/admin/forms/confirm-delete-test-book/${row.id}" method="post">
+            <input type="submit" value="Delete"></input>
+        </form>`;
+    }
+    return cellContent;
 }
-    
-function getHeaderCellDisplay(header, idx) {
-    return header.title;
-}
-
-let filters = {};
 
 // return whether the row contains the text    
 function textSearchFilter (text, row, headers, hiddenColumns) {
@@ -49,9 +46,7 @@ function textSearchFilter (text, row, headers, hiddenColumns) {
     return found;
 }
 
-export let options = {
-    getBodyCellDisplay,
-    getHeaderCellDisplay,
-    filters,
+export {
+    bodyCellDisplay,
     textSearchFilter
 };

@@ -1,6 +1,6 @@
 import * as helpers from './data-table-helpers.js';
 
-function getBodyCellDisplay (header, row, headerIdx, rowIdx, requestsToPublish, testingEnvironment, users) {
+function bodyCellDisplay (header, row, headerIdx, rowIdx, requestsToPublish, testingEnvironment, users) {
     let cellContent = "";
     if (header.id == "topic") {
         cellContent = helpers.getTopicName(row.testBook.topic.id);
@@ -67,18 +67,10 @@ function getBodyCellDisplay (header, row, headerIdx, rowIdx, requestsToPublish, 
     else if (header.id == "publishingRequested") {
         cellContent = requestsToPublish.hasOwnProperty(row.id) ? "Yes" : "No";
     }
-    return {
-        cellClass: "",
-        cellContent
-    };
+    return cellContent;
 }
     
-function getHeaderCellDisplay(header, idx) {
-    return header.title;
-}
-
 let filters = (requestsToPublish) => {
-
     return {
         topic: {
             name: "Topic",
@@ -104,9 +96,8 @@ function textSearchFilter (text, row, headers, hiddenColumns) {
    return true;
 }
 
-export let options = {
-    getBodyCellDisplay,
-    getHeaderCellDisplay,
+export {
+    bodyCellDisplay,
     filters,
     textSearchFilter
 };

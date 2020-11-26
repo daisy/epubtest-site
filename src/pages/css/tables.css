@@ -1,5 +1,10 @@
 @import url("colors.css");
-
+data-table {
+    --custom-table-stripes-background-color: var(--softcomp);
+    --custom-table-header-background-color: var(--hardcomp);
+    --custom-table-header-border: 1px solid var(--primary);
+    --custom-button-active-background-color: var(--softcomp);
+}
 table {
     border-collapse: collapse;
     table-layout: fixed;
@@ -18,7 +23,7 @@ colgroup {
 }
 thead {
     border: 1px solid var(--primary);
-    background: var(--comp);
+    background: var(--hardcomp);
 }
 th {
     vertical-align: bottom;
@@ -46,7 +51,7 @@ table.narrow th, table.narrow td {
     width: min-content;
     white-space: nowrap;
 }
-span.not-tested {
+.not-tested {
     font-style: italic;
     font-weight: lighter;
 }

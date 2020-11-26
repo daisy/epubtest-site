@@ -4,7 +4,8 @@
 {%- block content -%}
 <script type="module" src="/js/data-table.js"></script>
 <script type="module">
-    import { options } from '/js/tables/admin-software-table-options.js';
+    import * as tableSettings from '/js/tables/admin-software-table-settings.js';
+    import { style } from '/js/data-table-style.js';
 
     let rows = {{ software.testingEnvironments | dump | safe}};
 
@@ -39,18 +40,14 @@
         }
     ];
     
-    document.querySelector("data-table").options = {
-        ...options,
-        showTextSearch: true,
-        columnSelectorLabel: "Select a column",
-        filtersLabel: "Filters"
-    };
-
-    document.querySelector("data-table").data = {
-        headers, rows
-    };  
+    let dataTable = document.querySelector("data-table");
+    dataTable.bodyCellDisplay = tableSettings.bodyCellDisplay;
+    dataTable.filters = tableSettings.filters;
+    dataTable.textSearchFilter = tableSettings.textSearchFilter;
+    dataTable.css = style;
+    dataTable.data = { headers, rows};  
     window.addEventListener("resize", () => {
-        document.querySelector("data-table").render();
+        dataTable.render();
     }); 
 </script>
 <main>
@@ -59,7 +56,11 @@
     <h3>Usage</h3>
     <p>This is used in the following testing environments:</p>
 
-    <data-table stylesheet="/css/data-table.css" summary="Testing environments where this software is used"></data-table>
+    <data-table 
+        summary="Testing environments where this software is used"
+        showTextSearch="true"
+    >
+    </data-table>
     <noscript>
     Javascript is required to view table(s) on this page.
     </noscript>

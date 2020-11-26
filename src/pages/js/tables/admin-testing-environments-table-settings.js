@@ -1,6 +1,6 @@
 import * as helpers from './data-table-helpers.js';
 
-function getBodyCellDisplay (header, row, headerIdx, rowIdx) {
+function bodyCellDisplay (header, row, headerIdx, rowIdx) {
     let cellContent = "";
 
     if (header.id == "id") {
@@ -54,14 +54,7 @@ function getBodyCellDisplay (header, row, headerIdx, rowIdx) {
     else if (header.id == "manage") {
         cellContent = `<a href="/admin/testing-environment/${row.id}">Manage</a>`;
     }
-    return {
-        cellClass: "",
-        cellContent
-    };
-}
-    
-function getHeaderCellDisplay(header, idx) {
-    return header.title;
+    return cellContent;
 }
 
 let filters = {
@@ -121,9 +114,8 @@ function textSearchFilter (text, row, headers, hiddenColumns) {
     return found;
 }
 
-export let options = {
-    getBodyCellDisplay,
-    getHeaderCellDisplay,
+export {
+    bodyCellDisplay,
     filters,
     textSearchFilter
 };
