@@ -1,8 +1,7 @@
-const Q = require("../src/queries/index");
-const db = require("../src/database");
-const { initDb, errmgr: loadDataErrors } = require('./load-data');
-const {expect} = require('chai');
-const winston = require('winston');
+import { initDb, errmgr as loadDataErrors } from './load-data.js';
+import chai from 'chai';
+const expect = chai.expect;
+import winston from 'winston';
 
 let jwt;
 
@@ -19,13 +18,18 @@ describe('ingest-invalid-book', function () {
             testingEnvironments: "./data/testing-environments.json",
             users: "./data/users.json"
         };
-        jwt = await initDb(dataProfile); 
+        try {
+            jwt = await initDb(dataProfile); 
+        }
+        catch (err) {
+            loadDataErrors.addError(err);
+        }
     });
   
     describe('initial-data-import', function() {
         it('reports errors', async function() {
             let errors = loadDataErrors.getErrors();
-            for (err of errors) {
+            for (let err of errors) {
                 winston.error(err.toString());
             }
             expect(errors.length).not.to.equal(0);

@@ -1,6 +1,6 @@
-const Q = require("../../src/queries/index");
-const db = require("../../src/database");
-const winston = require("winston");
+import * as Q from '../../../src/queries/index.js';
+import * as db from "../../../src/database/index.js";
+import winston from 'winston';
 
 async function updateAnswersAndPublish(data, jwt, publish, errors) {
     winston.info("Updating answers");
@@ -8,25 +8,25 @@ async function updateAnswersAndPublish(data, jwt, publish, errors) {
         winston.info("and publishing");
     }
 
-    let dbres = await db.query(Q.TESTING_ENVIRONMENTS.GET_ALL, {}, jwt);
+    let dbres = await db.query(Q.TESTING_ENVIRONMENTS.GET_ALL(),  {}, jwt);
     let tenvs = dbres.data.testingEnvironments;
-    dbres = await db.query(Q.TEST_BOOKS.GET_LATEST, {}, jwt);
+    dbres = await db.query(Q.TEST_BOOKS.GET_LATEST(), {}, jwt);
     let testBooks = dbres.data.getLatestTestBooks;
 
-    for (answerSetJson of data) {
+    for (let answerSetJson of data) {
         // get the testing environment ID and test book ID
         let testingEnvironmentId = tenvs.find(tenv => tenv.readingSystem.name === answerSetJson.readingSystemName).id;
         let testBookId = testBooks.find(tb => tb.topicId === answerSetJson.testBookTopic).id;
 
         // find the answer set
         dbres = await db.query(
-            Q.ANSWER_SETS.GET_FOR_BOOK_AND_TESTING_ENVIRONMENT, 
+            Q.ANSWER_SETS.GET_FOR_BOOK_AND_TESTING_ENVIRONMENT(), 
             {
                 testBookId,
                 testingEnvironmentId
             }, 
             jwt);
-        //let dbres = await db.query(Q.ANSWER_SETS.GET, {id: answerSetJson.answerSetId}, jwt);
+        //let dbres = await db.query(Q.ANSWER_SETS.GET(), {id: answerSetJson.answerSetId}, jwt);
         if (!dbres.success) {
             errors = errors.concat(dbres.errors);
             throw new Error("updateAnswersAndPublish error");
@@ -47,7 +47,7 @@ async function updateAnswersAndPublish(data, jwt, publish, errors) {
         let notes = answerSetJson.answers.map(answer => answer.notes ?? "");
         let notesArePublic = answerSetJson.answers.map(answer => answer.notesArePublic ?? false);
         dbres = await db.query(
-            Q.ANSWER_SETS.UPDATE_ANSWERSET_AND_ANSWERS, 
+            Q.ANSWER_SETS.UPDATE_ANSWERSET_AND_ANSWERS(), 
             {
                 input: 
                 {
@@ -65,7 +65,7 @@ async function updateAnswersAndPublish(data, jwt, publish, errors) {
             throw new Error("updateAnswersAndPublish error");
         }
         if (publish) {
-            dbres = await db.query(Q.ANSWER_SETS.UPDATE, { id: answerSet.id, patch: {isPublic: true}}, jwt);
+            dbres = await db.query(Q.ANSWER_SETS.UPDATE(),  { id: answerSet.id, patch: {isPublic: true}}, jwt);
             if (!dbres.success) {
                 errors = errors.concat(dbres.errors);
                 throw new Error("updateAnswersAndPublish error");
@@ -75,4 +75,4 @@ async function updateAnswersAndPublish(data, jwt, publish, errors) {
     }
 }
 
-module.exports = updateAnswersAndPublish;
+export { updateAnswersAndPublish };

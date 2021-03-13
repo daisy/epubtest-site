@@ -1,7 +1,5 @@
-const Q = require("../../src/queries/index");
-const db = require("../../src/database");
-const winston = require("winston");
-const answerSetsActions = require('../../src/actions/answerSets');
+import winston from 'winston';
+import * as answerSetsActions from '../../../src/actions/answerSets.js';
 
 async function upgradeAnswerSets(newBookId, replacesBookId, jwt, errors) {
     winston.info("Upgrading Answer sets");
@@ -9,7 +7,7 @@ async function upgradeAnswerSets(newBookId, replacesBookId, jwt, errors) {
     let result = await answerSetsActions.upgrade(newBookId, replacesBookId, jwt);
 
     if (!result.success) {
-        for (err in result.errors) {
+        for (let err in result.errors) {
             winston.error(err);
         }
         errors = errors.concat(result.errors);
@@ -17,4 +15,4 @@ async function upgradeAnswerSets(newBookId, replacesBookId, jwt, errors) {
     }
 }
 
-module.exports = upgradeAnswerSets;
+export { upgradeAnswerSets };

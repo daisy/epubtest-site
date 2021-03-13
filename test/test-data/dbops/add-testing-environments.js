@@ -1,7 +1,7 @@
-const Q = require("../../src/queries/index");
-const db = require("../../src/database");
-const testEnvActions = require("../../src/actions/testingEnvironments");
-const winston = require("winston");
+import * as Q from '../../../src/queries/index.js';
+import * as db from "../../../src/database/index.js";
+import * as testEnvActions from "../../../src/actions/testingEnvironments.js";
+import winston from 'winston';
 
 async function addTestingEnvironments(data, jwt, errmgr) {
     winston.info("Adding Testing Environments");
@@ -12,7 +12,7 @@ async function addTestingEnvironments(data, jwt, errmgr) {
     dbres = await db.query(Q.SOFTWARE.GET_ALL_BY_TYPE('Os'), {}, jwt);
     let oses = dbres.data.softwares;
         
-    for (tenv of data) {
+    for (let tenv of data) {
         
         // find IDs for the referenced software
         let rs = rses.find(sw => sw.name === tenv.readingSystemName);
@@ -35,4 +35,4 @@ async function addTestingEnvironments(data, jwt, errmgr) {
     }
 }
 
-module.exports = addTestingEnvironments;
+export { addTestingEnvironments };

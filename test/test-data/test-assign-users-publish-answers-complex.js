@@ -1,11 +1,11 @@
-const Q = require("../src/queries/index");
-const db = require("../src/database");
-const { getUserByEmail } = require('./dbops/helpers');
-const { initDb, loadFirstAnswersAndPublish, upgradeTestSuite, 
-    assignAnswerSets, loadSecondAnswers, login, errmgr: loadDataErrors } = require('./load-data');
-const {expect} = require('chai');
-const winston = require('winston');
-const testBookActions = require('../src/actions/testBooks');
+import * as Q from '../../src/queries/index.js';
+import * as db from "../../src/database/index.js";
+import * as helpers from './dbops/helpers.js';
+
+import { initDb, assignAnswerSets, login, errmgr as loadDataErrors } from './load-data.js';
+import chai from 'chai';
+const expect = chai.expect;
+import winston from 'winston';
 
 let jwt;
 let userJwt;
@@ -29,10 +29,10 @@ describe('assign-users-publish-answers-complex', function () {
   
     describe("create and retrieve assignments", function() {
         it("assigned some answer sets to each user", async function() {
-            let dbres = await db.query(Q.USERS.GET_ALL_EXTENDED, {}, jwt);
+            let dbres = await db.query(Q.USERS.GET_ALL_EXTENDED(), {}, jwt);
             let users = dbres.data.users.filter(u => u.login.type == "USER");
-            for (user of users) {
-                dbres = await db.query(Q.ANSWER_SETS.GET_FOR_USER, {userId: user.id}, jwt);
+            for (let user of users) {
+                dbres = await db.query(Q.ANSWER_SETS.GET_FOR_USER(), {userId: user.id}, jwt);
                 expect(dbres.data.answerSets.length).to.be.greaterThan(0);
             }
         });    
@@ -43,11 +43,11 @@ describe('assign-users-publish-answers-complex', function () {
             userJwt = await login("sara@example.com", "password");
         });
         it("can get testing environments with only the user's own answer sets", async function() {
-            let user = await getUserByEmail("sara@example.com", jwt);
-            dbres = await db.query(Q.TESTING_ENVIRONMENTS.GET_ALL_BY_USER, {userId: user.id}, userJwt);
+            let user = await helpers.getUserByEmail("sara@example.com", jwt);
+            let dbres = await db.query(Q.TESTING_ENVIRONMENTS.GET_ALL_BY_USER(), {userId: user.id}, userJwt);
             expect(dbres.data.getUserTestingEnvironments.length).to.be.greaterThan(0);
-            for (testingEnvironment of dbres.data.getUserTestingEnvironments) {
-                for (answerSet of testingEnvironment.answerSets) {
+            for (let testingEnvironment of dbres.data.getUserTestingEnvironments) {
+                for (let answerSet of testingEnvironment.answerSets) {
                     expect(answerSet.user.id).to.equal(user.id);
                 }
             }

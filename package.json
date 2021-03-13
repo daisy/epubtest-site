@@ -16,8 +16,8 @@
     "dev": "nodemon -e js,html,njk,css src/start.js --exec \"node --require dotenv/config\"",
     "load-test-data": "node --require dotenv/config other-test-scripts/load-test-data.js dotenv_config_path=./test/test.env",
     "test": "mocha --env dotenv_config_path=test/test.env --require dotenv/config test/**/*js ",
-    "test-database": "mocha --env dotenv_config_path=test/test.env --require dotenv/config test/test-database/*js ",
-    "test-website": "mocha --env dotenv_config_path=test/test.env --require dotenv/config test/test-website/*js ",
+    "test-data": "mocha --env dotenv_config_path=test/test.env --require dotenv/config test/test-data/*js ",
+    "test-ui": "mocha --env dotenv_config_path=test/test.env --require dotenv/config test/test-ui/*js ",
     "gulp": "./node_modules/.bin/gulp"
   },
   "author": {

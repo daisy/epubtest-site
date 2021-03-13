@@ -1,13 +1,13 @@
-const Q = require("../../src/queries/index");
-const db = require("../../src/database");
-const winston = require("winston");
+import * as Q from '../../../src/queries/index.js';
+import * as db from "../../../src/database/index.js";
+import winston from 'winston';
 
 async function addUsers(data, jwt, errors) {
     winston.info("Adding Users");
     
-    for (user of data) {
+    for (let user of data) {
         let dbres = await db.query(
-            Q.LOGINS.CREATE_NEW_LOGIN,
+            Q.LOGINS.CREATE_NEW_LOGIN(),
             {
                 email: user.email,
                 password: user.password,
@@ -21,7 +21,7 @@ async function addUsers(data, jwt, errors) {
         }
         let loginId = dbres.data.createNewLogin.integer;
         dbres = await db.query(
-            Q.USERS.CREATE, 
+            Q.USERS.CREATE(),  
             {
                 input: {
                     name: user.name,
@@ -37,4 +37,4 @@ async function addUsers(data, jwt, errors) {
     }
 }
 
-module.exports = addUsers;
+export { addUsers };

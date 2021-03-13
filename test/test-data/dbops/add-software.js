@@ -1,12 +1,12 @@
-const Q = require("../../src/queries/index");
-const db = require("../../src/database");
-const winston = require("winston");
+import * as Q from '../../../src/queries/index.js';
+import * as db from "../../../src/database/index.js";
+import winston from 'winston';
 
 async function addSoftware(data, jwt, errmgr) {
     winston.info("Adding Software");
-    for (sw of data) {
+    for (let sw of data) {
         let dbres = await db.query(
-            Q.SOFTWARE.CREATE, 
+            Q.SOFTWARE.CREATE(),  
             {
                 input: {
                     ...sw
@@ -21,4 +21,4 @@ async function addSoftware(data, jwt, errmgr) {
     } 
 }
 
-module.exports = addSoftware;
+export { addSoftware };

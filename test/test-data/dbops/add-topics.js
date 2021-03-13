@@ -1,13 +1,13 @@
-const Q = require("../../src/queries/index");
-const db = require("../../src/database");
-const winston = require("winston");
+import * as Q from '../../../src/queries/index.js';
+import * as db from "../../../src/database/index.js";
+import winston from 'winston';
 
 async function addTopics(data, jwt, errors) {
     winston.info("Adding Topics");
     
-    for (topic of data) {
+    for (let topic of data) {
         let dbres = await db.query(
-            Q.TOPICS.CREATE, 
+            Q.TOPICS.CREATE(),  
             {
                 input: {
                     ...topic
@@ -22,4 +22,4 @@ async function addTopics(data, jwt, errors) {
     }
 }
 
-module.exports = addTopics;
+export { addTopics };

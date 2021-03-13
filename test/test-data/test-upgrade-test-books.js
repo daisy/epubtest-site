@@ -1,10 +1,13 @@
-const Q = require("../src/queries/index");
-const db = require("../src/database");
-const { initDb, loadFirstAnswersAndPublish, upgradeTestSuite, 
-    assignAnswerSets, loadSecondAnswers, errmgr: loadDataErrors } = require('./load-data');
-const {expect} = require('chai');
-const winston = require('winston');
-const testBookActions = require('../src/actions/testBooks');
+import * as Q from '../../src/queries/index.js';
+import * as db from "../../src/database/index.js";
+import * as testBookActions from '../../src/actions/testBooks.js';
+
+import { initDb, loadFirstAnswersAndPublish, upgradeTestSuite, 
+    assignAnswerSets, loadSecondAnswers, errmgr as loadDataErrors } from './load-data.js';
+import chai from 'chai';
+const expect = chai.expect;
+import winston from 'winston';
+
 
 let jwt;
 
@@ -38,7 +41,7 @@ describe('upgrade-test-books', function () {
             await upgradeTestSuite(jwt, dataProfile);
         });
         it("has four test books", async function() {
-            let dbres = await db.query(Q.TEST_BOOKS.GET_ALL, {}, jwt);
+            let dbres = await db.query(Q.TEST_BOOKS.GET_ALL(),  {}, jwt);
             expect(dbres.data.testBooks.length).to.equal(4);
         });
         it("marks the new books as the latest for their topics", async function() {
@@ -50,10 +53,10 @@ describe('upgrade-test-books', function () {
             expect(nonVisBook.version).to.equal("1.0.1");
         });
         it("has 3 tests per book", async function() {
-            let dbres = await db.query(Q.TEST_BOOKS.GET_LATEST, {}, jwt);
+            let dbres = await db.query(Q.TEST_BOOKS.GET_LATEST(), {}, jwt);
             let testBooks = dbres.data.getLatestTestBooks;
-            for (tb of testBooks) {
-                dbres = await db.query(Q.TEST_BOOKS_WITH_TESTS.GET, { id: tb.id });
+            for (let tb of testBooks) {
+                dbres = await db.query(Q.TEST_BOOKS_WITH_TESTS.GET(), { id: tb.id });
                 let testBook = dbres.data.testBook;
                 expect(testBook.tests.length).to.equal(3);
             }
@@ -68,7 +71,7 @@ describe('upgrade-test-books', function () {
             let result = await testBookActions.getLatestForTopicWithTests("basic-functionality");
             let basicFuncBook = result.testBook;
             
-            for (test of basicFuncBook.tests) {
+            for (let test of basicFuncBook.tests) {
                 if (test.testId == "file-010") {
                     expect(test.flag).to.be.true;
                 }
@@ -84,16 +87,16 @@ describe('upgrade-test-books', function () {
         it("flags the answer sets for the new basic-functionality book correctly", async function () {
             let result = await testBookActions.getLatestForTopicWithTests("basic-functionality");
             let basicFuncBook = result.testBook;
-            let dbres = await db.query(Q.ANSWER_SETS.GET_FOR_BOOK, { testBookId: basicFuncBook.id}, jwt);
+            let dbres = await db.query(Q.ANSWER_SETS.GET_FOR_BOOK(), { testBookId: basicFuncBook.id}, jwt);
             let answerSets = dbres.data.answerSets;
             let flags = answerSets.map(aset => aset.flag);
             expect(flags).to.not.contain(false);
         });
         it("created new answer sets for the test books", async function() {
-            let dbres = await db.query(Q.TEST_BOOKS.GET_LATEST, {}, jwt);
+            let dbres = await db.query(Q.TEST_BOOKS.GET_LATEST(), {}, jwt);
             let testBooks = dbres.data.getLatestTestBooks;
-            for (testBook of testBooks) {
-                dbres = await db.query(Q.ANSWER_SETS.GET_FOR_BOOK, { testBookId: testBook.id}, jwt);
+            for (let testBook of testBooks) {
+                dbres = await db.query(Q.ANSWER_SETS.GET_FOR_BOOK(), { testBookId: testBook.id}, jwt);
                 expect(dbres.data.answerSets.length).to.equal(2);
             }
         });
@@ -102,7 +105,7 @@ describe('upgrade-test-books', function () {
             let result = await testBookActions.getLatestForTopicWithTests("basic-functionality");
             let basicFuncBook = result.testBook;
             
-            for (test of basicFuncBook.tests) {
+            for (let test of basicFuncBook.tests) {
                 if (test.testId == "file-010" || test.testId == "file-310") {
                     expect(test.flag).to.be.true;
                 }
@@ -110,9 +113,9 @@ describe('upgrade-test-books', function () {
         });
         it("marked the still-published answer set for basic-functionality as not current", async function() {
             // the basic-functionality answer set is not current anymore
-            let dbres = await db.query(Q.TESTING_ENVIRONMENTS.GET_ALL_PUBLISHED);
+            let dbres = await db.query(Q.TESTING_ENVIRONMENTS.GET_ALL_PUBLISHED());
             let testenv = dbres.data.testingEnvironments[0];
-            for (answerSet of testenv.answerSets) {
+            for (let answerSet of testenv.answerSets) {
                 if (answerSet.testBook.id == 1) {
                     expect(answerSet.isLatestPublic).to.be.true;
                     expect(answerSet.isLatest).to.be.false;
@@ -123,10 +126,10 @@ describe('upgrade-test-books', function () {
             let result = await testBookActions.getLatestForTopic("basic-functionality");
             let basicFuncBook = result.testBook;
             
-            let dbres = await db.query(Q.TESTING_ENVIRONMENTS.GET_ALL_PUBLISHED);
+            let dbres = await db.query(Q.TESTING_ENVIRONMENTS.GET_ALL_PUBLISHED());
             let testenv = dbres.data.testingEnvironments[0];
             // these are just the published answer sets
-            for (answerSet of testenv.answerSets) {
+            for (let answerSet of testenv.answerSets) {
                 // the basic functionality answer set should not be for the new book
                 if (answerSet.testBook.topic.id == "basic-functionality") {
                     expect(answerSet.testBook.id).to.not.equal(basicFuncBook.id);
@@ -137,7 +140,7 @@ describe('upgrade-test-books', function () {
             let result = await testBookActions.getLatestForTopic("basic-functionality");
             let basicFuncBook = result.testBook;
             
-            let dbres = await db.query(Q.TESTING_ENVIRONMENTS.GET_ALL, {}, jwt);
+            let dbres = await db.query(Q.TESTING_ENVIRONMENTS.GET_ALL(),  {}, jwt);
             let testenv = dbres.data.testingEnvironments[0];
             let answerSetTestBookIds = testenv.answerSets.map(aset => aset.testBook.id);
             expect(answerSetTestBookIds).to.contain(basicFuncBook.id);
@@ -146,7 +149,7 @@ describe('upgrade-test-books', function () {
         it("auto-published the latest non-visual-reading answer set", async function() {
             let result = await testBookActions.getLatestForTopic("non-visual-reading");
             let nonVisBook = result.testBook;
-            let dbres = await db.query(Q.TESTING_ENVIRONMENTS.GET_ALL_PUBLISHED);
+            let dbres = await db.query(Q.TESTING_ENVIRONMENTS.GET_ALL_PUBLISHED());
             let testenv = dbres.data.testingEnvironments[0];
             // these are just the published answer sets
             let answerSetTestBookIds = testenv.answerSets.map(aset => aset.testBook.id);
@@ -170,9 +173,9 @@ describe('upgrade-test-books', function () {
             await loadSecondAnswers(jwt, dataProfile);
         });
         it("has the right scores", async function() {
-            let dbres = await db.query(Q.ANSWER_SETS.GET_ALL, {}, jwt);
+            let dbres = await db.query(Q.ANSWER_SETS.GET_ALL(),  {}, jwt);
             let answerSets = dbres.data.answerSets;
-            for (answerSet of answerSets) {
+            for (let answerSet of answerSets) {
                 if (answerSet.testBook.id == 3 && answerSet.testingEnvironment.id == 1) {
                     expect(parseFloat(answerSet.score)).to.equal(0);
                 }
@@ -186,7 +189,7 @@ describe('upgrade-test-books', function () {
             let nonVisBook = result.testBook;
     
             // this gets the testing env with its published answer sets
-            let dbres = await db.query(Q.TESTING_ENVIRONMENTS.GET_ALL_PUBLISHED);
+            let dbres = await db.query(Q.TESTING_ENVIRONMENTS.GET_ALL_PUBLISHED());
             let testenv = dbres.data.testingEnvironments[0];
             let testBookIds = testenv.answerSets.map(aset => aset.testBook.id);
             expect(testBookIds).to.contain(nonVisBook.id);
@@ -194,7 +197,7 @@ describe('upgrade-test-books', function () {
         it ("does not list the old non-vis book's answer set in the testing environment's public profile", async function() {
             let oldNonVisBookId = 2;
             // this gets the testing env with its published answer sets
-            dbres = await db.query(Q.TESTING_ENVIRONMENTS.GET_ALL_PUBLISHED);
+            let dbres = await db.query(Q.TESTING_ENVIRONMENTS.GET_ALL_PUBLISHED());
             let testenv = dbres.data.testingEnvironments[0];
             let testBookIds = testenv.answerSets.map(aset => aset.testBook.id);
             expect(testBookIds).to.not.contain(oldNonVisBookId);
@@ -204,7 +207,7 @@ describe('upgrade-test-books', function () {
             let basicFuncBook = result.testBook;
             
             // this gets the testing env with its published answer sets
-            let dbres = await db.query(Q.TESTING_ENVIRONMENTS.GET_ALL_PUBLISHED);
+            let dbres = await db.query(Q.TESTING_ENVIRONMENTS.GET_ALL_PUBLISHED());
             let testenv = dbres.data.testingEnvironments[0];
             let testBookIds = testenv.answerSets.map(aset => aset.testBook.id);
             expect(testBookIds).to.not.contain(basicFuncBook.id);
@@ -215,13 +218,13 @@ describe('upgrade-test-books', function () {
         before(async function() {
             //await testBookAndAnswerSetActions.remove(3, jwt);
             let dbres = await db.query(
-                Q.TEST_BOOKS.DELETE_TEST_BOOK_AND_ANSWER_SETS, 
+                Q.TEST_BOOKS.DELETE_TEST_BOOK_AND_ANSWER_SETS(), 
                 {testBookId: 3},
                 jwt
             );
         });
         it("answer sets for book with ID=1 are the latest", async function() {
-            let dbres = await db.query(Q.ANSWER_SETS.GET_FOR_BOOK, {testBookId: 1}, jwt);
+            let dbres = await db.query(Q.ANSWER_SETS.GET_FOR_BOOK(), {testBookId: 1}, jwt);
             let isLatests = dbres.data.answerSets.map(aset => aset.isLatest);
             expect(isLatests).to.not.contain(false);
         });

@@ -1,10 +1,11 @@
-const Q = require("../src/queries/index");
-const db = require("../src/database");
-const { initDb, loadFirstAnswersAndPublish, upgradeTestSuite, 
-    assignAnswerSets, loadSecondAnswers, errmgr: loadDataErrors } = require('./load-data');
-const {expect} = require('chai');
-const winston = require('winston');
-const testBookActions = require('../src/actions/testBooks');
+import * as Q from '../../src/queries/index.js';
+import * as db from "../../src/database/index.js";
+
+import { initDb, loadFirstAnswersAndPublish, upgradeTestSuite, 
+    assignAnswerSets, errmgr as loadDataErrors } from './load-data.js';
+import chai from 'chai';
+const expect = chai.expect;
+import winston from 'winston';
 
 let jwt;
 
@@ -31,9 +32,9 @@ describe('assign-users-publish-answers-simple', function () {
         });
         describe('answer sets are assigned', function() {
             it("each answer set is assigned to a non-admin user", async function() {
-                let dbres = await db.query(Q.ANSWER_SETS.GET_ALL_EXTENDED, {}, jwt);
+                let dbres = await db.query(Q.ANSWER_SETS.GET_ALL_EXTENDED(), {}, jwt);
                 let answerSets = dbres.data.answerSets;
-                for (answerSet of answerSets) {
+                for (let answerSet of answerSets) {
                     expect(answerSet.user).to.not.be.null;
                     expect(answerSet.user.login.type).to.equal('USER');
                 }
@@ -50,12 +51,12 @@ describe('assign-users-publish-answers-simple', function () {
         });
 
         it("recorded the answers", async function() {
-            let dbres = await db.query(Q.ANSWER_SETS.GET_ALL, {}, jwt);
+            let dbres = await db.query(Q.ANSWER_SETS.GET_ALL(),  {}, jwt);
             let answerSets = dbres.data.answerSets;
-            for (answerSet of answerSets) {
+            for (let answerSet of answerSets) {
                 if (answerSet.testBook.topic.id == 'basic-functionality' 
                     && answerSet.testingEnvironment.readingSystem.name == 'BookReader') {
-                    for (answer of answerSet.answers) {
+                    for (let answer of answerSet.answers) {
                         if (answer.test.testId == "file-010") {
                             expect(answer.value).to.equal('PASS');
                         }
@@ -69,23 +70,23 @@ describe('assign-users-publish-answers-simple', function () {
                 }
                 else if (answerSet.testBook.topic.id == 'non-visual-reading'
                     && answerSet.testingEnvironment.readingSystem.name == 'BookReader') {
-                    for (answer of answerSet.answers) {
+                    for (let answer of answerSet.answers) {
                         expect(answer.value).to.equal('PASS');
                     }
                 }
             }
         });
         it("published the answer sets", async function() {
-            let dbres = await db.query(Q.ANSWER_SETS.GET_ALL, {}, jwt);
+            let dbres = await db.query(Q.ANSWER_SETS.GET_ALL(),  {}, jwt);
             let answerSets = dbres.data.answerSets;
-            for (answerSet of answerSets) {
+            for (let answerSet of answerSets) {
                 expect(answerSet.isPublic).to.be.true;
             }   
         });
         it("has the right scores", async function() {
-            let dbres = await db.query(Q.ANSWER_SETS.GET_ALL, {}, jwt);
+            let dbres = await db.query(Q.ANSWER_SETS.GET_ALL(),  {}, jwt);
             let answerSets = dbres.data.answerSets;
-            for (answerSet of answerSets) {
+            for (let answerSet of answerSets) {
                 if (answerSet.testBook.topic.id == 'basic-functionality' 
                     && answerSet.testingEnvironment.readingSystemName == "BookReader") {
                     expect(parseFloat(answerSet.score)).to.equal(66.67);
