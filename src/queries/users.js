@@ -1,15 +1,31 @@
-const generate  = require('./crudGenerator');
-const userFrag = require('./fragments/user');
+import generate from './crudGenerator.js';
 
+const FIELDS = () => `
+id
+name
+organization
+website
+includeCredit
+creditAs`;
+
+const FIELDS_WITH_LOGIN = () => `
+${FIELDS()}
+login {
+    type
+    lastSeen
+    active
+    email
+}
+`;
 
 const {CREATE, DELETE, UPDATE, GET, GET_ALL} 
-    = generate("user", "users", userFrag.FIELDS);
+    = generate("user", "users", FIELDS);
 
 
 const { GET: GET_EXTENDED, GET_ALL: GET_ALL_EXTENDED}
-    = generate("user", "users", userFrag.FIELDS_WITH_LOGIN);
+    = generate("user", "users", FIELDS_WITH_LOGIN);
 
-const GET_INACTIVE =
+const GET_INACTIVE = () => 
 `query {
     getInactiveUsers {
         id
@@ -18,7 +34,7 @@ const GET_INACTIVE =
     }
 }`;
 
-const GET_ACTIVE =
+const GET_ACTIVE = () => 
 `query {
     getActiveUsers {
         id
@@ -26,7 +42,7 @@ const GET_ACTIVE =
     }
 }`;
 
-const GET_EMAIL = 
+const GET_EMAIL = () => 
 `query($id: Int!) {
     user (id: $id) {
         login{
@@ -35,7 +51,8 @@ const GET_EMAIL =
     }
 }`;
 
-module.exports = {
+export {
+    FIELDS, FIELDS_WITH_LOGIN,
     CREATE, DELETE, UPDATE, GET, GET_ALL,
     GET_INACTIVE, GET_ACTIVE, GET_EMAIL,
     GET_EXTENDED, GET_ALL_EXTENDED

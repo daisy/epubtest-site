@@ -1,12 +1,18 @@
-const generate  = require('./crudGenerator');
-const loginFrag = require('./fragments/login');
+import generate from './crudGenerator.js';
+
+const FIELDS = () => `
+id
+email
+last_seen
+active
+type`;
 
 const {DELETE, UPDATE, GET, GET_ALL} 
-    = generate("login", "logins", loginFrag.FIELDS);
+    = generate("login", "logins", FIELDS);
 
 // custom CREATE instead of using crudGenerator's
 // this uses our custom pgsql function, which hashes the password
-const CREATE_NEW_LOGIN = `
+const CREATE_NEW_LOGIN = () => `
 mutation ($email: String!, $password: String!, $active: Boolean = true){
     createNewLogin(input:{
       email: $email
@@ -19,6 +25,7 @@ mutation ($email: String!, $password: String!, $active: Boolean = true){
   }
 `;
 
-module.exports = {
+export {
+    FIELDS,
     DELETE, UPDATE, GET, GET_ALL, CREATE_NEW_LOGIN
 };

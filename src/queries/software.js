@@ -1,18 +1,26 @@
-const generate  = require('./crudGenerator');
-const softwareFrag = require('./fragments/software');
-const testEnvFrag = require('./fragments/testingEnvironment');
+import generate from './crudGenerator.js';
+import * as testEnvs from './testingEnvironments.js';
+
+const FIELDS = () => `
+id
+name
+version
+vendor
+notes
+type
+active`;
 
 const {CREATE, DELETE, UPDATE, GET, GET_ALL} 
-    = generate("software", "softwares", softwareFrag.FIELDS);
+    = generate("software", "softwares", FIELDS);
 
 // type = ReadingSystem, AssistiveTechnology, Browser, Os
 // have to convert type to READING_SYSTEM, ASSISTIVE_TECHNOLOGY, etc
 let GET_ALL_BY_TYPE = type => `
 query {
     softwares(condition: {type: ${type.replace(/([a-z])([A-Z])/g, '$1_$2').toUpperCase()}}) {
-        ${softwareFrag.FIELDS}
+        ${FIELDS()}
         testingEnvironmentsBy${type}Id {
-            ${testEnvFrag.FIELDS}
+            ${testEnvs.FIELDS()}
         }
     }
 }`;
@@ -21,14 +29,15 @@ query {
 let GET_EXTENDED = type => `
     query ($id: Int!) {
         software(id: $id) {
-            ${softwareFrag.FIELDS}
+            ${FIELDS()}
             testingEnvironmentsBy${type}Id {
-                ${testEnvFrag.FIELDS}
+                ${testEnvs.FIELDS()}
             }
         }
     }`;
 
-module.exports = {
+export {
+    FIELDS,
     CREATE, DELETE, UPDATE, GET, GET_ALL, 
     GET_EXTENDED, GET_ALL_BY_TYPE
 };
