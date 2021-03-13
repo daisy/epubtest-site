@@ -1,14 +1,15 @@
-var express = require('express')
-const db = require('../database');
-const Q = require('../queries');
-const utils = require('../utils');
-const mail = require('../actions/mail');
-const emails = require('../emails');
-const { validationResult, body } = require('express-validator');
-const LANGS = require('../l10n/langs');
-const dayjs = require('dayjs');
+import express from 'express';
+const router = express.Router()
+import * as db from '../database/index.js';
+import * as Q from '../queries/index.js';
+import * as utils from '../utils.js';
 
-var router = express.Router()
+import * as mail from '../actions/mail.js';
+import * as emails from '../emails.js';
+import expressValidator from 'express-validator';
+const { validator, validationResult, body } = expressValidator;
+import * as LANGS from '../l10n/langs.js';
+
 
 // submit login
 router.post('/login', 
@@ -24,7 +25,7 @@ router.post('/login',
         }
 
         let dbres = await db.query(
-            Q.AUTH.LOGIN, 
+            Q.AUTH.LOGIN(), 
             {   
                 input: {
                     email: req.body.email, 
@@ -73,7 +74,7 @@ router.post('/forgot-password',
         }
 
         let dbres = await db.query(
-            Q.AUTH.TEMPORARY_TOKEN,
+            Q.AUTH.TEMPORARY_TOKEN(),
             {
                 input: {
                     email: req.body.email,
@@ -126,7 +127,7 @@ router.post('/set-password',
 
         let token = utils.parseToken(jwt);
         let dbres = await db.query(
-            Q.USERS.GET,
+            Q.USERS.GET(),
             {id: token.userId},
             jwt
         );
@@ -136,7 +137,7 @@ router.post('/set-password',
         }
         
         dbres = await db.query(
-            Q.AUTH.SET_PASSWORD, 
+            Q.AUTH.SET_PASSWORD(), 
             {
                 input: {
                     userId: token.userId, 
@@ -155,15 +156,15 @@ router.post('/set-password',
 
         // delete any invitations for this user
         dbres = await db.query(
-            Q.INVITATIONS.GET_FOR_USER,
+            Q.INVITATIONS.GET_FOR_USER(),
             {userId: token.userId},
             jwt
         );
         // there should just be one invitation per user but just in case there are more
-        for (invitation of dbres.data.invitations) {
+        for (let invitation of dbres.data.invitations) {
             // delete the invitation
             dbres = await db.query(
-                Q.INVITATIONS.DELETE,
+                Q.INVITATIONS.DELETE(), 
                 {
                     id: invitation.id
                 }, 
@@ -202,4 +203,5 @@ router.post('/choose-language', [
                 .redirect(req.body.next ? req.body.next : '/');
     
 });
-module.exports = router;
+
+export { router };

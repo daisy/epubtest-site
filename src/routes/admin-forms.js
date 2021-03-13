@@ -1,21 +1,22 @@
-const express = require('express');
+import express from 'express';
 const router = express.Router()
-const db = require('../database');
-const Q = require('../queries');
-const invite = require('../actions/invite');
-const testBooks = require('../actions/testBooks');
-const answerSets = require('../actions/answerSets');
-const testingEnvironments = require('../actions/testingEnvironments');
-const formidable = require('formidable');
-const winston = require('winston');
-const utils = require('../utils');
-const path = require('path');
-const { validator, validationResult, body } = require('express-validator');
+import * as db from '../database/index.js';
+import * as Q from '../queries/index.js';
+import * as invite from '../actions/invite.js';
+import * as testBooks from '../actions/testBooks.js';
+import * as answerSets from '../actions/answerSets.js';
+import * as testingEnvironments from '../actions/testingEnvironments.js';
+import formidable from 'formidable';
+import winston from 'winston';
+import * as utils from '../utils.js';
+import * as path from 'path';
+import expressValidator from 'express-validator';
+const { validator, validationResult, body } = expressValidator;
 
 // approve or deny request to publish
 router.post('/handle-request', async (req, res, next) => {
     if (req.body.hasOwnProperty("approve")) {
-        let dbres = await db.query(Q.ANSWER_SETS.UPDATE,
+        let dbres = await db.query(Q.ANSWER_SETS.UPDATE(), 
                 { 
                     id: parseInt(req.body.answerSetId),
                     patch: {
@@ -31,7 +32,7 @@ router.post('/handle-request', async (req, res, next) => {
     }
     
     if (req.body.hasOwnProperty("approve") || req.body.hasOwnProperty("deny")) {
-        let dbres = await db.query(Q.REQUESTS.DELETE,
+        let dbres = await db.query(Q.REQUESTS.DELETE(), 
             { id: parseInt(req.body.requestId) },
             req.cookies.jwt);
         
@@ -46,7 +47,7 @@ router.post('/handle-request', async (req, res, next) => {
 // publish an answer set
 router.post('/publish', async (req, res, next) => {
 
-    let dbres = await db.query(Q.ANSWER_SETS.UPDATE,
+    let dbres = await db.query(Q.ANSWER_SETS.UPDATE(), 
         { 
             id: parseInt(req.body.answerSetId),
             patch: {
@@ -62,7 +63,7 @@ router.post('/publish', async (req, res, next) => {
     
     // also clear any requests for publishing that this answer set might have had
     dbres = await db.query(
-        Q.REQUESTS.GET_FOR_ANSWERSETS, 
+        Q.REQUESTS.GET_FOR_ANSWERSETS(), 
         { ids: [parseInt(req.body.answerSetId)]},
         req.cookies.jwt
     );
@@ -73,7 +74,7 @@ router.post('/publish', async (req, res, next) => {
     }
 
     if (dbres.data && dbres.data.requests.length > 0) {
-        dbres = await db.query(Q.REQUESTS.DELETE,
+        dbres = await db.query(Q.REQUESTS.DELETE(), 
             { id: dbres.data.requests[0].id },
             req.cookies.jwt);
         
@@ -89,7 +90,7 @@ router.post('/publish', async (req, res, next) => {
 
 // unpublish an answer set
 router.post('/unpublish', async (req, res, next) => {
-    let dbres = await db.query(Q.ANSWER_SETS.UPDATE,
+    let dbres = await db.query(Q.ANSWER_SETS.UPDATE(), 
         {
             id: parseInt(req.body.answerSetId),
             patch: {
@@ -109,7 +110,7 @@ router.post('/unpublish', async (req, res, next) => {
 
 router.post('/archive', async (req, res, next) => {
     let dbres = await db.query(
-        Q.TESTING_ENVIRONMENTS.UPDATE, { 
+        Q.TESTING_ENVIRONMENTS.UPDATE(),  { 
             id: parseInt(req.body.testingEnvironmentId),
             patch: {isArchived: true}
         },
@@ -125,7 +126,7 @@ router.post('/archive', async (req, res, next) => {
 
 router.post ('/unarchive', async (req, res) => {
     let dbres = await db.query(
-        Q.TESTING_ENVIRONMENTS.UPDATE, { 
+        Q.TESTING_ENVIRONMENTS.UPDATE(),  { 
             id: parseInt(req.body.testingEnvironmentId),
             patch: {isArchived: false} 
         },
@@ -141,7 +142,7 @@ router.post ('/unarchive', async (req, res) => {
 
 router.post('/reinvite-users', async (req, res, next) => {
     // req.body.users is an array of IDs
-    for (user of req.body.users) {
+    for (let user of req.body.users) {
         let dbres = await invite.inviteUser(user, req.cookies.jwt);
         if (!dbres.success) {
             let err = new Error(`Could not invite one or more user(s) (ID=${user}).`);
@@ -185,7 +186,7 @@ async (req, res, next) => {
 
     // create new inactive login
     let dbres = await db.query(
-        Q.LOGINS.CREATE_NEW_LOGIN, 
+        Q.LOGINS.CREATE_NEW_LOGIN(), 
         {
             email: req.body.email,
             password: '',
@@ -202,7 +203,7 @@ async (req, res, next) => {
 
     // create new user (will default to type = 'USER')
     dbres = await db.query(
-        Q.USERS.CREATE, 
+        Q.USERS.CREATE(),  
         {
             input: {
                 name: req.body.name,
@@ -306,7 +307,7 @@ router.post("/ingest-test-book", async (req, res, next) => {
 
 router.post("/confirm-delete-test-book/:id", async (req, res, next) => {
     let dbres = await db.query(
-        Q.TEST_BOOKS.GET, 
+        Q.TEST_BOOKS.GET(), 
         { id: parseInt(req.params.id) }, 
         req.cookies.jwt);
     if (!dbres.success) {
@@ -373,7 +374,7 @@ router.post('/delete-test-book-and-answer-sets/:id', async (req, res, next) => {
     let redirect;
     if (req.body.hasOwnProperty("yes")) {
         let dbres = await db.query(
-            Q.TEST_BOOKS.DELETE_TEST_BOOK_AND_ANSWER_SETS, 
+            Q.TEST_BOOKS.DELETE_TEST_BOOK_AND_ANSWER_SETS(), 
             {testBookId: parseInt(req.params.id)},
             req.cookies.jwt
         );
@@ -397,7 +398,7 @@ router.post('/delete-test-book-and-answer-sets/:id', async (req, res, next) => {
 
 router.post('/add-software', async (req, res, next) => {
     let dbres = await(db.query(
-        Q.SOFTWARE.CREATE, 
+        Q.SOFTWARE.CREATE(),  
         {
             input: {
                 name: req.body.name,
@@ -449,7 +450,7 @@ router.post('/add-testing-environment', async(req, res, next) => {
 
 router.post("/confirm-delete-testing-environment/:id", async (req, res, next) => {
     let dbres = await db.query(
-        Q.TESTING_ENVIRONMENTS.GET, 
+        Q.TESTING_ENVIRONMENTS.GET(), 
         { id: parseInt(req.params.id) }, 
         req.cookies.jwt);
     
@@ -512,7 +513,7 @@ async (req, res, next) => {
     let swlabel = utils.getSoftwareTypeLabels(req.body.type);
     let url=`/admin/all-software/${swlabel.addressPart}`;
     if (req.body.hasOwnProperty("save")) {
-        let dbres = await db.query(Q.SOFTWARE.UPDATE, {
+        let dbres = await db.query(Q.SOFTWARE.UPDATE(),  {
             id: parseInt(req.body.id),
             patch: {
                 name: req.body.name,
@@ -537,7 +538,7 @@ async (req, res, next) => {
 
 router.post("/confirm-delete-software/:id", async (req, res, next) => {
     let dbres = await db.query(
-        Q.SOFTWARE.GET, 
+        Q.SOFTWARE.GET(), 
         { id: parseInt(req.params.id) }, 
         req.cookies.jwt);
     
@@ -562,7 +563,7 @@ router.post('/delete-software/:id', async (req, res, next) => {
     let redirect;
 
     if (req.body.hasOwnProperty("yes")) {
-        let result = await db.query(Q.SOFTWARE.DELETE, {id: parseInt(req.params.id)}, req.cookies.jwt);
+        let result = await db.query(Q.SOFTWARE.DELETE(),  {id: parseInt(req.params.id)}, req.cookies.jwt);
         if (!result.success) {
             let err = new Error("Could not delete software.");
             return next(err);
@@ -589,7 +590,7 @@ router.post('/set-user', async (req, res, next) => {
             userId = req.body.userId == 'None' ? null : parseInt(req.body.userId);
             answerSetId = req.body.answerSetId ? parseInt(req.body.answerSetId) : null;
             
-            let dbres = await db.query(Q.ANSWER_SETS.UPDATE, {
+            let dbres = await db.query(Q.ANSWER_SETS.UPDATE(),  {
                 id: answerSetId,
                 patch: {
                     userId: userId
@@ -608,12 +609,12 @@ router.post('/set-user', async (req, res, next) => {
             let userId, answerSetId;
             userId = req.body.userId == 'None' ? null : parseInt(req.body.userId);
             let dbres = await db.query(
-                Q.TESTING_ENVIRONMENTS.GET, 
+                Q.TESTING_ENVIRONMENTS.GET(), 
                 {id: parseInt(req.body.testingEnvironmentId)}, 
                 req.cookies.jwt);
             let testingEnvironment = dbres.data.testingEnvironment;
-            for (answerSet of testingEnvironment.answerSets) {
-                dbres = await db.query(Q.ANSWER_SETS.UPDATE, {
+            for (let answerSet of testingEnvironment.answerSets) {
+                dbres = await db.query(Q.ANSWER_SETS.UPDATE(),  {
                     id: answerSet.id,
                     patch: {
                         userId: userId
@@ -634,4 +635,4 @@ router.post('/set-user', async (req, res, next) => {
     return res.redirect(`${req.body.next}?message=${encodeURIComponent(message)}`);
 });
 
-module.exports = router;
+export { router };

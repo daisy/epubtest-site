@@ -1,14 +1,15 @@
-var express = require('express')
-const db = require('../database');
-const Q = require('../queries');
-const { validator, validationResult, body } = require('express-validator');
-var router = express.Router()
+import express from 'express';
+import * as db from '../database/index.js';
+import * as Q from '../queries/index.js';
+import expressValidator from 'express-validator';
+const { validator, validationResult, body } = expressValidator;
 
+const router = express.Router()
 
 // submit request to publish
 router.post('/request-to-publish', async (req, res, next) => {
     let dbres = await db.query(
-        Q.REQUESTS.CREATE, 
+        Q.REQUESTS.CREATE(),  
         { 
             input: {
                 answerSetId: parseInt(req.body.answerSetId),
@@ -52,7 +53,7 @@ router.post('/results',
                 notesArePublic: answers.map(a=>a.publishNotes === 'on')
             };
         
-            let dbres = await db.query(Q.ANSWER_SETS.UPDATE_ANSWERSET_AND_ANSWERS, {input: data}, req.cookies.jwt);
+            let dbres = await db.query(Q.ANSWER_SETS.UPDATE_ANSWERSET_AND_ANSWERS(), {input: data}, req.cookies.jwt);
             
             if (!dbres.success) {
                 let err = new Error(`Could not update answer set ${req.body.answerSetId}`);
@@ -94,7 +95,7 @@ router.post('/profile',
             includeCredit: req.body.includeCredit === "on",
             creditAs: req.body.creditAs
         };
-        let dbres = await db.query(Q.USERS.UPDATE, {id: req.userId, patch: data}, req.cookies.jwt);
+        let dbres = await db.query(Q.USERS.UPDATE(),  {id: req.userId, patch: data}, req.cookies.jwt);
         
         if (!dbres.success) {
             let message = "Error updating profile.";
@@ -106,7 +107,7 @@ router.post('/profile',
                 return res.status(422).redirect('/user/profile?message=' + encodeURIComponent(message));
             }
             dbres = await db.query(
-                Q.AUTH.SET_PASSWORD,
+                Q.AUTH.SET_PASSWORD(),
                 {
                     input: {
                         userId: req.userId, 
@@ -123,4 +124,4 @@ router.post('/profile',
         return res.redirect('/user/profile?message=' + encodeURIComponent(message));
     }
 );
-module.exports = router;
+export { router };
