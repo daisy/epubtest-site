@@ -1,11 +1,19 @@
-const EPUB = require('../epub-parser/epub');
-const db = require('../database');
-const Q = require('../queries');
-const semver = require('semver');
-const fs = require('fs-extra');
-const undo = require('./undo');
-const winston = require('winston');
-const path = require('path');
+// const EPUB = require('../epub-parser/epub');
+import { EPUB } from '../epub-parser/epub.js';
+import * as db from '../database/index.js';
+import * as Q from '../queries/index.js';
+
+// const semver = require('semver');
+import semver from 'semver';
+import fs from 'fs-extra';
+import {undo} from './undo.js';
+import winston from 'winston';
+import * as path from 'path';
+
+import { fileURLToPath } from 'url';
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
 
 // from the filepath, return a parsed representation of the test book
 async function parse(epubFilepath, epubOrigFilename) {
@@ -74,7 +82,7 @@ async function canAdd(parsedTestBook, jwt) {
     let currentBookForTopicAndLang = null;
     try {
         // does this topic exist
-        let dbres = await db.query(Q.TOPICS.GET_ALL, {});
+        let dbres = await db.query(Q.TOPICS.GET_ALL(),  {});
         if (!dbres.success) {
             errors = dbres.errors;
             throw new Error();
@@ -83,7 +91,7 @@ async function canAdd(parsedTestBook, jwt) {
             throw new Error(`Topic ${parsedTestBook.topicId} not found.`);
         }
         // compare versions
-        dbres = await db.query(Q.TEST_BOOKS.GET_LATEST, {});
+        dbres = await db.query(Q.TEST_BOOKS.GET_LATEST(), {});
         if (!dbres.success) {
             errors = dbres.errors;
             throw new Error();
@@ -111,7 +119,7 @@ async function setFlags(testBook, bookToUpgrade, jwt) {
     try {
         let testsInCurrent = [];
         if (bookToUpgrade) {
-            let dbres = await db.query(Q.TEST_BOOKS_WITH_TESTS.GET,
+            let dbres = await db.query(Q.TEST_BOOKS_WITH_TESTS.GET(),
                 {id: bookToUpgrade.id}, jwt);
             if (!dbres.success) {
                 errors = dbres.errors;
@@ -121,7 +129,7 @@ async function setFlags(testBook, bookToUpgrade, jwt) {
         }
     
         // flag whichever tests are new
-        newTests = testBook.tests
+        let newTests = testBook.tests
             .filter(test => testsInCurrent.find(t => t.testId === test.testId) === undefined);
         newTests.map(test => testBook.tests.find(t => t.testId === test.testId).flagNew = true);
 
@@ -146,7 +154,7 @@ async function add(testBook, jwt) {
     let addBookResult = null;
     try {
         let dbres = await db.query(
-            Q.TEST_BOOKS.CREATE, 
+            Q.TEST_BOOKS.CREATE(),  
             {
                 input: {
                     topicId: testBook.topicId,
@@ -175,7 +183,7 @@ async function add(testBook, jwt) {
                 for (i = 0; i < testBook.tests.length; i++) {
                     let test = testBook.tests[i];
                     dbres = await db.query(
-                        Q.TESTS.CREATE, 
+                        Q.TESTS.CREATE(),  
                         {
                             input: {
                                 testId: test.testId,
@@ -220,7 +228,7 @@ async function getUsage(testBookId, jwt) {
     let errors = [];
     let answerSets = {};
     try {
-        let dbres = await db.query(Q.ANSWER_SETS.GET_FOR_BOOK,
+        let dbres = await db.query(Q.ANSWER_SETS.GET_FOR_BOOK(),
             {testBookId}, jwt);
         if (!dbres.success) {
             errors = dbres.errors;
@@ -265,7 +273,7 @@ async function remove(testBookId, jwt) {
     try {
         let canRemoveBook = await canRemove(testBookId, jwt);
         if (canRemoveBook) {
-            let dbres = await db.query(Q.TEST_BOOKS_WITH_TESTS.GET, {id: parseInt(testBookId)}, jwt);
+            let dbres = await db.query(Q.TEST_BOOKS_WITH_TESTS.GET(), {id: parseInt(testBookId)}, jwt);
             
             if (!dbres.success) {
                 errors = dbres.errors;
@@ -274,8 +282,8 @@ async function remove(testBookId, jwt) {
             
             // delete tests
             let tests = dbres.data.testBook.tests;
-            for (test of tests) {
-                dbres = await db.query(Q.TESTS.DELETE, {id: parseInt(test.id)}, jwt);
+            for (let test of tests) {
+                dbres = await db.query(Q.TESTS.DELETE(),  {id: parseInt(test.id)}, jwt);
                 if (!dbres.success) {
                     errors = errors.concat(dbres.errors);
                 }
@@ -289,7 +297,7 @@ async function remove(testBookId, jwt) {
             }
             
             // delete test book
-            dbres = await db.query(Q.TEST_BOOKS.DELETE,
+            dbres = await db.query(Q.TEST_BOOKS.DELETE(), 
                 {id: parseInt(testBookId)},
                 jwt);
             
@@ -313,7 +321,7 @@ async function getLatestForTopic(topicId, langId='en') {
     let errors = [];
     let book = null;
     try {
-        let dbres = await db.query(Q.TEST_BOOKS.GET_LATEST);
+        let dbres = await db.query(Q.TEST_BOOKS.GET_LATEST());
         if (!dbres.success) {
             errors = dbres.errors;
             throw new Error();
@@ -337,7 +345,7 @@ async function getLatestForTopicWithTests(topicId, langId='en') {
     let errors = [];
     let book = null;
     try {
-        let dbres = await db.query(Q.TEST_BOOKS.GET_LATEST);
+        let dbres = await db.query(Q.TEST_BOOKS.GET_LATEST());
         if (!dbres.success) {
             errors = dbres.errors;
             throw new Error();
@@ -349,7 +357,7 @@ async function getLatestForTopicWithTests(topicId, langId='en') {
         if (!book) {
             throw new Error(`Could not find book for topic ${topicId} and lang ${langId}`);
         }
-        dbres = await db.query(Q.TEST_BOOKS_WITH_TESTS.GET, { id: book.id });
+        dbres = await db.query(Q.TEST_BOOKS_WITH_TESTS.GET(), { id: book.id });
         if (!dbres.success) {
             errors = dbres.errors;
             throw new Error();
@@ -364,7 +372,19 @@ async function getLatestForTopicWithTests(topicId, langId='en') {
 
 
 // order of calling: parse, canAdd, setFlags, getUsage... then "add"
-module.exports = {
+// module.exports = {
+//     add,
+//     canAdd,
+//     setFlags,
+//     parse,
+//     remove,
+//     canRemove,
+//     getUsage,
+//     getLatestForTopic,
+//     getLatestForTopicWithTests
+// };
+
+export {
     add,
     canAdd,
     setFlags,

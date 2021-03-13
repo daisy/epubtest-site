@@ -68,7 +68,7 @@ function getAnswerSetForTopic(testingEnvironment, topicId) {
     return testingEnvironment.answerSets.find(aset => aset.testBook.topic.id === topicId);
 }
 
-module.exports = {
+export {
     getTopicName,
     testingEnvironmentLink,
     resultNames,

@@ -1,14 +1,14 @@
-const db = require('../database');
-const Q = require('../queries');
-const utils = require('../utils');
-const emails = require('../emails');
-const mail = require('./mail');
+import * as db from '../database/index.js';
+import * as Q from '../queries/index.js';
+import * as utils from '../utils.js';
+import * as emails from '../emails.js';
+import * as mail from './mail.js';
 
 // admin authorization required
 async function inviteUser(userId, jwt) {
     let errors = [];
     try {
-        let dbres = await db.query(Q.USERS.GET_EMAIL, {id: parseInt(userId)}, jwt);
+        let dbres = await db.query(Q.USERS.GET_EMAIL(), {id: parseInt(userId)}, jwt);
         if (!dbres.success) {
             errors = dbres.errors;
             throw new Error();
@@ -16,7 +16,7 @@ async function inviteUser(userId, jwt) {
         let user = dbres.data.user;
                 
         dbres = await db.query(
-            Q.AUTH.TEMPORARY_TOKEN,
+            Q.AUTH.TEMPORARY_TOKEN(),
             {
                 input: {
                     email: user.login.email,
@@ -44,7 +44,7 @@ async function inviteUser(userId, jwt) {
             emails.invite.html(inviteUrl));   
         
         dbres = await db.query(
-            Q.INVITATIONS.CREATE, 
+            Q.INVITATIONS.CREATE(),  
             {
                 input: {
                     userId: parseInt(userId)
@@ -66,7 +66,7 @@ async function inviteUser(userId, jwt) {
 async function resendInvitation(invitationId, jwt) {
     let errors = [];
     // get the user ID for this invitation
-    let dbres = await db.query(Q.INVITATIONS.GET, {id: invitationId}, jwt);
+    let dbres = await db.query(Q.INVITATIONS.GET(), {id: invitationId}, jwt);
 
     if (!dbres.success) {
         errors = dbres.errors;
@@ -76,7 +76,7 @@ async function resendInvitation(invitationId, jwt) {
     let userId = dbres.data.invitation.user.id;
 
     // then delete the invitation
-    await db.query(Q.INVITATIONS.DELETE, {id: invitationId}, jwt);
+    await db.query(Q.INVITATIONS.DELETE(),  {id: invitationId}, jwt);
 
     // and send a new one
     let res = await inviteUser(userId, jwt);
@@ -85,10 +85,16 @@ async function resendInvitation(invitationId, jwt) {
 
 async function cancelInvitation(invitationId, jwt) {
     // delete the invitation
-    await db.query(Q.INVITATIONS.DELETE, {id: invitationId}, jwt);
+    await db.query(Q.INVITATIONS.DELETE(),  {id: invitationId}, jwt);
 }
 
-module.exports = {
+// module.exports = {
+//     inviteUser,
+//     resendInvitation,
+//     cancelInvitation
+// };
+
+export {
     inviteUser,
     resendInvitation,
     cancelInvitation

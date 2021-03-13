@@ -3,19 +3,21 @@
   "version": "1.0.0",
   "description": "EPUB reading experience testing site",
   "main": "index.js",
-  "type": "commonjs",
+  "type": "module",
   "repository": {
     "type": "git",
     "url": "https://github.com/daisy/epubtest-site"
   },
   "engines": {
-    "node": "14.4.0"
+    "node": ">=14.4.0"
   },
   "scripts": {
     "start": "node src/start.js",
-    "dev": "./node_modules/.bin/cross-env NODE_ENV=development nodemon --inspect  -e js,html src/start.js",
-    "test": "mocha",
-    "load-test-data": "./node_modules/.bin/cross-env NODE_ENV=development node other-test-scripts/load-test-data.js",
+    "dev": "nodemon -e js,html,njk,css src/start.js --exec \"node --require dotenv/config\"",
+    "load-test-data": "node --require dotenv/config other-test-scripts/load-test-data.js dotenv_config_path=./test/test.env",
+    "test": "mocha --env dotenv_config_path=test/test.env --require dotenv/config test/**/*js ",
+    "test-database": "mocha --env dotenv_config_path=test/test.env --require dotenv/config test/test-database/*js ",
+    "test-website": "mocha --env dotenv_config_path=test/test.env --require dotenv/config test/test-website/*js ",
     "gulp": "./node_modules/.bin/gulp"
   },
   "author": {
@@ -24,9 +26,10 @@
   },
   "license": "ISC",
   "dependencies": {
+    "@graphile-contrib/pg-order-by-related": "^1.0.0-beta.6",
     "@graphile-contrib/pg-simplify-inflector": "^5.0.0-beta.1",
     "aws-sdk": "^2.601.0",
-    "axios": "^0.19.0",
+    "axios": "^0.21.1",
     "cookie-parser": "^1.4.4",
     "cors": "^2.8.5",
     "dayjs": "^1.9.4",
@@ -45,6 +48,9 @@
     "jsonwebtoken": "^8.5.1",
     "nodemailer": "^6.3.1",
     "nunjucks": "^3.2.2",
+    "pg": "^8.5.1",
+    "postgraphile": "^4.10.0",
+    "postgraphile-plugin-connection-filter": "^2.1.1",
     "stylelint": "^13.2.0",
     "stylelint-config-recommended": "^3.0.0",
     "tmp": "^0.1.0",
@@ -55,8 +61,9 @@
   "devDependencies": {
     "chai": "^4.2.0",
     "cross-env": "^7.0.2",
-    "mocha": "^7.1.1",
+    "mocha": "^8.3.0",
     "nodemon": "^1.19.4",
+    "selenium-webdriver": "^4.0.0-beta.1",
     "supertest": "^4.0.2"
   }
 }

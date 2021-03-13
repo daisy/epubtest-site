@@ -2,8 +2,8 @@
 // as we don't have good transaction support in graphql without writing lots of postgres functions
 // we can do what we need here, just by deleting entries or undoing patches
 
-const db = require('../database');
-const Q = require('../queries');
+import * as db from '../database/index.js';
+import * as Q from '../queries/index.js';
 
 /*
 
@@ -21,10 +21,10 @@ transactions:
 */
 
 async function undo(transactions, jwt) {
-    for (transaction of transactions) {
+    for (let transaction of transactions) {
         if (transaction.actionWas == 'CREATE') {
             await db.query(
-                Q[transaction.objectType].DELETE,
+                Q[transaction.objectType].DELETE(), 
                 { id: transaction.id },
                 jwt
             );
@@ -36,7 +36,7 @@ async function undo(transactions, jwt) {
         // it shouldn't be in the way of anything, and it could be cleaned up easily enough
         // else if (transaction.actionWas == 'DELETE') {
         //     await db.query(
-        //         Q[transaction.objectType].CREATE,
+        //         Q[transaction.objectType].CREATE(), 
         //         {
         //             input: transaction.previousState
         //         },
@@ -45,7 +45,7 @@ async function undo(transactions, jwt) {
         // }
         else if (transaction.actionWas == 'UPDATE') {
             await db.query(
-                Q[transaction.objectType].UPDATE,
+                Q[transaction.objectType].UPDATE(), 
                 {
                     id: transaction.id,
                     patch: transaction.previousState
@@ -56,4 +56,5 @@ async function undo(transactions, jwt) {
     }
 }
 
-module.exports = undo;
+// module.exports = undo;
+export { undo };

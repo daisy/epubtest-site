@@ -3,12 +3,16 @@
 
 // const DOMParser = require('xmldom-alpha').DOMParser;
 // const XMLSerializer = require('xmldom-alpha').XMLSerializer;
-const DOMParser = require('xmldom').DOMParser;
-const XMLSerializer = require('xmldom').XMLSerializer;
-const fs = require('fs');
-const path = require('path');
-const xpath = require('xpath');
-const winston = require('winston');
+// const DOMParser = require('xmldom').DOMParser;
+// const XMLSerializer = require('xmldom').XMLSerializer;
+import xmldom from 'xmldom';
+import fs from 'fs-extra';
+import * as path from 'path';
+import xpath from 'xpath';
+import winston from 'winston';
+
+const DOMParser = xmldom.DOMParser;
+const XMLSerializer = xmldom.XMLSerializer;
 
 // Error Handler for DOMParser instances
 const errorHandler = {
@@ -17,9 +21,9 @@ const errorHandler = {
   fatalError: fe => winston.error(fe),
 }
 
-module.exports = {
+// module.exports = {
   // extract data for a test from an xhtml document
-  getTestData: function (fullpath) {
+function getTestData (fullpath) {
     const [filepath, hash] = fullpath.split("#");
     winston.log('info', `Processing ${fullpath}`);
     //const hash = fullpath.split('#')[1];
@@ -41,4 +45,7 @@ module.exports = {
       ingested: Date.now()
     };
   }
-}
+
+// }
+
+export { getTestData };
