@@ -1,4 +1,4 @@
-import { initDb, assignAnswerSets, loadFirstAnswersAndPublish, upgradeTestSuite, loadSecondAnswers } from "../test/load-data.js";
+import { initDb, assignAnswerSets, loadFirstAnswersAndPublish, upgradeTestSuite, loadSecondAnswers } from "../test/test-data-operations/load-data.js";
 import winston from "winston";
 
 (async () => {
@@ -9,13 +9,13 @@ import winston from "winston";
 
     try {
         let dataProfile = {
-            langs: "../test/data/langs.json",
-            topics: "../test/data/topics.json",
-            testBooks: "../test/data/test-books.json",
-            software: "../test/data/software.json",
-            testingEnvironments: "../test/data/testing-environments.json",
-            users: "../test/data/users.json",
-            answers: "../test/data/answers-first-set.json",
+            langs: "./data/langs.json",
+            topics: "./data/topics.json",
+            testBooks: "./data/test-books.json",
+            software: "./data/software.json",
+            testingEnvironments: "./data/testing-environments.json",
+            users: "./data/users.json",
+            answers: "./data/answers-first-set.json",
             upgrade: "./data/upgrade-test-books.json"
         };
         let jwt = await initDb(dataProfile);
