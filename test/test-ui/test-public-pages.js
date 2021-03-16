@@ -1,26 +1,26 @@
 import * as seleniumWebdriver from 'selenium-webdriver';
 const {Builder, By, Key, until} = seleniumWebdriver;
 
-import initExpressApp from '../../src/app.js';
-import winston from 'winston';
+//import initExpressApp from '../../src/app.js';
+//import winston from 'winston';
 
 import chai from 'chai';
 const expect = chai.expect;
 
 let driver;
 let siteUrl;
-let server;
+//let server;
 
 describe('test-public-pages', function () {
     this.timeout(100000);
     before(async function () {
-        winston.add(new winston.transports.Console({format: winston.format.simple()}));
-        winston.level = 'debug';
-        const port = process.env.PORT || 8000;
-        let app = await initExpressApp();
-        server = app.listen(port, () => winston.log('info', `epubtest listening on port ${port}!`))
-        driver = await new Builder().forBrowser('firefox').build();
-        siteUrl = `http://localhost:${port}`;
+    //     winston.add(new winston.transports.Console({format: winston.format.simple()}));
+    //     winston.level = 'debug';
+         const port = process.env.PORT || 8000;
+    //     let app = await initExpressApp();
+    //     server = app.listen(port, () => winston.log('info', `epubtest listening on port ${port}!`))
+         driver = await new Builder().forBrowser('firefox').build();
+         siteUrl = `http://localhost:${port}`;
     });
     it('has a homepage', async function() {
         await driver.get(siteUrl);
@@ -89,7 +89,7 @@ describe('test-public-pages', function () {
         let button = await driver.findElement(By.name('submit'));
         await button.click();
         
-        await driver.wait(until.elementLocated(By.className('message')), 30000);
+        await driver.wait(until.elementLocated(By.className('message')), 3000);
         let message = await driver.findElement(By.className('message'));
         let messageText = await message.getText();
         expect(messageText).to.contain("Password reset initiated");
@@ -101,7 +101,7 @@ describe('test-public-pages', function () {
         button = await driver.findElement(By.name('submit'));
         await button.click();
         
-        await driver.wait(until.elementLocated(By.className('message')), 30000);
+        await driver.wait(until.elementLocated(By.className('message')), 3000);
         message = await driver.findElement(By.className('message'));
         messageText = await message.getText();
         expect(messageText).to.contain("Reset password error");
@@ -118,7 +118,7 @@ describe('test-public-pages', function () {
         await button.click();
         
         // wait for error message
-        await driver.wait(until.elementLocated(By.className('message')), 30000);
+        await driver.wait(until.elementLocated(By.className('message')), 3000);
         let message = await driver.findElement(By.className('message'));
         let messageText = await message.getText();
         expect(messageText).to.contain("Login error");
@@ -134,7 +134,7 @@ describe('test-public-pages', function () {
         await button.click();
 
         // wait for logout button
-        await driver.wait(until.elementLocated(By.xpath(`//input[@type='submit'][@value="Logout"]`)), 30000);
+        await driver.wait(until.elementLocated(By.xpath(`//input[@type='submit'][@value="Logout"]`)), 3000);
         button = await driver.findElement(By.name('submit'));
         let buttonText = await button.getAttribute('value');
         expect(buttonText).to.contain("Logout");
@@ -143,7 +143,7 @@ describe('test-public-pages', function () {
     });
     after(async function () {
         await driver.quit();
-        await server.close();
+        //await server.close();
     });
 
 });
