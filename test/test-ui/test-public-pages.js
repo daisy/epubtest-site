@@ -1,26 +1,24 @@
 import * as seleniumWebdriver from 'selenium-webdriver';
 const {Builder, By, Key, until} = seleniumWebdriver;
-
-//import initExpressApp from '../../src/app.js';
-//import winston from 'winston';
-
+import {setup, teardown} from './mocha.global.fixtures.js';
 import chai from 'chai';
 const expect = chai.expect;
 
 let driver;
 let siteUrl;
-//let server;
+let server; // only used for VSCODE WORKAROUND
 
 describe('test-public-pages', function () {
     this.timeout(100000);
     before(async function () {
-    //     winston.add(new winston.transports.Console({format: winston.format.simple()}));
-    //     winston.level = 'debug';
          const port = process.env.PORT || 8000;
-    //     let app = await initExpressApp();
-    //     server = app.listen(port, () => winston.log('info', `epubtest listening on port ${port}!`))
          driver = await new Builder().forBrowser('firefox').build();
          siteUrl = `http://localhost:${port}`;
+
+         if (process.env.VSCODE_WORKAROUND) {
+             server = await setup();
+         }
+
     });
     it('has a homepage', async function() {
         await driver.get(siteUrl);
@@ -59,23 +57,23 @@ describe('test-public-pages', function () {
     });
     it('has a results page with rows of data', async function () {
         await driver.get(siteUrl + '/results');
-        let tableRows = await driver.executeScript(
-            "return document.querySelector('data-table').shadowRoot.querySelectorAll('table tbody tr')"
+        let dataTable = await driver.executeScript(
+            "return document.querySelector('data-table').shadowRoot.querySelector('table')"
         );       
+        let tableRows = await dataTable.findElements(By.css("tbody tr"));
         expect(tableRows.length).to.not.equal(0);
     });
     it('has a test books page with rows of data and download links', async function() {
         // 1. are there table rows?
         await driver.get(siteUrl + '/test-books');
-        let tableRows = await driver.executeScript(
-            "return document.querySelector('data-table').shadowRoot.querySelectorAll('table tbody tr')"
+        let dataTable = await driver.executeScript(
+            "return document.querySelector('data-table').shadowRoot.querySelector('table')"
         );       
+        let tableRows = await dataTable.findElements(By.css("tbody tr"));
         expect(tableRows.length).to.not.equal(0);
 
         // 2. are there download links?
-        let downloadLinks = await driver.executeScript(
-            "return document.querySelector('data-table').shadowRoot.querySelectorAll('table tbody tr td:last-child a')"
-        );       
+        let downloadLinks = await dataTable.findElements(By.css("tbody tr td:last-child a"));
         for(let link of downloadLinks) {
             let text = await link.getText();
             expect(text).to.equal("Download");
@@ -143,7 +141,9 @@ describe('test-public-pages', function () {
     });
     after(async function () {
         await driver.quit();
-        //await server.close();
+        if (process.env.VSCODE_WORKAROUND) {
+            await teardown(server);
+        }
     });
 
 });
