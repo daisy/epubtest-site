@@ -178,7 +178,7 @@ async (req, res, next) => {
 
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-        let message = `Invalid value for ${errors.array().map(err => `${err.param}`).join(', ')}`;
+        let message = utils.formatValidationResultErrors(valres.errors);
         return res.status(422).redirect('/admin/add-user?message=' + encodeURIComponent(message));
     }
     

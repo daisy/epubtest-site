@@ -1,6 +1,7 @@
 import express from 'express';
 import * as db from '../database/index.js';
 import * as Q from '../queries/index.js';
+import * as utils from '../utils.js';
 import expressValidator from 'express-validator';
 const { validator, validationResult, body } = expressValidator;
 
@@ -34,10 +35,10 @@ router.post('/results',
         body('answers.*.notes').trim()
     ],
     async (req, res, next) => {
-        const errors = validationResult(req);
-        if (!errors.isEmpty()) {
-            let message = `${errors.join(', ')}`;
-            return res.status(422).redirect('/results?message=' + encodeURIComponent(message));
+        const valres = validationResult(req);
+        if (!valres.isEmpty()) {
+            let message = utils.formatValidationResultErrors(valres.errors);
+            return res.status(422).redirect('/user/dashboard?message=' + encodeURIComponent(message));
         }
         let summary = req.body.summary;
         // convert to an array
@@ -73,10 +74,10 @@ router.post('/profile',
 
     ],
     async (req, res) => {
-        const errors = validationResult(req);
+        const valres = validationResult(req);
         
-        if (!errors.isEmpty()) {
-            let message = `Invalid value for ${errors.array().map(err => `${err.param}`).join(', ')}`;
+        if (!valres.isEmpty()) {
+            let message = utils.formatValidationResultErrors(valres.errors);
             return res.status(422).redirect('/user/profile?message=' + encodeURIComponent(message));
         }
         let website = "";

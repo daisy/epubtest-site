@@ -18,8 +18,8 @@ router.post('/login',
         body('password').isLength({ min: 8 })
     ],
     async (req, res, next) => {
-        const errors = validationResult(req);
-        if (!errors.isEmpty()) {
+        const valres = validationResult(req);
+        if (!valres.isEmpty()) {
             let message = "Login error";
             return res.status(422).redirect('/login?message=' + encodeURIComponent(message));
         }
@@ -67,8 +67,8 @@ router.post('/forgot-password',
         body('email').isEmail()
     ],
     async (req, res) => {
-        const errors = validationResult(req);
-        if (!errors.isEmpty()) {
+        const valres = validationResult(req);
+        if (!valres.isEmpty()) {
             let message = 'Reset password error';
             return res.status(422).redirect('/forgot-password?message=' + encodeURIComponent(message));
         }
@@ -119,8 +119,8 @@ router.post('/set-password',
     async (req, res) => {
         let jwt = req.body.token;
         
-        const errors = validationResult(req);
-        if (!errors.isEmpty()) {
+        const valres = validationResult(req);
+        if (!valres.isEmpty()) {
             let message = "Password must be 8-20 characters";
             return res.status(422).redirect(`/set-password?token=${jwt}&message=${encodeURIComponent(message)}`);
         }
@@ -189,8 +189,8 @@ router.post('/choose-language', [
     body("language").isIn(LANGS)
 ], (req, res, next) => {
 
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
+    const valres = validationResult(req);
+    if (!valres.isEmpty()) {
         return next(new Error(`Could not set language to ${req.body.language}`));
     }
 
