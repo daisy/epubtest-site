@@ -70,7 +70,7 @@ router.get('/edit-results/:answerSetId', async (req, res, next) => {
         { id: parseInt(req.params.answerSetId) },
         req.cookies.jwt);
     
-    if (!dbres.success) {
+    if (!dbres.success || dbres.data.answerSet == null) {
         let err = new Error(`Could not get answer set (${req.params.answerSetId})`);
         return next(err);
     }
