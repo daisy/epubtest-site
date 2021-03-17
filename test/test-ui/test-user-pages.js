@@ -1,17 +1,13 @@
-import initExpressApp from '../../src/app.js';
-import winston from 'winston';
 import * as seleniumWebdriver from 'selenium-webdriver';
 const {Builder, By, Key, until} = seleniumWebdriver;
 import {setup, teardown} from './mocha.global.fixtures.js';
-
+import * as helpers from './helpers.js';
 import chai from 'chai';
 const expect = chai.expect;
 
 let driver;
 let siteUrl;
 let server; // only used for VSCODE WORKAROUND
-
-const waitFor = delay => new Promise(resolve => setTimeout(resolve, delay));
 
 describe('test-user-pages', function () {
     this.timeout(10000);
@@ -23,24 +19,18 @@ describe('test-user-pages', function () {
         if (process.env.VSCODE_WORKAROUND) {
             server = await setup();
         }
-
         // login as a user
-        await driver.get(siteUrl + '/login');
-        let email = await driver.findElement(By.name("email"));
-        await email.sendKeys("sara@example.com");
-        let password = await driver.findElement(By.name("password"));
-        await password.sendKeys('password');
-        let button = await driver.findElement(By.name('submit'));
-        await button.click();
-        // wait until the login has been processed and the page refreshes
-        await driver.wait(until.elementLocated(By.xpath(`//input[@type='submit'][@value="Logout"]`)), 3000);
-
+        await helpers.login(driver, siteUrl + "/login", "sara@example.com", "password");
     });
-    
-    describe("test user dashboard", function() {
+    describe("goes to user dashboard after logging in", function() {
         it('shows the user dashboard after logging in', async function() {
             let currentUrl = await driver.getCurrentUrl();
             expect(currentUrl).to.equal(siteUrl + '/user/dashboard');
+        });
+    });
+    describe("dashboard is properly structured", function() {
+        before(async function() {
+            await helpers.goto(driver, siteUrl + "/user/dashboard");
         });
         it (`has nav links to the user's testing environments`, async function() {
             let navLinks = await driver.findElements(By.css("nav.secondary-nav li a"));
@@ -87,7 +77,7 @@ describe('test-user-pages', function () {
                 for (let col of cols) {
                     let tagName = await col.getTagName();
                     if (tagName == "form") {
-                        let button = await col.findElement(By.tagName("input[type=submit]"));
+                        let button = await col.findElement(By.css("input[type=submit]"));
                         let text = await button.getAttribute("value");
                         expect(text).to.equal("Request to publish");
                         let action = await col.getAttribute("action");
@@ -99,19 +89,12 @@ describe('test-user-pages', function () {
                         expect(text).to.equal("Published");
                         expect(href).to.contain(`/results/`);
                     }
-                    
                 }
             }
     
         });
-    
-    });
-
-    describe("test user results editing", function () {
         it("has working links for editing each set of results", async function() {
-            await driver.get(siteUrl + "/user/dashboard");
-            await driver.wait(until.urlIs(siteUrl + "/user/dashboard"));
-
+            
             let dataTables = await driver.executeScript(
                 `return Array.from(document.querySelectorAll("data-table")).map(r => r.shadowRoot.querySelector("table"))`
             );
@@ -127,28 +110,31 @@ describe('test-user-pages', function () {
             }
             // check that each link results in a results editing page
             for (let link of links) {
-                await driver.get(link);
-                await driver.wait(until.urlIs(link), 3000);
+                await helpers.goto(driver, link);
                 let title = await driver.getTitle();
                 expect(title).to.equal("epubtest.org: Edit Results");
             }
         });
+    
+    });
+
+    describe("test user results editing", function () {
+        before(async function() {
+            await helpers.goto(driver, siteUrl + "/user/dashboard");
+        });
+        
         it("has a correctly structured 'edit results' page", async function() {
             // grab the first edit link from the dashboard
-            await driver.get(siteUrl + "/user/dashboard");
-            await driver.wait(until.urlIs(siteUrl + "/user/dashboard"));
             let link = await driver.executeScript(
                 `return document.querySelector("data-table").shadowRoot.querySelector("table tbody tr td:nth-child(3) a")`
             );
             let href = await link.getAttribute("href");
             
             // go to the results page at that link
-            await driver.get(href);
-            await driver.wait(until.urlIs(href), 3000);
+            await helpers.goto(driver, href);
 
             // it has the correct page heading
-            let pageH2 = await driver.findElement(By.css("main > h2"));
-            let pageH2Text = await pageH2.getText();
+            let pageH2Text = await helpers.getText(driver, "main > h2");
             expect(pageH2Text).to.equal("Edit Results: Basic Functionality");
 
             // it has a table with results data
@@ -215,9 +201,10 @@ describe('test-user-pages', function () {
     });
 
     describe("test user profile", function() {
+        before(async function() {
+            await helpers.goto(driver, siteUrl + "/user/profile");
+        });
         it("has a user profile page", async function() {
-            await driver.get(siteUrl + "/user/profile");
-            await driver.wait(until.urlIs(siteUrl + "/user/profile"));
             let title = await driver.getTitle();
             expect(title).to.equal("epubtest.org: Profile");
         });

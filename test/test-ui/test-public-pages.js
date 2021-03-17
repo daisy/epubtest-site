@@ -3,6 +3,7 @@ const {Builder, By, Key, until} = seleniumWebdriver;
 import {setup, teardown} from './mocha.global.fixtures.js';
 import chai from 'chai';
 const expect = chai.expect;
+import * as helpers from './helpers.js';
 
 let driver;
 let siteUrl;
@@ -21,42 +22,42 @@ describe('test-public-pages', function () {
 
     });
     it('has a homepage', async function() {
-        await driver.get(siteUrl);
+        await helpers.goto(driver, siteUrl);
         let title = await driver.getTitle();
         expect(title).to.equal('epubtest.org');
     });
     it('has a results page', async function() {
-        await driver.get(siteUrl + '/results');
+        await helpers.goto(driver, siteUrl + "/results");
         let title = await driver.getTitle();
         expect(title).to.equal('epubtest.org: Results');        
     });
     it('has a test books page', async function() {
-        await driver.get(siteUrl + '/test-books');
+        await helpers.goto(driver, siteUrl + '/test-books');
         let title = await driver.getTitle();
         expect(title).to.equal('epubtest.org: Test Books');
     });
     it('has a participate page', async function() {
-        await driver.get(siteUrl + "/participate");
+        await helpers.goto(driver, siteUrl + "/participate");
         let title = await driver.getTitle();
         expect(title).to.equal('epubtest.org: Participate');
     });
     it('has an about page', async function() {
-        await driver.get(siteUrl + "/about");
+        await helpers.goto(driver, siteUrl + "/about");
         let title = await driver.getTitle();
         expect(title).to.equal('epubtest.org: About');
     });
     it('has a login page', async function() {
-        await driver.get(siteUrl + "/login");
+        await helpers.goto(driver, siteUrl + "/login");
         let title = await driver.getTitle();
         expect(title).to.equal('epubtest.org: Login');
     });
     it('has a forgot password page', async function() {
-        await driver.get(siteUrl + "/forgot-password");
+        await helpers.goto(driver, siteUrl + "/forgot-password");
         let title = await driver.getTitle();
         expect(title).to.equal('epubtest.org: Forgot password');
     });
     it('has a results page with rows of data', async function () {
-        await driver.get(siteUrl + '/results');
+        await helpers.goto(driver, siteUrl + '/results');
         let dataTable = await driver.executeScript(
             "return document.querySelector('data-table').shadowRoot.querySelector('table')"
         );       
@@ -65,7 +66,7 @@ describe('test-public-pages', function () {
     });
     it('has a test books page with rows of data and download links', async function() {
         // 1. are there table rows?
-        await driver.get(siteUrl + '/test-books');
+        await helpers.goto(driver, siteUrl + '/test-books');
         let dataTable = await driver.executeScript(
             "return document.querySelector('data-table').shadowRoot.querySelector('table')"
         );       
@@ -81,62 +82,38 @@ describe('test-public-pages', function () {
     });
     it('can reset passwords', async function() {
         // 1. test by entering a valid email
-        await driver.get(siteUrl + '/forgot-password');
-        let input = await driver.findElement(By.name("email"));
-        await input.sendKeys("sara@example.com");
-        let button = await driver.findElement(By.name('submit'));
-        await button.click();
+        await helpers.goto(driver, siteUrl + '/forgot-password');
+        await helpers.enterText(driver, "[name=email]", "sara@example.com");
+        await helpers.clickElement(driver, "[name=submit]");
         
-        await driver.wait(until.elementLocated(By.className('message')), 3000);
-        let message = await driver.findElement(By.className('message'));
-        let messageText = await message.getText();
+        await driver.wait(until.elementLocated(By.css('.message')), 3000);
+        let messageText = await helpers.getText(driver, ".message");
         expect(messageText).to.contain("Password reset initiated");
 
         // 2. test by entering an invalid email
-        await driver.get(siteUrl + '/forgot-password');
-        input = await driver.findElement(By.name("email"));
-        await input.sendKeys("invalid@example.com");
-        button = await driver.findElement(By.name('submit'));
-        await button.click();
+        await helpers.goto(driver, siteUrl + '/forgot-password');
+        await helpers.enterText(driver, "[name=email]", "invalid@example.com");
+        await helpers.clickElement(driver, "[name=submit]");
         
-        await driver.wait(until.elementLocated(By.className('message')), 3000);
-        message = await driver.findElement(By.className('message'));
-        messageText = await message.getText();
+        await driver.wait(until.elementLocated(By.css('.message')), 3000);
+        messageText = await helpers.getText(driver, ".message");
         expect(messageText).to.contain("Reset password error");
-
     });
     
     it('rejects an invalid login', async function() {
-        await driver.get(siteUrl + '/login');
-        let email = await driver.findElement(By.name("email"));
-        await email.sendKeys("invalid@example.com");
-        let password = await driver.findElement(By.name("password"));
-        await password.sendKeys('password');
-        let button = await driver.findElement(By.name('submit'));
-        await button.click();
+        let success = await helpers.login(driver, siteUrl + "/login", "invalid@example.com", "password");
+        expect(success).to.be.false;
         
-        // wait for error message
-        await driver.wait(until.elementLocated(By.className('message')), 3000);
-        let message = await driver.findElement(By.className('message'));
-        let messageText = await message.getText();
+        let messageText = await helpers.getText(driver, ".message");
         expect(messageText).to.contain("Login error");
     });
 
     it('accepts a valid login', async function() {
-        await driver.get(siteUrl + '/login');
-        let email = await driver.findElement(By.name("email"));
-        await email.sendKeys("sara@example.com");
-        let password = await driver.findElement(By.name("password"));
-        await password.sendKeys('password');
-        let button = await driver.findElement(By.name('submit'));
-        await button.click();
+        let success = await helpers.login(driver, siteUrl + "/login", "sara@example.com", "password");
+        expect(success).to.be.true;
 
-        // wait for logout button
-        await driver.wait(until.elementLocated(By.xpath(`//input[@type='submit'][@value="Logout"]`)), 3000);
-        button = await driver.findElement(By.name('submit'));
-        let buttonText = await button.getAttribute('value');
-        expect(buttonText).to.contain("Logout");
-        await button.click();
+        // then logout for good measure
+        await helpers.logout(driver);
 
     });
     after(async function () {
