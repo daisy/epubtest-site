@@ -273,13 +273,11 @@ router.get('/server-info', async (req, res, next) => {
         let err = new Error("Error getting database version.");
         return next(err);
     }
-    let info = `
-    <pre>
-    Database migration: ${dbres.data.dbInfo.value}
-    Node version: ${process.version}
-    </pre>
-    `;
-    return res.status(200).send(info);
+    let items = [
+        {name: "Database migration", value: dbres.data.dbInfo.value},
+        {name: "Node version", value: process.version}
+    ];
+    return res.render("./admin/server-information.njk", {items});
 });
 router.get('/edit-software/:id', async (req, res, next) => {
     let result = await getSoftwareById(parseInt(req.params.id), req.cookies.jwt);

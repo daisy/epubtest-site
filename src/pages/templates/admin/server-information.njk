@@ -1,0 +1,27 @@
+{%- extends 'base/admin-base.njk'-%}
+{%- set title="Server Information" -%}
+{%- block content -%}
+<main>
+    <h2>Server Information</h2>
+
+    <style>
+        table {
+            width: 50%;
+        }
+        td {
+            border: thin black solid;
+        }
+    </style>
+    <table>
+        <tbody>
+            {%- for item in items -%}
+            <tr>
+                <td>{{item.name}}</td>
+                <td>{{item.value}}</td>
+            </tr>
+            {%- endfor -%}
+        </tbody>
+    </table>
+</main>
+
+{%- endblock -%}
