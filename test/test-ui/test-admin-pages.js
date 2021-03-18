@@ -10,7 +10,7 @@ let siteUrl;
 let server; // only used for VSCODE WORKAROUND
 
 describe('test-admin-pages', function () {
-    this.timeout(10000);
+    this.timeout(100000);
     before(async function () {
         const port = process.env.PORT || 8000;
         driver = await new Builder().forBrowser('firefox').build();
@@ -51,8 +51,10 @@ describe('test-admin-pages', function () {
     describe("test manage requests page", async function() {
         before(async function() {
             // login as a user to submit a request
-            await helpers.login(driver, siteUrl + "/login", "sara@example.com", "password");
+            let success = await helpers.login(driver, siteUrl + "/login", "sara@example.com", "password");
+            expect(success).to.be.true;
             await helpers.goto(driver, siteUrl + "/user/dashboard");
+            await driver.wait(until.elementLocated(By.css("data-table")));
             // find request to publish button and press it
             let requestToPublishButton = await driver.executeScript(
                 `return document.querySelector("data-table").shadowRoot.querySelector("table tbody tr td:nth-child(4) input[name=submit]")`
@@ -88,7 +90,7 @@ describe('test-admin-pages', function () {
             await helpers.login(driver, siteUrl + "/login", "admin@example.com", "password");
             await helpers.goto(driver, siteUrl + "/admin/testing-environments");
         });
-        it("has a non-empty table", async function() {
+        it("has data", async function() {
             // make sure there's a nonempty data table
             let tableRows = await driver.executeScript(
                 "return document.querySelector('data-table').shadowRoot.querySelector('table tbody tr')"
@@ -105,85 +107,124 @@ describe('test-admin-pages', function () {
 
         });
     });
+    // all the add-* pages are from the same template so we don't have to test each one separately
     describe("test add reading system page", async function() {
         before(async function() {
             await helpers.login(driver, siteUrl + "/login", "admin@example.com", "password");
             await helpers.goto(driver, siteUrl + "/admin/add-software/reading-system");
         });
-        it.skip("can add a new reading system", async function() {
+        it("can add a new reading system", async function() {
+            await helpers.enterText(driver, "input[name=name]", "Test-RS");
+            await helpers.enterText(driver, "input[name=version]", "123.4");
+            await helpers.enterText(driver, "input[name=vendor]", "TestUiCo");
+            await helpers.clickElement(driver, "input[name=save]");
 
+            await driver.wait(until.urlContains("/admin/add-testing-environment"));
+            let text = await helpers.getText(driver, ".message");
+            expect(text).to.contain("Created");
         });
     });
-    describe("test add assistive technology page", async function() {
+    
+    describe("test reading systems list page", async function() {
         before(async function() {
             await helpers.login(driver, siteUrl + "/login", "admin@example.com", "password");
-            await helpers.goto(driver, siteUrl + "/admin/add-software/assistive-technology");
+            await helpers.goto(driver, siteUrl + "/admin/all-software/assistive-technology");
         });
-        it.skip("can add a new assistive technology", async function() {
-
+        it("has data", async function() {
+            // make sure there's a nonempty data table
+            let tableRows = await driver.executeScript(
+                "return document.querySelector('data-table').shadowRoot.querySelector('table tbody tr')"
+            );
+            expect(tableRows.length).to.not.equal(0);
         });
     });
-    describe("test add operating system page", async function() {
+    describe("test assistive technologies list page", async function() {
         before(async function() {
             await helpers.login(driver, siteUrl + "/login", "admin@example.com", "password");
-            await helpers.goto(driver, siteUrl + "/admin/add-software/os");
+            await helpers.goto(driver, siteUrl + "/admin/all-software/reading-system");
         });
-        it.skip("can add a new opereating system", async function() {
-
+        it("has data", async function() {
+            // make sure there's a nonempty data table
+            let tableRows = await driver.executeScript(
+                "return document.querySelector('data-table').shadowRoot.querySelector('table tbody tr')"
+            );
+            expect(tableRows.length).to.not.equal(0);
         });
     });
-    describe("test add browser page", async function() {
+    describe("test operating systems list page", async function() {
         before(async function() {
             await helpers.login(driver, siteUrl + "/login", "admin@example.com", "password");
-            await helpers.goto(driver, siteUrl + "/admin/add-software/browser");
+            await helpers.goto(driver, siteUrl + "/admin/all-software/os");
         });
-        it.skip("can add a new browser", async function() {
-
+        it("has data", async function() {
+            // make sure there's a nonempty data table
+            let tableRows = await driver.executeScript(
+                "return document.querySelector('data-table').shadowRoot.querySelector('table tbody tr')"
+            );
+            expect(tableRows.length).to.not.equal(0);
         });
     });
-    describe("test add device page", async function() {
+    describe("test browser list page", async function() {
         before(async function() {
             await helpers.login(driver, siteUrl + "/login", "admin@example.com", "password");
-            await helpers.goto(driver, siteUrl + "/admin/add-software/device");
+            await helpers.goto(driver, siteUrl + "/admin/all-software/browser");
         });
-        it.skip("", async function() {
-
+        it("has data", async function() {
+            // make sure there's a nonempty data table
+            let tableRows = await driver.executeScript(
+                "return document.querySelector('data-table').shadowRoot.querySelector('table tbody tr')"
+            );
+            expect(tableRows.length).to.not.equal(0);
         });
     });
-    describe("test software lists pages", async function() {
+    describe("test device list page", async function() {
         before(async function() {
             await helpers.login(driver, siteUrl + "/login", "admin@example.com", "password");
-            await helpers.goto(driver, siteUrl + "/admin");
+            await helpers.goto(driver, siteUrl + "/admin/all-software/device");
         });
-        it.skip("", async function() {
-
+        it("has data", async function() {
+            // make sure there's a nonempty data table
+            let tableRows = await driver.executeScript(
+                "return document.querySelector('data-table').shadowRoot.querySelector('table tbody tr')"
+            );
+            expect(tableRows.length).to.not.equal(0);
         });
     });
     describe("test manage test books page", async function() {
         before(async function() {
             await helpers.login(driver, siteUrl + "/login", "admin@example.com", "password");
-            await helpers.goto(driver, siteUrl + "/admin");
+            await helpers.goto(driver, siteUrl + "/admin/test-books");
         });
-        it.skip("", async function() {
-
+        it("has data", async function() {
+            // make sure there's a nonempty data table
+            let tableRows = await driver.executeScript(
+                "return document.querySelector('data-table').shadowRoot.querySelector('table tbody tr')"
+            );
+            expect(tableRows.length).to.not.equal(0);
         });
     });
     describe("test active users page", async function() {
         before(async function() {
             await helpers.login(driver, siteUrl + "/login", "admin@example.com", "password");
-            await helpers.goto(driver, siteUrl + "/admin");
+            await helpers.goto(driver, siteUrl + "/admin/users");
         });
-        it.skip("", async function() {
-
+        it("has data", async function() {
+            // make sure there's a nonempty data table
+            let tableRows = await driver.executeScript(
+                "return document.querySelector('data-table').shadowRoot.querySelector('table tbody tr')"
+            );
+            expect(tableRows.length).to.not.equal(0);
         });
     });
     describe("test invite user page", async function() {
         before(async function() {
             await helpers.login(driver, siteUrl + "/login", "admin@example.com", "password");
-            await helpers.goto(driver, siteUrl + "/admin");
+            await helpers.goto(driver, siteUrl + "/admin/add-user");
         });
-        it.skip("", async function() {
-
+        it("can invite a new user", async function() {
+            await helpers.enterText(driver, "input[name=name]", "Test User");
+            await helpers.enterText(driver, "input[name=email]", "invite@example.com");
+            await helpers.clickElement(driver, "input[type=submit]");
         });
     });
     describe("test pending invitations page", async function() {
