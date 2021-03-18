@@ -33,5 +33,19 @@
         "vendor": "NV Screen Access",
         "type": "ASSISTIVE_TECHNOLOGY",
         "notes": "NVDA notes go here. Occaecat proident aliquip non ut mollit esse excepteur qui id labore."
+    },
+    {
+        "name": "WebBrowsey",
+        "version": "34",
+        "vendor": "EnterNet",
+        "type": "BROWSER",
+        "notes": "WebBrowsey notes go here. Eu irure id duis velit id eu."
+    },
+    {
+        "name": "BraillePal",
+        "version": "34",
+        "vendor": "DotCom",
+        "type": "DEVICE",
+        "notes": "BraillePal notes go here. Consectetur labore magna duis quis sit aute quis."
     }
 ]

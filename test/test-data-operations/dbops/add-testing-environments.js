@@ -11,7 +11,11 @@ async function addTestingEnvironments(data, jwt, errmgr) {
     let ats = dbres.data.softwares;
     dbres = await db.query(Q.SOFTWARE.GET_ALL_BY_TYPE('Os'), {}, jwt);
     let oses = dbres.data.softwares;
-        
+    dbres = await db.query(Q.SOFTWARE.GET_ALL_BY_TYPE('Browser'), {}, jwt);
+    let browsers = dbres.data.softwares;
+    dbres = await db.query(Q.SOFTWARE.GET_ALL_BY_TYPE("Device"), {}, jwt);
+    let devices = dbres.data.softwares;
+    
     for (let tenv of data) {
         
         // find IDs for the referenced software
@@ -26,6 +30,18 @@ async function addTestingEnvironments(data, jwt, errmgr) {
         let os = oses.find(sw => sw.name === tenv.osName);
         tenv.osId = os.id;
         delete tenv.osName;
+
+        let browser = browsers.find(sw => sw.name === tenv.browserName);
+        if (browser) {
+            tenv.browserId = browser.id;
+            delete tenv.browserName;
+        }        
+
+        let device = devices.find(sw => sw.name === tenv.deviceName);
+        if (device){
+            tenv.deviceId = device.id;
+            delete tenv.deviceName;
+        }
 
         let result = await testEnvActions.add(tenv, jwt);
         if (!result.success) {

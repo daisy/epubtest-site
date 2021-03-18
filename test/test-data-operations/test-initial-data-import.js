@@ -109,6 +109,14 @@ describe('initial-data-import', function () {
         let dbres = await db.query(Q.SOFTWARE.GET_ALL_BY_TYPE('ReadingSystem'), {}, jwt);
         expect(dbres.data.softwares.length).to.equal(2);
     });
+    it("has one browser", async function() {
+        let dbres = await db.query(Q.SOFTWARE.GET_ALL_BY_TYPE('Browser'), {}, jwt);
+        expect(dbres.data.softwares.length).to.equal(1);
+    });
+    it("has one device", async function() {
+        let dbres = await db.query(Q.SOFTWARE.GET_ALL_BY_TYPE('Device'), {}, jwt);
+        expect(dbres.data.softwares.length).to.equal(1);
+    });
     it("reports the correct usage ", async function() {
         let dbres = await db.query(Q.TEST_BOOKS.GET_ALL(),  {});
         let id = dbres.data.testBooks[0].id; // just grab the first test book

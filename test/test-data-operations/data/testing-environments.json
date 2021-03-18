@@ -2,13 +2,16 @@
     {
         "readingSystemName": "BookReader",
         "assistiveTechnologyName": "ScreenTalk",
+        "deviceName": "BraillePal",
         "osName": "Windows",
         "input": "KEYBOARD",
-        "testedWithScreenreader": true
+        "testedWithScreenreader": true,
+        "testedWithBraille": true
     },
     {
         "readingSystemName": "Librario",
         "assistiveTechnologyName": "NVDA",
+        "browserName": "WebBrowsey",
         "osName": "Windows",
         "input": "KEYBOARD",
         "testedWithScreenreader": true
