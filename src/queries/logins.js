@@ -3,7 +3,7 @@ import generate from './crudGenerator.js';
 const FIELDS = () => `
 id
 email
-last_seen
+lastSeen
 active
 type`;
 
