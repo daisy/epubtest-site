@@ -140,12 +140,13 @@ router.post ('/unarchive', async (req, res) => {
     return res.redirect(`/admin/testing-environment/${req.body.testingEnvironmentId}`);
 });
 
+// send an invitation to former website users
 router.post('/reinvite-users', async (req, res, next) => {
     // req.body.users is an array of IDs
-    for (let user of req.body.users) {
-        let dbres = await invite.inviteUser(user, req.cookies.jwt);
+    for (let userId of req.body.users) {
+        let dbres = await invite.sendInvitationToUser(userId, req.cookies.jwt);
         if (!dbres.success) {
-            let err = new Error(`Could not invite one or more user(s) (ID=${user}).`);
+            let err = new Error(`Could not invite one or more user(s) (ID=${userId}).`);
             return next(err);
         }
     }
@@ -157,7 +158,7 @@ router.post('/manage-invitations/:id', async (req, res, next) => {
 
     let inviteId = parseInt(req.params.id);
     if (req.body.hasOwnProperty("resend")) {
-        let dbres = await invite.resendInvitation(inviteId, req.cookies.jwt);
+        let dbres = await invite.resendInvitationToUser(inviteId, req.cookies.jwt);
         if (!dbres.success) {
             let err  = new Error(`Could not resend invitation.`);
             return next(err);
@@ -185,43 +186,43 @@ async (req, res, next) => {
     let message = "";
 
     // create new inactive login
-    let dbres = await db.query(
-        Q.LOGINS.CREATE_NEW_LOGIN(), 
-        {
-            email: req.body.email,
-            password: '',
-            active: false
-        },
-        req.cookies.jwt
-    );
+    // let dbres = await db.query(
+    //     Q.LOGINS.CREATE_NEW_LOGIN(), 
+    //     {
+    //         email: req.body.email,
+    //         password: '',
+    //         active: false
+    //     },
+    //     req.cookies.jwt
+    // );
 
-    if (!dbres.success) {
-        message = `Could not create invitation: ${dbres.errors.map(err => err.message).join(', ')}`;
-        return res.status(422).redirect('/admin/add-user?message=' + encodeURIComponent(message));
-    }
-    let loginId = dbres.data.createNewLogin.integer;
+    // if (!dbres.success) {
+    //     message = `Could not create invitation: ${dbres.errors.map(err => err.message).join(', ')}`;
+    //     return res.status(422).redirect('/admin/add-user?message=' + encodeURIComponent(message));
+    // }
+    // let loginId = dbres.data.createNewLogin.integer;
 
-    // create new user (will default to type = 'USER')
-    dbres = await db.query(
-        Q.USERS.CREATE(),  
-        {
-            input: {
-                name: req.body.name,
-                loginId
-            }
-        },
-        req.cookies.jwt
-    );
+    // // create new user (will default to type = 'USER')
+    // dbres = await db.query(
+    //     Q.USERS.CREATE(),  
+    //     {
+    //         input: {
+    //             name: req.body.name,
+    //             loginId
+    //         }
+    //     },
+    //     req.cookies.jwt
+    // );
 
-    if (!dbres.success) {
-        message = `Could not create invitation`;
-        return res.status(422).redirect('/admin/add-user?message=' + encodeURIComponent(message));
-    }
+    // if (!dbres.success) {
+    //     message = `Could not create invitation`;
+    //     return res.status(422).redirect('/admin/add-user?message=' + encodeURIComponent(message));
+    // }
 
-    let userId = dbres.data.createUser.user.id;
+    // let userId = dbres.data.createUser.user.id;
 
     // send invitation
-    dbres = await invite.inviteUser(userId, req.cookies.jwt);
+    let dbres = await invite.createUserAndInvite(req.body.name, req.body.email, req.cookies.jwt);
     if (!dbres.success) {
         message = `Could not create invitation`;
         return res.status(422).redirect('/admin/add-user?message=' + encodeURIComponent(message));
