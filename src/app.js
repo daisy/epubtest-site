@@ -61,6 +61,7 @@ async function initExpressApp() {
     app.use(cookieParser());
 
     app.use(middleware.accessLevel);
+    app.use(middleware.addDayJS);
     app.use(express.urlencoded({extended: true}));
     //app.use(middleware.currentLanguage);
     //app.use(middleware.translate);

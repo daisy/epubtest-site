@@ -62,6 +62,7 @@ async function add(testBookId, testingEnvironmentId, jwt) {
     return {success: true, errors: [], answerSetId: parseInt(answerSetId)};
 }
 
+// db triggers are assumed to have been disabled by the calling function at this point
 async function migrate(newAnswerSetId, oldAnswerSetId, jwt) {
     let errors = [];
     let transactions = [];
@@ -125,7 +126,8 @@ async function migrate(newAnswerSetId, oldAnswerSetId, jwt) {
                     dbres = await db.query(Q.ANSWERS.UPDATE(),  {
                         id: answer.id, 
                         patch: {
-                            value: oldAnswer.value
+                            value: oldAnswer.value,
+                            lastModified: oldAnswer.lastModified
                         }}, 
                         jwt);
                     if (dbres.success) {
@@ -140,7 +142,8 @@ async function migrate(newAnswerSetId, oldAnswerSetId, jwt) {
             dbres = await db.query(Q.ANSWER_SETS.UPDATE(),  {
                 id: newAnswerSetId,
                 patch: {
-                    flag: true
+                    flag: true,
+                    lastModified: oldAnswerSet.lastModified
                 }
             }, jwt);
         }
@@ -150,7 +153,8 @@ async function migrate(newAnswerSetId, oldAnswerSetId, jwt) {
             dbres = await db.query(Q.ANSWER_SETS.UPDATE(),  {
                 id: newAnswerSetId,
                 patch: {
-                    isPublic: oldAnswerSet.isPublic
+                    isPublic: oldAnswerSet.isPublic,
+                    lastModified: oldAnswerSet.lastModified
                 }
             }, jwt);
         }

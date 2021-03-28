@@ -10,6 +10,7 @@ value
 flag
 notes
 notesArePublic
+lastModified
 `;
 
 export { FIELDS };

@@ -1,6 +1,7 @@
 // MIDDLEWARE FUNCTIONS
 import * as utils from './utils.js';
 // import i18next from 'i18next';
+import dayjs from 'dayjs';
 
 function isAuthenticated (req, res, next) {
     const token = utils.parseToken(req.cookies.jwt);
@@ -31,6 +32,14 @@ function accessLevel (req, res, next) {
         else {
             res.locals.accessLevel = 'public';
         }
+    }
+    return next();
+}
+
+// make dayjs available everywhere
+function addDayJS(req, res, next) {
+    if (res) {
+        res.locals.dayjs = dayjs;
     }
     return next();
 }
@@ -74,6 +83,7 @@ function error (err, req, res, next) {
 export {
     isAuthenticated, 
     isAdmin,
+    addDayJS,
     accessLevel,
     error,
     currentLanguage,

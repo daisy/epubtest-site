@@ -13,6 +13,7 @@ isPublic
 isLatest
 isLatestPublic
 isTested
+lastModified
 testBook {
     ${testBooks.FIELDS()}
 }

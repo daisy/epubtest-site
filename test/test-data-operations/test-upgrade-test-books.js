@@ -8,8 +8,12 @@ import chai from 'chai';
 const expect = chai.expect;
 import winston from 'winston';
 
+const waitFor = delay => new Promise(resolve => setTimeout(resolve, delay));
 
 let jwt;
+
+let comparisonAnswer;
+let comparisonAnswerSet;
 
 describe('upgrade-test-books', function () {
     this.timeout(5000);
@@ -31,6 +35,14 @@ describe('upgrade-test-books', function () {
             answers: "./data/answers-first-set.json"
         };
         await loadFirstAnswersAndPublish(jwt, dataProfile);
+
+        // stash the first basic func answer set and test
+        let result = await testBookActions.getLatestForTopicWithTests("basic-functionality");
+        let basicFuncBook = result.testBook;
+        let dbres = await db.query(Q.ANSWER_SETS.GET_FOR_BOOK(), { testBookId: basicFuncBook.id}, jwt);
+        comparisonAnswerSet = dbres.data.answerSets[0];
+        comparisonAnswer = comparisonAnswerSet.answers.find(a => a.test.testId == "file-110");
+        
     });
     
     describe('upgrade test suite', function () {
@@ -39,6 +51,8 @@ describe('upgrade-test-books', function () {
                 upgrade: "./data/upgrade-test-books.json"
             };
             await upgradeTestSuite(jwt, dataProfile);
+            // deliberately wait so we have a good difference in timestamps
+            await waitFor(2000);
         });
         it("has four test books", async function() {
             let dbres = await db.query(Q.TEST_BOOKS.GET_ALL(),  {}, jwt);
@@ -162,6 +176,24 @@ describe('upgrade-test-books', function () {
             expect(result.answerSets.nonEmpty.length).to.equal(2);
             expect(result.answerSets.empty.length).to.equal(0);
             expect(result.answerSets.all.length).to.equal(2);
+        });
+
+        it("has the old timestamps", async function() {
+            // get the upgraded version of our comparison answer set
+            // the timestamp should not have changed
+            let result = await testBookActions.getLatestForTopicWithTests("basic-functionality");
+            let basicFuncBook = result.testBook;
+            let dbres = await db.query(Q.ANSWER_SETS.GET_FOR_BOOK_AND_TESTING_ENVIRONMENT(), 
+                { 
+                    testBookId: basicFuncBook.id,
+                    testingEnvironmentId: comparisonAnswerSet.testingEnvironment.id
+                }, 
+                jwt);
+            let answerSet = dbres.data.answerSets[0]; // the new version of comparisonAnswerSet
+            let answer = answerSet.answers.find(a => a.test.testId == "file-110"); // the new version of comparisonAnswer
+
+            expect(answerSet.lastModified).to.equal(comparisonAnswerSet.lastModified);
+            expect(answer.lastModified).to.equal(comparisonAnswer.lastModified);
         });
     });
 

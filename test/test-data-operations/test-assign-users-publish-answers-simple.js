@@ -97,5 +97,19 @@ describe('assign-users-publish-answers-simple', function () {
                 }
             }   
         });
+        it("has last modified values", async function() {
+            // expect the answers to have last modified timestamps
+            let dbres = await db.query(Q.ANSWERS.GET_ALL(),  {}, jwt);
+            let answers = dbres.data.answers;
+            for (let answer of answers) {
+                expect(answer.lastModified).to.not.be.null;
+            }
+            // expect the answer sets to have last modified timestamps
+            dbres = await db.query(Q.ANSWER_SETS.GET_ALL(),  {}, jwt);
+            let answerSets = dbres.data.answerSets;
+            for (let answerSet of answerSets) {
+                expect(answerSet.lastModified).to.not.be.null;
+            }
+        });
     });
 });
