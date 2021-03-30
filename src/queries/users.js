@@ -1,4 +1,5 @@
 import generate from './crudGenerator.js';
+import * as login from './logins.js';
 
 const FIELDS = () => `
 id
@@ -6,15 +7,13 @@ name
 organization
 website
 includeCredit
-creditAs`;
+creditAs
+isMigration`;
 
 const FIELDS_WITH_LOGIN = () => `
 ${FIELDS()}
 login {
-    type
-    lastSeen
-    active
-    email
+    ${login.FIELDS()}
 }
 `;
 

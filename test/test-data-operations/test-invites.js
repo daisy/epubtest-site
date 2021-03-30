@@ -42,7 +42,6 @@ describe('invite-users', function () {
             let users = dbres.data.users;
             let user = users.find(u => u.login.email == "test@example.com");
             userId = user.id;
-            // TODO get the invitation ID
             dbres = await db.query(Q.INVITATIONS.GET_FOR_USER(), {userId}, jwt);
             let invitationId = dbres.data.invitations[0].id;
             await invite.cancelInvitation(invitationId, jwt);
@@ -63,6 +62,24 @@ describe('invite-users', function () {
             let logins = dbres.data.logins;
             let loginEmails = logins.map(item => item.email);
             expect(loginEmails).to.not.contain("test@example.com");
+        });
+    });
+
+    describe("resend an invitation", async function() {
+        before(async function() {
+            let dbres = await db.query(Q.USERS.GET_ALL_EXTENDED(), {}, jwt);
+            let users = dbres.data.users;
+            let user = users.find(u => u.login.email == "test@example.com");
+            let userId = user.id;
+            dbres = await db.query(Q.INVITATIONS.GET_FOR_USER(), {userId}, jwt);
+            console.log(dbres.data.invitations);
+            let invitationId = dbres.data.invitations[0].id;
+            await invite.resendInvitationToUser(invitationId, jwt);
+        });
+        it("has one invitation for the user", async function() {
+            let dbres = await db.query(Q.INVITATIONS.GET_ALL(), {}, jwt);
+            let invitedEmails = dbres.data.invitations.filter(item => item.user.login.email == "test@example.com");
+            expect(invitedEmails.length).to.equal(1);
         });
     });
 });

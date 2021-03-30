@@ -137,16 +137,46 @@ async function resendInvitationToUser(invitationId, jwt) {
     // then delete the invitation
     await db.query(Q.INVITATIONS.DELETE(),  {id: invitationId}, jwt);
 
-    // and send a new one
+    // create a new one
+    dbres = await db.query(
+        Q.INVITATIONS.CREATE(),  
+        {
+            input: {
+                userId: parseInt(userId)
+            } 
+        },
+        jwt);
+    
+    if (!dbres.success) {
+        errors = dbres.errors;
+        throw new Error("Could not create invitation");
+    }
+
+    // and send it
     let res = await sendInvitationToUser(userId, jwt);
     return res;
 }
 
 async function cancelInvitation(invitationId, jwt) {
+    let dbres = await db.query(Q.INVITATIONS.GET(), { id: invitationId }, jwt);
+    if (!dbres.success) {
+        return;
+    }
+    let invitation = dbres.data.invitation;
+    
     // delete the invitation
     await db.query(Q.INVITATIONS.DELETE(),  {id: invitationId}, jwt);
 
-    // TODO if the user was not migrated from the old website, delete their user and login entries
+    // if the user was not migrated from the old website, delete their user and login entries
+    dbres = await db.query(Q.USERS.GET_EXTENDED(), { id: invitation.user.id }, jwt);
+    if (!dbres.success) {
+        return;
+    }
+    let user = dbres.data.user;
+    if (!user.isMigration) {
+        await db.query(Q.USERS.DELETE(), { id: user.id }, jwt);
+        await db.query(Q.LOGINS.DELETE(), { id: user.login.id }, jwt);
+    }
 }
 
 export {

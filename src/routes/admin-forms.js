@@ -157,17 +157,21 @@ router.post('/reinvite-users', async (req, res, next) => {
 router.post('/manage-invitations/:id', async (req, res, next) => {
 
     let inviteId = parseInt(req.params.id);
+    let message;
     if (req.body.hasOwnProperty("resend")) {
         let dbres = await invite.resendInvitationToUser(inviteId, req.cookies.jwt);
         if (!dbres.success) {
             let err  = new Error(`Could not resend invitation.`);
             return next(err);
         }
+        message = "Invitation resent";
     }
     else if (req.body.hasOwnProperty("cancel")) {
         await invite.cancelInvitation(inviteId, req.cookies.jwt);
+        message = "Invitation cancelled";
     }
-    return res.redirect('/admin/invitations');
+
+    return res.redirect('/admin/invitations?message=' + encodeURIComponent(message));
 });
 
 router.post('/invite-user', 
