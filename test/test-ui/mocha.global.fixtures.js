@@ -24,6 +24,7 @@ async function mochaGlobalTeardown() {
     await teardown(this.server);
 }
 async function loadTestData() {
+    console.log("loading test data");
     let dataProfile = {
         langs: "./data/langs.json",
         topics: "./data/topics.json",

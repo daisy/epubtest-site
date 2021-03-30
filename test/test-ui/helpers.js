@@ -62,7 +62,13 @@ async function enterText(contextObj, cssSelector, text) {
 
 async function clickElement(contextObj, cssSelector) {
     let elm = await contextObj.findElement(By.css(cssSelector));
-    await elm.click();
+    if (elm) {
+        await elm.click();
+    }
+    else {
+        throw new Error("Cannot find element " + cssSelector);
+    }
+    
 }
 
 async function getText(driver, cssSelector) {
@@ -70,4 +76,7 @@ async function getText(driver, cssSelector) {
     let text = await elm.getText();
     return text;
 }
-export { login, logout, goto, selectOption, enterText, clickElement, getText }
+
+const waitFor = delay => new Promise(resolve => setTimeout(resolve, delay));
+
+export { login, logout, goto, selectOption, enterText, clickElement, getText, waitFor }

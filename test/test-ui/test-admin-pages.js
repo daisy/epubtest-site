@@ -101,9 +101,22 @@ describe('test-admin-pages', function () {
     describe("test add testing environment page", async function() {
         before(async function() {
             await helpers.login(driver, siteUrl + "/login", "admin@example.com", "password");
-            await helpers.goto(driver, siteUrl + "/admin/add-testing-environment");
         });
-        it.skip("can add a new testing environment", async function() {
+        it("can add a new testing environment", async function() {
+            await helpers.goto(driver, siteUrl + "/admin/add-testing-environment");
+            
+            await helpers.clickElement(driver, "#readingSystem > option:nth-child(2)");
+            await helpers.clickElement(driver, "#assistiveTechnology > option:nth-child(2)");
+            await helpers.clickElement(driver, "#os > option:nth-child(1)");
+            await helpers.clickElement(driver, "#browser > option:nth-child(1)");
+            await helpers.clickElement(driver, "#device > option:nth-child(1)");
+            await helpers.clickElement(driver, "input[name=testedWithBraille]");
+            
+            await helpers.clickElement(driver, "input[value=Save]");
+
+            await driver.wait(until.urlContains("/admin/testing-environment"));
+            let text = await helpers.getText(driver, '.message');
+            expect(text).to.contain('Testing environment created');
 
         });
     });
@@ -219,21 +232,31 @@ describe('test-admin-pages', function () {
     describe("test invite user page", async function() {
         before(async function() {
             await helpers.login(driver, siteUrl + "/login", "admin@example.com", "password");
-            await helpers.goto(driver, siteUrl + "/admin/add-user");
         });
         it("can invite a new user", async function() {
+            await helpers.goto(driver, siteUrl + "/admin/add-user");
             await helpers.enterText(driver, "input[name=name]", "Test User");
             await helpers.enterText(driver, "input[name=email]", "invite@example.com");
-            await helpers.clickElement(driver, "input[type=submit]");
+            await helpers.clickElement(driver, "input[value=Invite]");
+            await driver.wait(until.elementLocated(By.css(".message")));
+            let text = await helpers.getText(driver, ".message");
+            expect(text).to.contain(`User invite@example.com has been invited.`);
         });
     });
     describe("test pending invitations page", async function() {
         before(async function() {
             await helpers.login(driver, siteUrl + "/login", "admin@example.com", "password");
-            await helpers.goto(driver, siteUrl + "/admin");
+            await helpers.goto(driver, siteUrl + "/admin/add-user");
+            await helpers.enterText(driver, "input[name=name]", "Test User");
+            await helpers.enterText(driver, "input[name=email]", "invite2@example.com");
+            await helpers.clickElement(driver, "input[value=Invite]");
         });
-        it.skip("", async function() {
-
+        it("shows a pending invitation", async function() {
+            await helpers.goto(driver, siteUrl + '/admin/invitations');
+            let requestRows = await driver.executeScript(
+                'return document.querySelector("data-table").shadowRoot.querySelector("table tbody tr")'
+            );
+            expect(requestRows.length).to.not.equal(0);
         });
     });
 
