@@ -13,9 +13,11 @@
   },
   "scripts": {
     "start": "node src/start.js",
-    "dev": "./node_modules/.bin/cross-env NODE_ENV=development nodemon --inspect  -e js,html src/start.js",
-    "test": "mocha",
-    "load-test-data": "./node_modules/.bin/cross-env NODE_ENV=development node other-test-scripts/load-test-data.js",
+    "dev": "nodemon -e js,html,njk,css src/start.js --exec \"node --require dotenv/config\"",
+    "devtest": "nodemon -e js,html,njk,css src/start.js dotenv_config_path=./test/test.env --exec \"node --require dotenv/config\"",
+    "load-test-data": "node --require dotenv/config other-test-scripts/load-test-data.js dotenv_config_path=./test/test.env",
+    "test-data-operations": "mocha --env dotenv_config_path=test/test.env --require dotenv/config test/test-data-operations/*js ",
+    "test-ui": "mocha --env dotenv_config_path=test/test.env --require dotenv/config --require test/test-ui/mocha.global.fixtures.js test/test-ui/*js ",
     "gulp": "./node_modules/.bin/gulp"
   },
   "author": {
