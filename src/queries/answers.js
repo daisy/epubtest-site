@@ -1,8 +1,22 @@
-const generate  = require('./crudGenerator');
-const answerFrag = require('./fragments/answer');
+import generate from './crudGenerator.js';
+import * as tests from './tests.js';
+
+const FIELDS = () => `
+id
+test {
+    ${tests.FIELDS()}
+}
+value
+flag
+notes
+notesArePublic
+lastModified
+`;
+
+export { FIELDS };
 
 const {CREATE, DELETE, UPDATE, GET, GET_ALL} 
-    = generate("answer", "answers", answerFrag.FIELDS);
+    = generate("answer", "answers", FIELDS);
 
-module.exports = {
-    CREATE, DELETE, UPDATE, GET, GET_ALL };
+
+export { CREATE, DELETE, UPDATE, GET, GET_ALL };

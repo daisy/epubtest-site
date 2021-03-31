@@ -1,23 +1,23 @@
-module.exports = {
-    LOGIN: 
-    `mutation ($input: AuthenticateInput!){
-        authenticate(input: $input) {
-            jwtToken
-        }
-    }`,
+const LOGIN = () => 
+`mutation ($input: AuthenticateInput!){
+    authenticate(input: $input) {
+        jwtToken
+    }
+}`;
 
     // input: {email, duration}
-    TEMPORARY_TOKEN: 
-    `mutation ($input: CreateTemporaryTokenInput!) {
-        createTemporaryToken(input: $input) {
-            jwtToken
-        }
-    }`,
+const TEMPORARY_TOKEN = () => 
+`mutation ($input: CreateTemporaryTokenInput!) {
+    createTemporaryToken(input: $input) {
+        jwtToken
+    }
+}`;
 
-    SET_PASSWORD:
-    `mutation ($input: SetPasswordInput!) {
-        setPassword(input: $input) {
-            clientMutationId
-        }
-    }`,
-}
+const SET_PASSWORD = () => 
+`mutation ($input: SetPasswordInput!) {
+    setPassword(input: $input) {
+        clientMutationId
+    }
+}`;
+
+export { LOGIN, TEMPORARY_TOKEN, SET_PASSWORD };

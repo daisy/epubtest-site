@@ -166,6 +166,10 @@ ul.detailslist span:last-child {
 ul.detailslist.compact li span:first-child {
     display: none;
 }
+ul.detailslist > li ul {
+    padding-left: 1rem;
+    list-style-type: disc;
+}
 div.twocol {
     display: grid;
     grid-template-columns: 60% auto;

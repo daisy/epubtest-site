@@ -9,13 +9,15 @@
 // TODO make async
 
 'use strict';
+import xmldom from 'xmldom';
+const DOMParser = xmldom.DOMParser;
+const XMLSerializer = xmldom.XMLSerializer;
 
-const DOMParser = require('xmldom').DOMParser;
-const XMLSerializer = require('xmldom').XMLSerializer;
-const fs = require('fs');
-const path = require('path');
-const xpath = require('xpath');
-const winston = require('winston');
+import fs from 'fs-extra';
+import * as path from 'path';
+import xpath from 'xpath';
+import winston from 'winston';
+import * as testParser from './xhtml-test-parse.js';
 
 // Error Handler for DOMParser instances
 const errorHandler = {
@@ -52,8 +54,7 @@ function parseNavDoc(fullpath, epubDir) {
 
     const tests = select('//html:nav'
                           + '[@epub:type="toc"]/html:ol//html:li[@class="test"]/html:a', doc);
-    const testParser = require('./xhtml-test-parse');
-
+    
     let testsData = tests
     .map(t=>path.dirname(fullpath) + '/' + t.getAttribute('href'))
     .map(href=>testParser.getTestData(href))
@@ -217,5 +218,10 @@ EpubParser.prototype.calculatePackageDocPath = function(epubDir) {
 }
 
 
-module.exports.SpineItem = SpineItem;
-module.exports.EpubParser = EpubParser;
+// module.exports.SpineItem = SpineItem;
+// module.exports.EpubParser = EpubParser;
+
+export {
+  SpineItem,
+  EpubParser
+};

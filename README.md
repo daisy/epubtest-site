@@ -90,3 +90,10 @@ Since we are controlling database access via the server, no outside querying is 
 * nav ~ main: main is inset, secondary nav is on the left
 * 768 is the mobile breakpoint
 
+### Authentication
+
+Token-based authentication
+
+* Login: Token lasts for 7 days
+* Invite to create account: Token lasts for 7 days
+* Forgot password: Token lasts for 4 hours

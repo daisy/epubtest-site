@@ -1,10 +1,11 @@
-const path = require('path');
-const express = require('express')
+import express from 'express';
+import * as db from '../database/index.js';
+import * as Q from '../queries/index.js';
+import * as displayUtils from '../displayUtils.js';
+import * as utils from '../utils.js';
+
 const router = express.Router()
-const db = require('../database');
-const Q = require('../queries');
-const utils = require('../utils');
-const displayUtils = require("../displayUtils");
+
 
 router.get('/test', (req, res) => res.render('test.njk'));
 
@@ -32,7 +33,7 @@ router.get('/forgot-password', (req, res) => res.render('auth/forgot-password.nj
 // testing environment results
 router.get('/results/:testingEnvironmentId', async (req, res, next) => {
     let dbres = await db.query(
-        Q.TESTING_ENVIRONMENTS_WITH_ANSWERS.GET_PUBLISHED, 
+        Q.TESTING_ENVIRONMENTS_WITH_ANSWERS.GET_PUBLISHED(), 
         { id: parseInt(req.params.testingEnvironmentId) }); 
     if (!dbres.success) {
         let err = new Error(`Could not get testing environment (${req.params.testingEnvironmentId})`);
@@ -47,14 +48,14 @@ router.get('/results/:testingEnvironmentId', async (req, res, next) => {
 
 // results grid
 router.get('/results', async (req, res, next) => {
-    let dbres = await db.query(Q.TOPICS.GET_ALL);
+    let dbres = await db.query(Q.TOPICS.GET_ALL());
     if (!dbres.success) {
         let err = new Error("Could not get topics.");
         return next(err);
     }
     let topics = dbres.data.topics;
     
-    dbres = await db.query(Q.TESTING_ENVIRONMENTS.GET_ALL_PUBLISHED);
+    dbres = await db.query(Q.TESTING_ENVIRONMENTS.GET_ALL_PUBLISHED());
     if (!dbres.success) {
         let err = new Error("Could not get published testing environments");
         return next(err);
@@ -70,14 +71,14 @@ router.get('/results', async (req, res, next) => {
 });
 
 router.get('/archive', async (req, res, next) => {
-    let dbres = await db.query(Q.TOPICS.GET_ALL);
+    let dbres = await db.query(Q.TOPICS.GET_ALL());
     if (!dbres.success) {
         let err = new Error("Could not get topics.");
         return next(err);
     }
     let topics = dbres.data.topics;
     
-    dbres = await db.query(Q.TESTING_ENVIRONMENTS.GET_ALL_ARCHIVED);
+    dbres = await db.query(Q.TESTING_ENVIRONMENTS.GET_ALL_ARCHIVED());
     if (!dbres.success) {
         let err = new Error("Could not get archived testing environments");
         return next(err);
@@ -95,7 +96,7 @@ router.get('/archive', async (req, res, next) => {
 
 // test books page
 router.get('/test-books', async (req, res, next) => {
-    let dbres = await db.query(Q.TEST_BOOKS.GET_LATEST);
+    let dbres = await db.query(Q.TEST_BOOKS.GET_LATEST());
     
     if (!dbres.success) {
         let err = new Error("Could not get test books.");
@@ -143,7 +144,7 @@ router.get('/accept-invitation', async (req, res) => {
     if (token) {
         // ensure that this user has an invitation
         let dbres = await db.query(
-            Q.INVITATIONS.GET_FOR_USER,
+            Q.INVITATIONS.GET_FOR_USER(),
             {userId: token.userId},
             jwt
         );
@@ -176,4 +177,4 @@ router.get('/accept-invitation', async (req, res) => {
     }
 });
 
-module.exports = router;
+export { router };

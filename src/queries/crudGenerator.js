@@ -14,10 +14,10 @@ const CREATE = (upperDataType, lowerDataType) =>
 }`;
 
 // dataType should be lowerCase and singular
-const GET = (dataType, fields) =>
+const GET = (dataType, fieldsFunc) =>
 `query($id: Int!) {
     ${dataType} (id: $id) {
-        ${fields}
+        ${fieldsFunc()}
     }
 }`;
 
@@ -41,25 +41,23 @@ const DELETE = dataType =>
 }`;
 
 // dataType should be lowerCase and plural
-const GET_ALL = (dataType, fields) =>
+const GET_ALL = (dataType, fieldsFunc) =>
 `query {
     ${dataType} {
-        ${fields}
+        ${fieldsFunc()}
     }
 }`;
 
-function generate(singular, plural, fields) {
+export default function generate(singular, plural, fieldsFunc) {
     let lowerSingular = singular[0].toLowerCase() + singular.slice(1);
     let lowerPlural = plural[0].toLowerCase() + plural.slice(1);
     let upperSingular = singular[0].toUpperCase() + singular.slice(1);
 
     return {
-        CREATE: CREATE(upperSingular, lowerSingular),
-        GET: GET(lowerSingular, fields),
-        UPDATE: UPDATE(upperSingular),
-        DELETE: DELETE(upperSingular),
-        GET_ALL: GET_ALL(lowerPlural, fields)
+        CREATE: () => CREATE(upperSingular, lowerSingular),
+        GET: () => GET(lowerSingular, fieldsFunc),
+        UPDATE: () => UPDATE(upperSingular),
+        DELETE: () => DELETE(upperSingular),
+        GET_ALL: () => GET_ALL(lowerPlural, fieldsFunc)
     };
 }
-
-module.exports = generate;

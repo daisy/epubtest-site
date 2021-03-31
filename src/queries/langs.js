@@ -1,9 +1,14 @@
-const generate  = require('./crudGenerator');
-const langFrag = require('./fragments/lang');
+import generate from './crudGenerator.js';
+
+const FIELDS = () => `
+id
+label
+`;
 
 const {CREATE, DELETE, UPDATE, GET, GET_ALL} 
-    = generate("lang", "langs", langFrag.FIELDS);
+    = generate("lang", "langs", FIELDS);
 
-module.exports = {
+export {
+    FIELDS,
     CREATE, DELETE, UPDATE, GET, GET_ALL 
 };
