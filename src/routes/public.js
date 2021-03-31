@@ -24,6 +24,9 @@ router.get('/participate', (req, res) => res.render('participate.njk'));
 router.get('/instructions', (req, res) => 
     res.redirect('https://dl.daisy.org/Notes_on_Testing_EPUB_reading_systems.docx'));
 
+// old URL
+router.get('/accessibility', (req, res) => res.redirect('/'));
+
 // server error
 router.get('/error', (req, res) => res.render('error.njk'));
 
