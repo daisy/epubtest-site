@@ -1,6 +1,4 @@
-module.exports = {
-    
-    invite: {
+let invite = {
         subject: 'Invitation to participate in epubtest.org',
         text: linkTokenUrl => `
 Greetings!
@@ -44,9 +42,9 @@ Reading System Accessibility Testing at <a href="http://epubtest.org">epubtest.o
 <br/>
 <a href="http://inclusivepublishing.org">inclusivepublishing.org</a>
 `
-},
+};
 
-    reset: {
+let reset = {
         subject: 'Password reset requested for epubtest.org',
         text: linkTokenUrl => `
 Hello,
@@ -90,5 +88,6 @@ If it was not you, then please disregard this message.</p>
 <br/>
 <a href="http://inclusivepublishing.org">inclusivepublishing.org</a>
 `
-}
-}
+};
+
+export { invite, reset };

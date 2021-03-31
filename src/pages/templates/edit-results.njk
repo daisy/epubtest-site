@@ -1,8 +1,46 @@
 {%- extends 'base/base.njk' -%}
 {%- import "components/testing-environment-labels.njk" as testingEnvironmentLabels -%}
-{%- set title = "Edit Answers" -%}
+{%- set title = "Edit Results" -%}
 {%- block content -%}
 
+{# <script type="module" src="/js/data-table.js"></script>
+<script type="module">
+    import * as helpers from '/js/tables/data-table-helpers.js';
+    import * as tableSettings from '/js/tables/edit-results-table-settings.js';
+    import { style } from '/js/data-table-style.js';
+
+    let rows = {{answerSet.answers | dump | safe}};
+    let headers = [
+        {
+            title: "Test ID",
+            id: "testId"
+        },
+        {
+            title: "Name",
+            id: "name"
+        },   
+        {
+            title: "Description",
+            id: "description"
+        },
+        {
+            title: "Result",
+            id: "result"
+        },
+        {
+            title: "Notes",
+            id: "notes"
+        }
+    ];
+    
+    let dataTable = document.querySelector("data-table");
+    dataTable.bodyCellDisplay = tableSettings.bodyCellDisplay;
+    dataTable.css = style;
+    dataTable.data = { headers, rows };
+    window.addEventListener("resize", () => {
+        dataTable.render();
+    });
+</script> #}
 <main>
     <h2>Edit Results: {{displayUtils.getTopicName(answerSet.testBook.topic.id)}}</h2>
 
@@ -10,6 +48,12 @@
 
     <p><b>Test Book:</b> <a href="/books/{{answerSet.testBook.filename}}">{{answerSet.testBook.title}} (v {{answerSet.testBook.version}})</a></p>
 
+    {# <data-table
+        summary="Enter test results"
+        mobileMode="boxes"
+    >
+    </data-table>
+    <noscript> #}
     <form method="POST" action="/user/forms/results">
         <h2>Summary</h2>
         <label for="summary">Give a summary of your testing experience:</label>
@@ -18,7 +62,6 @@
         <h2>Results</h2>
         <p>Enter individual test results:</p>
 
-        
         <table class="striped">
             <thead>
                 <tr>
@@ -57,12 +100,12 @@
                 {%- endfor -%}
             </tbody>
         </table>
-        
 
         <input type="hidden" name="answerSetId" value="{{answerSet.id}}"></input>
         <input type="hidden" name="next" value="{{next}}"></input>
         <input type="submit" name="submit" value="Save" id="save"></input>
     </form>
+    {# </noscript> #}
 </main>
 
 {%- endblock -%}

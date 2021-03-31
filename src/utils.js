@@ -1,4 +1,4 @@
-var jwt = require('jsonwebtoken');
+import jwt from 'jsonwebtoken';
 
 function parseToken (token) {
     try {
@@ -76,11 +76,17 @@ let sortAlphaTestEnv = (a,b) => makeName(a.readingSystem) > makeName(b.readingSy
 let sortAlphaUsers = (a,b) => a.name > b.name ? 1 : a.name === b.name ? 0 : -1;
 
 let sortTopicOrder = (a,b) => a.order > b.order ? 1 : -1;
-module.exports = {
+
+let formatValidationResultError = (err) => `${err.msg} (*${err.value}*) for param "${err.param}"`;
+let formatValidationResultErrors = (errs) => errs.map(e => formatValidationResultError(e)).join(', ');
+
+export {
     parseToken,
     sortAlpha,
     sortAlphaTestEnv,
     sortTopicOrder,
     sortAlphaUsers,
-    getSoftwareTypeLabels
+    getSoftwareTypeLabels,
+    formatValidationResultError,
+    formatValidationResultErrors
 }

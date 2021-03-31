@@ -1,34 +1,34 @@
-const generate  = require('./crudGenerator');
-const testEnvFrag = require('./fragments/testingEnvironment');
+import generate from './crudGenerator.js';
+import * as testEnvs from './testingEnvironments.js';
 
 const {CREATE, DELETE, UPDATE, GET, GET_ALL} 
-    = generate("testingEnvironment", "testingEnvironments", testEnvFrag.FIELDS_WITH_ANSWERS)
+    = generate("testingEnvironment", "testingEnvironments", testEnvs.FIELDS_WITH_ANSWERS)
 
 const {GET: GET_PUBLISHED}
-    = generate("testingEnvironment", "testingEnvironments", testEnvFrag.PUBLIC_FIELDS_WITH_ANSWERS);
+    = generate("testingEnvironment", "testingEnvironments", testEnvs.PUBLIC_FIELDS_WITH_ANSWERS);
 
-const GET_ALL_PUBLISHED = `
+const GET_ALL_PUBLISHED = () => `
 query {
     testingEnvironments(condition: {isPublic: true}) {
-        ${testEnvFrag.PUBLIC_FIELDS_WITH_ANSWERS}
+        ${testEnvs.PUBLIC_FIELDS_WITH_ANSWERS()}
     }
 }`;
 
 // get all archived public results
-const GET_ALL_ARCHIVED =`
+const GET_ALL_ARCHIVED = () => `
 query {
     getArchivedTestingEnvironments {
-        ${testEnvFrag.FIELDS_WITH_ANSWERS}
+        ${testEnv.FIELDS_WITH_ANSWERS()}
     }
 }`;
 
 // get answer sets for a given user
-const GET_ALL_BY_USER =`
+const GET_ALL_BY_USER = () => `
 query($userId: Int!) {
     getUserTestingEnvironments(userId: $userId) {
-        ${testEnvFrag.FIELDS_WITH_ANSWERS}
+        ${FIELDS_WITH_ANSWERS()}
     }
 }`;
 
-module.exports = {
+export {
     CREATE, DELETE, UPDATE, GET, GET_PUBLISHED, GET_ALL, GET_ALL_PUBLISHED, GET_ALL_ARCHIVED, GET_ALL_BY_USER};

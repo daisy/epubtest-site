@@ -1,9 +1,20 @@
-const testFrag = require('./fragments/test');
-const generate  = require('./crudGenerator');
+import generate from './crudGenerator.js';
+
+const FIELDS = () => `
+id
+testId
+testBookId
+name
+description
+xhtml
+order
+flag
+`;
 
 const {CREATE, DELETE, UPDATE, GET, GET_ALL} 
-    = generate("test", "tests", testFrag.FIELDS);
+    = generate("test", "tests", FIELDS);
 
-module.exports = {
+export {
+    FIELDS,
     CREATE, DELETE, UPDATE, GET, GET_ALL 
 };

@@ -7,7 +7,7 @@
 {%- set brw = testingEnvironment.browser -%}
 
 <ul class="detailslist {% if compact %}compact{%-endif-%}">
-    {%- if at.name -%}
+    {%- if at.name or dev.name -%}
     <li>
         <span>Assistive Technology: </span>
         {%- if at and dev -%}

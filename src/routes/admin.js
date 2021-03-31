@@ -1,16 +1,16 @@
-var express = require('express');
-const db = require('../database');
-const Q = require('../queries');
-const displayUtils = require('../displayUtils');
-const utils = require('../utils');
+import express from 'express';
+import * as db from '../database/index.js';
+import * as Q from '../queries/index.js';
+import * as displayUtils from '../displayUtils.js';
+import * as utils from '../utils.js';
 
-var router = express.Router()
+const router = express.Router()
 
 router.get('/', async(req, res) => res.render('admin/index.njk'));
 
 // admin requests
 router.get('/requests', async (req, res, next) => {
-    let dbres = await db.query(Q.REQUESTS.GET_ALL, {}, req.cookies.jwt);
+    let dbres = await db.query(Q.REQUESTS.GET_ALL(),  {}, req.cookies.jwt);
     
     if (!dbres.success) {
         let err = new Error("Could not get requests.");
@@ -26,7 +26,7 @@ router.get('/requests', async (req, res, next) => {
 
 // admin testing
 router.get('/testing-environments', async (req, res, next) => {
-    let dbres = await db.query(Q.TESTING_ENVIRONMENTS.GET_ALL, {}, req.cookies.jwt);
+    let dbres = await db.query(Q.TESTING_ENVIRONMENTS.GET_ALL(),  {}, req.cookies.jwt);
     if (!dbres.success) {
         let err = new Error("Could not get testing environments.");
         return next(err);
@@ -41,7 +41,7 @@ router.get('/testing-environments', async (req, res, next) => {
 });
 
 router.get('/testing-environment/:id', async (req, res, next) => {
-    let dbres = await db.query(Q.TESTING_ENVIRONMENTS.GET, 
+    let dbres = await db.query(Q.TESTING_ENVIRONMENTS.GET(), 
         { id: parseInt(req.params.id) }, 
         req.cookies.jwt);
     if (!dbres.success) {
@@ -53,7 +53,7 @@ router.get('/testing-environment/:id', async (req, res, next) => {
         let err = new Error(`Could not get testing environment (${req.params.id}).`);
         return next(err);
     }
-    dbres = await db.query(Q.USERS.GET_ACTIVE, {}, req.cookies.jwt);
+    dbres = await db.query(Q.USERS.GET_ACTIVE(), {}, req.cookies.jwt);
     if (!dbres.success) {
         let err = new Error(`Could not get active users.`);
         return next(err);
@@ -61,7 +61,7 @@ router.get('/testing-environment/:id', async (req, res, next) => {
     let users = dbres.data.getActiveUsers;
     
     dbres = await db.query(
-        Q.REQUESTS.GET_FOR_ANSWERSETS, 
+        Q.REQUESTS.GET_FOR_ANSWERSETS(), 
         { ids: testingEnvironment.answerSets.map(ans => ans.id)},
         req.cookies.jwt
     );
@@ -97,7 +97,7 @@ router.get('/add-test-book', async (req, res, next) => {
 });
 
 router.get('/test-books', async (req, res, next) => {
-    let dbres = await db.query(Q.TEST_BOOKS.GET_LATEST, {});
+    let dbres = await db.query(Q.TEST_BOOKS.GET_LATEST(), {});
     if (!dbres.success) {
         let err = new Error(`Could not get test books.`);
         return next(err);
@@ -118,7 +118,7 @@ let alpha2 = (a,b) => a.user.name > b.user.name ? 1 : a.user.name == b.user.name
     
 // admin users
 router.get('/users', async (req, res, next) => {
-    dbres = await db.query(Q.USERS.GET_ACTIVE, {}, req.cookies.jwt);
+    let dbres = await db.query(Q.USERS.GET_ACTIVE(), {}, req.cookies.jwt);
     if (!dbres.success) {
         let err = new Error(`Could not get active users.`);
         return next(err);
@@ -127,7 +127,7 @@ router.get('/users', async (req, res, next) => {
     // experiment to show a user's assignments
     // practically speaking, there are too many (could be hundreds) for it to be meaningfully displayed
     // for (user of activeUsers) {
-    //     dbres = await db.query(Q.ANSWER_SETS.GET_FOR_USER, {
+    //     dbres = await db.query(Q.ANSWER_SETS.GET_FOR_USER(), {
     //         userId: user.id
     //     },
     //     req.cookies.jwt);
@@ -147,7 +147,7 @@ router.get('/users', async (req, res, next) => {
 });
 
 router.get('/invitations', async(req, res, next) => {
-    dbres = await db.query(Q.INVITATIONS.GET_ALL, {}, req.cookies.jwt);
+    let dbres = await db.query(Q.INVITATIONS.GET_ALL(),  {}, req.cookies.jwt);
     if (!dbres.success) {
         let err = new Error(`Could not get invitations.`);
         return next(err);
@@ -166,14 +166,14 @@ router.get('/add-user', async(req, res, next) => {
 });
 
 router.get('/reinvite-users', async(req, res, next) => {
-    let dbres = await db.query(Q.USERS.GET_INACTIVE, {}, req.cookies.jwt);
+    let dbres = await db.query(Q.USERS.GET_INACTIVE(), {}, req.cookies.jwt);
     if (!dbres.success) {
         let err = new Error(`Could not get inactive users.`);
         return next(err);
     }
     let inactiveUsers = dbres.data.getInactiveUsers;
 
-    dbres = await db.query(Q.INVITATIONS.GET_ALL, {}, req.cookies.jwt);
+    dbres = await db.query(Q.INVITATIONS.GET_ALL(),  {}, req.cookies.jwt);
     if (!dbres.success) {
         let err = new Error(`Could not get invitations.`);
         return next(err);
@@ -216,27 +216,27 @@ router.get("/all-software/:type", async (req, res, next) => {
 
 
 router.get('/add-testing-environment', async (req, res, next) => {
-    let allRs = await getAllSoftware("ReadingSystem", req.cookies.jwt, filterActive=true);
+    let allRs = await getAllSoftware("ReadingSystem", req.cookies.jwt, true);
     if (!allRs.success) {
         return next(allRs.error);
     }
 
-    let allAt = await getAllSoftware("AssistiveTechnology", req.cookies.jwt, filterActive=true);
+    let allAt = await getAllSoftware("AssistiveTechnology", req.cookies.jwt, true);
     if (!allAt.success) {
         return next(allAt.error);
     }
 
-    let allOs = await getAllSoftware("Os", req.cookies.jwt, filterActive=true);
+    let allOs = await getAllSoftware("Os", req.cookies.jwt, true);
     if (!allOs.success) {
         return next(allOs.error);
     }
 
-    let allBrowser = await getAllSoftware("Browser", req.cookies.jwt, filterActive=true);
+    let allBrowser = await getAllSoftware("Browser", req.cookies.jwt, true);
     if (!allBrowser.success) {
         return next(allBrowser.error);
     }
 
-    let allDevice = await getAllSoftware("Device", req.cookies.jwt, filterActive=true);
+    let allDevice = await getAllSoftware("Device", req.cookies.jwt, true);
     if (!allDevice.success) {
         return next(allDevice.error);
     }
@@ -267,19 +267,17 @@ router.get('/etc', (req, res) => {
 });
 
 router.get('/server-info', async (req, res, next) => {
-    let dbres = await db.query(Q.ETC.DBVERSION, {}, req.cookies.jwt);
+    let dbres = await db.query(Q.ETC.DBVERSION(), {}, req.cookies.jwt);
     
     if (!dbres.success) {
         let err = new Error("Error getting database version.");
         return next(err);
     }
-    let info = `
-    <pre>
-    Database migration: ${dbres.data.dbInfo.value}
-    Node version: ${process.version}
-    </pre>
-    `;
-    return res.status(200).send(info);
+    let items = [
+        {name: "Database migration", value: dbres.data.dbInfo.value},
+        {name: "Node version", value: process.version}
+    ];
+    return res.render("./admin/server-information.njk", {items});
 });
 router.get('/edit-software/:id', async (req, res, next) => {
     let result = await getSoftwareById(parseInt(req.params.id), req.cookies.jwt);
@@ -293,7 +291,7 @@ router.get('/edit-software/:id', async (req, res, next) => {
 });
 
 router.get("/assignments", async(req, res, next) => {
-    let dbres = await db.query(Q.ANSWER_SETS.GET_ALL_EXTENDED, {}, req.cookies.jwt);
+    let dbres = await db.query(Q.ANSWER_SETS.GET_ALL_EXTENDED(), {}, req.cookies.jwt);
     if (!dbres.success) {
         let err = new Error(`Could not get answer sets`);
         return next(err);
@@ -335,7 +333,7 @@ async function getSoftwareById(id, jwt) {
     let errors = [];
     try {
         // first, find out the type of the software
-        let dbres = await db.query(Q.SOFTWARE.GET, {id}, jwt);
+        let dbres = await db.query(Q.SOFTWARE.GET(), {id}, jwt);
         if (!dbres.success) {
             let err = new Error(`Error getting software (id=${id}).`)
             errors.push(err);
@@ -398,4 +396,4 @@ function aliasField(obj, oldField, newField) {
 }
 
 
-module.exports = router;
+export { router };

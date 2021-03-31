@@ -1,16 +1,20 @@
-const generate  = require('./crudGenerator');
-const topicFrag = require('./fragments/topic');
+import generate from './crudGenerator.js';
+
+const FIELDS = () =>  `
+id
+order`;
 
 const {CREATE, DELETE, UPDATE, GET} 
-    = generate("topic", "topics", topicFrag.FIELDS);
+    = generate("topic", "topics", FIELDS);
 
-const GET_ALL =  
+const GET_ALL = () => 
 `query {
     topics(orderBy:ORDER_ASC) {
-        ${topicFrag.FIELDS}
+        ${FIELDS()}
     }
 }`;
 
-module.exports = {
+export {
+    FIELDS,
     CREATE, DELETE, UPDATE, GET, GET_ALL 
 };

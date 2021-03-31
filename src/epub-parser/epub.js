@@ -1,11 +1,11 @@
 'use strict';
 
-const epubParse = require('./epub-parse.js');
-const extractZip = require('extract-zip');
-const tmp = require('tmp');
-const fs = require('fs-extra');
-const path = require('path');
-const winston = require('winston');
+import * as epubParse from './epub-parse.js';
+import extractZip from 'extract-zip';
+import tmp from 'tmp';
+import fs from 'fs-extra';
+import * as path from 'path';
+import winston from 'winston';
 
 tmp.setGracefulCleanup();
 
@@ -103,4 +103,5 @@ class EPUB {
 
 }
 
-module.exports = EPUB;
+// module.exports = EPUB;
+export { EPUB };

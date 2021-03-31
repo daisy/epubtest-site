@@ -1,1 +1,2 @@
-module.exports = ['en', 'fr'];
+export default ['en', 'fr'];
+//module.exports = ['en', 'fr'];

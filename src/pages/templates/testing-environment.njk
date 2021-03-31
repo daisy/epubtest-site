@@ -71,6 +71,9 @@
 </script>
 
 <h{{headingLevel}} id="{{answerSet.testBook.topic.id}}">Results for {{topicName}}: {{formatScore.FormatScore(answerSet)}}</h{{headingLevel}}>
+{%- if answerSet.lastModified -%}
+<p>Last updated: {{dayjs(answerSet.lastModified).format("D MMMM YYYY")}}</p>
+{%- endif -%}
 <p>Test book used: 
     <a href="/books/{{answerSet.testBook.filename}}">
         <em class="title">{{answerSet.testBook.title}}, version {{answerSet.testBook.version}}</em>

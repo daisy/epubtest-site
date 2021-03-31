@@ -1,10 +1,10 @@
-const generate  = require('./crudGenerator');
-const testBookFrag = require('./fragments/testBook');
+import generate from './crudGenerator.js';
+import * as testBooks from './testBooks.js';
 
 const {GET, GET_ALL} 
-    = generate("testBook", "testBooks", testBookFrag.FIELDS_WITH_TESTS);
+    = generate("testBook", "testBooks", testBooks.FIELDS_WITH_TESTS);
 
 
-module.exports = {
+export {
     GET, GET_ALL
 };
