@@ -2,11 +2,10 @@
 {%- import "components/testing-environment-labels.njk" as testingEnvironmentLabels -%}
 {%- import "components/testing-environment-details.njk" as testingEnvironmentDetails -%}
 {%- import "components/software-name.njk" as softwareName -%}
-
+{%- import "components/format-score.njk" as formatScore -%}
+{%- import "components/topic-names.njk" as topicNames -%}
 {%- set title = "Dashboard" -%}
 {%- block content -%}
-<script type="module" src="/js/data-table.js"></script>
-
 <main>
 <h2>Dashboard</h2>
 {%- if testingEnvironments.length == 0 -%}
@@ -19,14 +18,12 @@
 {%- endif -%}
     
 {%- for testingEnvironment in testingEnvironments -%}
-{{ testingEnvironmentLabels.TestingEnvironmentTitle (testingEnvironment, 'h3', 'p') }}
-{%- if testingEnvironment.isArchived -%}
-<p class="archived">This testing environment has been archived.</p>
-{%- endif -%}
-{{ testingEnvironmentDetails.TestingEnvironmentDetails(testingEnvironment) }}
-{{ TestingEnvironmentTable(testingEnvironment)}}
-
-
+    {{ testingEnvironmentLabels.TestingEnvironmentTitle (testingEnvironment, 'h3', 'p') }}
+    {%- if testingEnvironment.isArchived -%}
+    <p class="archived">This testing environment has been archived.</p>
+    {%- endif -%}
+    {{ testingEnvironmentDetails.TestingEnvironmentDetails(testingEnvironment) }}
+    {{ TestingEnvironmentTable(testingEnvironment)}}
 {%- endfor -%}
 {%- endif -%}
 </main>
@@ -51,61 +48,64 @@
 {%- endblock -%}
 
 {%- macro TestingEnvironmentTable(testingEnvironment) -%}
-<script type="module">
-    import * as helpers from '/js/tables/data-table-helpers.js';
-    import * as tableSettings from '/js/tables/dashboard-table-settings.js';
-    import { style } from '/js/data-table-style.js';
-
-    let rows = {{testingEnvironment.answerSets | dump | safe}};
-    let requestsToPublish = {
-        {%- for answerSet in testingEnvironment.answerSets -%}
-        {%set requestToPublish = getRequestToPublish(answerSet.id) %}
-        {%- if requestToPublish -%}
-        {{answerSet.id}}: {{getRequestToPublish(answerSet.id) | dump | safe }},
-        {%- endif -%}
-        {%- endfor -%}
-    };
-    let isAdmin = "{{accessLevel}}" == 'admin';
-    let testingEnvironment = {{testingEnvironment | dump | safe}};
-    let headers = [
-        {
-            title: "Topic",
-            id: "topic",
-            sort: (a, b) => helpers.numberSort(a, b, row => row.testBook.topic.order),
-            sortIs: 'asc'
-        },
-        {
-            title: "Score",
-            id: "score",
-            sort: (a, b) => helpers.numberSort(a, b, row => helpers.calcScore(row.score)),
-            sortIs: 'asc'
-        },   
-        {
-            title: "Edit",
-            id: "edit"
-        },
-        {
-            title: "Publish",
-            id: "publish"
-        }
-    ];
-    
-    let dataTable = document.querySelector("#data-{{testingEnvironment.id}}");
-    dataTable.bodyCellDisplay = (header, row, headerIdx, rowIdx) => 
-        tableSettings.bodyCellDisplay(header, row, headerIdx, rowIdx, requestsToPublish, isAdmin, testingEnvironment);
-    dataTable.css = style;
-    dataTable.data = { headers, rows };
-    window.addEventListener("resize", () => {
-        let dataTables = Array.from(document.querySelectorAll("data-table"));
-        dataTables.map(table => table.render());
-    });
-</script>
-<data-table 
-    summary="Edit and publish topics for {{testingEnvironment.readingSystem.name}} {{testingEnvironment.readingSystem.version}}"
-    id="data-{{testingEnvironment.id}}">
-</data-table>
-<noscript>
-Javascript is required to view table(s) on this page.
-</noscript>
+<div role="region" aria-labelledby="table-caption-{{testingEnvironment.id}}" tabindex="0">
+    <table aria-live="polite" aria-colcount="4" aria-rowcount="{{testingEnvironment.answerSets.length}}">
+        <caption id="table-caption-{{testingEnvironment.id}}">
+        Topics tested for {{testingEnvironmentLabels.TestingEnvironmentOneLinerPlainText(testingEnvironment)}}
+        </caption>
+        <thead>
+            <th>Topic</th>
+            <th>Score</th>
+            <th>Edit</th>
+            <th>Publish</th>
+        </thead>
+        <tbody>
+            {%- for answerSet in testingEnvironment.answerSets -%}
+            <tr>
+                <td>{{topicNames.TopicName(answerSet.testBook.topic.id)}}</td>
+                <td>{{formatScore.FormatScore(answerSet.score)}}</td>
+                <td><a href="/user/edit-results/{{answerSet.id}}">Edit</a></td>
+                <td>
+                {%- if isAdmin -%}
+                    {%- if answerSet.isPublic -%}
+                    <div>
+                        <span>Published</span>
+                        <form method="POST" action="/admin/forms/unpublish">
+                            <input type="hidden" name="next" value="/user/dashboard">
+                            <input type="hidden" name="testingEnvironmentId" value="{{testingEnvironment.id}}">
+                            <input type="hidden" name="answerSetId" value="{{answerSet.id}}">
+                            <input type="submit" name="submit" value="Unpublish">
+                        </form>
+                    </div>
+                    {%- else -%}
+                    <div>
+                        <span>Unpublished</span>
+                        <form method="POST" action="/admin/forms/publish">
+                            <input type="hidden" name="next" value="/user/dashboard">
+                            <input type="hidden" name="testingEnvironmentId" value="{{testingEnvironment.id}}">
+                            <input type="hidden" name="answerSetId" value="{{answerSet.id}}">
+                            <input type="submit" name="submit" value="Publish">
+                        </form>
+                    </div>
+                    {%- endif -%}
+                {%- else -%}
+                    {%- if answerSet.isPublic -%}
+                    <a href="/results/{{testingEnvironment.id}}#{{answerSet.testBook.topic.id}}">Published</a>
+                    {%- else -%}
+                        {%- if getRequestToPublish(answerSet.id) -%}
+                        <span>Request pending</span>
+                        {%- else -%}
+                        <form method="POST" action="/user/forms/request-to-publish">
+                            <input type="hidden" name="answerSetId" value="{{answerSet.id}}"/>
+                            <input type="submit" name="submit" value="Request to publish"/>
+                        </form>
+                        {%- endif -%}
+                    {%- endif -%}
+                {%- endif -%}
+            </tr>
+            {%- endfor -%}
+        </tbody>
+    </table>
+</div>
 
 {%- endmacro -%}

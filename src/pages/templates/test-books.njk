@@ -1,50 +1,17 @@
 {%- extends 'base/base.njk' -%}
 {%- set title="Test Books" -%}
+{%- import "components/topic-names.njk" as topicNames -%}
 
 {%- block content -%}
-<script type="module" src="/js/data-table.js"></script>
+<script type="module" src="/js/table.js"></script>
 <script type="module">
-    import * as tableSettings from '/js/tables/test-books-table-settings.js';
-    import * as helpers from '/js/tables/data-table-helpers.js';
-    import { style } from '/js/data-table-style.js'; 
-
-    let rows = {{testBooks | dump | safe}};
-
-    let headers = [
-        {
-            title: "Topic",
-            id: "topic"
-        },
-        {
-            title: "Description",
-            id: "description"
-        },
-        {
-            title: "Title",
-            id: "title"
-        },   
-        {
-            title: "Version",
-            id: "version"
-        },
-        {
-            title: "Language",
-            id: "language"
-        },
-        {
-            title: "Download",
-            id: "download"
-        }
-    ];
+    import { EnhancedTable } from '/js/table.js';
     
-    let dataTable = document.querySelector("data-table");
-    dataTable.bodyCellDisplay = tableSettings.bodyCellDisplay;
-    dataTable.textSearchFilter = tableSettings.textSearchFilter;
-    dataTable.css = style;
-    dataTable.data = {headers, rows}; 
-    
-    window.addEventListener("resize", () => {
-        dataTable.render();
+    window.addEventListener("load", () => {
+        let tableElm = document.querySelector("table");
+        let tableControlsElm = document.querySelector("#table-controls");
+        let enhancedTable = new EnhancedTable(tableElm, tableControlsElm);
+        enhancedTable.enableSearch();
     }); 
 </script>
 <main>
@@ -52,14 +19,10 @@
 
     <p>Evaluations are completed with the same set of EPUB test books to ensure consistency. The test books are known to be accessible and free of errors. The different titles are described below, along with a link to download each.</p>
     
-    <data-table 
-        summary="Test book descriptions and downloads"
-        showTextSearch="true"
-    >
-    </data-table>
-
-    <noscript>
-        <table class="striped" summary="Test book descriptions and downloads">
+    <div id="table-controls"></div>
+    <div role="region" aria-labelledby="table-caption" tabindex="0">
+        <table>
+            <caption id="table-caption">Test book descriptions and downloads</caption>
             <thead>
                 <tr>
                     <th>Topic</th>
@@ -73,7 +36,7 @@
             <tbody>
                 {%- for testBook in testBooks -%}
                 <tr>
-                    <td>{{displayUtils.getTopicName(testBook.topicId)}}</td>
+                    <td>{{topicNames.TopicName(testBook.topicId)}}</td>
                     <td>{{testBook.title}}</td>
                     <td>{{testBook.version}}</td>
                     <td>{{testBook.langId}}</td>
@@ -85,7 +48,7 @@
                 {%- endfor -%}
             </tbody>
         </table>
-    </noscript>
+    </div>
 </main>
     
 {%- endblock -%}

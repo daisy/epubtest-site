@@ -9,26 +9,51 @@
     </div>
 {%- endmacro -%}
 
-{%- macro TestingEnvironmentOneLinerPlainText(testingEnvironment) -%}
-{%- set rs = testingEnvironment.readingSystem -%}
-{%- set at = testingEnvironment.assistiveTechnology -%}
-{%- set os = testingEnvironment.os -%}
-{%- set dev = testingEnvironment.device -%}
-{%- set brw = testingEnvironment.browser -%}
-{{SoftwareTitle(rs)}}
-{%- if at and at.name -%}
-, {{SoftwareTitle(at)}}
-{%- endif -%}
-{%- if os -%}
-, {{SoftwareTitle(os)}}
-{%- endif -%}
-{%- if brw and brw.name -%}
-, {{SoftwareTitle(brw)}}
-{%- endif -%}
-{%- if dev and dev.name -%}
-, {{SoftwareTitle(dev)}}
-{%- endif -%}
 
+{%- macro TestingEnvironmentLink(testingEnvironment) -%}
+    <a href="/results/{{testingEnvironment.id}}">
+        <span class="sw readingSystem">
+            <span class="name">{{testingEnvironment.readingSystem.name}}</span>
+            <span class="version">{{testingEnvironment.readingSystem.version}}</span>
+        </span>
+        {%- if testingEnvironment.assistiveTechnology -%}
+        <span class="sw assistiveTechnology">
+            <span class="name">{{testingEnvironment.assistiveTechnology.name}}</span> 
+            <span class="version">{{testingEnvironment.assistiveTechnology.version}}</span>
+        </span>
+        {%- endif -%}
+        {%- if testingEnvironment.browser -%}
+        <span class="sw browser">
+            <span class="name">{{testingEnvironment.browser.name}}</span> 
+            <span class="version">{{testingEnvironment.browser.version}}</span>
+        </span>
+        {%- endif -%}
+        <span class="sw os">
+            <span class="name">{{testingEnvironment.os.name}}</span>
+            <span class="version">{{testingEnvironment.os.version}}</span>
+        </span>
+    </a>
+{%- endmacro -%}
+
+{%- macro TestingEnvironmentOneLinerPlainText(testingEnvironment) -%}
+    {%- set rs = testingEnvironment.readingSystem -%}
+    {%- set at = testingEnvironment.assistiveTechnology -%}
+    {%- set os = testingEnvironment.os -%}
+    {%- set dev = testingEnvironment.device -%}
+    {%- set brw = testingEnvironment.browser -%}
+    {{SoftwareTitle(rs)}}
+    {%- if at and at.name -%}
+    , {{SoftwareTitle(at)}}
+    {%- endif -%}
+    {%- if os -%}
+    , {{SoftwareTitle(os)}}
+    {%- endif -%}
+    {%- if brw and brw.name -%}
+    , {{SoftwareTitle(brw)}}
+    {%- endif -%}
+    {%- if dev and dev.name -%}
+    , {{SoftwareTitle(dev)}}
+    {%- endif -%}
 {%- endmacro -%}
 
 {%- macro SoftwareTitle(software) -%}

@@ -1,0 +1,14 @@
+{%- macro TestResultName(result) -%}
+    {%- if result == "PASS" -%}
+    Pass
+    {%- elif result == "FAIL" -%}
+    Fail
+    {%- elif result == "NA" -%}
+    N/A
+    {%- elif result == "NOANSWER" -%}
+    No answer
+    {%- endif -%}
+
+{%- endmacro -%}
+
+ 

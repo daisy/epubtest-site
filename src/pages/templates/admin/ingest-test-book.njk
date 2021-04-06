@@ -17,7 +17,8 @@
 
     <h3>Test book information</h3>
 
-    <table summary="Test book properties" class="narrow">
+    <table>
+        <caption id="test-book-table-caption">Test book properties</caption>
         <tbody>
             <tr>
                 <th>Topic</th>
@@ -60,7 +61,8 @@
         {%- if testBook.experimental == false -%}
         <h3>Tests in this book</h3>
 
-        <table class="wide striped" id="tests">
+        <table id="tests">
+            <caption id="tests-table-caption">Test descriptions and status</caption>
             <thead>
                 <tr>
                     <th>Test ID</th>

@@ -3,138 +3,106 @@
 {%- block content -%}
 
 
-<script type="module" src="/js/data-table.js"></script>
+<script type="module" src="/js/table.js"></script>
 <script type="module">
-    import * as tableSettings from '/js/tables/admin-all-software-table-settings.js';
-    import * as helpers from '/js/tables/data-table-helpers.js';
-    import { style } from '/js/data-table-style.js';
-
-    let rows = {{software | dump | safe}};
-
-    let headers = [
-        {
-            title: "ID",
-            id: "id",
-            sort: (a,b) => helpers.numberSort(a, b, row => row.id),
-            sortIs: 'asc'
-        },
-        {
-            title: "Vendor",
-            id: "vendor",
-            sort: (a,b) => helpers.stringSort(a, b, row => row.vendor),
-            sortIs: 'asc'
-        },
-        {
-            title: "Name",
-            id: "name",
-            sort: (a,b) => helpers.stringSort(a, b, row => row.name),
-            sortIs: 'asc'
-        },   
-        {
-            title: "Version",
-            id: "version"
-        },
-        {
-            title: "Shown in dropdown",
-            id: "shownInDropdown",
-            sort: (a,b) => helpers.booleanSort(a, b, row => row.active),
-            sortIs: 'asc'
-        },
-        {
-            title: "Usage",
-            id: "usage",
-            sort: (a,b) => helpers.numberSort(a, b, row => row.testingEnvironments.length),
-            sortIs: 'asc'
-        },
-        {
-            title: "Actions",
-            id: "actions"
-        }
-    ];
-    
-    let dataTable = document.querySelector("data-table");
-    dataTable.bodyCellDisplay = tableSettings.bodyCellDisplay;
-    dataTable.textSearchFilter = tableSettings.textSearchFilter;
-    dataTable.filters = tableSettings.filters;
-    dataTable.css = style;
-    dataTable.data = {headers, rows};  
-    window.addEventListener("resize", () => {
-        dataTable.render();
-    }); 
+    import { EnhancedTable } from '/js/table.js';
+        
+    window.addEventListener("load", () => {
+        let tableElm = document.querySelector("table");
+        let tableControlsElm = document.querySelector("#table-controls");
+        let enhancedTable = new EnhancedTable(tableElm, tableControlsElm);
+        enhancedTable.enableSearch();
+        enhancedTable.enableFilters([
+            {
+                label: "Vendor",
+                pathFn: r => r.querySelector(`td:nth-child(2)`).textContent
+            },
+            {
+                label: "Name",
+                pathFn: r => r.querySelector(`td:nth-child(3)`).textContent
+            },
+            {
+                label: "Shown in dropdown",
+                pathFn: r => r.querySelector(`td:nth-child(5)`).textContent
+            }
+        ]);
+        enhancedTable.enableSort([
+            {
+                columnIndex: 2, 
+                type: "alpha",
+                firstSort: "ascending",
+                pathFn: r => r.querySelector(`td:nth-child(3)`).textContent.replace(/[\n\r]+|[\s]{1,}/g, ' ').trim()
+            },
+            {
+                columnIndex: 5,
+                type: "numeric",
+                firstSort: "descending",
+                pathFn: r => parseInt(r.querySelector(`td:nth-child(6)`).childNodes[0].textContent.trim())
+            }
+        ]);
+    });
 </script>
 
 <main>
-    <h2>{{title}}</h2>
-    <data-table 
-        summary="All {{title}}"
-        showTextSearch="true"
-        defaultSortHeader="2"
-    >
-    </data-table>    
-    
-    <noscript>
-    Javascript is required to view table(s) on this page.
-    </noscript>
+    <h2 id="pagename">{{title}}</h2>
+    <div id="table-controls"></div>
+    <div role="region" tabindex="0" aria-labelledby="pagename">
+        <table aria-labelledby="pagename">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Vendor</th>
+                    <th>Name</th>
+                    <th>Version</th>
+                    <th>Show in dropdown</th>
+                    <th>Testing Environments</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {%- for sw in software -%}
+                    <tr>
+                        <td>
+                            {{sw.id}}
+                        </td>
+                        <td>
+                            {{sw.vendor}}
+                        </td>
+                        <td>
+                            {{sw.name}}
+                        </td>
+                        <td>
+                            {{sw.version}}
+                        </td>
+                        <td>
+                            {%-if sw.active-%}Yes{%-else-%}No{%-endif-%}
+                        </td>
+                        <td>
+                            {{sw.testingEnvironments.length}}
+                            {%- if sw.testingEnvironments.length -%}
+                            <br><a href="/admin/{{route}}/{{sw.id}}">See usage</a>
+                            {%- endif -%}
+                        </td>
+                        <td>
+                            <ul>
+                                <li><a href="/admin/edit-{{route}}/{{sw.id}}">Edit</a></li>
+                                <li>
+                                    {%- if sw.testingEnvironments.length == 0 -%}
+                                    <form method="POST" action="/admin/forms/confirm-delete-software/{{sw.id}}">
+                                        <input type="submit" name="submit" value="Delete"/>
+                                    </form>
+                                    {%- else -%}
+                                    <span>Cannot delete; in use.</span>
+                                    {%- endif -%}
+                                </li>
+                                
+                            </ul>
+                        </td>
+                    </tr>
+                {%- endfor -%}
+            </tbody>
+        </table>    
+    </div>
 </main>
 
 {% endblock %}  
-
-
-{%- macro SoftwareTable(software, route) -%}
-<table>
-    <thead>
-        <tr>
-            <th>ID</th>
-            <th>Vendor</th>
-            <th>Name</th>
-            <th>Version</th>
-            <th>Show in dropdown</th>
-            <th>Testing Environments</th>
-            <th>Actions</th>
-        </tr>
-    </thead>
-    <tbody>
-        {%- for sw in software -%}
-            <tr>
-                <td>
-                    {{sw.id}}
-                </td>
-                <td>
-                    {{sw.vendor}}
-                </td>
-                <td>
-                    {{sw.name}}
-                </td>
-                <td>
-                    {{sw.version}}
-                </td>
-                <td>
-                    {%-if sw.active-%}Yes{%-else-%}No{%-endif-%}
-                </td>
-                <td>
-                    {{sw.testingEnvironments.length}}
-                    {%- if sw.testingEnvironments.length -%}
-                    <br><a href="/admin/{{route}}/{{sw.id}}">See usage</a>
-                    {%- endif -%}
-                </td>
-                <td>
-                    <ul>
-                        <li><a href="/admin/edit-{{route}}/{{sw.id}}">Edit</a></li>
-                        
-                        <li>
-                            {%- if sw.testingEnvironments.length == 0 -%}
-                            <form method="POST" action="/admin/forms/confirm-delete-software/{{sw.id}}">
-                                <input type="submit" name="submit" value="Delete"/>
-                            </form>
-                            {%- else -%}
-                            <span>Cannot delete; in use.</span>
-                            {%- endif -%}
-                        </li>
-                        
-                    </ul>
-                </td>
-            </tr>
-        {%- endfor -%}
-    </tbody>
-</table>
-{%- endmacro -%}

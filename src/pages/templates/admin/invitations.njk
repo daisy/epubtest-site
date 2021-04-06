@@ -2,66 +2,70 @@
 {%- set title = "Admin: User Invitations" -%}
 {%- block content -%}
 
-<script type="module" src="/js/data-table.js"></script>
+<script src="/js/dayjs.min.js"></script>
+<script type="module" src="/js/table.js"></script>
 <script type="module">
-    import * as tableSettings from '/js/tables/admin-invites-table-settings.js';
-    import * as helpers from '/js/tables/data-table-helpers.js';
-    import { style } from '/js/data-table-style.js';
-
-    let rows = {{ invitations | dump | safe}};
-
-    let headers = [
-        {
-            title: "Name",
-            id: "name",
-            sort: (a, b) => helpers.stringSort(a, b, row => row.user.name),
-            sortIs: 'asc'
-        },
-        {
-            title: "Email",
-            id: "email",
-            sort: (a, b) => helpers.stringSort(a, b, row => row.user.login.email),
-            sortIs: 'asc'
-        },
-        {
-            title: "Date invited",
-            id: "dateInvited",
-            sort: (a, b) => helpers.dateSort(a, b, row => row.dateInvited),
-            sortIs: 'desc'
-        },
-        {
-            title: "Action",
-            id: "action"
+    import { EnhancedTable } from '/js/table.js';
+    
+    window.addEventListener("load", () => {
+        let tableElm = document.querySelector("table");
+        let tableControlsElm = document.querySelector("#table-controls");
+        if (tableElm && tableControlsElm) {
+            let enhancedTable = new EnhancedTable(tableElm, tableControlsElm);
+            enhancedTable.enableSearch();
+            enhancedTable.enableSort([
+                {
+                    columnIndex: 0,
+                    type: "alpha",
+                    firstSort: "ascending",
+                    pathFn: r => r.querySelector(`td:nth-child(1)`).textContent.replace(/[\n\r]+|[\s]{1,}/g, ' ').trim()
+                },
+                { 
+                    columnIndex: 2,
+                    type: "date",
+                    firstSort: "descending",
+                    pathFn: r => r.querySelector(`td:nth-child(3)`).textContent.replace(/[\n\r]+|[\s]{1,}/g, ' ').trim()
+                }
+            ])
         }
-    ];
-    let dataTable = document.querySelector("data-table");
-    if (rows.length) {
-        dataTable.bodyCellDisplay = tableSettings.bodyCellDisplay;
-        dataTable.textSearchFilter = tableSettings.textSearchFilter;
-        dataTable.css = style;
-        dataTable.data = {headers, rows};
-    }
-    window.addEventListener("resize", () => {
-        dataTable.render();
     }); 
 </script>
 <main>
-    <h2>Pending invitations</h2>
+    <h2 id="pagename">Pending invitations</h2>
     {%- if invitations.length == 0 -%}
     <p>There are not currently any pending invitations.</p>
     {%- else -%}
     <p>These users have been invited but have not yet accepted the invitation. You may re-send invites or cancel them.</p>
 
-    <data-table 
-        summary="User account invitations"
-        showTextSearch="true"
-    >
-    </data-table>
-    <noscript>
-    Javascript is required to view table(s) on this page.
-    </noscript>
+    <div id="table-controls"></div>
+    <div role="region" aria-labelledby="pagename" tabindex="0">
+        <table aria-labelledby="pagename">
+            <thead>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Date invited</th>
+                <th>Actions</th>
+            </thead>
+            <tbody>
+                {%- for invitation in invitations -%}
+                <tr>
+                    <td>{{invitation.user.name}}</td>
+                    <td>{{invitation.user.login.email}}</td>
+                    <td>{{dayjs(invitation.dateInvited).format("YYYY-MM-DD HH:mm:ss")}}</td>
+                    <td>
+                        <form method="POST" action="/admin/forms/manage-invitations/{{invitation.id}}">
+                            <input name="resend" value="Re-send invitation" type="submit"/>
+                            <input name="cancel" value="Cancel invitation" type="submit"/>
+                        </form>
+                    </td>
+                </tr>
+                {%- endfor -%}
+            </tbody>
+        </table>
+    </div>
+
+    
     {%- endif -%}
 </main>
 
 {%- endblock -%}
-
