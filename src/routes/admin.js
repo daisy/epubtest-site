@@ -35,7 +35,8 @@ router.get('/testing-environments', async (req, res, next) => {
 
     return res.render('admin/testing-environments.njk', 
         {
-            testingEnvironments: allTestEnvs
+            testingEnvironments: allTestEnvs,
+            displayUtils
         }
     );
 });

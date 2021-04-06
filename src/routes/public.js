@@ -44,8 +44,7 @@ router.get('/results/:testingEnvironmentId', async (req, res, next) => {
     }
 
     return res.render('testing-environment.njk', {
-        testingEnvironment: dbres.data.testingEnvironment,
-        displayUtils
+        testingEnvironment: dbres.data.testingEnvironment
     });
 });
 
@@ -108,8 +107,7 @@ router.get('/test-books', async (req, res, next) => {
 
     return res.render('test-books.njk', 
         {
-            testBooks: dbres.data.getLatestTestBooks,
-            displayUtils
+            testBooks: dbres.data.getLatestTestBooks
         }
     );
 });

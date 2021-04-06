@@ -42,7 +42,8 @@ router.get('/dashboard', async (req, res, next) => {
             getRequestToPublish: answerSetId => {
                 let retval = requests.find(r => r.answerSet.id === answerSetId);
                 return retval;
-            }
+            },
+            displayUtils
         }
     );
 });
