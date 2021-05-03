@@ -45,7 +45,7 @@ describe('test-user-pages', function () {
         });
         it (`shows tables with test topics, scores, and links`, async function() {
             let dataTables = await driver.executeScript(
-                `return Array.from(document.querySelectorAll("data-table")).map(r => r.shadowRoot.querySelector("table"))`
+                `return Array.from(document.querySelectorAll("table"))`
             );
 
             for(let dataTable of dataTables) {
@@ -55,7 +55,7 @@ describe('test-user-pages', function () {
                 let cols = await dataTable.findElements(By.css("tbody tr td:first-child"));
                 for (let col of cols) {
                     let text = await col.getText();
-                    expect(text).to.be.oneOf(['Basic Functionality', "Non-Visual Reading"]);
+                    expect(text).to.be.oneOf(['Basic Functionality', "Non-visual Reading"]);
                 }
     
                 cols = await dataTable.findElements(By.css("tbody tr td:nth-child(2)"));
@@ -96,7 +96,7 @@ describe('test-user-pages', function () {
         it("has working links for editing each set of results", async function() {
             
             let dataTables = await driver.executeScript(
-                `return Array.from(document.querySelectorAll("data-table")).map(r => r.shadowRoot.querySelector("table"))`
+                `return Array.from(document.querySelectorAll("table"))`
             );
 
             // collect all the links on the page before we have to navigate away from the page
@@ -126,7 +126,7 @@ describe('test-user-pages', function () {
         it("has a correctly structured 'edit results' page", async function() {
             // grab the first edit link from the dashboard
             let link = await driver.executeScript(
-                `return document.querySelector("data-table").shadowRoot.querySelector("table tbody tr td:nth-child(3) a")`
+                `return document.querySelector("table tbody tr td:nth-child(3) a")`
             );
             let href = await link.getAttribute("href");
             
