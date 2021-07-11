@@ -41,7 +41,7 @@
 </main>
 <script>
     document.addEventListener("DOMContentLoaded", e => {
-        let fullLink = new URL("/answers/{{answerSet.id}}/?key={{accessKey}}", window.location.href).href;
+        let fullLink = new URL("/answers/{{answerSet.id}}/{{accessKey}}", window.location.href).href;
         document.querySelector("#answer-set-link").textContent = fullLink;
         document.querySelector("#copy-link").addEventListener("click", async e => {
             document.querySelector("#copy-status").textContent = "";

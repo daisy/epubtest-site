@@ -183,8 +183,8 @@ router.get('/policy', async (req, res) => {
    return res.render(`policy.njk`);
 });
 
-router.get('/answers/:answerSetId', async(req, res, next) => {
-    let key = req.query.key;
+router.get('/answers/:answerSetId/:key', async(req, res, next) => {
+    let key = req.params.key;
     // check if this key allows access to the answer set
     let dbres = await db.query(
         Q.PRIVATE_ACCESS_TOKENS.GET_FOR_KEY(),
