@@ -8,11 +8,22 @@
 {%- import "components/test-result-names.njk" as testResultNames -%}
 {%- set testEnvTitle = testingEnvironmentLabels.TestingEnvironmentOneLinerPlainText(testingEnvironment) -%}
 {%- set title = "Results for " + testEnvTitle | cleanString -%}
+{%- if isAnswerSetPreview -%}
+{%- set title = "Results preview for " + testEnvTitle | cleanString -%}
+{%- endif -%}
 {%- block content -%}
 
 <script type="module" src="/js/table.js"></script>
 <main>
     <h2>{{ softwareName.SoftwareName(testingEnvironment.readingSystem) }}</h2>
+
+    {%- if isAnswerSetPreview -%}
+    <p class="message">This is a preview. &nbsp;
+    {%- if answerSet.isPublic == false -%}
+    These results have not been published yet.
+    {%- endif -%}
+    </p>
+    {%- endif -%}
     
     {%- if testingEnvironment.isArchived -%}
     <p class="archived">This testing environment has been archived.</p>
@@ -20,11 +31,15 @@
     
     {{ testingEnvironmentDetails.TestingEnvironmentDetails(testingEnvironment) }}
     
+    {%- if isAnswerSetPreview -%}
+    {{ AnswerSet(answerSet, 3) }}
+    {%- else -%}
     {%- for answerSet in testingEnvironment.answerSets -%}
     {%- if answerSet.isTested -%}
     {{ AnswerSet(answerSet, 3) }}
     {%- endif -%}
     {%- endfor -%}
+    {%- endif -%}
 </main>
 
 {%- endblock -%}
@@ -101,6 +116,7 @@
 {%- endmacro -%}
 
 {%- block nav -%}
+{%- if answerSetIsPreview == false -%}
 <nav aria-labelled-by="topics-title" class="secondary-nav">
     <h2 id="topics-title">Topics</h2>
     <ul>
@@ -111,4 +127,5 @@
         {%- endfor -%}
     </ul>        
 </nav>
+{%- endif -%}
 {%- endblock -%}

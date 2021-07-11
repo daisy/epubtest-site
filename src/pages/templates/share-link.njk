@@ -1,0 +1,56 @@
+{%- extends 'base/base.njk' -%}
+{%- import "components/testing-environment-labels.njk" as testingEnvironmentLabels -%}
+{%- set title = "Private link to results" -%}
+{%- block content -%}
+<style>
+    #answer-set-link {
+        font-size: larger;
+    }
+    button {
+        display: block;
+    }
+    ul.detailslist > li {
+        /* give a little more room to the righthand side */
+        grid-template-columns: 30% auto;
+    }
+    ul.detailslist > li span {
+        display: block;
+    }
+</style>
+<main>
+    <h2>Private link to results</h2>
+    <p>These results have not yet been published, but you may share this private link to allow others to view them.</p>
+
+    <ul class="detailslist">
+        <li>
+            <span>Test book:</span>
+            <span><a href="/books/{{answerSet.testBook.filename}}">{{answerSet.testBook.title}}</a></span>
+        </li>
+        <li>
+            <span>Testing environment:</span>
+            <span>{{testingEnvironmentLabels.TestingEnvironmentInline(answerSet.testingEnvironment)}}</span>
+        </li>  
+    </ul>
+    <div>
+        <h3>Private link:</h3>
+        <span id="answer-set-link"></span>  
+        <button id="copy-link">Copy link</button>
+        <span id="copy-status"></span>
+    </div>
+    
+</main>
+<script>
+    document.addEventListener("DOMContentLoaded", e => {
+        let fullLink = new URL("/answers/{{answerSet.id}}/?key={{accessKey}}", window.location.href).href;
+        document.querySelector("#answer-set-link").textContent = fullLink;
+        document.querySelector("#copy-link").addEventListener("click", async e => {
+            document.querySelector("#copy-status").textContent = "";
+            await navigator.clipboard.writeText(fullLink);
+            document.querySelector("#copy-status").textContent = "Link copied!";
+        });
+    });
+    
+</script>
+
+{%- endblock -%}
+

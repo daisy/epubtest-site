@@ -35,6 +35,37 @@
     </a>
 {%- endmacro -%}
 
+{%- macro TestingEnvironmentInline(testingEnvironment) -%}
+    {%- set rs = testingEnvironment.readingSystem -%}
+    {%- set at = testingEnvironment.assistiveTechnology -%}
+    {%- set os = testingEnvironment.os -%}
+    {%- set dev = testingEnvironment.device -%}
+    {%- set brw = testingEnvironment.browser -%}
+    <span>{{SoftwareTitle(rs)}}</span>
+    <span>
+    {%- if at and at.name -%}
+    with {{SoftwareTitle(at)}}
+    {%- endif -%}
+    {%- if dev and dev.name -%}
+        {%- if at and at.name -%}
+        ,&nbsp;
+        {%- else -%}
+        with
+        {%-endif -%}
+        {{SoftwareTitle(dev)}}
+    {%- endif -%}
+    </span>
+    <span>
+    {%- if os -%}
+    running on {{SoftwareTitle(os)}}
+    {%- endif -%}
+    {%- if brw and brw.name -%}
+    and {{SoftwareTitle(brw)}}
+    {%- endif -%}
+    </span>
+{%- endmacro -%}
+
+
 {%- macro TestingEnvironmentOneLinerPlainText(testingEnvironment) -%}
     {%- set rs = testingEnvironment.readingSystem -%}
     {%- set at = testingEnvironment.assistiveTechnology -%}

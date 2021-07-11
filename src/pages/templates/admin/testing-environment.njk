@@ -66,6 +66,7 @@
                     <th>Edit</th>
                     <th>Status</th>
                     <th>Publishing requested</th>
+                    <th>Share</th>
                 </tr>
             </thead>
             <tbody>
@@ -132,11 +133,31 @@
                     No
                     {%- endif -%}
                 </td>
+                <td>
+                    {% if answerSet.isPublic %}
+                    <button class="copyLink" data-href="/results/{{answerSet.testingEnvironment.id}}#{{answerSet.testBook.topic.id}}">
+                    Copy public link
+                    </button>
+                    {% else %}
+                    <a href="/user/share-link/{{answerSet.id}}">Generate private link</a>
+                    {% endif %}
+                </td>
             </tr>
             {%- endfor -%}
             </tbody>
         </table>
     </div>
+<script>
+    document.addEventListener("DOMContentLoaded", e => {
+        let copyPublicLinkButtons = Array.from(document.querySelectorAll(".copyLink"));
+        copyPublicLinkButtons.map(button => button.addEventListener("click", async e => {
+            let relLink = button.getAttribute("data-href");
+            let fullLink = new URL(relLink, window.location.href).href;
+            await navigator.clipboard.writeText(fullLink);
+        }));
+    });
+    
+</script>
 
     <h3>Assign all</h3>
     <p>Instead of assigning each answer set individually, you can assign them all to one user here (<em>warning</em>: this overwrites any current assignments):</p>

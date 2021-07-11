@@ -151,16 +151,16 @@ ul.detailslist > li {
 ul.detailslist.compact li {
     border: none;
 }
-ul.detailslist span {
+ul.detailslist li > span {
     display: block;
 }
-ul.detailslist span:first-child {
+ul.detailslist li > span:first-child {
     background-color: var(--darkgray);
     color: white;
     font-weight: bold;
     padding-left: 0.5rem;
 }
-ul.detailslist span:last-child {
+ul.detailslist li > span:last-child {
     padding-left: 1rem;
 }
 ul.detailslist.compact li span:first-child {

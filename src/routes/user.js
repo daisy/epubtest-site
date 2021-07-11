@@ -3,6 +3,7 @@ import * as db from '../database/index.js';
 import * as Q from '../queries/index.js';
 import * as utils from '../utils.js';
 import * as displayUtils from "../displayUtils.js";
+import * as privateAccessTokens from '../actions/privateAccessTokens.js';
 
 const router = express.Router()
 
@@ -81,6 +82,37 @@ router.get('/edit-results/:answerSetId', async (req, res, next) => {
         next: nextUrl,
         displayUtils
     });
+});
+
+router.get('/share-link/:answerSetId', async (req, res, next) => {
+    // generate a private token if the answer set is private
+    let jwt = req.cookies.jwt;
+    let dbres = await db.query(
+        Q.ANSWER_SETS.GET(),
+        { id: parseInt(req.params.answerSetId) },
+        jwt);
+    
+    if (!dbres.success || dbres.data.answerSet == null) {
+        let err = new Error(`Could not get answer set (${req.params.answerSetId})`);
+        return next(err);
+    }
+    
+    let answerSet = dbres.data.answerSet;
+
+    if (answerSet.isPublic) {
+        return res.render("share-link.njk", {answerSet})
+    }
+    else {
+        let newTokenResult = await privateAccessTokens.add(answerSet.id, jwt);
+        if (newTokenResult.success) {
+            let accessKey = newTokenResult.privateAccessToken.key;
+            return res.render("share-link.njk", {answerSet, accessKey});
+        }
+        else {
+            let err = new Error(`Could not create access token for answer set (${answerSet.id})`);
+            return next(err);
+        }
+    }
 });
 
 export { router };

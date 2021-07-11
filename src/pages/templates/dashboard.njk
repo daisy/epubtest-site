@@ -58,6 +58,7 @@
             <th>Score</th>
             <th>Edit</th>
             <th>Publish</th>
+            <th>Share</th>
         </thead>
         <tbody>
             {%- for answerSet in testingEnvironment.answerSets -%}
@@ -69,7 +70,7 @@
                 {%- if isAdmin -%}
                     {%- if answerSet.isPublic -%}
                     <div>
-                        <span>Published</span>
+                        <a href="/results/{{testingEnvironment.id}}#{{answerSet.testBook.topic.id}}">Published</a>
                         <form method="POST" action="/admin/forms/unpublish">
                             <input type="hidden" name="next" value="/user/dashboard">
                             <input type="hidden" name="testingEnvironmentId" value="{{testingEnvironment.id}}">
@@ -102,10 +103,30 @@
                         {%- endif -%}
                     {%- endif -%}
                 {%- endif -%}
+                <td>
+                    {% if answerSet.isPublic %}
+                    <button class="copyLink" data-href="/results/{{answerSet.testingEnvironment.id}}#{{answerSet.testBook.topic.id}}">
+                    Copy public link
+                    </button>
+                    {% else %}
+                    <a href="/user/share-link/{{answerSet.id}}">Generate private link</a>
+                    {% endif %}
+                </td>
             </tr>
             {%- endfor -%}
         </tbody>
     </table>
 </div>
+<script>
+    document.addEventListener("DOMContentLoaded", e => {
+        let copyPublicLinkButtons = Array.from(document.querySelectorAll(".copyLink"));
+        copyPublicLinkButtons.map(button => button.addEventListener("click", async e => {
+            let relLink = button.getAttribute("data-href");
+            let fullLink = new URL(relLink, window.location.href).href;
+            await navigator.clipboard.writeText(fullLink);
+        }));
+    });
+    
+</script>
 
 {%- endmacro -%}
