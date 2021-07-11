@@ -89,6 +89,7 @@ describe('test-public-pages', function () {
         await driver.wait(until.elementLocated(By.css('.message')), 3000);
         let messageText = await helpers.getText(driver, ".message");
         expect(messageText).to.contain("Password reset initiated");
+        // if failure: make sure nodemailer is started!
 
         // 2. test by entering an invalid email
         await helpers.goto(driver, siteUrl + '/forgot-password');
