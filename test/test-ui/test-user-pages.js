@@ -210,6 +210,31 @@ describe('test-user-pages', function () {
         });
     });
     
+    describe("test private links", function() {
+        let privateLink;
+        it("can generate a private link", async function() {
+            await helpers.goto(driver, siteUrl + '/user/dashboard');
+            // get a privately shared link
+            let generatePrivateLinkLink = await driver.findElement(By.xpath(`//a[contains(@href, "/share-link/")]`));
+            let href = await generatePrivateLinkLink.getAttribute("href");
+            await helpers.goto(driver, href);
+            // try to access it
+            let privateLinkElement = await driver.findElement(By.css("#answer-set-link"));
+            privateLink = await privateLinkElement.getText();
+            expect(privateLink).to.not.be.empty;
+        });
+        it("can logout and access that link as an anonymous user", async function() {
+            await helpers.logout(driver);
+            await helpers.goto(driver, privateLink);
+            let pageTitle = await driver.getTitle();
+            expect(pageTitle.toLowerCase()).to.contain("preview");
+        });
+        after(async function() {
+            // re-login as a user so any tests after this are not affected
+            await helpers.login(driver, siteUrl + "/login", "sara@example.com", "password");
+        });
+    });
+
     after(async function () {
         await driver.quit();
         if (process.env.VSCODE_WORKAROUND) {
