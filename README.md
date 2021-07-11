@@ -79,9 +79,13 @@ Elsewhere, the form controls are entirely contained within the table, so it's fi
 
 ### Postgraphile and column-level grant
 
-Postgraphile does not support column-level grants, which is why there is a separate logins vs users table. Otherwise the login information would be theoretically visible to anyone who could view the user information (which, some of it could be viewable, for example, if the user has chosen to get credited for their work, then the results page must display their `creditAs` value).
+Postgraphile does not support column-level grants, which is why there is a separate logins vs users table. Otherwise the login information would be theoretically visible to anyone who could view the user information (which, some of it could be viewable, for example, if the user has chosen to get credited for their work, then the results page must display their `creditAs` value, so their credits must be publicly accessible).
 
 Since we are controlling database access via the server, no outside querying is allowed, and the pages are tightly controlled. To be forward-thinking, however, the database API was setup with the possibility to one day have more client-side querying supported, therefore security tokens, row level security, and design decisions such as what's described above are in place.
+
+Note that one exception to this lies with the use of "private link" tokens. The server (express layer) verifies specific resource access permissions; the database layer gives blanket (table(s)-wide) read-only permission. If we ever created a public database endpoint, we would have to keep this in mind. 
+
+Another exception is the "create temporary token" function, which is right now only called by the server but again, if we ever created a public database endpoint, access to this this should be restricted.
 
 ### Types of layouts
 
@@ -97,3 +101,4 @@ Token-based authentication
 * Login: Token lasts for 7 days
 * Invite to create account: Token lasts for 7 days
 * Forgot password: Token lasts for 4 hours
+
