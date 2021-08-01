@@ -179,7 +179,6 @@ router.get('/accept-invitation', async (req, res) => {
     }
 });
 
-
 router.get('/policy', async (req, res) => {
    return res.render(`policy.njk`);
 });
