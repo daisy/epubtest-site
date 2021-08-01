@@ -25,18 +25,18 @@
             {%- if accessLevel != 'public' -%}
             <ul>
                 {%- if accessLevel == 'admin' -%}
-                <li role="none">
-                    <a role="menuitem" href="/admin">Admin</a>
+                <li>
+                    <a href="/admin">Admin</a>
                 </li>
                 {%- endif -%}
-                <li role="none">
-                    <a role="menuitem" href='/user/dashboard'>Dashboard</a>
+                <li>
+                    <a href='/user/dashboard'>Dashboard</a>
                 </li>
-                <li role="none">
-                    <a role="menuitem" href='/user/profile'>Profile</a>
+                <li>
+                    <a href='/user/profile'>Profile</a>
                 </li>
-                <li role="none">
-                    <form role="menuitem" method="POST" action="/forms/logout">
+                <li>
+                    <form method="POST" action="/forms/logout">
                         <input type="submit" name="submit" value="Logout"/>
                     </form>
                 </li>
