@@ -40,7 +40,7 @@ describe('test-user-pages', function () {
             let testenvTitles = await driver.findElements(By.css(".testing-environment-title"));
             expect(testenvTitles.length).to.equal(2);
     
-            let detailsLists = await driver.findElements(By.css("main .detailslist"));
+            let detailsLists = await driver.findElements(By.css("main div .detailslist"));
             expect(detailsLists.length).to.equal(4);
         });
         it (`shows tables with test topics, scores, and links`, async function() {
