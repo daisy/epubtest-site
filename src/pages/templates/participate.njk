@@ -4,6 +4,18 @@
 {%- block content -%}
 
 <main class="with-sidebar">
+    <style>
+        p.note {
+            font-style: italic;
+            background-color: var(--softcomp);
+            border-radius: 4px;
+        }
+        p.note::before {
+            content: '👉 ';
+            font-size: large;
+        }
+
+    </style>
     <div>
         <a href="#participate" class="skipnav">Skip navigation</a>
         <nav aria-labelled-by="navlabel" class="secondary-nav">

@@ -3,21 +3,28 @@
 header a:link, header a:visited {
     text-decoration: none;
 }
+@supports(display: grid) {
+    header > div {
+        display: grid;
+        grid-template-areas: "title main-nav";
+        grid-template-columns: min-content auto;
+        column-gap: 5rem;
+    }
+}
 header > div {
-    display: grid;
     border-bottom: 1vh solid var(--primary);
-    grid-template-areas: "title nav";
 }
 
 header h1 {
     padding: 0;
     margin: 0;
     font-size: 1.5rem;
-    align-content: center;
     grid-area: title;
+    align-self: center;
 }
-header nav {
-    grid-area: nav;
+header nav.main-nav {
+    grid-area: main-nav;
+    justify-self: right;
 }
 header h1 a, header h1 a:hover {
     text-decoration: none !important;
@@ -30,12 +37,18 @@ header nav ul {
     list-style-type: none;
     padding: 0;
     margin: .5rem;
-    gap: 2rem;
-    justify-content: right;
+    column-gap: 2rem;
+    row-gap: 1rem;
+}
+
+/* for older browsers */
+@supports (display: flex) and (not(gap: 2em)) {
+    header nav ul li {
+        margin-right: 2rem;
+    }
 }
 
 header nav li {
-    flex: 0 1;
     white-space: nowrap;
     text-decoration: none;
 }
@@ -44,39 +57,35 @@ header button, header input[type=submit] {
     border: thin solid var(--primary);
 }
 
-.switcher {
-    display: flex;
-    flex-wrap: wrap;
-    gap: var(--s1);
-    flex-basis: calc(( 40rem - 100%) * 999);
-}
-  
-.switcher > * {
-    flex-grow: 1;
-}
-  
-.switcher > :nth-last-child(n+ 3),
-.switcher > :nth-last-child(n+ 3) ~ * {
-    flex-basis: 100%;
-}
-header nav.switcher {
-    --s1: 1rem;
-}
-
 @media (max-width: 768px) {
     header h1 {
         text-align: center;
     }
     header nav ul {
         justify-content: center;
-        gap: 1rem;
-        margin: 0;
+        flex-wrap: wrap;
     }
-    nav {
+    header nav {
+        margin-top: 1rem;
         margin-bottom: 1rem;
+        display: flex;
     }
     header > div {
-        grid-template-areas: "title" 
-        "nav";
+        grid-template-areas: 
+        "title" 
+        "main-nav";
+        grid-template-columns: 100%;
+    }
+    header nav.logged-in {
+        display: flex;
+        column-gap: 5rem;
+    }
+    header nav.main-nav {
+        justify-self: center;
+    }
+    header nav.logged-in ul {
+        flex-direction: column;
+        flex-wrap: nowrap;
+        align-items: center;
     }
 }

@@ -12,7 +12,7 @@
     {%- endif -%} #}
     <div class="">
         <h1><a href="/">epubtest.org</a></h1>
-        <nav aria-label="Main" class="main switcher">
+        <nav aria-label="Main" class="main-nav {% if accessLevel != 'public' %}logged-in{%-endif-%}">
             <ul>
                 <li><a href='/results'>Results</a></li>
                 <li><a href='/test-books'>Test Books</a></li>
@@ -23,8 +23,7 @@
                 {%- endif -%}
             </ul>
             {%- if accessLevel != 'public' -%}
-            <ul class="user-menu">
-                
+            <ul>
                 {%- if accessLevel == 'admin' -%}
                 <li role="none">
                     <a role="menuitem" href="/admin">Admin</a>
@@ -41,7 +40,6 @@
                         <input type="submit" name="submit" value="Logout"/>
                     </form>
                 </li>
-                
                 {#<li>
                     <form method="POST" action="/forms/choose-language">
                         <select id="language" name="language" aria-label="Choose language">

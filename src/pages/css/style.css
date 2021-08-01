@@ -44,10 +44,6 @@ em {
     font-style: inherit;
 }
 
-.gap {
-    gap: 4rem;
-}
-
 .center {
     box-sizing: content-box;
     margin-left: auto;
@@ -199,15 +195,6 @@ em.title {
     font-weight: normal;
 }
 
-p.note {
-    font-style: italic;
-    background-color: var(--softcomp);
-    border-radius: 4px;
-}
-p.note::before {
-    content: '👉 ';
-    font-size: large;
-}
 div.testing-environment-title > * {
     display: inline-block;
 }

@@ -1,7 +1,7 @@
 {%- extends 'base/base.njk' -%}
 {%- block content -%}
 
-<main class="center gap">
+<main class="center">
     <style>
         .big {
             display: block;
@@ -15,6 +15,14 @@
             text-align: center !important;
             border-radius: 4px;
             font-size: larger;
+        }
+        main {
+            gap: 4rem;
+        }
+        @media (max-width: 768px) {
+            .big {
+                white-space: normal;
+            }
         }
     </style>
     <div>
