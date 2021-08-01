@@ -40,7 +40,7 @@ class EnhancedTable  {
     
     // tableElement must have a thead and tbody
     // controlsElement must be an empty div
-    constructor(tableElement, controlsElement) {
+    constructor(tableElement, controlsElement, idString="") {
         this.tableElm = tableElement;
         this.controlsElm = controlsElement;
         this.originalTBodyInnerHTML = tableElement.querySelector("tbody").innerHTML;
@@ -48,21 +48,21 @@ class EnhancedTable  {
         this.sortRules = [];
         this.searchText = '';
         this.sortByIndex = 0;
+        this.idString = idString ? `-${idString}` : ''; // identifier for when there are multiple tables on a page
         this.initFilters();
     }
 
     initFilters() {
         this.controlsElm.innerHTML = `
         <fieldset class="table-filters hidden">
-            <legend>Filters</legend>
-            <div id="table-selects" class="hidden"></div>
-            <div id="table-search" class="hidden">
-                <label for="table-search-input">Search</label>
-                <input type="text" id="table-search-input" name="table-search-input">
+            <legend class="visually-hidden">Filters</legend>
+            <div id="table-search${this.idString}" class="hidden">
+                <label for="table-search-input${this.idString}">Search</label>
+                <input type="text" id="table-search-input${this.idString}" name="table-search-input">
             </div>
-            <button id="reset">Reset</button>
+            <button id="reset${this.idString}" class="hidden">Reset</button>
         </fieldset>`;
-        this.controlsElm.querySelector("#table-search-input").addEventListener("keyup", e => {
+        this.controlsElm.querySelector(`#table-search-input${this.idString}`).addEventListener("keyup", e => {
             if (e.keyCode == 27) { // escape
                 this.searchText = '';
                 e.target.value = '';
@@ -72,7 +72,7 @@ class EnhancedTable  {
             this.searchText = e.target.value;
             this.refreshRows();
         });
-        this.controlsElm.querySelector("#reset").addEventListener("click", e => this.reset());
+        this.controlsElm.querySelector(`#reset${this.idString}`).addEventListener("click", e => this.reset());
     }
     
     /* sortRules = [{
@@ -127,7 +127,9 @@ class EnhancedTable  {
     */
     enableFilters(filterRules) {
         this.filterRules = filterRules;
-        let filtersHTML = this.filterRules.map(filterRule => {
+        this.controlsElm.querySelector("fieldset").classList.remove("hidden");
+        this.controlsElm.querySelector(`#reset${this.idString}`).classList.remove("hidden");
+        this.filterRules.map((filterRule, idx) => {
 
             // all the possible values
             let rows = Array.from(this.tableElm.querySelectorAll("tbody tr"));
@@ -152,18 +154,18 @@ class EnhancedTable  {
             if (hasNone) {
                 options.push("None");
             }
-            return `
-            <div>
-                <label for="">${filterRule.label}</label>
-                <select id="">
-                    ${options.map(option => `<option value="${option}">${option}</option>`).join('')}
-                </select>
-            </div>
+            let newFilter = document.createElement("div");
+            newFilter.innerHTML = `
+            <label for="filter-${idx}">${filterRule.label}</label>
+            <select id="filter-${idx}">
+                ${options.map(option => `<option value="${option}">${option}</option>`).join('')}
+            </select>
             `;
+            this.controlsElm.querySelector("fieldset").insertBefore(newFilter, 
+                this.controlsElm.querySelector(`#table-search${this.idString}`));
+            
         }).join('');
-        this.controlsElm.querySelector("#table-selects").innerHTML = filtersHTML;
-        this.controlsElm.querySelector("fieldset").classList.remove("hidden");
-        this.controlsElm.querySelector("#table-selects").classList.remove("hidden");
+        
         Array.from(this.controlsElm.querySelectorAll("select")).map(selectElm => selectElm.addEventListener("change", e => {
             this.refreshRows();
         }));
@@ -171,7 +173,8 @@ class EnhancedTable  {
     
     enableSearch() {
         this.controlsElm.querySelector("fieldset").classList.remove("hidden");
-        this.controlsElm.querySelector("#table-search").classList.remove('hidden');
+        this.controlsElm.querySelector(`#reset${this.idString}`).classList.remove("hidden");
+        this.controlsElm.querySelector(`#table-search${this.idString}`).classList.remove('hidden');
     }
     filterRows(rows) {
         let selectElms = Array.from(this.controlsElm.querySelectorAll("select"));
@@ -211,7 +214,12 @@ class EnhancedTable  {
     searchRows(rows) {
         let rowsContainingSearchText = rows.filter(tr => {
             let tds = Array.from(tr.querySelectorAll("td"));
-            let trStr = tds.map(td => td.textContent.replace(/[\n\r]+|[\s]{1,}/g, ' ').replace(/[\s]{2}/g, " ").trim().toLowerCase()).join(' ');
+            let trStr = tds.map(td => 
+                td.textContent
+                    .replace(/[\n\r]+|[\s]{1,}/g, ' ')
+                    .replace(/[\s]{2}/g, " ")
+                    .trim().toLowerCase()
+                ).join(' ');
             return trStr.indexOf(this.searchText.toLowerCase().trim()) != -1;
         });
         return rowsContainingSearchText;
@@ -233,7 +241,7 @@ class EnhancedTable  {
     }
     reset() {
         this.tableElm.querySelector("tbody").innerHTML = this.originalTBodyInnerHTML;
-        this.controlsElm.querySelector("#table-search-input").value = '';
+        this.controlsElm.querySelector(`#table-search-input${this.idString}`).value = '';
         this.searchText = '';
         Array.from(this.controlsElm.querySelectorAll("select")).map(selectElm => selectElm.value = "All");
         this.refreshRows();
