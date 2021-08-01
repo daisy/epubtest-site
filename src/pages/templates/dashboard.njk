@@ -6,7 +6,23 @@
 {%- import "components/topic-names.njk" as topicNames -%}
 {%- set title = "Dashboard" -%}
 {%- block content -%}
-<main>
+<main class="with-sidebar">
+{%- if testingEnvironments.length != 0 -%}
+<nav aria-labelled-by="navlabel" class="secondary-nav">
+    <h2 id="navlabel">Testing environments</h2>
+    <ul>    
+        {%- for testingEnvironment in testingEnvironments -%}
+        {%- set rs = testingEnvironment.readingSystem -%}
+        <li>
+            <a href="#{{testingEnvironment.id}}">{{ softwareName.SoftwareName (rs)}}</a>
+            {{ testingEnvironmentDetails.TestingEnvironmentDetails (testingEnvironment, true) }}
+        </li>
+        {%- endfor -%}
+    </ul>
+</nav>
+{%- endif -%}
+
+<div>
 <h2>Dashboard</h2>
 {%- if testingEnvironments.length == 0 -%}
 <p>Looks like you don't have any tasks assigned yet - check back soon!</p>
@@ -26,25 +42,9 @@
     {{ TestingEnvironmentTable(testingEnvironment)}}
 {%- endfor -%}
 {%- endif -%}
+</div>
 </main>
 
-{%- endblock -%}
-
-{%- block nav -%}
-{%- if testingEnvironments.length != 0 -%}
-<nav aria-labelled-by="navlabel" class="secondary-nav">
-    <h2 id="navlabel">Testing environments</h2>
-    <ul>    
-        {%- for testingEnvironment in testingEnvironments -%}
-        {%- set rs = testingEnvironment.readingSystem -%}
-        <li>
-            <a href="#{{testingEnvironment.id}}">{{ softwareName.SoftwareName (rs)}}</a>
-            {{ testingEnvironmentDetails.TestingEnvironmentDetails (testingEnvironment, true) }}
-        </li>
-        {%- endfor -%}
-    </ul>
-</nav>
-{%- endif -%}
 {%- endblock -%}
 
 {%- macro TestingEnvironmentTable(testingEnvironment) -%}
