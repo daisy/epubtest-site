@@ -7,7 +7,7 @@ input, button, textarea {
 input[type=button], input[type=submit] {
     width: min-content;
 }
-input[type=text] {
+input[type=text], input[type=email], input[type=password] {
     width: min(20rem, 90vw);
 }
 textarea {

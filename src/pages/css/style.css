@@ -68,15 +68,20 @@ em {
 .with-sidebar > :last-child {
     flex-basis: 0;
     flex-grow: 999;
-    min-width: 50%;
+    min-width: 60%;
 }
 
 footer > * {
     font-size: smaller;
 }
 
+main.with-sidebar h2:first-of-type {
+    margin-top: 0;
+}
+
 nav.secondary-nav h2 {
     font-size: medium;
+    margin-top: .5rem !important;
 }
 
 /* testing environment details */
@@ -116,7 +121,7 @@ ul.detailslist.compact li span:first-child {
 }
 ul.detailslist > li ul {
     padding-left: 1rem;
-    list-style-type: disc;
+    list-style-type: none;
 }
 
 /* alert message */
