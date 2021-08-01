@@ -3,7 +3,19 @@
 {%- block content -%}
 
 <main class="center">
-    <form method="POST" action="/forms/login" class="email simple">
+    <style>
+        input {
+            width: 20rem;
+        }
+        .actions {
+            display: flex;
+            justify-content: space-between;
+        }
+        .actions a {
+            font-size: smaller;
+        }
+    </style>
+    <form method="POST" action="/forms/login">
         <div>
             <label for="email">Email</label>
             <input type="email" name="email" required/>

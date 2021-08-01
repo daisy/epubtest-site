@@ -18,6 +18,13 @@
     });
 </script>
 <main>
+    <style>
+    .testing-environment-results {
+        display: flex;
+        flex-direction: column;
+        gap: 3rem;
+    }
+    </style>
     <h2>Manage Testing Environment</h2>
     {{ testingEnvironmentLabels.TestingEnvironmentTitle (testingEnvironment, 'h3', 'p')}}
     {{ testingEnvironmentDetails.TestingEnvironmentDetails(testingEnvironment) }}
@@ -53,7 +60,7 @@
         public answer sets. All answer sets are shown below.
     </p>
     
-    <div id="table-controls"></div>
+    <div id="table-controls" class="table-controls"></div>
     <div aria-labelledby="table-caption" role="region" tabindex="0">
         <table>
             <caption id="table-caption">Details about answer sets for this testing environment</caption>

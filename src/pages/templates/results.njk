@@ -170,10 +170,10 @@
         the <a href="/test-books">test books page</a>.</p>
     {%- endif -%}
 
-    <div id="table-controls"></div>
+    <div id="table-controls" class="table-controls"></div>
     <div role="region" aria-labelledby="table-caption" tabindex="0">
         <table>
-            <caption id="table-caption">Reading system testing results {%- if isArchivesPage %} (archives){%- endif -%}</caption>
+            <caption class="visually-hidden" id="table-caption">Reading system testing results {%- if isArchivesPage %} (archives){%- endif -%}</caption>
             <thead>
                 <th>Testing Environment</th>
                 {%- for topic in topics -%}

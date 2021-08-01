@@ -1,137 +1,89 @@
 @import url("colors.css");
+@import url("header.css");
+:root {
+    --measure: 50rem;
+    --gutters: 5rem;
+    --s1: 2rem;
+}
 
 html {
     height: 100%;
 }
+
 body {
-    display: grid;
-    height: 100%;
-    grid-template-areas: 
-    "header header header"
-    "nav main main"
-    "footer footer footer";
-    grid-template-columns: minmax(min-content, 20%) auto minmax(min-content, 20rem);
-    grid-template-rows: auto 1fr auto;
     font-family: Helvetica Neue, Helvetica, Arial, Verdana, Geneva, sans-serif;
     letter-spacing: -0.00278rem;
     line-height: 1.6;
-    margin-left: 1rem;
-    margin-right: 1rem;
-}
-a, a:visited {
-    color: var(--primary);  
-}
-a:hover {
-    text-decoration-thickness: 2px;
-}
-header a:link, header a:visited {
-    text-decoration: none;
-}
-em {
-    font-weight: bold;
-    font-style: inherit;
-}
-header {
-    grid-area: header;
-    display: grid;
-    grid-template-areas: "title nav login";
-    grid-template-columns: 20% auto 20%;
-    align-items: center;
-    border-bottom: 1vh solid var(--primary);
-    margin-bottom: 1rem;
-    padding-left: 1rem;
-}
-header h1 {
-    grid-area: title;
-    padding: 0;
-    margin: 0;
-    font-size: 1.5rem;
-}
-header h1 a, header h1 a:hover {
-    text-decoration: none !important;
-    color: black !important;
-}
-header nav ul {
     display: flex;
-    list-style-type: none;
-    padding: 0;
+    flex-direction: column;
+    height: 100%;
 }
-header nav li {
-    flex: 0 1;
-    margin-right: 2vw;
-    white-space: nowrap;
-    text-decoration: none;
-}
-header nav.main {
-    grid-area: nav;
-}
-header nav.user {
-    grid-area: login
-}
-header nav.user ul {
-    justify-content: right;
-}
-/* regular main content area, just a big block */
+
 main {
-    grid-area: main;
-    margin-right: 1rem;
-    margin-left: 1rem;
-    grid-column-start: 1;
-    grid-column-end: 4;
-}
-/* if there's a secondary nav area, start the main section in column 2*/
-nav ~ main {
-    grid-column-start: 2;
+    flex: 1;
+    margin-top: 1rem;
 }
 
-/* centered main area */
-main.center {
-    grid-column-start: 2;
-    margin-right: 20%;
-}
-/* main area with a logo on the right */
-main.rightlogo {
-    margin-right: 1rem;
-    display: grid;
-    gap: 5rem;
-    grid-template-columns: 60% 30%;
-}
-main.rightlogo p {
-    margin-right: 0;
-}
-main.rightlogo > *:nth-child(2) {
-    padding-bottom: 50%;
-    align-self: center;
-    justify-self: center;
-}
-
-main p {
-    margin-right: 30%;
-}
 footer {
-    grid-area: footer;
     font-style: italic;
     text-align: center;
     margin-top: 10vh;
     padding-bottom: 5vh;
 }
+
+a, a:visited {
+    color: var(--primary);  
+}
+
+a:hover {
+    text-decoration-thickness: 2px;
+}
+
+em {
+    font-weight: bold;
+    font-style: inherit;
+}
+
+.gap {
+    gap: 4rem;
+}
+
+.center {
+    box-sizing: content-box;
+    margin-left: auto;
+    margin-right: auto;
+    max-width: var(--measure);
+    padding-left: var(--gutters);
+    padding-right: var(--gutters);
+    display:flex;
+    flex-direction: column;
+}
+
+.with-sidebar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--s1);
+}
+
+.with-sidebar > :first-child {
+    flex-grow: 1;
+}
+
+.with-sidebar > :last-child {
+    flex-basis: 0;
+    flex-grow: 999;
+    min-width: 50%;
+}
+
 footer > * {
     font-size: smaller;
-}
-main > div {
-    /* margin-bottom: 2rem; */
 }
 
 nav.secondary-nav h2 {
     font-size: medium;
 }
-/* lineup with main content */
-nav.secondary-nav > h2:first-of-type {
-    margin-top: 1rem;
-}
-nav ~ main > h2:first-of-type {
-    margin-top: 1rem;
-}
+
+/* testing environment details */
 ul.detailslist {
     list-style-type: none;
     width: 30rem;
@@ -170,11 +122,8 @@ ul.detailslist > li ul {
     padding-left: 1rem;
     list-style-type: disc;
 }
-div.twocol {
-    display: grid;
-    grid-template-columns: 60% auto;
-    gap: 2rem;
-}
+
+/* alert message */
 p.message {
     border-radius: 10px;
     vertical-align: middle;
@@ -186,36 +135,11 @@ p.message {
     grid-column-end: 4;
 }
 
-.big {
-    margin: auto;
-    display: block;
-    background-color: var(--softcomp);
-    box-shadow: 0 0 5px darkgray;
-    padding: 1rem;
-    width: min-content;
-    white-space: nowrap;
-    line-height: 2; 
-    border-bottom: none !important;  
-    text-align: center !important;
-    margin-top: 3rem;
-    border-radius: 4px;
-    font-size: larger;
-}
-
-div.selection {
-    border: solid .5vh var(--soft);
-    padding: 1vh;
-    margin: 1vh;   
-}
-span.na {
-    font-style: italic;
-    font-weight: lighter;
-    color: var(--grayed-out);
-}
+/* long blocks of text that scroll */
 .limit {
     max-height: 30vh;
     /* overflow: scroll; */
-    max-width: 40rem;
+    /* max-width: 40rem; */
     white-space: break-spaces;
 
     /* borrowed from https://dabblet.com/gist/2462915*/
@@ -243,46 +167,19 @@ span.na {
     /* Opera doesn't support this in the shorthand */
     background-attachment: local, local, scroll, scroll;
 }
+/* test env labels */
 .testenv span {
     margin-bottom: 1vh;
     display: block;
 }
+/* list with columns e.g. reinvite users page */
 ul.cols {
     columns: 3;
 }
-body > nav {
-    margin-left: 1rem;
-    grid-area: nav;
-}
-body > nav > h1 {
-    font-size: 1.3rem;
-}
-body > nav ul {
-    list-style-type: none;
-    padding: 0;
-}
-body > nav li {
-    margin-bottom: 2rem;
-}
-body > nav li li {
-    margin-top: 2rem;
-    padding-left: 1rem;
-}
 
-body > nav ul li {
-    margin-top: inherit;
-    margin-bottom: inherit;
-}
-
+/* participage page */
 span.cmd {
-    /* background-color: lightyellow; */
     font-weight: bold;
-}
-
-
-.deemph {
-    /* font-style: italic; */
-    font-weight: normal;
 }
 
 .archived {
@@ -291,19 +188,17 @@ span.cmd {
     border-radius: 4px;
     background-color: var(--softlight);
 }
-#err em {
-    font-size: larger;
-    font-style: normal;
-    display: block;
-}
+
+/* in-page error */
 #local-error {
     background-color: lightyellow;
     border-radius: 4px;
 }
+/* test book title for testing environment page */
 em.title {
     font-weight: normal;
-    /* font-style: italic; */
 }
+
 p.note {
     font-style: italic;
     background-color: var(--softcomp);
@@ -319,88 +214,19 @@ div.testing-environment-title > * {
 div.testing-environment-title > *:first-child {
     margin-right: 0.75rem;
 }
-/* this table only has one column at the moment, so it doesn't have to be so wide */
-div#active-users {
-    width: 70%;
+.skipnav {
+    font-size: small;
 }
 /*****************************/
 /* MOBILE                    */
 /*****************************/
 @media (max-width: 768px) {
-    body {
-        grid-template-areas:
-            "header"
-            "nav"
-            "main"
-            "footer";
-        grid-template-columns: 100%; 
-        grid-template-rows:
-            auto
-            auto
-            1fr
-            auto;
-    }
-    nav {
-      margin: 0;
-    }
-    header {
-        grid-template-areas:
-        "message"
-        "title"
-        "nav"
-        "login";
-        grid-template-columns: 1fr;
-    }
-    header nav ul {
-        justify-content: center !important;
-    }
-    header h1 {
-        font-size: x-large;
-        justify-self: center;
-    }
-    main {
-        grid-template-columns: 1fr;
-        margin-right: 0;
-        grid-column-end: 1;
-    }
-    /* if there's a secondary nav area, start the main section in column 1 on mobile */
-    nav ~ main {
-        grid-column-start: 1;
-    }
-    main.center {
-        margin-left: 0;
-        margin-right: 0;
-        grid-template-rows: auto;
-        grid-template-columns: 1fr;
-    }
-    main.rightlogo {
-        grid-template-areas: 
-        "logo" 
-        "content";
-        grid-template-columns: 1fr;
-        gap: 0;
-    }
-    main p {
-        margin-right: auto;
-    }
-    main.rightlogo > *:nth-child(1) {
-        grid-area:content;
-    }
-    main.rightlogo > *:nth-child(2) {
-        grid-area: logo;
-        justify-self: center;
-        margin-right: 0;
-        padding-bottom: 0;
+    
+    .center {
+        --measure: 100vw;
+        --gutters: 0;
     }
     
-    body > nav {
-        width: inherit;
-        grid-template-columns: 1fr;
-        border: thin var(--darkgray) solid;
-        padding-left: 1rem;
-        padding-right: 1rem;
-
-    }
     footer {
         border-top: none;
     }
@@ -410,14 +236,15 @@ div#active-users {
     ul.detailslist li {
         grid-template-columns: 1fr;
     }
-    div.twocol {
-        grid-template-columns: 1fr;
-    }
+    
     .message {
         grid-area: message;
     }
     ul.cols {
         columns: 1;
+    }
+    .big {
+        white-space: normal;
     }
 }
 

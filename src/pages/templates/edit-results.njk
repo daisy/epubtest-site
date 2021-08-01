@@ -22,6 +22,17 @@
     });
 </script>
 <main>
+    <style>
+        #save {
+            margin-left: 50%;
+            margin-right: 50%;
+            margin-top: 2vh;
+            padding: 1vh;
+            padding-left: 2vh;
+            padding-right: 2vh;
+            font-size: larger;
+        }
+    </style>
     <h2>Edit Results: {{topicNames.TopicName(answerSet.testBook.topic.id)}}</h2>
 
     {{ testingEnvironmentLabels.TestingEnvironmentTitle(answerSet.testingEnvironment, 'h3', 'p') }}
@@ -30,12 +41,12 @@
     <form method="POST" action="/user/forms/results">
         <h2>Summary</h2>
         <label for="summary">Give a summary of your testing experience:</label>
-        <textarea id="summary" rows="10" cols="50" name="summary">{{answerSet.summary}}</textarea>
+        <textarea class="summary" id="summary" rows="10" cols="50" name="summary">{{answerSet.summary}}</textarea>
 
         <h2>Results</h2>
         <p>Using the form below, enter answers for each test in the test book linked above.</p>
 
-        <div id="table-controls"></div>
+        <div id="table-controls" class="table-controls"></div>
         <div role="region" aria-labelledby="table-caption" tabindex="0">
             <table>
                 <caption id="table-caption">Answers for {{topicNames.TopicName(answerSet.testBook.topic.id)}} tests</caption>

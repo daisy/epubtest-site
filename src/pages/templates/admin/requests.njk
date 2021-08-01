@@ -50,10 +50,10 @@
     {%- if requests.length == 0 -%}
     <p>No pending requests</p>
     {%- else -%}
-    <div id="table-controls"></div>
+    <div id="table-controls" class="table-controls"></div>
     <div aria-labelledby="table-caption" role="region" tabindex="0">
         <table>
-            <caption id="table-caption">Pending requests</caption>
+            <caption id="table-caption" class="visually-hidden">Pending requests</caption>
             <thead>
                 <tr>
                     <th>Topic</th>
@@ -71,7 +71,7 @@
                     <td>{{ dayjs(request.created).format("YYYY-MM-DD HH:mm:ss") }}</td>
                     <td>{{ request.answerSet.user.name }}</td>
                     <td>
-                        <form method="POST" action="/admin/forms/handle-request">
+                        <form method="POST" action="/admin/forms/handle-request" style="gap: .5rem;">
                             <input type="hidden" name="requestId" value="{{request.id}}"></input>
                             <input type="hidden" name="answerSetId" value="{{request.answerSet.id}}"></input>
                             <input type="submit" name="approve" value="Approve"></input>

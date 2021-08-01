@@ -1,0 +1,82 @@
+@import url('colors.css');
+
+header a:link, header a:visited {
+    text-decoration: none;
+}
+header > div {
+    display: grid;
+    border-bottom: 1vh solid var(--primary);
+    grid-template-areas: "title nav";
+}
+
+header h1 {
+    padding: 0;
+    margin: 0;
+    font-size: 1.5rem;
+    align-content: center;
+    grid-area: title;
+}
+header nav {
+    grid-area: nav;
+}
+header h1 a, header h1 a:hover {
+    text-decoration: none !important;
+    color: black !important;
+}
+
+header nav ul {
+    display: flex;
+    flex-wrap: nowrap;
+    list-style-type: none;
+    padding: 0;
+    margin: .5rem;
+    gap: 2rem;
+    justify-content: right;
+}
+
+header nav li {
+    flex: 0 1;
+    white-space: nowrap;
+    text-decoration: none;
+}
+header button, header input[type=submit] {
+    background: inherit;
+    border: thin solid var(--primary);
+}
+
+.switcher {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--s1);
+    flex-basis: calc(( 40rem - 100%) * 999);
+}
+  
+.switcher > * {
+    flex-grow: 1;
+}
+  
+.switcher > :nth-last-child(n+ 3),
+.switcher > :nth-last-child(n+ 3) ~ * {
+    flex-basis: 100%;
+}
+header nav.switcher {
+    --s1: 1rem;
+}
+
+@media (max-width: 768px) {
+    header h1 {
+        text-align: center;
+    }
+    header nav ul {
+        justify-content: center;
+        gap: 1rem;
+        margin: 0;
+    }
+    nav {
+        margin-bottom: 1rem;
+    }
+    header > div {
+        grid-template-areas: "title" 
+        "nav";
+    }
+}

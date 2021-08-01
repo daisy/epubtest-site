@@ -1,9 +1,15 @@
 {%- extends 'base/admin-base.njk' -%}
 {%- block content -%}
 
-<main>
+<main class="center">
+    <style>
+        input {
+            width: 20rem;
+        }
+        
+    </style>
     <h2>{{title}}</h2>
-    <form action="{{action}}" method="POST" class="simple">
+    <form action="{{action}}" method="POST">
         <div>
             <label for="name">Name</label>
             <input type="text" label="Name" name="name" id="name" value="{{software.name}}" required>
@@ -16,7 +22,7 @@
             <label for="vendor">Vendor</label>
             <input type="text" label="Vendor" name="vendor" id="vendor" value="{{software.vendor}}">
         </div>
-        <div>
+        <div class="inline-control">
             <label for="active">Show in dropdown?</label>
             <input type="checkbox" label="Show in dropdown?" name="active" id="active" {% if software.active or showInDropdown -%}checked="checked"{%-endif-%}>
         </div>

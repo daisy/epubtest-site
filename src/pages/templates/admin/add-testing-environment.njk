@@ -3,7 +3,13 @@
 {%- block content -%}
 
 <main class="center">
-    <form action="/admin/forms/add-testing-environment" method="POST" class="simple" id="new-testing-environment">
+    <style>
+    #new-testing-environment label {
+        font-weight: bold;
+    }
+    </style>
+    <form action="/admin/forms/add-testing-environment" method="POST" id="new-testing-environment">
+        <section>
         <h2>Select software</h2>
         <p>Using the following dropdowns, select all the software/devices for this new testing environment. You may add new software/devices as well.</p>
 
@@ -45,30 +51,28 @@
                 <p><a href="/admin/add-software/{{swtypelabels.addressPart}}">Add new {{swtypelabels.humanLabel| lower}}</a></p>
             </div>
         {%- endfor -%}
-        
-        <div>
+        </section>
+        <section>
             <h2>Select options</h2>
-            <p>
-                
+            <div class="inline-control">
                 <label for="testedWithBraille">Tested with Braille</label>
                 <input type="checkbox" name="testedWithBraille">
-            </p>
+            </div>
     
-            <p>
-                
+            <div class="inline-control">
                 <label for="testedWithScreenreader">Tested with Screenreader</label>
                 <input type="checkbox" name="testedWithScreenreader">
-            </p>
+            </div>
     
-            <p>
+            <div class="inline-control">
                 <label for="input-type">Select the type of input:</label>
                 <select name="input" id="input-type">
                     <option value="KEYBOARD">Keyboard</option>
                     <option value="MOUSE">Mouse</option>
                     <option value="TOUCH">Touch</option>
                 </select>
-            </p>
-        </div>
+            </div>
+        </section>
         
         <input type="submit" value="Save">
     </form>

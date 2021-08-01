@@ -14,8 +14,27 @@
 {%- block content -%}
 
 <script type="module" src="/js/table.js"></script>
-<main>
-    <h2>{{ softwareName.SoftwareName(testingEnvironment.readingSystem) }}</h2>
+<main class="with-sidebar">
+    
+    <div>
+    {%- if isAnswerSetPreview == false -%}
+        <a href="#testing-environment" class="skipnav">Skip navigation</a>
+        <nav aria-labelled-by="topics-title" class="secondary-nav">
+            <h2 id="topics-title">Topics</h2>
+            <ul>
+                {%- for answerSet in testingEnvironment.answerSets -%}
+                {%- if answerSet.isTested -%}
+                <li><a href="#{{answerSet.testBook.topic.id}}">{{topicNames.TopicName(answerSet.testBook.topic.id)}}</a></li>
+                {%- endif -%}
+                {%- endfor -%}
+            </ul>
+        </nav>
+    {%- endif -%}
+    </div>
+
+    <div class="testing-environment-results">
+    <section>
+    <h2 id="testing-environment">{{ softwareName.SoftwareName(testingEnvironment.readingSystem) }}</h2>
 
     {%- if isAnswerSetPreview -%}
     <p class="message">This is a preview. &nbsp;
@@ -30,7 +49,8 @@
     {%- endif -%}
     
     {{ testingEnvironmentDetails.TestingEnvironmentDetails(testingEnvironment) }}
-    
+    </section>
+
     {%- if isAnswerSetPreview -%}
     {{ AnswerSet(answerSet, 3) }}
     {%- else -%}
@@ -40,6 +60,7 @@
     {%- endif -%}
     {%- endfor -%}
     {%- endif -%}
+    </div>
 </main>
 
 {%- endblock -%}
@@ -47,12 +68,13 @@
 
 {%- import "components/user-credit.njk" as userCredit -%}
 {%- macro AnswerSet(answerSet, headingLevel) -%}
+<section>
 <script type="module">
     import { EnhancedTable } from '/js/table.js';
     window.addEventListener("load", () => {
         let tableElm = document.querySelector("#table-{{answerSet.id}}");
         let tableControlsElm = document.querySelector("#table-controls-{{answerSet.id}}");
-        let enhancedTable = new EnhancedTable(tableElm, tableControlsElm);
+        let enhancedTable = new EnhancedTable(tableElm, tableControlsElm, "answers-{{answerSet.id}}");
         enhancedTable.enableSearch();
         enhancedTable.enableFilters([
             {
@@ -87,7 +109,7 @@
 <p class="limit">{{answerSet.summary}}</p>
 {%-endif-%}
 
-<div id="table-controls-{{answerSet.id}}"></div>
+<div id="table-controls-{{answerSet.id}}" class="table-controls"></div>
 <div role="region" tabindex="0" aria-labelledby="table-caption-{{answerSet.id}}">
     <table id="table-{{answerSet.id}}">
         <caption id="table-caption-{{answerSet.id}}">Test results for {{topicNames.TopicName(answerSet.testBook.topic.id)}}</caption>
@@ -113,19 +135,6 @@
         </tbody>
     </table>
 </div>
+</section>
 {%- endmacro -%}
 
-{%- block nav -%}
-{%- if answerSetIsPreview == false -%}
-<nav aria-labelled-by="topics-title" class="secondary-nav">
-    <h2 id="topics-title">Topics</h2>
-    <ul>
-        {%- for answerSet in testingEnvironment.answerSets -%}
-        {%- if answerSet.isTested -%}
-        <li><a href="#{{answerSet.testBook.topic.id}}">{{topicNames.TopicName(answerSet.testBook.topic.id)}}</a></li>
-        {%- endif -%}
-        {%- endfor -%}
-    </ul>        
-</nav>
-{%- endif -%}
-{%- endblock -%}

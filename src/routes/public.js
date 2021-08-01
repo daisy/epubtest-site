@@ -44,7 +44,8 @@ router.get('/results/:testingEnvironmentId', async (req, res, next) => {
     }
 
     return res.render('testing-environment.njk', {
-        testingEnvironment: dbres.data.testingEnvironment
+        testingEnvironment: dbres.data.testingEnvironment,
+        isAnswerSetPreview: false
     });
 });
 
