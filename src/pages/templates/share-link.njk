@@ -17,6 +17,11 @@
     ul.detailslist > li span {
         display: block;
     }
+    /* disable until we are sure we're on localhost or https */
+    /* clipboard doesn't work over http */
+    #copy-link {
+        display: none; 
+    }
 </style>
 <main>
     <h2>Private link to results</h2>
@@ -44,6 +49,9 @@
     document.addEventListener("DOMContentLoaded", e => {
         let fullLink = new URL("/answers/{{answerSet.id}}/{{accessKey}}", window.location.href).href;
         document.querySelector("#answer-set-link").textContent = fullLink;
+        if (document.location.host == "localhost" || document.location.href.indexOf("https") != -1) {
+            document.querySelector("#copy-link").style["display"] = "block";
+        }
         document.querySelector("#copy-link").addEventListener("click", async e => {
             document.querySelector("#copy-status").textContent = "";
             await navigator.clipboard.writeText(fullLink);

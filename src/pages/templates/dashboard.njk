@@ -6,6 +6,11 @@
 {%- import "components/topic-names.njk" as topicNames -%}
 {%- set title = "Dashboard" -%}
 {%- block content -%}
+<style>
+    button.copyLink {
+        display: none;
+    }
+</style>
 <main class="with-sidebar">
 {%- if testingEnvironments.length != 0 -%}
 <nav aria-labelled-by="navlabel" class="secondary-nav">
@@ -120,6 +125,9 @@
 <script>
     document.addEventListener("DOMContentLoaded", e => {
         let copyPublicLinkButtons = Array.from(document.querySelectorAll(".copyLink"));
+        if (document.location.host == "localhost" || document.location.href.indexOf("https") != -1) {
+            copyPublicLinkButtons.map(button => button.style["display"] = "block");
+        }
         copyPublicLinkButtons.map(button => button.addEventListener("click", async e => {
             let relLink = button.getAttribute("data-href");
             let fullLink = new URL(relLink, window.location.href).href;

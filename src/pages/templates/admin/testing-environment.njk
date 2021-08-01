@@ -24,6 +24,9 @@
         flex-direction: column;
         gap: 3rem;
     }
+    button.copyLink {
+        display: none;
+    }
     </style>
     <h2>Manage Testing Environment</h2>
     {{ testingEnvironmentLabels.TestingEnvironmentTitle (testingEnvironment, 'h3', 'p')}}
@@ -157,6 +160,9 @@
 <script>
     document.addEventListener("DOMContentLoaded", e => {
         let copyPublicLinkButtons = Array.from(document.querySelectorAll(".copyLink"));
+        if (document.location.host == "localhost" || document.location.href.indexOf("https") != -1) {
+            copyPublicLinkButtons.map(button => button.style["display"] = "block");
+        }
         copyPublicLinkButtons.map(button => button.addEventListener("click", async e => {
             let relLink = button.getAttribute("data-href");
             let fullLink = new URL(relLink, window.location.href).href;
