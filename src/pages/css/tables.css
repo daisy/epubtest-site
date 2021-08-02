@@ -191,10 +191,6 @@ thead th.sortable[aria-sort='descending']::after {
     column-gap: 2rem;
 }
 
-.table-controls .hidden {
-    display: none;
-}
-
 .table-controls button {
     height: min-content;
     align-self: end;
