@@ -24,7 +24,6 @@
         
         {%- for swtype in softwareTypes -%}
             {%- set swtypelabels = getSoftwareTypeLabels(swtype) -%}
-            
             {%- set softwares = [] -%}
             {%- if swtype == 'readingSystem' -%}
             {%- set softwares = readingSystems -%}
@@ -39,8 +38,8 @@
             {%- endif -%}
 
             <div>
-                <label for="{{swtypelabels.type}}">Select {{swtypelabels.humanLabel| lower}}</label>
-                <select name="{{swtype}}Id" id="{{swtype}}">
+                <label for="{{swtypelabels.addressPart}}">Select {{swtypelabels.humanLabel| lower}}</label>
+                <select name="{{swtype}}Id" id="{{swtypelabels.addressPart}}">
                     {%- if swtype == 'assistiveTechnology' or swtype == 'browser' or swtype == "device" -%}
                     <option value="none">None</option>
                     {%- endif -%}
@@ -56,12 +55,12 @@
             <h2>Select options</h2>
             <div class="inline-control">
                 <label for="testedWithBraille">Tested with Braille</label>
-                <input type="checkbox" name="testedWithBraille">
+                <input type="checkbox" name="testedWithBraille" id="testedWithBraille">
             </div>
     
             <div class="inline-control">
                 <label for="testedWithScreenreader">Tested with Screenreader</label>
-                <input type="checkbox" name="testedWithScreenreader">
+                <input type="checkbox" name="testedWithScreenreader" id="testedWithScreenreader">
             </div>
     
             <div class="inline-control">
