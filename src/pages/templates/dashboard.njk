@@ -125,7 +125,7 @@
 <script>
     document.addEventListener("DOMContentLoaded", e => {
         let copyPublicLinkButtons = Array.from(document.querySelectorAll(".copyLink"));
-        if (document.location.host == "localhost" || document.location.href.indexOf("https") != -1) {
+        if (document.location.hostname == "localhost" || document.location.href.indexOf("https") != -1) {
             copyPublicLinkButtons.map(button => button.style["display"] = "block");
         }
         copyPublicLinkButtons.map(button => button.addEventListener("click", async e => {

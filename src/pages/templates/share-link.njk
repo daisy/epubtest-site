@@ -49,7 +49,7 @@
     document.addEventListener("DOMContentLoaded", e => {
         let fullLink = new URL("/answers/{{answerSet.id}}/{{accessKey}}", window.location.href).href;
         document.querySelector("#answer-set-link").textContent = fullLink;
-        if (document.location.host == "localhost" || document.location.href.indexOf("https") != -1) {
+        if (document.location.hostname == "localhost" || document.location.href.indexOf("https") != -1) {
             document.querySelector("#copy-link").style["display"] = "block";
         }
         document.querySelector("#copy-link").addEventListener("click", async e => {
