@@ -134,7 +134,7 @@
                         </a>
                     </td>
                     <td>
-                        {%- if testingEnvironment.assistiveTechnology -%}
+                        {%- if testingEnvironment.assistiveTechnology and testingEnvironment.assistiveTechnology.name -%}
                         <a href="/admin/software/{{ testingEnvironment.assistiveTechnology.id }}">
                         {{ testingEnvironmentLabels.SoftwareTitle(testingEnvironment.assistiveTechnology) }}
                         </a>
