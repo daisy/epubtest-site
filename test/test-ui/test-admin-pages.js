@@ -104,8 +104,8 @@ describe('test-admin-pages', function () {
         it("can add a new testing environment", async function() {
             await helpers.goto(driver, siteUrl + "/admin/add-testing-environment");
             
-            await helpers.clickElement(driver, "#readingSystem > option:nth-child(2)");
-            await helpers.clickElement(driver, "#assistiveTechnology > option:nth-child(2)");
+            await helpers.clickElement(driver, "#reading-system > option:nth-child(2)");
+            await helpers.clickElement(driver, "#assistive-technology > option:nth-child(2)");
             await helpers.clickElement(driver, "#os > option:nth-child(1)");
             await helpers.clickElement(driver, "#browser > option:nth-child(1)");
             await helpers.clickElement(driver, "#device > option:nth-child(1)");
