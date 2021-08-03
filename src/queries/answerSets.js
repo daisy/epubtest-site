@@ -3,6 +3,7 @@ import * as answers from "./answers.js";
 import * as testBooks from "./testBooks.js";
 import * as users from './users.js';
 import * as testEnvs from "./testingEnvironments.js";
+import * as privateAccessTokens from './privateAccessTokens.js';
 
 const BASIC_FIELDS = () => `
 id
@@ -26,6 +27,9 @@ user {
 }
 testingEnvironment {
     ${testEnvs.BASIC_FIELDS()} 
+}
+privateAccessTokens {
+    ${privateAccessTokens.BASIC_FIELDS()}
 }`;
 
 const FIELDS_WITH_USER_LOGIN = () => `

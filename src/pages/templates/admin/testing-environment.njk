@@ -6,77 +6,28 @@
 
 {%- set title = "Admin: Testing Environment" -%}
 {%- block content -%}
-<script type="module" src="/js/data-table.js"></script>
+<script type="module" src="/js/table.js"></script>
 <script type="module">
-    import * as helpers from '/js/tables/data-table-helpers.js';
-    import * as tableSettings from '/js/tables/admin-testing-environment-table-settings.js';
-    import { style } from '/js/data-table-style.js';
-
-    let rows = {{testingEnvironment.answerSets | dump | safe}};
-    let requestsToPublish = {
-        {%- for answerSet in testingEnvironment.answerSets -%}
-        {%set requestToPublish = getRequestToPublish(answerSet.id) %}
-        {%- if requestToPublish -%}
-        {{answerSet.id}}: {{getRequestToPublish(answerSet.id) | dump | safe }},
-        {%- endif -%}
-        {%- endfor -%}
-    };
-    requestsToPublish = {{requestsToPublish | dump | safe }};
-    let users = {{users | dump | safe}};
-    let testingEnvironment = {{testingEnvironment | dump | safe}};
-    let headers = [
-        {
-            title: "Topic",
-            id: "topic",
-            sort: (a, b) => helpers.numberSort(a, b, row => row.testBook.topic.order),
-            sortIs: 'asc'
-        },
-        {
-            title: "Test book version",
-            id: "testBookVersion"
-        },   
-        {
-            title: "Assigned to",
-            id: "assignedTo",
-            sort: (a, b) => helpers.stringSort(a, b, row => row.user.name),
-            sortIs: 'asc'
-        },
-        {
-            title: "Score",
-            id: "score",
-            sort: (a, b) => helpers.numberSort(a, b, row => helpers.calcScore(row.score)),
-            sortIs: 'asc'
-        },
-        {
-            title: "Edit",
-            id: "edit"
-        },
-        {
-            title: "Status",
-            id: "status",
-            sort: (a, b) => helpers.booleanSort(a, b, row => row.isPublic),
-            sortIs: 'asc'
-        },
-        {
-            title: "Publishing requested",
-            id: "publishingRequested",
-            sort: (a, b) => helpers.booleanSort(a, b, row => requestsToPublish.hasOwnProperty(row.id)),
-            sortIs: 'asc'
-        }
-    ];
+    import { EnhancedTable } from '/js/table.js';
     
-    let dataTable = document.querySelector("data-table");
-    dataTable.bodyCellDisplay = (header, row, headerIdx, rowIdx) => 
-        tableSettings.bodyCellDisplay(header, row, headerIdx, rowIdx, requestsToPublish, testingEnvironment, users);
-    dataTable.textSearchFilter = tableSettings.textSearchFilter;
-    dataTable.filters = tableSettings.filters(requestsToPublish);
-    dataTable.css = style;
-    dataTable.data = { headers, rows };
-    window.addEventListener("resize", () => {
-        dataTable.render();
-    }); 
+    window.addEventListener("load", () => {
+        let tableElm = document.querySelector("table");
+        let tableControlsElm = document.querySelector("#table-controls");
+        let enhancedTable = new EnhancedTable(tableElm, tableControlsElm);
+        enhancedTable.enableSearch();
+    });
 </script>
 <main>
+    <style>
+    .testing-environment-results {
+        display: flex;
+        flex-direction: column;
+        gap: 3rem;
+    }
+    button.copyLink {
+        display: none;
+    }
+    </style>
     <h2>Manage Testing Environment</h2>
     {{ testingEnvironmentLabels.TestingEnvironmentTitle (testingEnvironment, 'h3', 'p')}}
     {{ testingEnvironmentDetails.TestingEnvironmentDetails(testingEnvironment) }}
@@ -112,94 +63,114 @@
         public answer sets. All answer sets are shown below.
     </p>
     
-    <data-table 
-        summary="Management of answer sets for the testing environment"
-        defaultSortHeader="0"
-    >
-    </data-table>
-
-    <noscript>
-    <table class="striped">
-        <thead>
+    <div id="table-controls" class="table-controls"></div>
+    <div aria-labelledby="table-caption" role="region" tabindex="0">
+        <table>
+            <caption id="table-caption">Details about answer sets for this testing environment</caption>
+            <thead>
+                <tr>
+                    <th>Topic</th>
+                    <th>Test book version</th>
+                    <th>Assigned to</th>
+                    <th>Score</th>
+                    <th>Edit</th>
+                    <th>Status</th>
+                    <th>Publishing requested</th>
+                    <th>Share</th>
+                </tr>
+            </thead>
+            <tbody>
+            {%- for answerSet in testingEnvironment.answerSets -%}
+            {%- set requestToPublish=getRequestToPublish(answerSet.id) -%}
+                    
             <tr>
-                <th>Topic</th>
-                <th>Test book version</th>
-                <th>Assigned to</th>
-                <th>Score</th>
-                <th>Edit</th>
-                <th>Status</th>
-                <th>Publishing requested</th>
-            </tr>
-        </thead>
-        <tbody>
-        {%- for answerSet in testingEnvironment.answerSets -%}
-        {%- set requestToPublish=getRequestToPublish(answerSet.id) -%}
-                
-        <tr>
-            <td>{{answerSet.testBook.topic.id}}</td>
-            <td><a href="/books/{{answerSet.testBook.filename}}">
-                v{{ answerSet.testBook.version }} ({{ answerSet.testBook.lang.id }})
-                </a>
-            </td>
-            <td>
-                <form method="POST" action="/admin/forms/set-user">
-                    <select name="userId">
-                        
-                        {%- if answerSet.user == null -%}
-                        <option value="None" selected="selected">None</option>
-                        {%- else -%}
-                        <option value="None">None</option>
-                        {%- endif -%}
+                <td>{{answerSet.testBook.topic.id}}</td>
+                <td><a href="/books/{{answerSet.testBook.filename}}">
+                    v{{ answerSet.testBook.version }} ({{ answerSet.testBook.lang.id }})
+                    </a>
+                </td>
+                <td>
+                    <form method="POST" action="/admin/forms/set-user">
+                        <select name="userId">
+                            
+                            {%- if answerSet.user == null -%}
+                            <option value="None" selected="selected">None</option>
+                            {%- else -%}
+                            <option value="None">None</option>
+                            {%- endif -%}
 
-                        {%- for user in users -%}
-                        {%- if answerSet.user and user.id == answerSet.user.id -%}
-                        <option value="{{user.id}}" selected="selected">
-                        {%- else -%}
-                        <option value="{{user.id}}">
-                        {%- endif -%}
-                        {{user.name}}
-                        </option>
-                        {%- endfor -%}
-                    </select>
-                    <input type="hidden" name="answerSetId" value="{{answerSet.id}}">
-                    <input type="hidden" name="next" value="/admin/testing-environment/{{testingEnvironment.id}}">
-                    <input type="submit" value="Assign">  
-                </form>
-            </td>
-            
-            <td>{{formatScore.FormatScore(answerSet)}}</td>
-            <td><a href="/user/edit-results/{{answerSet.id}}?next=/admin/testing-environment/{{testingEnvironment.id}}">Edit</td>
-            <td>
-                {%- if answerSet.isPublic -%}
-                <span>Published</span>
-                <form method="POST" action="/admin/forms/unpublish">
-                    <input type="hidden" name="next" value="/admin/testing-environment/{{testingEnvironment.id}}"/>
-                    <input type="hidden" name="testingEnvironmentId" value="{{testingEnvironment.id}}"/>
-                    <input type="hidden" name="answerSetId" value="{{answerSet.id}}"/>
-                    <input type="submit" name="submit" value="Unpublish"/>
-                </form>
-                {%- else -%}
-                <span>Unpublished</span>
-                <form method="POST" action="/admin/forms/publish">
-                    <input type="hidden" name="next" value="/admin/testing-environment/{{testingEnvironment.id}}"/>
-                    <input type="hidden" name="testingEnvironmentId" value="{{testingEnvironment.id}}"/>
-                    <input type="hidden" name="answerSetId" value="{{answerSet.id}}"/>
-                    <input type="submit" name="submit" value="Publish"/>
-                </form>
-                {%- endif -%}
-            </td>
-            <td>
-                {%- if requestsToPublish[answerSet.id] -%}
-                Yes
-                {%- else -%}
-                No
-                {%- endif -%}
-            </td>
-        </tr>
-        {%- endfor -%}
-        </tbody>
-    </table>
-    </noscript>
+                            {%- for user in users -%}
+                            {%- if answerSet.user and user.id == answerSet.user.id -%}
+                            <option value="{{user.id}}" selected="selected">
+                            {%- else -%}
+                            <option value="{{user.id}}">
+                            {%- endif -%}
+                            {{user.name}}
+                            </option>
+                            {%- endfor -%}
+                        </select>
+                        <input type="hidden" name="answerSetId" value="{{answerSet.id}}">
+                        <input type="hidden" name="next" value="/admin/testing-environment/{{testingEnvironment.id}}">
+                        <input type="submit" value="Assign">  
+                    </form>
+                </td>
+                
+                <td>{{formatScore.FormatScore(answerSet)}}</td>
+                <td><a href="/user/edit-results/{{answerSet.id}}?next=/admin/testing-environment/{{testingEnvironment.id}}">Edit</td>
+                <td>
+                    {%- if answerSet.isPublic -%}
+                    <span>Published</span>
+                    <form method="POST" action="/admin/forms/unpublish">
+                        <input type="hidden" name="next" value="/admin/testing-environment/{{testingEnvironment.id}}"/>
+                        <input type="hidden" name="testingEnvironmentId" value="{{testingEnvironment.id}}"/>
+                        <input type="hidden" name="answerSetId" value="{{answerSet.id}}"/>
+                        <input type="submit" name="submit" value="Unpublish"/>
+                    </form>
+                    {%- else -%}
+                    <span>Unpublished</span>
+                    <form method="POST" action="/admin/forms/publish">
+                        <input type="hidden" name="next" value="/admin/testing-environment/{{testingEnvironment.id}}"/>
+                        <input type="hidden" name="testingEnvironmentId" value="{{testingEnvironment.id}}"/>
+                        <input type="hidden" name="answerSetId" value="{{answerSet.id}}"/>
+                        <input type="submit" name="submit" value="Publish"/>
+                    </form>
+                    {%- endif -%}
+                </td>
+                <td>
+                    {%- if requestsToPublish[answerSet.id] -%}
+                    Yes
+                    {%- else -%}
+                    No
+                    {%- endif -%}
+                </td>
+                <td>
+                    {% if answerSet.isPublic %}
+                    <button class="copyLink" data-href="/results/{{answerSet.testingEnvironment.id}}#{{answerSet.testBook.topic.id}}">
+                    Copy public link
+                    </button>
+                    {% else %}
+                    <a href="/user/share-link/{{answerSet.id}}">Generate private link</a>
+                    {% endif %}
+                </td>
+            </tr>
+            {%- endfor -%}
+            </tbody>
+        </table>
+    </div>
+<script>
+    document.addEventListener("DOMContentLoaded", e => {
+        let copyPublicLinkButtons = Array.from(document.querySelectorAll(".copyLink"));
+        if (document.location.hostname == "localhost" || document.location.href.indexOf("https") != -1) {
+            copyPublicLinkButtons.map(button => button.style["display"] = "block");
+        }
+        copyPublicLinkButtons.map(button => button.addEventListener("click", async e => {
+            let relLink = button.getAttribute("data-href");
+            let fullLink = new URL(relLink, window.location.href).href;
+            await navigator.clipboard.writeText(fullLink);
+        }));
+    });
+    
+</script>
 
     <h3>Assign all</h3>
     <p>Instead of assigning each answer set individually, you can assign them all to one user here (<em>warning</em>: this overwrites any current assignments):</p>

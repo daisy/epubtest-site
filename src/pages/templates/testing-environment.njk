@@ -4,136 +4,137 @@
 {%- import "components/testing-environment-labels.njk" as testingEnvironmentLabels -%}
 {%- import "components/software-name.njk" as softwareName -%}
 {%- import "components/format-score.njk" as formatScore -%}
+{%- import "components/topic-names.njk" as topicNames -%}
+{%- import "components/test-result-names.njk" as testResultNames -%}
 {%- set testEnvTitle = testingEnvironmentLabels.TestingEnvironmentOneLinerPlainText(testingEnvironment) -%}
 {%- set title = "Results for " + testEnvTitle | cleanString -%}
+{%- if isAnswerSetPreview -%}
+{%- set title = "Results preview for " + testEnvTitle | cleanString -%}
+{%- endif -%}
 {%- block content -%}
 
-<script type="module" src="/js/data-table.js"></script>
-<main>
-    <h2>{{ softwareName.SoftwareName(testingEnvironment.readingSystem) }}</h2>
+<script type="module" src="/js/table.js"></script>
+<main class="with-sidebar">
+    
+    <div>
+    {%- if isAnswerSetPreview == false -%}
+        <a href="#testing-environment" class="skipnav">Skip navigation</a>
+        <nav aria-labelledby="topics-title" class="secondary-nav">
+            <h2 id="topics-title">Topics</h2>
+            <ul>
+                {%- for answerSet in testingEnvironment.answerSets -%}
+                {%- if answerSet.isTested -%}
+                <li><a href="#{{answerSet.testBook.topic.id}}">{{topicNames.TopicName(answerSet.testBook.topic.id)}}</a></li>
+                {%- endif -%}
+                {%- endfor -%}
+            </ul>
+        </nav>
+    {%- endif -%}
+    </div>
+
+    <div class="testing-environment-results">
+    <section>
+    <h2 id="testing-environment">{{ softwareName.SoftwareName(testingEnvironment.readingSystem) }}</h2>
+
+    {%- if isAnswerSetPreview -%}
+    <p class="message">This is a preview. &nbsp;
+    {%- if answerSet.isPublic == false -%}
+    These results have not been published yet.
+    {%- endif -%}
+    </p>
+    {%- endif -%}
     
     {%- if testingEnvironment.isArchived -%}
     <p class="archived">This testing environment has been archived.</p>
     {%- endif -%}
     
     {{ testingEnvironmentDetails.TestingEnvironmentDetails(testingEnvironment) }}
-    
+    </section>
+
+    {%- if isAnswerSetPreview -%}
+    {{ AnswerSet(answerSet, 3) }}
+    {%- else -%}
     {%- for answerSet in testingEnvironment.answerSets -%}
     {%- if answerSet.isTested -%}
-    {{ AnswerSet(answerSet, 3, displayUtils.getTopicName(answerSet.testBook.topic.id)) }}
+    {{ AnswerSet(answerSet, 3) }}
     {%- endif -%}
     {%- endfor -%}
+    {%- endif -%}
+    </div>
 </main>
 
 {%- endblock -%}
 
 
 {%- import "components/user-credit.njk" as userCredit -%}
-{%- macro AnswerSet(answerSet, headingLevel, topicName = '') -%}
+{%- macro AnswerSet(answerSet, headingLevel) -%}
+<section>
 <script type="module">
-    import * as helpers from '/js/tables/data-table-helpers.js';
-    import * as tableSettings from '/js/tables/test-results-table-settings.js';
-    import { style } from '/js/data-table-style.js';
-
-    let rows = {{answerSet.answers | dump | safe}};
-
-    let headers = [
-        {
-            title: "Test ID",
-            id: "testId"
-        },
-        {
-            title: "Name",
-            id: "name"
-        },   
-        {
-            title: "Description",
-            id: "description"
-        },
-        {
-            title: "Result",
-            id: "result"
-        },
-        {
-            title: "Notes",
-            id: "notes"
-        }
-    ];
-    
-    let dataTable = document.querySelector("#data-{{answerSet.id}}");
-    dataTable.bodyCellDisplay = tableSettings.bodyCellDisplay;
-    dataTable.textSearchFilter = tableSettings.textSearchFilter;
-    dataTable.css = style;
-    dataTable.data = {headers, rows};
-    window.addEventListener("resize", () => {
-        dataTable.render();
+    import { EnhancedTable } from '/js/table.js';
+    window.addEventListener("load", () => {
+        let tableElm = document.querySelector("#table-{{answerSet.id}}");
+        let tableControlsElm = document.querySelector("#table-controls-{{answerSet.id}}");
+        let enhancedTable = new EnhancedTable(tableElm, tableControlsElm, "answers-{{answerSet.id}}");
+        enhancedTable.enableSearch();
+        enhancedTable.enableFilters([
+            {
+                label: "Result",
+                pathFn: r => r.querySelector(`td:nth-child(4)`).textContent
+            }
+        ]);
     });
 </script>
 
-<h{{headingLevel}} id="{{answerSet.testBook.topic.id}}">Results for {{topicName}}: {{formatScore.FormatScore(answerSet)}}</h{{headingLevel}}>
+<h{{headingLevel}} id="{{answerSet.testBook.topic.id}}">
+    Results for {{topicNames.TopicName(answerSet.testBook.topic.id)}}: 
+    {{formatScore.FormatScore(answerSet)}}
+</h{{headingLevel}}>
+
 {%- if answerSet.lastModified -%}
 <p>Last updated: {{dayjs(answerSet.lastModified).format("D MMMM YYYY")}}</p>
 {%- endif -%}
+
 <p>Test book used: 
     <a href="/books/{{answerSet.testBook.filename}}">
         <em class="title">{{answerSet.testBook.title}}, version {{answerSet.testBook.version}}</em>
     </a>
 </p>
+
 {%- if answerSet.user and answerSet.user.includeCredit -%}
 <p>These tests were done by {{userCredit.UserCredit(answerSet.user)}}.</p>
-
 {%- endif -%}
 
 {%- if answerSet.summary != "" -%}
-    <h{{headingLevel+1}}>Summary</h{{headingLevel+1}}>
-    <p class="limit">{{answerSet.summary}}</p>
+<h{{headingLevel+1}}>Summary</h{{headingLevel+1}}>
+<p class="limit">{{answerSet.summary}}</p>
 {%-endif-%}
 
-<data-table 
-    id="data-{{answerSet.id}}" 
-    summary="Test results" 
-    customclass="test-results"
-    showTextSearch="true"
-    >
-</data-table>
-
-<noscript>
-<table class="striped" summary="Test results" id="data-{{answerSet.id}}">
-    <thead>
-        <tr>
-            <th>Test ID</th>
-            <th>Name</th>
-            <th>Description</th>
-            <th>Result</th>
-            <th>Notes</th>
-        </tr>
-    </thead>
-    <tbody>
-    {%- for answer in answerSet.answers -%}
-        <tr>
-            <td><a href="#{{answer.test.testId}}" id="{{answer.test.testId}}">{{answer.test.testId}}</a></td>
-            <td>{{answer.test.name}}</td>
-            <td>{{answer.test.description}}</td>
-            <td>{{displayUtils.resultNames[answer.value]}}</td>
-            <td>{%- if answer.notesArePublic -%}{{answer.notes}}{%- endif -%}</td>
-        </tr>
-    {%- endfor -%}
-    </tbody>
-</table>
-</noscript>
-
-
+<div id="table-controls-{{answerSet.id}}" class="table-controls"></div>
+<div role="region" tabindex="0" aria-labelledby="table-caption-{{answerSet.id}}">
+    <table id="table-{{answerSet.id}}">
+        <caption id="table-caption-{{answerSet.id}}">Test results for {{topicNames.TopicName(answerSet.testBook.topic.id)}}</caption>
+        <thead>
+            <tr>
+                <th>Test ID</th>
+                <th>Name</th>
+                <th>Description</th>
+                <th>Result</th>
+                <th>Notes</th>
+            </tr>
+        </thead>
+        <tbody>
+            {%- for answer in answerSet.answers -%}
+            <tr>
+                <td><a href="#{{answer.test.testId}}" id="{{answer.test.testId}}">{{answer.test.testId}}</a></td>
+                <td>{{answer.test.name}}</td>
+                <td>{{answer.test.description}}</td>
+                <td>{{testResultNames.TestResultName(answer.value)}}</td>
+                <td>{%- if answer.notesArePublic -%}{{answer.notes}}{%- endif -%}</td>
+            </tr>
+            {%- endfor -%}
+        </tbody>
+    </table>
+</div>
+</section>
 {%- endmacro -%}
 
-{%- block nav -%}
-<nav aria-labelled-by="topics-title" class="secondary-nav">
-    <h2 id="topics-title">Topics</h2>
-    <ul>
-        {%- for answerSet in testingEnvironment.answerSets -%}
-        {%- if answerSet.isTested -%}
-        <li><a href="#{{answerSet.testBook.topic.id}}">{{displayUtils.getTopicName(answerSet.testBook.topic.id)}}</a></li>
-        {%- endif -%}
-        {%- endfor -%}
-    </ul>        
-</nav>
-{%- endblock -%}

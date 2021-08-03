@@ -17,7 +17,7 @@
     <div>
         <h3>Edit Profile</h3>
         <p id="local-error" aria-live="polite"></p>
-        <form action="/user/forms/profile" method="POST" class="simple profile" id="profile-form">
+        <form action="/user/forms/profile" method="POST" id="profile-form" style="gap: .5rem;">
             <h4>Profile information</h4>
             <div>
                 <label for="name">Name</label>
@@ -31,7 +31,7 @@
                 <label for="website">Website</label>
                 <input type="text" name="website" id="website" value="{{user.website}}">
             </div>
-            <div>
+            <div class="inline-control">
                 <label for="includeCredit">Include credit</label>
                 <input type="checkbox" name="includeCredit" id="includeCredit" {%- if user.includeCredit -%}checked="checked"{%-endif-%}>
             </div>

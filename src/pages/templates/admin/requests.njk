@@ -1,71 +1,88 @@
 {%- extends 'base/admin-base.njk' -%}
 {%- set title = "Admin: Requests" -%}
+{%- import "components/topic-names.njk" as topicNames -%}
+{%- import "components/testing-environment-labels.njk" as testingEnvironmentLabels -%}
 {%- block content -%}
-<script type="module" src="/js/data-table.js"></script>
+<script type="module" src="/js/table.js"></script>
 <script type="module">
-    import * as tableSettings from '/js/tables/admin-requests-table-settings.js';
-    import * as helpers from '/js/tables/data-table-helpers.js';
-    import { style } from '/js/data-table-style.js';
-
-    let rows = {{requests | dump | safe}};
-
-    let headers = [
-        {
-            title: "Topic",
-            id: "topic",
-            sort: (a, b) => helpers.stringSort(a, b, row => row.answerSet.testBook.topic.id),
-            sortIs: 'asc'
-        },
-        {
-            title: "Testing Environment",
-            id: "testingEnvironment",
-            sort: (a, b) => helpers.sortBySoftwareName(a, b, row => row.answerSet.testingEnvironment.readingSystem),
-            sortIs: 'asc',
-        },
-        {
-            title: "Requested on",
-            id: "requestedOn",
-            sort: (a, b) => helpers.dateSort(a, b, row => row.created),
-            sortIs: 'desc'
-        },
-        {
-            title: "User",
-            id: "user",
-            sort: (a, b) => helpers.stringSort(a, b, row => row.answerSet.user.name),
-            sortIs: 'asc'
-        },
-        {
-            title: "Action",
-            id: "action"
+    import { EnhancedTable } from '/js/table.js';
+    window.addEventListener("load", () => {
+        let tableElm = document.querySelector("table");
+        let tableControlsElm = document.querySelector("#table-controls");
+        if (tableElm && tableControlsElm) {
+            let enhancedTable = new EnhancedTable(tableElm, tableControlsElm);
+            enhancedTable.enableSearch();
+            enhancedTable.enableFilters([
+                {
+                    label: "Topic",
+                    pathFn: r => r.querySelector(`td:nth-child(1)`).textContent.trim()
+                },
+                {
+                    label: "User",
+                    pathFn: r => r.querySelector(`td:nth-child(4)`).textContent.trim()
+                },
+                {
+                    label: "Reading system",
+                    pathFn: r => {
+                        let elm = r.querySelector(`td:nth-child(2) span.readingSystem span.name`);
+                        if (elm) {
+                            return elm.textContent.trim();
+                        }
+                        else {
+                            return "";
+                        }
+                    }
+                }
+            ]);
+            enhancedTable.enableSort([
+                {
+                    columnIndex: 2,
+                    type: "date",
+                    firstSort: "descending",
+                    pathFn: r => r.querySelector(`td:nth-child(3)`).textContent.replace(/[\n\r]+|[\s]{1,}/g, ' ').trim()
+                }
+            ]);
         }
-    ];
-    
-    let dataTable = document.querySelector("data-table");
-    if (rows.length) {
-        
-        dataTable.bodyCellDisplay = tableSettings.bodyCellDisplay;
-        dataTable.textSearchFilter = tableSettings.textSearchFilter;
-        dataTable.css = style;
-        dataTable.data = { headers, rows};  
-    }
-    window.addEventListener("resize", () => {
-        dataTable.render();
-    }); 
+    });
 </script>
 <main>
-    <h2>Manage Requests</h2>
+    <h2 id="pagename">Manage Requests</h2>
     {%- if requests.length == 0 -%}
     <p>No pending requests</p>
     {%- else -%}
-        <data-table 
-            summary="Requests to publish answer sets"
-            showTextSearch="true"
-            defaultSortHeader="2"
-        >
-        </data-table>
-        <noscript>
-        Javascript is required to view table(s) on this page.
-        </noscript>
+    <div id="table-controls" class="table-controls"></div>
+    <div aria-labelledby="table-caption" role="region" tabindex="0">
+        <table>
+            <caption id="table-caption" class="visually-hidden">Pending requests</caption>
+            <thead>
+                <tr>
+                    <th>Topic</th>
+                    <th>Testing environment</th>
+                    <th>Date requested</th>
+                    <th>User</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {%- for request in requests -%}
+                <tr>
+                    <td>{{ topicNames.TopicName(request.answerSet.testBook.topic.id) }}</td>
+                    <td>{{ testingEnvironmentLabels.TestingEnvironmentLink(request.answerSet.testingEnvironment) }}</td>
+                    <td>{{ dayjs(request.created).format("YYYY-MM-DD HH:mm:ss") }}</td>
+                    <td>{{ request.answerSet.user.name }}</td>
+                    <td>
+                        <form method="POST" action="/admin/forms/handle-request" style="gap: .5rem;">
+                            <input type="hidden" name="requestId" value="{{request.id}}"></input>
+                            <input type="hidden" name="answerSetId" value="{{request.answerSet.id}}"></input>
+                            <input type="submit" name="approve" value="Approve"></input>
+                            <input type="submit" name="deny" value="Deny"></input>
+                        </form>
+                    </td>
+                </tr>
+                {%- endfor -%}
+            </tbody>
+        </table>
+    </div>
     {%- endif -%}
 </main>
 

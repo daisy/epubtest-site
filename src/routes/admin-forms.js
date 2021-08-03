@@ -188,43 +188,7 @@ async (req, res, next) => {
     }
     
     let message = "";
-
-    // create new inactive login
-    // let dbres = await db.query(
-    //     Q.LOGINS.CREATE_NEW_LOGIN(), 
-    //     {
-    //         email: req.body.email,
-    //         password: '',
-    //         active: false
-    //     },
-    //     req.cookies.jwt
-    // );
-
-    // if (!dbres.success) {
-    //     message = `Could not create invitation: ${dbres.errors.map(err => err.message).join(', ')}`;
-    //     return res.status(422).redirect('/admin/add-user?message=' + encodeURIComponent(message));
-    // }
-    // let loginId = dbres.data.createNewLogin.integer;
-
-    // // create new user (will default to type = 'USER')
-    // dbres = await db.query(
-    //     Q.USERS.CREATE(),  
-    //     {
-    //         input: {
-    //             name: req.body.name,
-    //             loginId
-    //         }
-    //     },
-    //     req.cookies.jwt
-    // );
-
-    // if (!dbres.success) {
-    //     message = `Could not create invitation`;
-    //     return res.status(422).redirect('/admin/add-user?message=' + encodeURIComponent(message));
-    // }
-
-    // let userId = dbres.data.createUser.user.id;
-
+    
     // send invitation
     let dbres = await invite.createUserAndInvite(req.body.name, req.body.email, req.cookies.jwt);
     if (!dbres.success) {

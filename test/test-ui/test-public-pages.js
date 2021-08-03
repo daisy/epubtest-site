@@ -59,7 +59,7 @@ describe('test-public-pages', function () {
     it('has a results page with rows of data', async function () {
         await helpers.goto(driver, siteUrl + '/results');
         let dataTable = await driver.executeScript(
-            "return document.querySelector('data-table').shadowRoot.querySelector('table')"
+            "return document.querySelector('table')"
         );       
         let tableRows = await dataTable.findElements(By.css("tbody tr"));
         expect(tableRows.length).to.not.equal(0);
@@ -68,7 +68,7 @@ describe('test-public-pages', function () {
         // 1. are there table rows?
         await helpers.goto(driver, siteUrl + '/test-books');
         let dataTable = await driver.executeScript(
-            "return document.querySelector('data-table').shadowRoot.querySelector('table')"
+            "return document.querySelector('table')"
         );       
         let tableRows = await dataTable.findElements(By.css("tbody tr"));
         expect(tableRows.length).to.not.equal(0);
@@ -89,6 +89,7 @@ describe('test-public-pages', function () {
         await driver.wait(until.elementLocated(By.css('.message')), 3000);
         let messageText = await helpers.getText(driver, ".message");
         expect(messageText).to.contain("Password reset initiated");
+        // if failure: make sure nodemailer is started!
 
         // 2. test by entering an invalid email
         await helpers.goto(driver, siteUrl + '/forgot-password');

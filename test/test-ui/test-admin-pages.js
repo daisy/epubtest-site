@@ -54,10 +54,9 @@ describe('test-admin-pages', function () {
             let success = await helpers.login(driver, siteUrl + "/login", "sara@example.com", "password");
             expect(success).to.be.true;
             await helpers.goto(driver, siteUrl + "/user/dashboard");
-            await driver.wait(until.elementLocated(By.css("data-table")));
             // find request to publish button and press it
             let requestToPublishButton = await driver.executeScript(
-                `return document.querySelector("data-table").shadowRoot.querySelector("table tbody tr td:nth-child(4) input[name=submit]")`
+                `return document.querySelector("table tbody tr td:nth-child(4) input[name=submit]")`
             );
             if (requestToPublishButton) {
                 await requestToPublishButton.click();
@@ -71,7 +70,7 @@ describe('test-admin-pages', function () {
         });
         it ("has a request to publish", async function() {
             let requestRows = await driver.executeScript(
-                'return document.querySelector("data-table").shadowRoot.querySelector("table tbody tr")'
+                'return document.querySelector("table tbody tr")'
             );
             expect(requestRows.length).to.not.equal(0);
         });
@@ -79,7 +78,7 @@ describe('test-admin-pages', function () {
         after(async function() {
             // deny the request so that when this test runs again, it works
             let denyButton = await driver.executeScript(
-                `return document.querySelector("data-table").shadowRoot.querySelector("table tbody tr input[name=deny]")`
+                `return document.querySelector("table tbody tr input[name=deny]")`
             );
             await denyButton.click();
         });
@@ -93,7 +92,7 @@ describe('test-admin-pages', function () {
         it("has data", async function() {
             // make sure there's a nonempty data table
             let tableRows = await driver.executeScript(
-                "return document.querySelector('data-table').shadowRoot.querySelector('table tbody tr')"
+                "return document.querySelector('table tbody tr')"
             );
             expect(tableRows.length).to.not.equal(0);
         });
@@ -146,7 +145,7 @@ describe('test-admin-pages', function () {
         it("has data", async function() {
             // make sure there's a nonempty data table
             let tableRows = await driver.executeScript(
-                "return document.querySelector('data-table').shadowRoot.querySelector('table tbody tr')"
+                "return document.querySelector('table tbody tr')"
             );
             expect(tableRows.length).to.not.equal(0);
         });
@@ -159,7 +158,7 @@ describe('test-admin-pages', function () {
         it("has data", async function() {
             // make sure there's a nonempty data table
             let tableRows = await driver.executeScript(
-                "return document.querySelector('data-table').shadowRoot.querySelector('table tbody tr')"
+                "return document.querySelector('table tbody tr')"
             );
             expect(tableRows.length).to.not.equal(0);
         });
@@ -172,7 +171,7 @@ describe('test-admin-pages', function () {
         it("has data", async function() {
             // make sure there's a nonempty data table
             let tableRows = await driver.executeScript(
-                "return document.querySelector('data-table').shadowRoot.querySelector('table tbody tr')"
+                "return document.querySelector('table tbody tr')"
             );
             expect(tableRows.length).to.not.equal(0);
         });
@@ -185,7 +184,7 @@ describe('test-admin-pages', function () {
         it("has data", async function() {
             // make sure there's a nonempty data table
             let tableRows = await driver.executeScript(
-                "return document.querySelector('data-table').shadowRoot.querySelector('table tbody tr')"
+                "return document.querySelector('table tbody tr')"
             );
             expect(tableRows.length).to.not.equal(0);
         });
@@ -198,7 +197,7 @@ describe('test-admin-pages', function () {
         it("has data", async function() {
             // make sure there's a nonempty data table
             let tableRows = await driver.executeScript(
-                "return document.querySelector('data-table').shadowRoot.querySelector('table tbody tr')"
+                "return document.querySelector('table tbody tr')"
             );
             expect(tableRows.length).to.not.equal(0);
         });
@@ -211,7 +210,7 @@ describe('test-admin-pages', function () {
         it("has data", async function() {
             // make sure there's a nonempty data table
             let tableRows = await driver.executeScript(
-                "return document.querySelector('data-table').shadowRoot.querySelector('table tbody tr')"
+                "return document.querySelector('table tbody tr')"
             );
             expect(tableRows.length).to.not.equal(0);
         });
@@ -224,7 +223,7 @@ describe('test-admin-pages', function () {
         it("has data", async function() {
             // make sure there's a nonempty data table
             let tableRows = await driver.executeScript(
-                "return document.querySelector('data-table').shadowRoot.querySelector('table tbody tr')"
+                "return document.querySelector('table tbody tr')"
             );
             expect(tableRows.length).to.not.equal(0);
         });
@@ -240,7 +239,7 @@ describe('test-admin-pages', function () {
             await helpers.clickElement(driver, "input[value=Invite]");
             await driver.wait(until.elementLocated(By.css(".message")));
             let text = await helpers.getText(driver, ".message");
-            expect(text).to.contain(`User invite@example.com has been invited.`);
+            expect(text).to.contain(`User invite@example.com has been invited`);
         });
     });
     describe("test pending invitations page", async function() {
@@ -254,7 +253,7 @@ describe('test-admin-pages', function () {
         it("shows a pending invitation", async function() {
             await helpers.goto(driver, siteUrl + '/admin/invitations');
             let requestRows = await driver.executeScript(
-                'return document.querySelector("data-table").shadowRoot.querySelector("table tbody tr")'
+                'return document.querySelector("table tbody tr")'
             );
             expect(requestRows.length).to.not.equal(0);
         });

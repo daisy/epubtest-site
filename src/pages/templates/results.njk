@@ -1,5 +1,7 @@
 {%- extends 'base/base.njk' -%}
-
+{%- import "components/format-score.njk" as formatScore -%}
+{%- import "components/topic-names.njk" as topicNames -%}
+{%- import "components/testing-environment-labels.njk" as testingEnvironmentLabels -%}
 {%- if isArchivesPage -%}
 {%- set title="Archived Results" -%}
 {%- else -%}
@@ -8,40 +10,152 @@
 
 {%- block content -%}
 
-<script type="module" src="/js/data-table.js"></script>
+<script type="module" src="/js/table.js"></script>
 <script type="module">
-    import * as tableSettings from '/js/tables/results-table-settings.js';
-    import * as helpers from '/js/tables/data-table-helpers.js';
-    import {style} from '/js/data-table-style.js';
-
-    let headers = {{topics | dump | safe}};
-    let rows = {{testingEnvironments | dump | safe}};
-
-    headers = headers.map(header => ({
-        title: helpers.getTopicName(header.id),
-        topic: header.id,
-        order: header.order,
-        sort: (a, b) => helpers.sortByScore(header.id, a, b),
-        sortIs: 'desc'
-    }));
-
-    let firstColumn = {
-        title: "Testing Environment",
-        sort: (a, b) => helpers.sortBySoftwareName(a, b, row => row.readingSystem),
-        sortIs: 'asc',
-        order: 0
-    };
-
-    headers.splice(0, 0, firstColumn);
-
-    let dataTable = document.querySelector("data-table");
-    dataTable.bodyCellDisplay = tableSettings.bodyCellDisplay;
-    dataTable.filters = tableSettings.filters;
-    dataTable.textSearchFilter = tableSettings.textSearchFilter;
-    dataTable.css = style;
-    dataTable.data = {headers, rows};  
-    window.addEventListener("resize", () => {
-        dataTable.render();
+    import { EnhancedTable } from '/js/table.js';
+    
+    window.addEventListener("load", () => {
+        let tableElm = document.querySelector("table");
+        let tableControlsElm = document.querySelector("#table-controls");
+        let enhancedTable = new EnhancedTable(tableElm, tableControlsElm);
+        enhancedTable.enableSearch();
+        enhancedTable.enableSort([
+            {
+                columnIndex: 0, 
+                type: "alpha",
+                firstSort: "ascending",
+                pathFn: r => r.querySelector(`td:nth-child(1)`).textContent.replace(/[\n\r]+|[\s]{1,}/g, ' ').trim()
+            },
+            {
+                columnIndex: 1,
+                type: "numeric",
+                firstSort: "descending",
+                pathFn: r => {
+                    if (r.querySelector(`td:nth-child(2) > span.not-tested`) != null) {
+                        return -1;
+                    }
+                    let text = r.querySelector(`td:nth-child(2)`).textContent.replace(/[\n\r]+|[\s]{1,}/g, ' ').trim();
+                    text = text.replace("%", "");
+                    return parseFloat(text);
+                }
+            },
+            {
+                columnIndex: 2,
+                type: "numeric",
+                firstSort: "descending",
+                pathFn: r => {
+                    if (r.querySelector(`td:nth-child(3) > span.not-tested`) != null) {
+                        return -1;
+                    }
+                    let text = r.querySelector(`td:nth-child(3)`).textContent.replace(/[\n\r]+|[\s]{1,}/g, ' ').trim();
+                    text = text.replace("%", "");
+                    return parseFloat(text);
+                }
+            },
+            {
+                columnIndex: 3,
+                type: "numeric",
+                firstSort: "descending",
+                pathFn: r => {
+                    if (r.querySelector(`td:nth-child(4) > span.not-tested`) != null) {
+                        return -1;
+                    }
+                    let text = r.querySelector(`td:nth-child(4)`).textContent.replace(/[\n\r]+|[\s]{1,}/g, ' ').trim();
+                    text = text.replace("%", "");
+                    return parseFloat(text);
+                }
+            },
+            {
+                columnIndex: 4,
+                type: "numeric",
+                firstSort: "descending",
+                pathFn: r => {
+                    if (r.querySelector(`td:nth-child(5) > span.not-tested`) != null) {
+                        return -1;
+                    }
+                    let text = r.querySelector(`td:nth-child(5)`).textContent.replace(/[\n\r]+|[\s]{1,}/g, ' ').trim();
+                    text = text.replace("%", "");
+                    return parseFloat(text);
+                }
+            },
+            {
+                columnIndex: 5,
+                type: "numeric",
+                firstSort: "descending",
+                pathFn: r => {
+                    if (r.querySelector(`td:nth-child(6) > span.not-tested`) != null) {
+                        return -1;
+                    }
+                    let text = r.querySelector(`td:nth-child(6)`).textContent.replace(/[\n\r]+|[\s]{1,}/g, ' ').trim();
+                    text = text.replace("%", "");
+                    return parseFloat(text);
+                }
+            },
+            {
+                columnIndex: 6,
+                type: "numeric",
+                firstSort: "descending",
+                pathFn: r => {
+                    if (r.querySelector(`td:nth-child(7) > span.not-tested`) != null) {
+                        return -1;
+                    }
+                    let text = r.querySelector(`td:nth-child(7)`).textContent.replace(/[\n\r]+|[\s]{1,}/g, ' ').trim();
+                    text = text.replace("%", "");
+                    return parseFloat(text);
+                }
+            },
+            {
+                columnIndex: 7,
+                type: "numeric",
+                firstSort: "descending",
+                pathFn: r => {
+                    if (r.querySelector(`td:nth-child(8) > span.not-tested`) != null) {
+                        return -1;
+                    }
+                    let text = r.querySelector(`td:nth-child(8)`).textContent.replace(/[\n\r]+|[\s]{1,}/g, ' ').trim();
+                    text = text.replace("%", "");
+                    return parseFloat(text);
+                }
+            }
+        ]);
+        enhancedTable.enableFilters([
+            {
+                label: "Reading System",
+                pathFn: r => {
+                    let elm = r.querySelector(`td:nth-child(1) span.readingSystem span.name`);
+                    if (elm) {
+                        return elm.textContent.trim();
+                    }
+                    else {
+                        return "";
+                    }
+                }
+            },
+            {
+                label: "Assistive Technology",
+                pathFn: r => {
+                    let elm = r.querySelector(`td:nth-child(1) span.assistiveTechnology span.name`);
+                    if (elm) {
+                        return elm.textContent.trim();
+                    }
+                    else {
+                        return "";
+                    }
+                }
+            },
+            {
+                label: "OS",
+                pathFn: r => {
+                    let elm = r.querySelector(`td:nth-child(1) span.os span.name`);
+                    if (elm) {
+                        return elm.textContent.trim();
+                    }
+                    else {
+                        return "";
+                    }
+                }
+            }
+        ]);
     });
 </script>
 <main>
@@ -56,44 +170,39 @@
         the <a href="/test-books">test books page</a>.</p>
     {%- endif -%}
 
-    <data-table 
-        summary="Reading system testing results"
-        showTextSearch="true"
-        defaultSortHeader="0">
-    </data-table>
-
-    <noscript>
-        <table class="striped" summary="Reading system testing results">
+    <div id="table-controls" class="table-controls"></div>
+    <div role="region" aria-labelledby="table-caption" tabindex="0">
+        <table>
+            <caption class="visually-hidden" id="table-caption">Reading system testing results {%- if isArchivesPage %} (archives){%- endif -%}</caption>
             <thead>
                 <th>Testing Environment</th>
                 {%- for topic in topics -%}
-                    <th>{{displayUtils.getTopicName(topic.id) | safe}}</th>
+                    <th>{{topicNames.TopicName(topic.id)}}</th>
                 {%- endfor -%}
             </thead>
             <tbody>
                 {%- for testingEnvironment in testingEnvironments -%}
                 <tr>
-                    <td>{{displayUtils.testingEnvironmentLink(testingEnvironment, 'results') | safe}}</td>
-                
+                    <td>
+                        {{ testingEnvironmentLabels.TestingEnvironmentLink(testingEnvironment) }}
+                    </td>
                     {%- for topic in topics -%}
                     {%- set answerSet = displayUtils.getAnswerSetForTopic(testingEnvironment, topic.id) -%}
                     <td>
                         {%- if answerSet and answerSet.isTested -%}
                         <a href="/results/{{testingEnvironment.id}}/#{{answerSet.testBook.topic.id}}">
-                        {{displayUtils.makeScoreSpan(answerSet) | safe }}
+                        {{ formatScore.FormatScore(answerSet) }}
                         </a>
                         {%- else -%}
-                        {{displayUtils.makeScoreSpan(answerSet) | safe }}
+                        {{ formatScore.FormatScore(answerSet) }}
                         {%- endif -%}
                     </td>
                     {%- endfor -%}
                 </tr>
-                
                 {%- endfor -%}
             </tbody>
         </table>
-    </noscript>
-
+    </div>
     {%- if isArchivesPage == false -%}
     <p><a href="/archive">Archived Results</a></p>
     {%- endif -%}

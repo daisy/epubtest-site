@@ -2,7 +2,7 @@
 {%- set title="Server Information" -%}
 {%- block content -%}
 <main>
-    <h2>Server Information</h2>
+    <h2 id="pagename">Server Information</h2>
 
     <style>
         table {
@@ -12,7 +12,7 @@
             border: thin black solid;
         }
     </style>
-    <table>
+    <table aria-labelledby="pagename">
         <tbody>
             {%- for item in items -%}
             <tr>

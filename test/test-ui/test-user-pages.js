@@ -40,12 +40,12 @@ describe('test-user-pages', function () {
             let testenvTitles = await driver.findElements(By.css(".testing-environment-title"));
             expect(testenvTitles.length).to.equal(2);
     
-            let detailsLists = await driver.findElements(By.css("main .detailslist"));
+            let detailsLists = await driver.findElements(By.css("main div .detailslist"));
             expect(detailsLists.length).to.equal(4);
         });
         it (`shows tables with test topics, scores, and links`, async function() {
             let dataTables = await driver.executeScript(
-                `return Array.from(document.querySelectorAll("data-table")).map(r => r.shadowRoot.querySelector("table"))`
+                `return Array.from(document.querySelectorAll("table"))`
             );
 
             for(let dataTable of dataTables) {
@@ -55,7 +55,7 @@ describe('test-user-pages', function () {
                 let cols = await dataTable.findElements(By.css("tbody tr td:first-child"));
                 for (let col of cols) {
                     let text = await col.getText();
-                    expect(text).to.be.oneOf(['Basic Functionality', "Non-Visual Reading"]);
+                    expect(text).to.be.oneOf(['Basic Functionality', "Non-visual Reading"]);
                 }
     
                 cols = await dataTable.findElements(By.css("tbody tr td:nth-child(2)"));
@@ -96,7 +96,7 @@ describe('test-user-pages', function () {
         it("has working links for editing each set of results", async function() {
             
             let dataTables = await driver.executeScript(
-                `return Array.from(document.querySelectorAll("data-table")).map(r => r.shadowRoot.querySelector("table"))`
+                `return Array.from(document.querySelectorAll("table"))`
             );
 
             // collect all the links on the page before we have to navigate away from the page
@@ -126,7 +126,7 @@ describe('test-user-pages', function () {
         it("has a correctly structured 'edit results' page", async function() {
             // grab the first edit link from the dashboard
             let link = await driver.executeScript(
-                `return document.querySelector("data-table").shadowRoot.querySelector("table tbody tr td:nth-child(3) a")`
+                `return document.querySelector("table tbody tr td:nth-child(3) a")`
             );
             let href = await link.getAttribute("href");
             
@@ -210,6 +210,31 @@ describe('test-user-pages', function () {
         });
     });
     
+    describe("test private links", function() {
+        let privateLink;
+        it("can generate a private link", async function() {
+            await helpers.goto(driver, siteUrl + '/user/dashboard');
+            // get a privately shared link
+            let generatePrivateLinkLink = await driver.findElement(By.xpath(`//a[contains(@href, "/share-link/")]`));
+            let href = await generatePrivateLinkLink.getAttribute("href");
+            await helpers.goto(driver, href);
+            // try to access it
+            let privateLinkElement = await driver.findElement(By.css("#answer-set-link"));
+            privateLink = await privateLinkElement.getText();
+            expect(privateLink).to.not.be.empty;
+        });
+        it("can logout and access that link as an anonymous user", async function() {
+            await helpers.logout(driver);
+            await helpers.goto(driver, privateLink);
+            let pageTitle = await driver.getTitle();
+            expect(pageTitle.toLowerCase()).to.contain("preview");
+        });
+        after(async function() {
+            // re-login as a user so any tests after this are not affected
+            await helpers.login(driver, siteUrl + "/login", "sara@example.com", "password");
+        });
+    });
+
     after(async function () {
         await driver.quit();
         if (process.env.VSCODE_WORKAROUND) {

@@ -45,7 +45,7 @@ router.get('/results/:testingEnvironmentId', async (req, res, next) => {
 
     return res.render('testing-environment.njk', {
         testingEnvironment: dbres.data.testingEnvironment,
-        displayUtils
+        isAnswerSetPreview: false
     });
 });
 
@@ -108,8 +108,7 @@ router.get('/test-books', async (req, res, next) => {
 
     return res.render('test-books.njk', 
         {
-            testBooks: dbres.data.getLatestTestBooks,
-            displayUtils
+            testBooks: dbres.data.getLatestTestBooks
         }
     );
 });
@@ -183,5 +182,63 @@ router.get('/accept-invitation', async (req, res) => {
 router.get('/policy', async (req, res) => {
    return res.render(`policy.njk`);
 });
+router.get("/cookie-policy", async (req, res) => {
+    return res.render('cookie-policy.njk');
+});
+
+router.get('/answers/:answerSetId/:key', async(req, res, next) => {
+    let key = req.params.key;
+    // check if this key allows access to the answer set
+    let dbres = await db.query(
+        Q.PRIVATE_ACCESS_TOKENS.GET_FOR_KEY(),
+        {
+            key
+        }
+    );
+    if (!dbres.success) {
+        let err = new Error(`Invalid key (${key})`);
+        return next(err);
+    }
+    
+    // a key should be unique to an answer set but because of the query type, it will prob return an array of 1
+    let entry = dbres.data.privateAccessTokens.find(t => t.answerSetId == req.params.answerSetId);
+    
+    if (!entry) {
+        let err = new Error(`Could not access answer set (${req.params.answerSetId})`);
+        return next(err);
+    }
+    // get the jwt for this privateAccessToken entry
+    // this jwt will give read-only database access
+    let jwt = entry.token;
+    let token = utils.parseToken(jwt);
+    if (token) {
+        let dbres = await db.query(
+            Q.ANSWER_SETS.GET(),
+            { id: parseInt(req.params.answerSetId) },
+            jwt
+        );
+        
+        if (!dbres.success || dbres.data.answerSet == null) {
+            let err = new Error(`Could not get answer set (${req.params.answerSetId})`);
+            return next(err);
+        }
+
+        let answerSet = dbres.data.answerSet;
+
+        return res.render('testing-environment.njk',
+            {
+                testingEnvironment: answerSet.testingEnvironment,
+                answerSet,
+                isAnswerSetPreview: true
+            }
+        );
+    }
+    else {
+        let message = "Could not verify access."
+        let err = new Error(message);
+        return next(err);
+    }
+});
+
 
 export { router };

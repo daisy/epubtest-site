@@ -1,6 +1,7 @@
 import * as db from '../database/index.js';
 import * as Q from '../queries/index.js';
 import * as testBooks from './testBooks.js';
+
 import {undo} from './undo.js';
 
 // add an answer set for the topic, along with empty answers for all its tests
@@ -54,6 +55,7 @@ async function add(testBookId, testingEnvironmentId, jwt) {
             transactions.push({objectType: 'ANSWERS', id: dbres.data.createAnswer.id, actionWas: 'CREATE'});
         }
     }
+    
     catch (err) {
         // rollback any new db entries
         await undo(transactions, jwt);
@@ -317,14 +319,6 @@ async function assign(answerSetId, userId, jwt) {
     );
     return { success: dbres.success, errors: dbres.errors };
 }
-
-// module.exports = {
-//     add,
-//     remove,
-//     upgrade,
-//     assign,
-//     createAnswerSetsForNewTestBook
-// };
 
 export {
     add,

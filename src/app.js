@@ -10,6 +10,8 @@ import dayjs from "dayjs";
 import rateLimit from 'express-rate-limit';
 
 import winston from 'winston';
+import postgraphile from 'postgraphile';
+import { options as postgraphileOptions } from './database/postgraphileOptions.js';
 
 import {router as publicRoutes} from './routes/public.js';
 import {router as userRoutes} from './routes/user.js';
@@ -31,12 +33,6 @@ const __dirname = path.dirname(__filename);
 
 const apiLimiter = rateLimit();
 const app = express()
-
-// const envFile = process.argv.length > 2 ? 
-//     process.argv[2] : ".env";
-// if (process.env.NODE_ENV != 'production') {
-//     require('dotenv').config({path: path.join(__dirname, `../${envFile}`)});
-// }
 
 var env = nunjucks.configure('src/pages/templates', {
     autoescape: true,
@@ -104,6 +100,21 @@ async function initExpressApp() {
     app.use('/user/forms', middleware.isAuthenticated, userFormRoutes);
     app.use('/admin/forms', middleware.isAuthenticated, middleware.isAdmin, adminFormRoutes);
 
+    // enable via env file: 
+    // ENDPOINT=true
+    // creates /graphql endpoint to enable direct testing of graphiql queries
+    if (process.env.ENDPOINT == 'true') {    
+        app.use('/', 
+            postgraphile.postgraphile(
+                DBURL, 
+                process.env.DB_SCHEMAS, 
+                {
+                    ...postgraphileOptions,
+                    readCache: `${__dirname}/database/postgraphile.cache`,
+                }
+            )
+        );
+    }
 
     // catch-all for unrecognized routes
     app.get('*', (req, res, next) => {

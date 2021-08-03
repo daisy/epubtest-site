@@ -3,10 +3,12 @@ import * as Q from '../queries/index.js';
 import * as utils from '../utils.js';
 import * as emails from '../emails.js';
 import * as mail from './mail.js';
+import {undo} from './undo.js';
 
 // creates the login, the user, and sends the invite
 async function createUserAndInvite(name, email, jwt) {
     let errors = [];
+    let transactions = [];
     try {
         // create new inactive login
         let dbres = await db.query(
@@ -25,6 +27,7 @@ async function createUserAndInvite(name, email, jwt) {
             throw new Error(message);
         }
         let loginId = dbres.data.createNewLogin.integer;
+        transactions.push({objectType: 'LOGINS', id: loginId, actionWas: 'CREATE'});
 
         // create new user (will default to type = 'USER')
         dbres = await db.query(
@@ -44,6 +47,7 @@ async function createUserAndInvite(name, email, jwt) {
             throw new Error(message);
         }
         let userId = dbres.data.createUser.user.id;
+        transactions.push({objectType: 'USERS', id: loginId, actionWas: 'CREATE'});
 
         // create an invitation
         dbres = await db.query(
@@ -56,10 +60,11 @@ async function createUserAndInvite(name, email, jwt) {
             jwt);
         
         if (!dbres.success) {
-            errors = dbres.errors;
+        errors = dbres.errors;
             throw new Error("Could not create invitation");
         }
 
+        transactions.push({objectType: 'INVITATIONS', id: dbres.data.createInvitation.invitation.id, actionWas: 'CREATE'});
         // send invitation
         dbres = await sendInvitationToUser(userId, jwt);
         if (!dbres.success) {
@@ -71,6 +76,7 @@ async function createUserAndInvite(name, email, jwt) {
     }
     catch (err) {
         errors.push(err);
+        undo(transactions);
         return {success: false, errors};
     }
 }

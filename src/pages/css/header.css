@@ -1,0 +1,91 @@
+@import url('colors.css');
+
+header a:link, header a:visited {
+    text-decoration: none;
+}
+@supports(display: grid) {
+    header > div.header {
+        display: grid;
+        grid-template-areas: "title main-nav";
+        grid-template-columns: min-content auto;
+        column-gap: 5rem;
+    }
+}
+header > div.header {
+    border-bottom: 1vh solid var(--primary);
+}
+
+header div.header h1 {
+    padding: 0;
+    margin: 0;
+    font-size: 1.5rem;
+    grid-area: title;
+    align-self: center;
+}
+header div.header nav.main-nav {
+    grid-area: main-nav;
+    justify-self: right;
+}
+header div.header h1 a, header div.header h1 a:hover {
+    text-decoration: none !important;
+    color: black !important;
+}
+
+header div.header nav ul {
+    display: flex;
+    flex-wrap: nowrap;
+    list-style-type: none;
+    padding: 0;
+    margin: .5rem;
+    column-gap: 2rem;
+    row-gap: 1rem;
+}
+
+/* for older browsers */
+@supports (display: flex) and (not(gap: 2em)) {
+    header div.header nav ul li {
+        margin-right: 2rem;
+    }
+}
+
+header div.header nav li {
+    white-space: nowrap;
+    text-decoration: none;
+}
+header div.header button, header div.header input[type=submit] {
+    background: inherit;
+    border: thin solid var(--primary);
+}
+
+@media (max-width: 768px) {
+    header div.header h1 {
+        text-align: center;
+    }
+    header div.header nav ul {
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+    header div.header nav {
+        margin-top: 1rem;
+        margin-bottom: 1rem;
+        display: flex;
+    }
+    header > div.header {
+        grid-template-areas: 
+        "title" 
+        "main-nav";
+        grid-template-columns: 100%;
+    }
+    header div.header nav.logged-in {
+        display: flex;
+        column-gap: 5rem;
+    }
+    header div.header nav.main-nav {
+        justify-self: center;
+    }
+    header div.header nav.logged-in ul {
+        flex-direction: column;
+        flex-wrap: nowrap;
+        align-items: center;
+    }
+}

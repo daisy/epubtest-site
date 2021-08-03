@@ -1,65 +1,57 @@
 {%- extends 'base/admin-base.njk' -%}
 {%- set title = "Admin: Test Books" -%}
+{%- import "components/topic-names.njk" as topicNames -%}
 {%- block content -%}
 
-<script type="module" src="/js/data-table.js"></script>
+<script type="module" src="/js/table.js"></script>
 <script type="module">
-    import * as tableSettings from '/js/tables/admin-test-books-table-settings.js';
-    import { style } from '/js/data-table-style.js';
-
-    let rows = {{testBooks | dump | safe}};
-
-    let headers = [
-        {
-            title: "Topic",
-            id: "topic"
-        },
-        {
-            title: "Version",
-            id: "version"
-        },
-        {
-            title: "Language",
-            id: "language"
-        },
-        {
-            title: "Title",
-            id: "title"
-        },   
-        {
-            title: "Description",
-            id: "description"
-        },
-        {
-            title: "Download",
-            id: "download"
-        },
-        {
-            title: "Delete",
-            id: "delete"
-        }
-    ];
+    import { EnhancedTable } from '/js/table.js';
     
-    let dataTable = document.querySelector("data-table");
-    dataTable.bodyCellDisplay = tableSettings.bodyCellDisplay;
-    dataTable.textSearchFilter = tableSettings.textSearchFilter;
-    dataTable.data = { headers, rows };  
-    window.addEventListener("resize", () => {
-        dataTable.render();
+    window.addEventListener("load", () => {
+        let tableElm = document.querySelector("table");
+        let tableControlsElm = document.querySelector("#table-controls");
+        let enhancedTable = new EnhancedTable(tableElm, tableControlsElm);
+        enhancedTable.enableSearch();
     }); 
 </script>
 
 <main>
-    <h2>Test Books</h2>
-
-    <data-table 
-        summary="All test books"
-        showTextSearch="true"
-    >
-    </data-table>
-    <noscript>
-    Javascript is required to view table(s) on this page.
-    </noscript>
+    <h2 id="pagename">Test Books</h2>
+    <div id="table-controls" class="table-controls"></div>
+    <div aria-labelledby="pagename" role="region" tabindex="0">
+        <table aria-labelledby="pagename">
+            <thead>
+                <tr>
+                    <th>Topic</th>
+                    <th>Title</th>
+                    <th>Version</th>
+                    <th>Language</th>
+                    <th>Description</th>
+                    <th>Download</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {%- for testBook in testBooks -%}
+                <tr>
+                    <td>{{ topicNames.TopicName(testBook.topicId) }} {{ testBook.topic.id }}</td>
+                    <td>{{ testBook.title }}</td>
+                    <td>{{ testBook.version }}</td>
+                    <td>{{ testBook.langId }}</td>
+                    <td>{{ testBook.description }}</td>
+                    <td>
+                        <a href="/books/{{ testBook.filename }}" title="{{ testBook.title }}">Download</a>
+                    </td>
+                    <td>
+                        <form action="/admin/forms/confirm-delete-test-book/{{ testBook.id }}" method="post">
+                            <input type="submit" value="Delete"></input>
+                        </form>
+                    </td>
+                </tr>
+                {%- endfor -%}
+            </tbody>
+        </table>
+    </div>
 </main>
 
 {%- endblock -%}
