@@ -73,3 +73,4 @@ src/pages/books/testbook-example-non-visual-reading-1.0.1-en.epub
 .env.bkup
 src/database/postgraphile.cache
 prod.env
+test-tokens.json

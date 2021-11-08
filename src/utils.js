@@ -3,13 +3,13 @@ import jwt from 'jsonwebtoken';
 function parseToken (token) {
     try {
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
-        if (decoded && decoded.expires > Date.now().valueOf() / 1000) {
+        if (decoded) {// && decoded.expires > Date.now().valueOf() / 1000) {
             return {
                 accessLevel: decoded.role === 'epubtest_user_role' ? 'user' 
                 : 
                 decoded.role === 'epubtest_admin_role' ? 'admin' : 'public',
                 userId: decoded.user_id,
-                expires: decoded.expires
+                expires: decoded.exp
             }
         }
         else {
@@ -18,6 +18,7 @@ function parseToken (token) {
         
     }
     catch(err) {
+        console.log(err);
         return null;
     }
 }
