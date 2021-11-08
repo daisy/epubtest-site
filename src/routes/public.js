@@ -201,7 +201,7 @@ router.get('/answers/:answerSetId/:key', async(req, res, next) => {
     }
     
     // a key should be unique to an answer set but because of the query type, it will prob return an array of 1
-    let entry = dbres.data.privateAccessTokens.find(t => t.answerSetId == req.params.answerSetId);
+    let entry = dbres.data.privateAccessTokens.find(t => t.answerSetId == parseInt(req.params.answerSetId));
     
     if (!entry) {
         let err = new Error(`Could not access answer set (${req.params.answerSetId})`);
