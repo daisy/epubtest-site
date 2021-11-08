@@ -91,7 +91,7 @@ router.post('/forgot-password',
             let resetUrl = process.env.NODE_ENV != 'production' ? 
                 `http://localhost:${process.env.PORT}/set-password?token=${jwt}`
                 : 
-                `http://epubtest.org/set-password?token=${jwt}`;
+                `https://epubtest.org/set-password?token=${jwt}`;
             let success = await mail.sendEmail(req.body.email, 
                 emails.reset.subject,
                 emails.reset.text(resetUrl),

@@ -1,6 +1,6 @@
 # epubtest.org
 
-EPUB reading experience testing: [epubtest.org](http://epubtest.org)
+EPUB reading experience testing: [epubtest.org](https://epubtest.org)
 
 # Tech notes
 

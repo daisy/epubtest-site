@@ -24,8 +24,8 @@ inclusivepublishing.org
         html: linkTokenUrl => `
 <p>Greetings!</p>
 
-<p>This is a message from the <a href="http://daisy.org">DAISY Consortium</a>, to invite you to participate in
-Reading System Accessibility Testing at <a href="http://epubtest.org">epubtest.org</a>.
+<p>This is a message from the <a href="https://daisy.org">DAISY Consortium</a>, to invite you to participate in
+Reading System Accessibility Testing at <a href="https://epubtest.org">epubtest.org</a>.
 
 <p><a href="${linkTokenUrl}">Accept this invitation</a> to proceed. And, please don't share your invitation link with anyone - it was generated for your use only.</p>
 
@@ -36,11 +36,11 @@ Reading System Accessibility Testing at <a href="http://epubtest.org">epubtest.o
 <br/>
 <span>The DAISY Consortium</span>
 <br/>
-<a href="http://daisy.org">daisy.org</a>
+<a href="https://daisy.org">daisy.org</a>
 <br/>
-<a href="http://epubtest.org">epubtest.org</a>
+<a href="https://epubtest.org">epubtest.org</a>
 <br/>
-<a href="http://inclusivepublishing.org">inclusivepublishing.org</a>
+<a href="https://inclusivepublishing.org">inclusivepublishing.org</a>
 `
 };
 
@@ -69,7 +69,7 @@ inclusivepublishing.org
         html: linkTokenUrl => `
 <p>Hello,</p>
 
-<p>Someone has requested a password reset for this account on  <a href="http://epubtest.org">epubtest.org</a>.
+<p>Someone has requested a password reset for this account on  <a href="https://epubtest.org">epubtest.org</a>.
 If it was not you, then please disregard this message.</p>
 
 <p><a href="${linkTokenUrl}">Reset your password</a></p>
@@ -82,11 +82,11 @@ If it was not you, then please disregard this message.</p>
 <br/>
 <span>The DAISY Consortium</span>
 <br/>
-<a href="http://daisy.org">daisy.org</a>
+<a href="https://daisy.org">daisy.org</a>
 <br/>
-<a href="http://epubtest.org">epubtest.org</a>
+<a href="https://epubtest.org">epubtest.org</a>
 <br/>
-<a href="http://inclusivepublishing.org">inclusivepublishing.org</a>
+<a href="https://inclusivepublishing.org">inclusivepublishing.org</a>
 `
 };
 

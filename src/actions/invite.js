@@ -115,7 +115,7 @@ async function sendInvitationToUser(userId, jwt) {
         let inviteUrl = process.env.NODE_ENV != 'production' ? 
             `http://localhost:${process.env.PORT}/accept-invitation?token=${temporaryJwt}`
             : 
-            `http://epubtest.org/accept-invitation?token=${temporaryJwt}`;
+            `https://epubtest.org/accept-invitation?token=${temporaryJwt}`;
         await mail.sendEmail(user.login.email, 
             emails.invite.subject, 
             emails.invite.text(inviteUrl), 
