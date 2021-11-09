@@ -125,6 +125,18 @@ router.get('/users', async (req, res, next) => {
         return next(err);
     }
     let activeUsers = dbres.data.getActiveUsers;
+
+    // now get the user type, which is attached to the login
+    for (let activeUser of activeUsers) {
+        dbres = await db.query(Q.USERS.GET_EXTENDED(), {id: activeUser.id}, req.cookies.jwt);
+        if (!dbres.success) {
+            let err = new Error(`Could not get all user info.`);
+            return next(err);
+        }
+        let userInfo = dbres.data.user;
+        activeUser.type = userInfo.login.type;
+    }   
+    
     // experiment to show a user's assignments
     // practically speaking, there are too many (could be hundreds) for it to be meaningfully displayed
     // for (user of activeUsers) {

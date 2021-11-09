@@ -22,11 +22,13 @@
         <table aria-labelledby="pagename">
             <thead>
                 <th>Name</th>
+                <th>User type</th>
             </thead>
             <tbody>
                 {%- for user in activeUsers -%}
                 <tr>
                     <td>{{ user.name }}</td>
+                    <td>{{ user.type }}</td>
                 </tr>
                 {%- endfor -%}
             </tbody>
