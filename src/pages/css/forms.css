@@ -37,6 +37,8 @@ textarea.summary {
     margin-left: 0;
 }
 
-
+button:hover, input[type=submit]:hover {
+    outline: thin solid var(--darkgray);
+}
 
 
