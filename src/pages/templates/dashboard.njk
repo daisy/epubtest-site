@@ -69,10 +69,10 @@
             {%- for answerSet in testingEnvironment.answerSets -%}
             <tr>
                 <td>{{topicNames.TopicName(answerSet.testBook.topic.id)}}</td>
-                <td>{{formatScore.FormatScore(answerSet.score)}}</td>
+                <td>{{formatScore.FormatScore(answerSet)}}</td>
                 <td><a href="/user/edit-results/{{answerSet.id}}">Edit</a></td>
                 <td>
-                {%- if isAdmin -%}
+                {%- if accessLevel == 'admin' -%}
                     {%- if answerSet.isPublic -%}
                     <div>
                         <a href="/results/{{testingEnvironment.id}}#{{answerSet.testBook.topic.id}}">Published</a>
