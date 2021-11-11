@@ -80,12 +80,12 @@
                         <td>
                             {{sw.testingEnvironments.length}}
                             {%- if sw.testingEnvironments.length -%}
-                            <br><a href="/admin/{{route}}/{{sw.id}}">See usage</a>
+                            <br><a href="/admin/software/{{sw.id}}">See usage</a>
                             {%- endif -%}
                         </td>
                         <td>
                             <ul>
-                                <li><a href="/admin/edit-{{route}}/{{sw.id}}">Edit</a></li>
+                                <li><a href="/admin/edit-software/{{sw.id}}">Edit</a></li>
                                 <li>
                                     {%- if sw.testingEnvironments.length == 0 -%}
                                     <form method="POST" action="/admin/forms/confirm-delete-software/{{sw.id}}">

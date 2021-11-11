@@ -210,7 +210,7 @@ router.get("/software/:id", async (req, res, next) => {
         let err = new Error ("Could not get software");
         return next(err);
     }
-    return res.status(200).render('./admin/software.njk', {software: result.software});
+    return res.status(200).render('./admin/software.njk', {software: result.software, displayUtils});
 });
 
 router.get("/all-software/:type", async (req, res, next) => {

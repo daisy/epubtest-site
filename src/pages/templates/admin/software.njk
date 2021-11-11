@@ -1,69 +1,16 @@
 {%- extends 'base/admin-base.njk' -%}
 {%- import "components/software-name.njk" as softwareName -%}
+{%- import "components/admin-testing-environments-table.njk" as testingEnvironmentsTable -%}
 {%- set title = "Admin: Software: " + softwareName.SoftwareName(software) | cleanString -%}
 {%- block content -%}
-<script type="module" src="/js/data-table.js"></script>
-<script type="module">
-    import * as tableSettings from '/js/tables/admin-software-table-settings.js';
-    import { style } from '/js/data-table-style.js';
-
-    let rows = {{ software.testingEnvironments | dump | safe}};
-
-    let headers = [
-        {
-            title: "ID",
-            id: "id"
-        },
-        {
-            title: "Reading System",
-            id: "readingSystem"
-        },
-        {
-            title: "Assistive Technology",
-            id: "assistiveTechnology"
-        },
-        {
-            title: "Device",
-            id: "device"
-        },   
-        {
-            title: "OS",
-            id: "os"
-        },
-        {
-            title: "Browser",
-            id: "browser"
-        },
-        {
-            title: "Manage",
-            id: "manage"
-        }
-    ];
-    
-    let dataTable = document.querySelector("data-table");
-    dataTable.bodyCellDisplay = tableSettings.bodyCellDisplay;
-    dataTable.filters = tableSettings.filters;
-    dataTable.textSearchFilter = tableSettings.textSearchFilter;
-    dataTable.css = style;
-    dataTable.data = { headers, rows};  
-    window.addEventListener("resize", () => {
-        dataTable.render();
-    }); 
-</script>
 <main>
     <h2>{{ softwareName.SoftwareName(software, true) }}</h2>
 
     <h3>Usage</h3>
     <p>This is used in the following testing environments:</p>
 
-    <data-table 
-        summary="Testing environments where this software is used"
-        showTextSearch="true"
-    >
-    </data-table>
-    <noscript>
-    Javascript is required to view table(s) on this page.
-    </noscript>
+    {{ testingEnvironmentsTable.TestingEnvironmentsTable(software.testingEnvironments, displayUtils)}}
+    
 </main>
 
 {% endblock %}  

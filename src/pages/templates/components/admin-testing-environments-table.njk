@@ -1,0 +1,185 @@
+{%- import "components/testing-environment-labels.njk" as testingEnvironmentLabels -%}
+
+{%- macro TestingEnvironmentsTable(testingEnvironments, displayUtils) -%}
+<div id="table-controls" class="table-controls"></div>
+<div aria-labelledby="table-caption" role="region" tabindex="0">
+    <table>
+        <caption id="table-caption" class="visually-hidden">These are the relevant testing environments. Select "manage" to view details and edit results per topic.</caption>    
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Reading System</th>
+                <th>Assistive Technology</th>
+                <th>Device</th>
+                <th>OS</th>
+                <th>Browser</th>
+                <th>Has published results</th>
+                <th>Is archived</th>
+                <th>Has any results</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {%- for testingEnvironment in testingEnvironments -%}
+            <tr>
+                <td>{{ testingEnvironment.id }}</td>
+                <td>
+                    <a href="/admin/software/{{ testingEnvironment.readingSystem.id }}">
+                    {{ testingEnvironmentLabels.SoftwareTitle(testingEnvironment.readingSystem) }}
+                    </a>
+                </td>
+                <td>
+                    {%- if testingEnvironment.assistiveTechnology and testingEnvironment.assistiveTechnology.name -%}
+                    <a href="/admin/software/{{ testingEnvironment.assistiveTechnology.id }}">
+                    {{ testingEnvironmentLabels.SoftwareTitle(testingEnvironment.assistiveTechnology) }}
+                    </a>
+                    {%- endif -%}
+                </td>
+                <td>
+                    {%- if testingEnvironment.device -%}
+                    <a href="/admin/software/{{ testingEnvironment.device.id }}">
+                    {{ testingEnvironmentLabels.SoftwareTitle(testingEnvironment.device) }}
+                    </a>
+                    {%- endif -%}
+                </td>
+                <td>
+                    <a href="/admin/software/{{ testingEnvironment.os.id }}">
+                    {{ testingEnvironmentLabels.SoftwareTitle(testingEnvironment.os) }}
+                    </a>
+                </td>
+                <td>
+                    {%- if testingEnvironment.browser -%}
+                    <a href="/admin/software/{{ testingEnvironment.browser.id }}">
+                    {{ testingEnvironmentLabels.SoftwareTitle(testingEnvironment.browser) }}
+                    </a>
+                    {%- endif -%}
+                </td>
+                <td>
+                {%- if testingEnvironment.isPublic -%}
+                <span>Yes</span>
+                <span><a href="/results/{{ testingEnvironment.id }}">Results</a></span>
+                {%- else -%}
+                <span>No</span>
+                {%- endif -%}
+                </td>
+                <td>
+                {%- if testingEnvironment.isArchived -%}
+                Yes
+                {%- else -%}
+                No
+                {%- endif -%}</td>
+                <td>
+                {%- if displayUtils.isTested(testingEnvironment) -%}
+                Yes
+                {%- else -%}
+                No
+                {%- endif -%}
+                </td>
+                <td>
+                    <a href="/admin/testing-environment/{{ testingEnvironment.id }}">Manage</a>
+                </td>
+            </tr>
+            {%- endfor -%}
+        </tbody>
+    </table>  
+</div>
+<script type="module" src="/js/table.js"></script>
+<script type="module">
+    import { EnhancedTable } from '/js/table.js';
+    
+    let tableElm = document.querySelector("table");
+    let tableControlsElm = document.querySelector("#table-controls");
+    let enhancedTable = new EnhancedTable(tableElm, tableControlsElm);
+    enhancedTable.enableSearch();
+    enhancedTable.enableSort([
+        {
+            columnIndex: 0,
+            type: "numeric",
+            firstSort: "ascending",
+            pathFn: r => r.querySelector(`td:nth-child(1)`).textContent.trim()
+        },
+        {
+            columnIndex: 1,
+            type: "alpha",
+            firstSort: "ascending",
+            pathFn: r => r.querySelector(`td:nth-child(2)`).textContent.trim()
+        },
+        {
+            columnIndex: 2,
+            type: "alpha",
+            firstSort: "ascending",
+            pathFn: r => r.querySelector(`td:nth-child(3)`).textContent.trim()
+        },
+        {
+            columnIndex: 3,
+            type: "alpha",
+            firstSort: "ascending",
+            pathFn: r => r.querySelector(`td:nth-child(4)`).textContent.trim()
+        },
+        {
+            columnIndex: 4,
+            type: "alpha",
+            firstSort: "ascending",
+            pathFn: r => r.querySelector(`td:nth-child(5)`).textContent.trim()
+        },
+        {
+            columnIndex: 5,
+            type: "alpha",
+            firstSort: "ascending",
+            pathFn: r => r.querySelector(`td:nth-child(6)`).textContent.trim()
+        },
+        {
+            columnIndex: 6,
+            type: "alpha",
+            firstSort: "ascending",
+            pathFn: r => r.querySelector(`td:nth-child(7) span`).textContent.trim()
+        },
+        {
+            columnIndex: 7,
+            type: "alpha",
+            firstSort: "ascending",
+            pathFn: r => r.querySelector(`td:nth-child(8)`).textContent.trim()
+        },
+        {
+            columnIndex: 8,
+            type: "alpha",
+            firstSort: "ascending",
+            pathFn: r => r.querySelector(`td:nth-child(9)`).textContent.trim()
+        }
+    ]);
+    enhancedTable.enableFilters([
+        {
+            label: "Reading System",
+            pathFn: r => r.querySelector(`td:nth-child(2)`).textContent.trim()
+        },
+        {
+            label: "Assistive Technology",
+            pathFn: r => r.querySelector(`td:nth-child(3)`).textContent.trim()
+        },
+        {
+            label: "Device",
+            pathFn: r => r.querySelector(`td:nth-child(4)`).textContent.trim()
+        },
+        {
+            label: "OS",
+            pathFn: r => r.querySelector(`td:nth-child(5)`).textContent.trim()
+        },
+        {
+            label: "Browser",
+            pathFn: r => r.querySelector(`td:nth-child(6)`).textContent.trim()
+        },
+        {
+            label: "Has published results",
+            pathFn: r => r.querySelector(`td:nth-child(7) span`).textContent.trim()
+        },
+        {
+            label: "Is archived",
+            pathFn: r => r.querySelector(`td:nth-child(8)`).textContent.trim()
+        },
+        {
+            label: "Has any results",
+            pathFn: r => r.querySelector(`td:nth-child(9)`).textContent.trim()
+        }
+    ]); 
+</script>  
+{%- endmacro -%}
