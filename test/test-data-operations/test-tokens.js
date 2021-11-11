@@ -9,6 +9,7 @@ import { initDb, errmgr as loadDataErrors } from './load-data.js';
 import chai from 'chai';
 const expect = chai.expect;
 import winston from 'winston';
+import dayjs from "dayjs";
 
 let jwt;
 
@@ -47,30 +48,54 @@ describe('test temporary tokens', function () {
             return temporaryJwt;
         };
 
-        let durations = ['7 days', '365 days', '4 hours']
-        let tokens = [];
-        for (let dur of durations) {
-            let retval = await createToken(dur);
-            tokens.push(retval);
+        let tokens = [
+            {
+                duration: '7 days',
+                created: new Date()
+            },
+            {
+                duration: '365 days',
+                created: new Date()
+            },
+            {
+                duration: '4 hours',
+                created: new Date()
+            },
+            {
+                duration: '1 minutes',
+                created: new Date()
+            }
+        ];
+
+        for (let token of tokens) {
+            let retval = await createToken(token.duration);
+            token.token = retval;
         };
 
         await Promise.all(tokens.map(token => {
-            let parsedToken = utils.parseToken(token);
+            let parsedToken = utils.parseToken(token.token);
             expect(parsedToken).not.to.be.null;
         }));
 
         await fs.writeFile(path.join(process.cwd(), "test-tokens.json"), JSON.stringify(tokens));
     });
     
+    // run this function on its own later (be sure to not run the creation function above again or it will reset the tokens)
+    // see that the tokens still work
     it('can validate those tokens later', function () {
-        // read from disk so we can run this test a day after the tokens were created
         let contents = fs.readFileSync(path.join(process.cwd(), "test-tokens.json"), "utf-8");
         let tokens = JSON.parse(contents);
         tokens.map(token => {
-            let parsedToken = utils.parseToken(token);
-            expect(parsedToken).not.to.be.null;
+            let parsedToken = utils.parseToken(token.token);
+            let [amt, what] = token.duration.split(' ');
+            let exp = dayjs(token.created).add(parseInt(amt), what).valueOf();
+            if (exp < dayjs().valueOf()) {
+                expect(parsedToken).to.be.null;
+            }
+            else {
+                expect(parsedToken).to.not.be.null;
+            }
         });
-        
     });
     
 });
