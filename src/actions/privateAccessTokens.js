@@ -12,7 +12,7 @@ async function add(answerSetId, jwt) {
             {
                 input: {
                     email: '',
-                    duration: '365 days'
+                    duration: '3650 days'
                 }
             });
         if (!dbres.success) {

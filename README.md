@@ -89,5 +89,5 @@ Token-based authentication
 * Login: Token lasts for 7 days
 * Invite to create account: Token lasts for 7 days
 * Forgot password: Token lasts for 4 hours
-* private link: good for a year
+* private link: good for 10 years or until manually invalidated
 
