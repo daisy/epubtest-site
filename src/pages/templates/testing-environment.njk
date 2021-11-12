@@ -104,7 +104,7 @@
 <p>These tests were done by {{userCredit.UserCredit(answerSet.user)}}.</p>
 {%- endif -%}
 
-{%- if answerSet.summary != "" -%}
+{%- if answerSet.summary and answerSet.summary != "" and answerSet.summary != "null" -%}
 <h{{headingLevel+1}}>Summary</h{{headingLevel+1}}>
 <p class="limit">{{answerSet.summary}}</p>
 {%-endif-%}
