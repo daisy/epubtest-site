@@ -22,9 +22,7 @@
                     value="{{user.id}}" 
                     aria-label="Select user">
                     {{user.name}} 
-                    {%- if duplicateName(user.name) -%}<br/> 
                     <span style="font-style: italic">({{user.email}})</span> 
-                    {%- endif -%}
                 </input>
             </li>
             {%- endfor -%}
