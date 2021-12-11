@@ -21,7 +21,7 @@ describe('assign-users-publish-answers-complex', function () {
             testBooks: "./data/test-books.json",
             software: "./data/software.json",
             testingEnvironments: "./data/testing-environments.json",
-            users: "./data/users-multiple.json"
+            users: "./data/users.json"
         };
         jwt = await initDb(dataProfile); 
         await assignAnswerSets(jwt);

@@ -11,7 +11,7 @@ async function addUsers(data, jwt, errors) {
             {
                 email: user.email,
                 password: user.password,
-                active: true
+                active: user.active
             }, 
             jwt
         );

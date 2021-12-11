@@ -82,6 +82,21 @@ describe('invite-users', function () {
         });
     });
 
-    
+    describe("reinvite a previously-existing user", function() {
+        before(async function() {
+            let dbres = await db.query(Q.USERS.GET_ALL_EXTENDED(), {}, jwt);
+            let users = dbres.data.users;
+            let user = users.find(u => u.login.email == "sam@example.com");
+            let userId = user.id;
+            await invite.createInvitation(userId, jwt);
+            let result = await invite.sendInvitationToUser(userId, jwt);
+            console.log("Result", result);
+        });
+        it("has an invitation for the user", async function() {
+            let dbres = await db.query(Q.INVITATIONS.GET_ALL(), {}, jwt);
+            let invitedEmails = dbres.data.invitations.filter(item => item.user.login.email == "sam@example.com");
+            expect(invitedEmails.length).to.equal(1);
+        });
+    });
 });
 

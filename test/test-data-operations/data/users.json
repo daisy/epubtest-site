@@ -2,6 +2,21 @@
     {
         "name": "Sara Example",
         "email": "sara@example.com",
-        "password": "password"
+        "password": "password",
+        "active": true
+    },
+
+    {
+        "name": "Robin Demo",
+        "email": "robin@example.com",
+        "password": "password",
+        "active": true
+    },
+
+    {
+        "name": "Sam FormerUser",
+        "email": "sam@example.com",
+        "password": "password",
+        "active": false
     }
 ]

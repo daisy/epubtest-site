@@ -28,9 +28,9 @@ describe('initial-data-import', function () {
     // it('does not report errors', async function() {
     //     expect(loadDataErrors.getErrors().length).to.equal(0);
     // });
-    it('has two users', async function () {
+    it('has four users', async function () {
         let dbres = await db.query(Q.USERS.GET_ALL(),  {}, jwt);
-        expect(dbres.data.users.length).to.equal(2);
+        expect(dbres.data.users.length).to.equal(4);
     });
     it('has two testing environments', async function() {
             let dbres = await db.query(Q.TESTING_ENVIRONMENTS.GET_ALL(),  {}, jwt);
