@@ -144,6 +144,7 @@ router.post ('/unarchive', async (req, res) => {
 router.post('/reinvite-users', async (req, res, next) => {
     // req.body.users is an array of IDs
     for (let userId of req.body.users) {
+        await invite.createInvitation(userId, req.cookies.jwt);
         let dbres = await invite.sendInvitationToUser(userId, req.cookies.jwt);
         if (!dbres.success) {
             let err = new Error(`Could not invite one or more user(s) (ID=${userId}).`);
