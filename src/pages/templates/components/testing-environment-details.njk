@@ -7,6 +7,10 @@
 {%- set brw = testingEnvironment.browser -%}
 
 <ul class="detailslist {% if compact %}compact{%-endif-%}">
+    <li>
+        <span>Reading System</span>
+        <span>{{softwareName.SoftwareName(rs)}}</span>
+    </li>
     {%- if at.name or dev.name -%}
     <li>
         <span>Assistive Technology: </span>
