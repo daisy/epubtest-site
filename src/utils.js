@@ -1,6 +1,7 @@
 import jwt from 'jsonwebtoken';
 
 function parseToken (token) {
+    if (!token) return null;
     try {
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
         if (decoded) {// && decoded.expires > Date.now().valueOf() / 1000) {
@@ -18,7 +19,6 @@ function parseToken (token) {
         
     }
     catch(err) {
-        console.log(err);
         return null;
     }
 }
