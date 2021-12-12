@@ -119,6 +119,35 @@ describe('test-admin-pages', function () {
 
         });
     });
+
+    describe("test edit testing environment page", async function() {
+        before(async function() {
+            await helpers.login(driver, siteUrl + "/login", "admin@example.com", "password");
+        });
+        it("can edit a testing environment", async function() {
+            // go to the most recently added testing environment
+            await helpers.goto(driver, siteUrl + "/admin/testing-environments");
+            let testEnvId = await driver.executeScript(
+                'return document.querySelector("table tbody tr:last-child td:first-child").textContent'
+            );
+            await helpers.goto(driver, siteUrl + "/admin/edit-testing-environment/" + testEnvId);
+            
+            await helpers.clickElement(driver, "#reading-system > option:nth-child(1)");
+            await helpers.clickElement(driver, "#assistive-technology > option:nth-child(1)");
+            
+            
+            await helpers.clickElement(driver, "input[name=testedWithBraille]");
+            await helpers.clickElement(driver, "input[name=testedWithScreenreader]");
+            
+            await helpers.clickElement(driver, "input[value=Save]");
+
+            await driver.wait(until.urlContains("/admin/testing-environment"));
+            let text = await helpers.getText(driver, '.message');
+            expect(text).to.contain('Testing environment updated');
+
+        });
+    });
+
     // all the add-* pages are from the same template so we don't have to test each one separately
     describe("test add reading system page", async function() {
         before(async function() {
