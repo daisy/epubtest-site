@@ -418,6 +418,47 @@ router.post('/add-testing-environment', async(req, res, next) => {
     return res.redirect(`/admin/testing-environment/${newId}?message=${encodeURIComponent(message)}`);
 });
 
+// edit testing environment
+router.post('/testing-environment/:id', async(req, res, next) => {
+    let url = '/admin/testing-environment/' + req.params.id;
+
+    if (req.body.hasOwnProperty("save")) {
+        let input = {
+            readingSystemId: parseInt(req.body.readingSystemId),
+            osId: parseInt(req.body.osId),
+            testedWithBraille: req.body.testedWithBraille === "on",
+            testedWithScreenreader: req.body.testedWithScreenreader === "on",
+            input: req.body.input
+        };
+        if (req.body.browserId != 'none') {
+            input = {...input, browserId: parseInt(req.body.browserId)};
+        }
+        if (req.body.assistiveTechnologyId != 'none') {
+            input = {...input, assistiveTechnologyId: parseInt(req.body.assistiveTechnologyId)};
+        }
+        if (req.body.deviceId != 'none') {
+            input = {...input, deviceId: parseInt(req.body.deviceId)};
+        }
+        
+        let dbres = await db.query(Q.TESTING_ENVIRONMENTS.UPDATE(),  {
+            id: parseInt(req.params.id),
+            patch: input,
+        }, req.cookies.jwt);
+    
+        url += '?message=';
+        if (!dbres.success) {
+            let message = "Error updating testing environment.";
+            url = url + encodeURIComponent(message);
+        }
+        else {
+            let message = "Testing environment updated.";
+            url = url + encodeURIComponent(message);
+        }
+    }
+    console.log("going to ", url);
+    return res.redirect(url);
+});
+
 router.post("/confirm-delete-testing-environment/:id", async (req, res, next) => {
     let dbres = await db.query(
         Q.TESTING_ENVIRONMENTS.GET(), 
@@ -472,7 +513,7 @@ router.post('/delete-testing-environment/:id', async (req, res, next) => {
     return res.redirect(redirect);
 });
 
-// update software
+// edit software
 router.post("/software", 
 [
     body('name').trim(),

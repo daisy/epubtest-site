@@ -32,11 +32,13 @@
     {{ testingEnvironmentLabels.TestingEnvironmentTitle (testingEnvironment, 'h3', 'p')}}
     {{ testingEnvironmentDetails.TestingEnvironmentDetails(testingEnvironment) }}
     
+    <p><a href="/admin/edit-testing-environment/{{testingEnvironment.id}}">Edit testing environment details</a></p>
+    
     {%- if answerSet.isPublic -%}
         <p><a href="/results/{{testingEnvironment.id}}#{{answerSet.id}}">Public link</a></p>
     {%- endif -%}
 
-    {#<p><a href="TODO">Edit testing environment details</a></p>#}
+    
     
     {%- if testingEnvironment.isArchived -%}
     <p>This testing environment has been archived. You may unarchive it.</p>

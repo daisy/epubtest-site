@@ -254,13 +254,16 @@ router.get('/add-testing-environment', async (req, res, next) => {
         return next(allDevice.error);
     }
 
-    return res.render("admin/add-testing-environment.njk", {
+    return res.render("admin/add-edit-testing-environment.njk", {
+        title: "Add testing environment",
         readingSystems: allRs.software.sort(utils.sortAlpha),
         assistiveTechnologies: allAt.software.sort(utils.sortAlpha),
         operatingSystems: allOs.software.sort(utils.sortAlpha),
         browsers: allBrowser.software.sort(utils.sortAlpha),
         devices: allDevice.software.sort(utils.sortAlpha),
-        getSoftwareTypeLabels: utils.getSoftwareTypeLabels
+        getSoftwareTypeLabels: utils.getSoftwareTypeLabels,
+        action: "/admin/forms/add-testing-environment",
+        matches: (a, b, c) => false // this function is useful for editing but not adding
     });
 });
 
@@ -301,6 +304,89 @@ router.get('/edit-software/:id', async (req, res, next) => {
     let software = result.software;
     let label = utils.getSoftwareTypeLabels(software.type)?.humanLabel;
     return res.render('./admin/add-edit-software.njk', {title: `Edit ${label}`, action: "/admin/forms/software", software});
+});
+router.get('/edit-testing-environment/:id', async (req, res, next) => {
+    console.log("updating testing environment");
+
+    let id = parseInt(req.params.id);
+    let jwt = req.cookies.jwt;
+    let dbres = await db.query(Q.TESTING_ENVIRONMENTS.GET(), {id}, jwt);
+    if (!dbres.success) {
+        let err = new Error(`Error getting software (id=${id}).`)
+        return next(err);
+    }
+    let testingEnvironment = dbres.data.testingEnvironment;
+
+    let allRs = await getAllSoftware("ReadingSystem", req.cookies.jwt);
+    if (!allRs.success) {
+        return next(allRs.error);
+    }
+    // the testing environment's reading system may not appear in the list, if it's not marked "show in list"
+    // if (!allRs.software.map(sw => sw.id).includes(testingEnvironment.readingSystem.id)) {
+    //     allRs.software.push(testingEnvironment.readingSystem);
+    // }
+
+    let allAt = await getAllSoftware("AssistiveTechnology", req.cookies.jwt);
+    if (!allAt.success) {
+        return next(allAt.error);
+    }
+    // the testing environment's AT may not appear in the list
+    // if (testingEnvironment.assistiveTechnology 
+    //     && !allAt.software.map(sw => sw.id).includes(testingEnvironment.assistiveTechnology.id)) {
+    //     allAt.software.push(testingEnvironment.assistiveTechnology);
+    // }
+
+    let allOs = await getAllSoftware("Os", req.cookies.jwt);
+    if (!allOs.success) {
+        return next(allOs.error);
+    }
+    // the testing environment's os may not appear in the list
+    // if (testingEnvironment.os 
+    //     && !allOs.software.map(sw => sw.id).includes(testingEnvironment.os.id)) {
+    //     allOs.software.push(testingEnvironment.os);
+    // }
+
+    let allBrowser = await getAllSoftware("Browser", req.cookies.jwt);
+    if (!allBrowser.success) {
+        return next(allBrowser.error);
+    }
+    // the testing environment's browser may not appear in the list
+    // if (testingEnvironment.browser 
+    //     && !allOs.software.map(sw => sw.id).includes(testingEnvironment.browser.id)) {
+    //     allBrowser.software.push(testingEnvironment.browser);
+    // }
+
+    let allDevice = await getAllSoftware("Device", req.cookies.jwt);
+    if (!allDevice.success) {
+        return next(allDevice.error);
+    }
+    // the testing environment's device may not appear in the list
+    // if (testingEnvironment.device 
+    //     && !allDevice.software.map(sw => sw.id).includes(testingEnvironment.device.id)) {
+    //     allDevice.software.push(testingEnvironment.device);
+    // }
+
+    return res.render('./admin/add-edit-testing-environment.njk', {
+        title: "Edit testing environment",
+        readingSystems: allRs.software.sort(utils.sortAlpha),
+        assistiveTechnologies: allAt.software.sort(utils.sortAlpha),
+        operatingSystems: allOs.software.sort(utils.sortAlpha),
+        browsers: allBrowser.software.sort(utils.sortAlpha),
+        devices: allDevice.software.sort(utils.sortAlpha),
+        getSoftwareTypeLabels: utils.getSoftwareTypeLabels,
+        testingEnvironment,
+        action: `/admin/forms/testing-environment/${testingEnvironment.id}`,
+        // does the testing environment use this particular piece of software in the given role? 
+        matches: (testEnv, swtype, sw) => {
+            // sw is null and testEnv has nothing for that sw type, aka "None"
+            let nullMatch = !testEnv[swtype] && sw == null;
+            // sw matches testEnv[swtype] field
+            let match = testEnv[swtype] && sw && testEnv[swtype].id == sw.id;
+            let retval = nullMatch || match;
+            
+            return retval;
+        }
+    });
 });
 
 router.get("/assignments", async(req, res, next) => {

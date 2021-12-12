@@ -1,17 +1,22 @@
 {%- extends 'base/admin-base.njk' -%}
-{%- set title="Add Testing Environment" -%}
+{%- import "components/testing-environment-details.njk" as testingEnvironmentDetails -%}
+
 {%- block content -%}
 
 <main class="center">
     <style>
-    #new-testing-environment label {
+    #edit-testing-environment label {
         font-weight: bold;
     }
     </style>
-    <form action="/admin/forms/add-testing-environment" method="POST" id="new-testing-environment">
+    <h2>Current configuration</h2>
+    {{ testingEnvironmentDetails.TestingEnvironmentDetails (testingEnvironment) }}
+
+    <h2>Configure the testing environment</h2>
+    <form action="{{action}}" method="POST" id="edit-testing-environment">
         <section>
-        <h2>Select software</h2>
-        <p>Using the following dropdowns, select all the software/devices for this new testing environment. You may add new software/devices as well.</p>
+        <h3>Select software</h3>
+        <p>Using the following dropdowns, select all the software/devices for this testing environment. You may add new software/devices as well.</p>
 
         {%- set softwareTypes = [
             "readingSystem",
@@ -41,10 +46,16 @@
                 <label for="{{swtypelabels.addressPart}}">Select {{swtypelabels.humanLabel| lower}}</label>
                 <select name="{{swtype}}Id" id="{{swtypelabels.addressPart}}">
                     {%- if swtype == 'assistiveTechnology' or swtype == 'browser' or swtype == "device" -%}
-                    <option value="none">None</option>
+                    {%- set matchesSw = matches(testingEnvironment, swtype, null) -%}
+                    <option value="none" {% if matchesSw -%}selected{%- endif -%}>
+                    None
+                    </option>
                     {%- endif -%}
                     {%- for sw in softwares -%}
-                    <option value="{{sw.id}}">{{sw.name}} {{sw.version}} {%- if sw.vendor %} by {{sw.vendor}} {%- endif -%}</option>
+                    {%- set matchesSw = matches(testingEnvironment, swtype, sw) -%}
+                    <option value="{{sw.id}}" {% if matchesSw -%}selected{%- endif -%}>
+                    {{sw.name}} {{sw.version}} {%- if sw.vendor %} by {{sw.vendor}} {%- endif -%}
+                    </option>
                     {%- endfor -%}
                 </select>
                 <p><a href="/admin/add-software/{{swtypelabels.addressPart}}">Add new {{swtypelabels.humanLabel| lower}}</a></p>
@@ -52,28 +63,34 @@
         {%- endfor -%}
         </section>
         <section>
-            <h2>Select options</h2>
+            <h3>Select options</h3>
             <div class="inline-control">
                 <label for="testedWithBraille">Tested with Braille</label>
-                <input type="checkbox" name="testedWithBraille" id="testedWithBraille">
+                <input type="checkbox" name="testedWithBraille" id="testedWithBraille" 
+                {% if testingEnvironment and testingEnvironment.testedWithBraille -%}checked{%- endif -%}>
             </div>
     
             <div class="inline-control">
                 <label for="testedWithScreenreader">Tested with Screenreader</label>
-                <input type="checkbox" name="testedWithScreenreader" id="testedWithScreenreader">
+                <input type="checkbox" name="testedWithScreenreader" id="testedWithScreenreader"
+                {% if testingEnvironment and testingEnvironment.testedWithScreenreader -%}checked{%- endif -%}>
             </div>
     
             <div class="inline-control">
                 <label for="input-type">Select the type of input:</label>
                 <select name="input" id="input-type">
-                    <option value="KEYBOARD">Keyboard</option>
-                    <option value="MOUSE">Mouse</option>
-                    <option value="TOUCH">Touch</option>
+                    <option value="KEYBOARD" {% if testingEnvironment and testingEnvironment.input == "KEYBOARD" -%}selected{%- endif -%}>Keyboard</option>
+                    <option value="MOUSE" {% if testingEnvironment and testingEnvironment.input == "MOUSE" -%}selected{%- endif -%}>Mouse</option>
+                    <option value="TOUCH" {% if testingEnvironment and testingEnvironment.input == "TOUCH" -%}selected{%- endif -%}>Touch</option>
                 </select>
             </div>
         </section>
         
-        <input type="submit" value="Save">
+        <div class="actions">
+            <input type="submit" name="cancel" value="Cancel"/>
+            <input type="submit" name="save" value="Save">
+        </div>
+        
     </form>
 </main>
 
