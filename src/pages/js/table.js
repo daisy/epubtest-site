@@ -156,8 +156,8 @@ class EnhancedTable  {
             }
             let newFilter = document.createElement("div");
             newFilter.innerHTML = `
-            <label for="filter-${idx}">${filterRule.label}</label>
-            <select id="filter-${idx}">
+            <label for="filter-${idx}-${this.idString}">${filterRule.label}</label>
+            <select id="filter-${idx}-${this.idString}">
                 ${options.map(option => `<option value="${option}">${option}</option>`).join('')}
             </select>
             `;
