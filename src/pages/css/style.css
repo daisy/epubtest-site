@@ -86,7 +86,9 @@ nav.secondary-nav h2 {
     font-size: medium;
     margin-top: .5rem !important;
 }
-
+nav.secondary-nav .score {
+    font-size: smaller;
+}
 /* testing environment details */
 ul.detailslist {
     list-style-type: none;

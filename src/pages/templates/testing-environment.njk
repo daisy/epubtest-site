@@ -24,7 +24,10 @@
             <ul>
                 {%- for answerSet in testingEnvironment.answerSets -%}
                 {%- if answerSet.isTested -%}
-                <li><a href="#{{answerSet.testBook.topic.id}}">{{topicNames.TopicName(answerSet.testBook.topic.id)}}</a></li>
+                <li>
+                    <a href="#{{answerSet.testBook.topic.id}}">{{topicNames.TopicName(answerSet.testBook.topic.id)}}</a>
+                    <span class="score">{{formatScore.FormatScore(answerSet)}}</span>
+                </li>
                 {%- endif -%}
                 {%- endfor -%}
             </ul>
