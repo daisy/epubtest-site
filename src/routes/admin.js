@@ -306,8 +306,6 @@ router.get('/edit-software/:id', async (req, res, next) => {
     return res.render('./admin/add-edit-software.njk', {title: `Edit ${label}`, action: "/admin/forms/software", software});
 });
 router.get('/edit-testing-environment/:id', async (req, res, next) => {
-    console.log("updating testing environment");
-
     let id = parseInt(req.params.id);
     let jwt = req.cookies.jwt;
     let dbres = await db.query(Q.TESTING_ENVIRONMENTS.GET(), {id}, jwt);

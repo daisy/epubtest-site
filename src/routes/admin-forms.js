@@ -455,7 +455,7 @@ router.post('/testing-environment/:id', async(req, res, next) => {
             url = url + encodeURIComponent(message);
         }
     }
-    console.log("going to ", url);
+    
     return res.redirect(url);
 });
 

@@ -9,10 +9,17 @@
         font-weight: bold;
     }
     </style>
+    {%- if testingEnvironment -%}
     <h2>Current configuration</h2>
     {{ testingEnvironmentDetails.TestingEnvironmentDetails (testingEnvironment) }}
+    {%- endif -%}
 
-    <h2>Configure the testing environment</h2>
+    {%- if testingEnvironment -%}
+    <h2>Modify the testing environment</h2>
+    {%- else -%}
+    <h2>Add testing environment</h2>
+    {%- endif -%}
+    
     <form action="{{action}}" method="POST" id="edit-testing-environment">
         <section>
         <h3>Select software</h3>
