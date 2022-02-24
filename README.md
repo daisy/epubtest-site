@@ -2,7 +2,13 @@
 
 EPUB reading experience testing: [epubtest.org](https://epubtest.org)
 
-# Tech notes
+This is a website and database to record accessibility evaluations of EPUB reading systems. 
+
+# For developers
+
+[Developer getting started guide](https://github.com/daisy/epubtest-site/wiki/Developer-getting-started-guide)
+
+## Tech notes
 
 Back end: Express + nunjucks + graphql queries
 
@@ -10,11 +16,11 @@ Front end: static HTML + web component enhanced tables
 
 Back end's back end: Postgresql database and a postgraphile db api (graphql)
 
-# Code notes
+## Code notes
 
-## `src`
+### `src`
 
-### `actions`
+#### `actions`
 
 Multipart processes, such as:
 
@@ -24,15 +30,15 @@ Multipart processes, such as:
 * sending email
 * an experimental "undo" feature to mimic transactions
 
-### `epub-parser`
+#### `epub-parser`
 
 Parse a test book into a JSON structure
 
-### `l10n`
+#### `l10n`
 
 Experimental
 
-### `pages`
+#### `pages`
 
 Entire front-end
 
@@ -42,14 +48,11 @@ Entire front-end
 * `js`: front-end js, mostly data table stuff
 * `templates`: nunjucks templates
 
-### `queries`
+#### `queries`
 
-GraphQL queries. Some comments:
+GraphQL queries. Of note is `queries/crudGenerator.js`, which generates basic CRUD operation queries, given a few parameters.
 
-* `queries/fragments` contains fields that are collected for each item type. Sometimes there are variants of fieldsets, perhaps to avoid collecting way more data than is required, or sometimes to avoid circular includes.
-* `queries/crudGenerator.js` generates basic CRUD operation queries, given a few parameters
-
-### `routes`
+#### `routes`
 
 * `admin.js`: GET admin pages
 * `admin-forms.js`: POST routes for admin forms
@@ -66,13 +69,13 @@ GraphQL queries. Some comments:
 * `utils.js`: Various utility functions
 * `displayUtils.js`: Largely redundant display utilities which are often duplicates of front-end js table logic. Used here for creating static noscript tables.
 
-## `test`
+### `test`
 
 Workflow tests; run with mocha.
 
-## Caveats, other notes, etc
+### Caveats, other notes, etc
 
-### Postgraphile and column-level grant
+#### Postgraphile and column-level grant
 
 Postgraphile does not support column-level grants, which is why there is a separate logins vs users table. Otherwise the login information would be theoretically visible to anyone who could view the user information (which, some of it could be viewable, for example, if the user has chosen to get credited for their work, then the results page must display their `creditAs` value, so their credits must be publicly accessible).
 
@@ -82,7 +85,7 @@ Note that one exception to this lies with the use of "private link" tokens. The 
 
 Another exception is the "create temporary token" function, which is right now only called by the server but again, if we ever created a public database endpoint, access to this this should be restricted.
 
-### Authentication
+#### Authentication
 
 Token-based authentication
 
