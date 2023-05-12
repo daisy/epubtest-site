@@ -18,7 +18,7 @@ query {
 const GET_ALL_ARCHIVED = () => `
 query {
     getArchivedTestingEnvironments {
-        ${testEnv.FIELDS_WITH_ANSWERS()}
+        ${testEnvs.FIELDS_WITH_ANSWERS()}
     }
 }`;
 
@@ -26,7 +26,9 @@ query {
 const GET_ALL_BY_USER = () => `
 query($userId: Int!) {
     getUserTestingEnvironments(userId: $userId) {
-        ${FIELDS_WITH_ANSWERS()}
+        ${testEnvs.FIELDS_WITH_ANSWERS()}
+    }
+}`;
     }
 }`;
 
