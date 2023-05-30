@@ -143,12 +143,12 @@
             gtag('config', 'UA-327448-6');
         }
 
-        // ask again every 30 days
+        // ask again every 60 days
         function shouldAskAboutCookies() {
             let response = JSON.parse(window.localStorage["respondedToCookiesBanner"]);
             if (response.hasOwnProperty("timestamp")) {
                 let expiration = new Date(response.timestamp);
-                expiration.setDate(expiration.getDate() + 30);
+                expiration.setDate(expiration.getDate() + 60);
                 let now = new Date();
                 return expiration <  now;
             }
