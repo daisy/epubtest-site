@@ -122,6 +122,9 @@ thead th {
     font-size: smaller;
     font-weight: bolder;
 }
+table.tests-for-topic thead th {
+    vertical-align: top;
+}
 /* body text */
 tbody a {
     display: block;

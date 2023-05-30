@@ -1,0 +1,113 @@
+{%- extends 'base/base.njk' -%}
+{%- import "components/topic-names.njk" as topicNames -%}
+{%- import "components/testing-environment-labels.njk" as testingEnvironmentLabels -%}
+{%- set title="Results for " + topicNames.TopicName(topicId) -%}
+
+{%- block content -%}
+<main>
+    
+    <h2>{{ topicNames.TopicName(topicId) }} </h2>
+    <p>The following represents how well each Testing Environment (Reading System or Reading System + Assistive Technology 
+        combination) performed on {{ topicNames.TopicName(topicId)  }} tests. Learn more about the tests on 
+        the <a href="/test-books">test books page</a>.</p>
+
+    <div id="table-controls" class="table-controls"></div>
+    <div role="region" aria-labelledby="table-caption" tabindex="0">
+        <table class="tests-for-topic">
+            <caption class="visually-hidden" id="table-caption">Reading system testing results</caption>
+            <thead>
+                <tr>
+                    <th>Testing Environment</th>
+                    {%- for test in latestTestBook.tests -%}
+                    <th>
+                        {{ test.name }}
+                    </th>
+                    {%- endfor -%}
+                </tr>
+            </thead>
+            <tbody>
+                {%- for testingEnvironment in testingEnvironments -%}
+                <tr>
+                    <td>
+                        {{ testingEnvironmentLabels.TestingEnvironmentLink(testingEnvironment) }}
+                    </td>
+                    {%- for answer in testingEnvironment.answerSets[0].answers -%}
+                    <td>
+                        {{ answer.value }}
+                    </td>
+                    {%- endfor -%}
+                </tr>
+                {%- endfor -%}
+            </tbody>
+        </table>
+    </div>
+</main>
+
+<script type="module" src="/js/table.js"></script>
+<script type="module">
+    import { EnhancedTable } from '/js/table.js';
+    
+    let tableElm = document.querySelector("table");
+    let tableControlsElm = document.querySelector("#table-controls");
+    let enhancedTable = new EnhancedTable(tableElm, tableControlsElm);
+    enhancedTable.enableSearch();
+    let sortingRules = [{
+            columnIndex: 0, 
+            type: "alpha",
+            firstSort: "ascending",
+            pathFn: r => r.querySelector(`td:nth-child(1)`).textContent.replace(/[\n\r]+|[\s]{1,}/g, ' ').trim()
+        }];
+
+    // each test col
+    let tableHeaderCols = Array.from(tableElm.querySelectorAll('table thead th:not(:first-child)'));
+    sortingRules = [...sortingRules, ...(tableHeaderCols.map((th, idx) => {
+        let colIdx = idx + 1;
+            return {
+                columnIndex: colIdx,
+                type: "alpha",
+                firstSort: "descending",
+                pathFn: r => r.querySelector(`td:nth-child(${colIdx+1})`).textContent.replace(/[\n\r]+|[\s]{1,}/g, ' ').trim()
+            } 
+    }))];
+
+    enhancedTable.enableSort(sortingRules);
+    enhancedTable.enableFilters([
+        {
+            label: "Reading System",
+            pathFn: r => {
+                let elm = r.querySelector(`td:nth-child(1) span.readingSystem span.name`);
+                if (elm) {
+                    return elm.textContent.trim();
+                }
+                else {
+                    return "";
+                }
+            }
+        },
+        {
+            label: "Assistive Technology",
+            pathFn: r => {
+                let elm = r.querySelector(`td:nth-child(1) span.assistiveTechnology span.name`);
+                if (elm) {
+                    return elm.textContent.trim();
+                }
+                else {
+                    return "";
+                }
+            }
+        },
+        {
+            label: "OS",
+            pathFn: r => {
+                let elm = r.querySelector(`td:nth-child(1) span.os span.name`);
+                if (elm) {
+                    return elm.textContent.trim();
+                }
+                else {
+                    return "";
+                }
+            }
+        }
+    ]);
+</script>
+{%- endblock -%}

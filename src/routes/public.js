@@ -3,6 +3,7 @@ import * as db from '../database/index.js';
 import * as Q from '../queries/index.js';
 import * as displayUtils from '../displayUtils.js';
 import * as utils from '../utils.js';
+import semver from 'semver';
 
 const router = express.Router()
 
@@ -32,6 +33,53 @@ router.get('/error', (req, res) => res.render('error.njk'));
 
 // forgot password page
 router.get('/forgot-password', (req, res) => res.render('auth/forgot-password.njk'));
+
+// per-topic public results
+router.get('/results/topic/:topicId', async (req, res, next) => {
+
+    // get all the test books for a given topic
+    // there may be many versions
+    // only one book per topic is considered the "latest"
+    // but some testing environments may not be up to speed, so we still need to show their most recent score
+    // (with a note that it was for an older book version)
+    let dbres = await db.query(
+        Q.TEST_BOOKS.GET_FOR_TOPIC(),
+        { id: req.params.topicId });
+    
+    if (!dbres.success || dbres.data.testBooks.length == 0) {
+        let err = new Error(`Could not get test book(s) for topic (${req.params.topicId})`);
+        return next(err);
+    }
+
+    let testBookIds = dbres.data.testBooks.map(tb => tb.id);
+
+    // also find the latest test book for this topic
+    let latestTestBook = dbres.data.testBooks.reduce((prev, current) => (prev.version > current.version) ? prev : current)
+    
+    // get each testing environment and its latest public answer set for the testbook(s) in the topic
+    dbres = await db.query(
+        Q.TESTING_ENVIRONMENTS_WITH_ANSWERS.GET_ALL_BY_TESTBOOKS(), 
+        { testBookIds }); 
+    if (!dbres.success) {
+        let err = new Error(`Could not get results for topic (${req.params.topicId})`);
+        return next(err);
+    }
+
+    // filter out any testing environments with no answer sets for this topic
+    // as well as any answer sets that have only NOANSWER values
+    let testingEnvironments = dbres.data.testingEnvironments
+        .filter(testenv => testenv.answerSets.length > 0)
+        .filter(testenv => testenv.answerSets[0].answers.find(a => a.value != 'NOANSWER') != undefined)
+        .sort(utils.sortAlphaTestEnv); 
+
+    return res.render('results-by-topic.njk', {
+        testingEnvironments,
+        latestTestBook,
+        displayUtils,
+        topicId: req.params.topicId
+    });
+    
+});
 
 // testing environment results
 router.get('/results/:testingEnvironmentId', async (req, res, next) => {
