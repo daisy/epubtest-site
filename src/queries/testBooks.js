@@ -53,7 +53,14 @@ const DELETE_TEST_BOOK_AND_ANSWER_SETS = () =>
     }
 }`;
 
+const GET_FOR_TOPIC = () => 
+`query($id: String!) {
+    testBooks(condition: {topicId: $id}) {
+        ${FIELDS_WITH_TESTS()}
+    }
+}`;
+
 export {
     FIELDS, FIELDS_WITH_TESTS, FIELDS_WITHOUT_NESTING,
-    CREATE, DELETE, UPDATE, GET, GET_ALL, GET_LATEST, DELETE_TEST_BOOK_AND_ANSWER_SETS
+    CREATE, DELETE, UPDATE, GET, GET_ALL, GET_LATEST, DELETE_TEST_BOOK_AND_ANSWER_SETS, GET_FOR_TOPIC
 };
