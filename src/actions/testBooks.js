@@ -1,9 +1,7 @@
-// const EPUB = require('../epub-parser/epub');
 import { EPUB } from '../epub-parser/epub.js';
 import * as db from '../database/index.js';
 import * as Q from '../queries/index.js';
 
-// const semver = require('semver');
 import semver from 'semver';
 import fs from 'fs-extra';
 import {undo} from './undo.js';
