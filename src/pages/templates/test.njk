@@ -1,0 +1,17 @@
+{%- extends 'base/base.njk' -%}
+{%- import "components/topic-names.njk" as topicNames -%}
+{%- import "components/testing-environment-labels.njk" as testingEnvironmentLabels -%}
+{%- set title="Explore the test books: " + topicNames.TopicName(topicId) + " " + testId -%}
+
+{%- block content -%}
+<main>
+    <p>This test is in the <a href="/test-books/{{topicId}}">{{topicNames.TopicName(topicId)}}</a> book</p>
+
+    <div>
+    {{test.xhtml | safe}}
+    </div>
+</main>
+
+<script type="module">
+</script>
+{%- endblock -%}

@@ -75,7 +75,6 @@ router.get('/results/topic/:topicId', async (req, res, next) => {
     return res.render('results-by-topic.njk', {
         testingEnvironments,
         latestTestBook,
-        displayUtils,
         topicId: req.params.topicId
     });
     
@@ -144,6 +143,44 @@ router.get('/archive', async (req, res, next) => {
     });
 });
 
+// test page
+router.get('/test-books/:topicId/:testId', async (req, res, next) => {
+    let dbres = await db.query(
+        Q.TEST_BOOKS.GET_FOR_TOPIC(),
+        { id: req.params.topicId });
+    
+    if (!dbres.success || dbres.data.testBooks.length == 0) {
+        let err = new Error(`Could not get test books for ${req.params.topicId}`);
+        return next(err);
+    }
+
+    return res.render('test.njk', 
+        {
+            test: dbres.data.testBooks[0].tests.find(t => t.testId == req.params.testId),
+            testId: req.params.testId,
+            topicId: req.params.topicId
+        }
+    );
+});
+
+// test book page
+router.get('/test-books/:topicId', async (req, res, next) => {
+    let dbres = await db.query(
+        Q.TEST_BOOKS.GET_FOR_TOPIC(),
+        { id: req.params.topicId });
+    
+    if (!dbres.success) {
+        let err = new Error(`Could not get test books for ${req.params.topicId}`);
+        return next(err);
+    }
+
+    return res.render('test-book.njk', 
+        {
+            testBook: dbres.data.testBooks[0],
+            topicId: req.params.topicId
+        }
+    );
+});
 
 // test books page
 router.get('/test-books', async (req, res, next) => {

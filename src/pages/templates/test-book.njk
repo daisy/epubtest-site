@@ -1,0 +1,23 @@
+{%- extends 'base/base.njk' -%}
+{%- import "components/topic-names.njk" as topicNames -%}
+{%- import "components/testing-environment-labels.njk" as testingEnvironmentLabels -%}
+{%- set title="Explore the test books: " + topicNames.TopicName(topicId) -%}
+
+{%- block content -%}
+<main>
+    
+    <h2>{{ topicNames.TopicName(topicId) }} </h2>
+    <p>Explore tests in-depth for this topic.</p>
+    <a href="/books/{{testBook.filename}}" title="{{testBook.title}}">Download this book</a>
+
+    {%- for test in testBook.tests -%}
+    <h3>{{test.testId}}</h3>
+    <p><i>{{test.name}}</i></p>
+    <p>{{test.description}}</p>
+    <a href="/test-books/{{topicId}}/{{test.testId}}">See test in browser</a>
+    {%- endfor -%}
+</main>
+
+<script type="module">
+</script>
+{%- endblock -%}
