@@ -94,7 +94,7 @@ class EnhancedTable  {
                 let columnHeaderText = columnHeader.textContent;
                 // add sort info to the column header
                 columnHeader.classList.add("sortable");
-                columnHeader.setAttribute("title", `Sort by ${columnHeaderText}`);
+                columnHeader.setAttribute("title", `Sort by ${columnHeaderText.trim()}`);
                 let innerHTML = columnHeader.innerHTML;
                 // wrap with a button
                 columnHeader.innerHTML = `<span tabindex="0" role="button">${innerHTML}</span>`;

@@ -157,6 +157,10 @@ tbody .readingSystem {
 tbody .sw:not(.readingSystem) {
     padding-left: 0.5rem;
 }
+tbody .readingSystem .vendor {
+    font-size: smaller;
+    display: block;
+}
 tbody span.pass, tbody span.fail {
     white-space: nowrap;
 }

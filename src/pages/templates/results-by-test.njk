@@ -1,56 +1,29 @@
 {%- extends 'base/base.njk' -%}
 {%- import "components/topic-names.njk" as topicNames -%}
 {%- import "components/testing-environment-labels.njk" as testingEnvironmentLabels -%}
-{%- import "components/format-score.njk" as formatScore -%}
 {%- set title="Results for " + topicNames.TopicName(topicId) -%}
 
 {%- block content -%}
 <main>
     
-    <h2>{{ topicNames.TopicName(topicId) }} </h2>
+    <h2>Single test results: {{ test.name }} ({{ test.testId }})</h2>
     <p>The following represents how well each Testing Environment (Reading System or Reading System + Assistive Technology 
-        combination) performed on {{ topicNames.TopicName(topicId)  }} tests. Learn more about the 
-        <a href="/test-books/{{topicId}}">{{ topicNames.TopicName(topicId)}} test book</a>.</p>
+        combination) performed on a single test, <a href="/test-books/{{topicId}}/{{ test.testId }}">{{ test.testId }}</a>, 
+        which appears in the <a href="/test-books/{{topicId}}">{{ topicNames.TopicName(topicId) }} test book</a>.</p>
 
-{%- if highestScoringRS | length > 0 -%}
-    <p>The Reading Systems with a score of 100% for this topic are:</p>
-    <ul>
-        {%- for osName, rsNames in highestScoringRS -%}
-        <li>
-            <i>{{ osName }}</i>:
-            {%- for rsName in rsNames -%}
-                {{ " and " if loop.last and not loop.first else "" }}
-                {{ rsName | safe }}{{ ", " if not loop.last else "" }}
-            {%- endfor -%}
-        </li> 
-        {%- endfor -%}
-    </ul>
-{%- endif -%}
-
-<p>You may also explore results per-test:</p>
-<ul class="cols">
-{%- for test in latestTestBook.tests -%}
-    <li>
-        <a href="/results/topic/{{topicId}}/{{ test.testId }}">{{test.name}} ({{test.testId}})</a>
-    </li>
-{%- endfor -%}
-</ul>
-
-<h3>Results</h3>
+    <p>This test currently has a {{ (numPassing/testingEnvironments.length * 100).toFixed(2) }}% pass rate.</p>
 
     <div id="table-controls" class="table-controls"></div>
     <div role="region" aria-labelledby="table-caption" tabindex="0">
-        <table class="tests-for-topic">
+        <table class="results-for-test">
             <caption class="visually-hidden" id="table-caption">Reading system testing results</caption>
             <thead>
                 <tr>
                     <th>Testing Environment</th>
-                    <th>Score</th>
-                    {%- for test in latestTestBook.tests -%}
                     <th>
-                        {{ test.name }} ({{ test.testId }})
+                        {{ test.name }} ( {{ test.testId }})
                     </th>
-                    {%- endfor -%}
+                    <th>Notes</th>
                 </tr>
             </thead>
             <tbody>
@@ -59,12 +32,15 @@
                     <td>
                         {{ testingEnvironmentLabels.TestingEnvironmentLink(testingEnvironment) }}
                     </td>
-                    <td>
-                        {{formatScore.FormatScore(testingEnvironment.answerSets[0])}}
-                    </td>
+                    {# there should just be one answer in the answer set anyway #}
                     {%- for answer in testingEnvironment.answerSets[0].answers -%}
                     <td>
                         {{ answer.value }}
+                    </td>
+                    <td>
+                        {%- if answer.notesArePublic -%}
+                        {{ answer.notes }}
+                        {%- endif -%}
                     </td>
                     {%- endfor -%}
                 </tr>

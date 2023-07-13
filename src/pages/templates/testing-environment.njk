@@ -37,7 +37,7 @@
 
     <div class="testing-environment-results">
     <section>
-    <h2 id="testing-environment">{{ softwareName.SoftwareName(testingEnvironment.readingSystem) }}</h2>
+    <h2 id="testing-environment">{{ softwareName.SoftwareName(testingEnvironment.readingSystem, true) }}</h2>
 
     {%- if isAnswerSetPreview -%}
     <p class="message">This is a preview. &nbsp;
@@ -98,7 +98,7 @@
 {%- endif -%}
 
 <p>Test book used: 
-    <a href="/books/{{answerSet.testBook.filename}}">
+    <a href="/test-books/{{answerSet.testBook.topic.id}}">
         <em class="title">{{answerSet.testBook.title}}, version {{answerSet.testBook.version}}</em>
     </a>
 </p>

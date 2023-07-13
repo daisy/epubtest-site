@@ -5,8 +5,10 @@
 
 {%- block content -%}
 <main>
-    <p>This test is in the <a href="/test-books/{{topicId}}">{{topicNames.TopicName(topicId)}}</a> book</p>
-
+    <p>This test is in the <a href="/test-books/{{topicId}}">{{topicNames.TopicName(topicId)}}</a> book.</p>
+    <p>See <a href="/results/topic/{{topicId}}/{{test.testId}}">all results</a> for this test.</p>
+    <p>The text below represents the content of the test for reference purposes, 
+        and should not be used to perform testing directly.</p>
     <div>
     {{test.xhtml | safe}}
     </div>

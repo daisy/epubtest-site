@@ -34,6 +34,62 @@ router.get('/error', (req, res) => res.render('error.njk'));
 // forgot password page
 router.get('/forgot-password', (req, res) => res.render('auth/forgot-password.njk'));
 
+// per-test public results
+// the test ID is the ID in the markup, e.g. basic-010, not the database ID
+router.get('/results/topic/:topicId/:testId', async (req, res, next) => {
+    let dbres = await db.query(
+        Q.TEST_BOOKS.GET_FOR_TOPIC(),
+        { id: req.params.topicId });
+    
+    if (!dbres.success || dbres.data.testBooks.length == 0) {
+        let err = new Error(`Could not get test book(s) for topic (${req.params.topicId})`);
+        return next(err);
+    }
+
+    let testBookIds = dbres.data.testBooks.map(tb => tb.id);
+
+    // also find the latest test book for this topic
+    let latestTestBook = dbres.data.testBooks.reduce((prev, current) => (prev.version > current.version) ? prev : current)
+    
+    // get each testing environment and its latest public answer set for the testbook(s) in the topic
+    dbres = await db.query(
+        Q.TESTING_ENVIRONMENTS_WITH_ANSWERS.GET_ALL_BY_TESTBOOKS(), 
+        { testBookIds }); 
+    if (!dbres.success) {
+        let err = new Error(`Could not get results for topic (${req.params.topicId})`);
+        return next(err);
+    }
+
+    // reduce the answer sets to just one test
+    // filter out any testing environments with no answer sets for this topic
+    // as well as any answer sets that have only NOANSWER values
+    let testingEnvironments = dbres.data.testingEnvironments
+        .filter(testenv => testenv.answerSets.length > 0)
+        .filter(testenv => testenv.answerSets[0].answers.find(a => 
+            a.test.testId == req.params.testId && a.value != 'NOANSWER'))
+        .sort(utils.sortAlphaTestEnv); 
+
+    // just include one answer in the answer set
+    testingEnvironments.map(tenv => {
+            let justOneAnswer = tenv.answerSets[0].answers.filter(ans => ans.test.testId == req.params.testId);
+            tenv.answerSets[0].answers = justOneAnswer;
+        }
+    )
+    // the actual test
+    let test = testingEnvironments[0]?.answerSets[0]?.answers[0]?.test;
+
+    let numPassing = testingEnvironments.filter(tenv => tenv.answerSets[0].answers[0].value == "PASS").length;
+
+    return res.render('results-by-test.njk', {
+        testingEnvironments,
+        latestTestBook,
+        test,
+        topicId: req.params.topicId,
+        numPassing
+    });
+
+});
+
 // per-topic public results
 router.get('/results/topic/:topicId', async (req, res, next) => {
 
@@ -69,13 +125,32 @@ router.get('/results/topic/:topicId', async (req, res, next) => {
     // as well as any answer sets that have only NOANSWER values
     let testingEnvironments = dbres.data.testingEnvironments
         .filter(testenv => testenv.answerSets.length > 0)
-        .filter(testenv => testenv.answerSets[0].answers.find(a => a.value != 'NOANSWER') != undefined)
+        .filter(testenv => testenv.answerSets[0]?.answers.find(a => a.value != 'NOANSWER') != undefined)
         .sort(utils.sortAlphaTestEnv); 
+
+
+    let allScores = testingEnvironments.map(tenv => parseFloat(tenv.answerSets[0]?.score));
+    let sumOfScores = allScores.reduce((acc, curr) => acc + curr,0.00);
+    let avgScore = Math.trunc(sumOfScores / (testingEnvironments.length * 100) * 100);
+    
+    // or sort by 100% on a. windows b. mac c. mobile
+    let topTestEnvs = testingEnvironments.filter(tenv => tenv.answerSets[0]?.score == 100);
+    
+    let uniqueOsNames = [...new Set(topTestEnvs.map(tenv => tenv.os.name))];
+
+    let highestScoringRS = {};
+    uniqueOsNames.map(osName => 
+        highestScoringRS[osName] = [...new Set(
+            topTestEnvs.filter(tenv => tenv.os.name == osName)
+            .map(tenv => tenv.readingSystem.name))
+    ]);
 
     return res.render('results-by-topic.njk', {
         testingEnvironments,
         latestTestBook,
-        topicId: req.params.topicId
+        topicId: req.params.topicId,
+        avgScore,
+        highestScoringRS
     });
     
 });
@@ -176,7 +251,7 @@ router.get('/test-books/:topicId', async (req, res, next) => {
 
     return res.render('test-book.njk', 
         {
-            testBook: dbres.data.testBooks[0],
+            testBook: dbres.data.testBooks[0], // TODO get the latest one in the set
             topicId: req.params.topicId
         }
     );

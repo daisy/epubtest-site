@@ -81,6 +81,20 @@ let sortTopicOrder = (a,b) => a.order > b.order ? 1 : -1;
 let formatValidationResultError = (err) => `${err.msg} (*${err.value}*) for param "${err.param}"`;
 let formatValidationResultErrors = (errs) => errs.map(e => formatValidationResultError(e)).join(', ');
 
+function median(values) {
+    if (values.length == 0) {
+        return 0;
+    }
+
+    let vals = Array.from(values);
+    
+    vals.sort((a,b) => a-b);
+    var half = Math.floor(vals.length / 2);
+    
+    return vals.length % 2 ? vals[half] : (vals[half - 1] + vals[half]) / 2.0;
+
+}
+
 export {
     parseToken,
     sortAlpha,
@@ -89,5 +103,6 @@ export {
     sortAlphaUsers,
     getSoftwareTypeLabels,
     formatValidationResultError,
-    formatValidationResultErrors
+    formatValidationResultErrors,
+    median
 }

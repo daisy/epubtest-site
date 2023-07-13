@@ -1,15 +1,15 @@
 {%- macro SoftwareName (sw, includeVendor = false) -%}
 {%- if sw -%}
-    {%- if includeVendor -%}
-        {%- if sw.vendor -%}
-        {{ sw.vendor }}&nbsp;
-        {%- endif -%}
-    {%- endif -%}
     {%- if sw.name -%}
     {{ sw.name }}&nbsp;
     {%- endif -%}
     {%- if sw.version -%}
     {{ sw.version }}
+    {%- endif -%}
+    {%- if includeVendor -%}
+        {%- if sw.vendor -%}
+        &nbsp;by {{ sw.vendor }}&nbsp;
+        {%- endif -%}
     {%- endif -%}
 {%- endif -%}
 {%- endmacro -%}

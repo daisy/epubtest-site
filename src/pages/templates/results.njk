@@ -19,7 +19,18 @@
     <p>The following represents how well each Testing Environment (Reading System or Reading System + Assistive Technology 
         combination) performed in a series of tests, organized by topic. Learn more about the tests on 
         the <a href="/test-books">test books page</a>.</p>
+    
+    <p>You may also explore results per-topic:</p>
+    <ul class="cols">
+        {%- for topic in topics -%}
+            <li><a href="/results/topic/{{topic.id}}">{{topicNames.TopicName(topic.id)}}</a></li>
+        {%- endfor -%}
+    </ul>
+    
+    
     {%- endif -%}
+
+
 
     <div id="table-controls" class="table-controls"></div>
     <div role="region" aria-labelledby="table-caption" tabindex="0">
