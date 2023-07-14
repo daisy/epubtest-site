@@ -1,7 +1,7 @@
 {%- extends 'base/base.njk' -%}
 {%- import "components/topic-names.njk" as topicNames -%}
 {%- import "components/testing-environment-labels.njk" as testingEnvironmentLabels -%}
-{%- set title="Results for " + topicNames.TopicName(topicId) -%}
+{%- set title="Results for test \"" + test.testId + "\""-%}
 
 {%- block content -%}
 <main>

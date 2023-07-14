@@ -8,12 +8,12 @@
 <main>
     
     <h2>{{ topicNames.TopicName(topicId) }} </h2>
-    <p>The following represents how well each Testing Environment (Reading System or Reading System + Assistive Technology 
-        combination) performed on {{ topicNames.TopicName(topicId)  }} tests. Learn more about the 
-        <a href="/test-books/{{topicId}}">{{ topicNames.TopicName(topicId)}} test book</a>.</p>
+    <p>{{ latestTestBook.description }}</p>
+
+    <p> Learn more about the <a href="/test-books/{{topicId}}">{{ topicNames.TopicName(topicId)}} test book</a>.</p>
 
 {%- if highestScoringRS | length > 0 -%}
-    <p>The Reading Systems with a score of 100% for this topic are:</p>
+    <p>The Reading Systems with a score of 100% for this test book are:</p>
     <ul>
         {%- for osName, rsNames in highestScoringRS -%}
         <li>
@@ -27,7 +27,7 @@
     </ul>
 {%- endif -%}
 
-<p>You may also explore results per-test:</p>
+<p>See the table below for all results for this test book, or you may explore the results per-test:</p>
 <ul class="cols">
 {%- for test in latestTestBook.tests -%}
     <li>

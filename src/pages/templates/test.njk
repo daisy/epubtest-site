@@ -5,15 +5,26 @@
 
 {%- block content -%}
 <main>
-    <p>This test is in the <a href="/test-books/{{topicId}}">{{topicNames.TopicName(topicId)}}</a> book.</p>
-    <p>See <a href="/results/topic/{{topicId}}/{{test.testId}}">all results</a> for this test.</p>
-    <p>The text below represents the content of the test for reference purposes, 
-        and should not be used to perform testing directly.</p>
-    <div>
+    <p class="message" style="text-align: inherit;">Do not use this page for testing. 
+        The test is shown below only for reference; additionally, EPUB resources such as styling and images may be absent.</p>
+    
+    <div class="test-excerpt">
     {{test.xhtml | safe}}
     </div>
+
+    <p>This test is in the <a href="/test-books/{{topicId}}">{{topicNames.TopicName(topicId)}}</a> book.</p>
+    <p>See <a href="/results/topic/{{topicId}}/{{test.testId}}">how well Reading Systems performed</a> on this test.</p>
+    
 </main>
 
 <script type="module">
+    let testBlock = document.querySelector(".test-excerpt");
+
+    // prevent the click events (links won't work)
+    testBlock.addEventListener("click", e => {
+        e.preventDefault();
+    });
+
+    
 </script>
 {%- endblock -%}

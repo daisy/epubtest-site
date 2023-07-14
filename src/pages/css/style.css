@@ -213,6 +213,14 @@ div.testing-environment-title > *:first-child {
 .skipnav {
     font-size: small;
 }
+.test-excerpt {
+    border: thick gray solid;
+    padding: 1em;
+}
+.test-excerpt img {
+    width: 200px;
+    height: 200px;
+}
 /*****************************/
 /* MOBILE                    */
 /*****************************/
