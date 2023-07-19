@@ -8,12 +8,10 @@
 <main>
     
     <h2>{{ topicNames.TopicName(topicId) }} </h2>
-    <p>{{ latestTestBook.description }}</p>
+    <p>{{ latestTestBook.description }} Learn more about the <a href="/test-books/{{topicId}}">{{ topicNames.TopicName(topicId)}} test book</a></p>
 
-    <p> Learn more about the <a href="/test-books/{{topicId}}">{{ topicNames.TopicName(topicId)}} test book</a>.</p>
 
-{%- if highestScoringRS | length > 0 -%}
-    <p>The Reading Systems with a score of 100% for this test book are:</p>
+    <p>{%- if highestScoringRS | length > 0 -%}The Reading Systems with a score of 100% for this test book are:</p>
     <ul>
         {%- for osName, rsNames in highestScoringRS -%}
         <li>
