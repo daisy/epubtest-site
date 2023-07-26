@@ -9,7 +9,7 @@
     "url": "https://github.com/daisy/epubtest-site"
   },
   "engines": {
-    "node": ">=20.1.0"
+    "node": "20.1.0"
   },
   "scripts": {
     "start": "node src/start.js",
