@@ -36,7 +36,8 @@
             <tbody>
                 {%- for testBook in testBooks -%}
                 <tr>
-                    <td><a href="/test-books/{{testBook.topicId}}">{{topicNames.TopicName(testBook.topicId)}}</a></td>
+                    {# <td><a href="/test-books/{{testBook.topicId}}">{{topicNames.TopicName(testBook.topicId)}}</a></td> #}
+                    <td>{{topicNames.TopicName(testBook.topicId)}}</td>
                     <td>{{testBook.title}}</td>
                     <td>{{testBook.description}}</td>
                     <td>{{testBook.version}}</td>

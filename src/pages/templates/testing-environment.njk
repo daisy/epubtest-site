@@ -98,9 +98,10 @@
 {%- endif -%}
 
 <p>Test book used: 
-    <a href="/test-books/{{answerSet.testBook.topic.id}}">
+    {#<a href="/test-books/{{answerSet.testBook.topic.id}}">
         <em class="title">{{answerSet.testBook.title}}, version {{answerSet.testBook.version}}</em>
-    </a>
+    </a>#}
+    <em class="title">{{answerSet.testBook.title}}, version {{answerSet.testBook.version}}</em>
 </p>
 
 {%- if answerSet.user and answerSet.user.includeCredit -%}
