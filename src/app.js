@@ -56,6 +56,7 @@ async function initExpressApp() {
     app.use(cors());
     app.use(cookieParser());
 
+    app.use(middleware.readOnly);
     app.use(middleware.accessLevel);
     app.use(middleware.addDayJS);
     app.use(express.urlencoded({extended: true}));
