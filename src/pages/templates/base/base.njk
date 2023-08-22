@@ -61,11 +61,11 @@
                     <li><a href='/test-books'>Test Books</a></li>
                     <li><a href='/participate'>Participate</a></li>
                     <li><a href='/about'>About</a></li>
-                    {%- if accessLevel == 'public' -%}
+                    {%- if accessLevel == 'public' and readOnly == false -%}
                     <li><a href='/login'>Login</a></li>
                     {%- endif -%}
                 </ul>
-                {%- if accessLevel != 'public' -%}
+                {%- if accessLevel != 'public' and readOnly == false -%}
                 <ul>
                     {%- if accessLevel == 'admin' -%}
                     <li>

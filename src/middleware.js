@@ -4,6 +4,9 @@ import * as utils from './utils.js';
 import dayjs from 'dayjs';
 
 function isAuthenticated (req, res, next) {
+    if (process.env.READONLY == 'true') {
+        return res.redirect(`/`);
+    }
     const token = utils.parseToken(req.cookies.jwt);
     if (token) {
         return next();
@@ -33,6 +36,11 @@ function accessLevel (req, res, next) {
             res.locals.accessLevel = 'public';
         }
     }
+    return next();
+}
+
+function readOnly(req, res, next) {
+    res.locals.readOnly = process.env.READONLY == 'true';
     return next();
 }
 
@@ -87,5 +95,6 @@ export {
     accessLevel,
     error,
     currentLanguage,
-    translate
+    translate,
+    readOnly
 }
