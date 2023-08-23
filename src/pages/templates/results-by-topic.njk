@@ -85,12 +85,22 @@
             type: "alpha",
             firstSort: "ascending",
             pathFn: r => r.querySelector(`td:nth-child(1)`).textContent.replace(/[\n\r]+|[\s]{1,}/g, ' ').trim()
-        }];
+        },
+        {
+            columnIndex: 1,
+            type: "numeric",
+            firstSort: "descending",
+            pathFn: r => {
+                let text = r.querySelector(`td:nth-child(2) > span.score`).textContent.replace(/[\n\r]+|[\s]{1,}/g, ' ').trim();
+                text = text.replace("%", "");
+                return parseFloat(text);
+            }
+        },];
 
     // each test col
-    let tableHeaderCols = Array.from(tableElm.querySelectorAll('table thead th:not(:first-child)'));
+    let tableHeaderCols = Array.from(tableElm.querySelectorAll('table thead th:not(:first-child):not(:nth-child(2n))'));
     sortingRules = [...sortingRules, ...(tableHeaderCols.map((th, idx) => {
-        let colIdx = idx + 1;
+        let colIdx = idx + 2;
             return {
                 columnIndex: colIdx,
                 type: "alpha",
@@ -98,6 +108,8 @@
                 pathFn: r => r.querySelector(`td:nth-child(${colIdx+1})`).textContent.replace(/[\n\r]+|[\s]{1,}/g, ' ').trim()
             } 
     }))];
+
+    console.log(sortingRules);
 
     enhancedTable.enableSort(sortingRules);
     enhancedTable.enableFilters([
