@@ -24,11 +24,12 @@ router.post('/login',
             return res.status(422).redirect('/login?message=' + encodeURIComponent(message));
         }
 
+        let email = req.body.email.toLowerCase();
         let dbres = await db.query(
             Q.AUTH.LOGIN(), 
             {   
                 input: {
-                    email: req.body.email, 
+                    email, 
                     password: req.body.password
                 }
             });
