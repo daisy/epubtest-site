@@ -89,6 +89,14 @@ nav.secondary-nav h2 {
 nav.secondary-nav .score {
     font-size: smaller;
 }
+div.sponsorship {
+    background-color: var(--softcomp) !important;
+    border: none;
+    font-style: italic;
+}
+div.sponsorship a {
+    font-style: normal;
+}
 /* testing environment details */
 ul.detailslist {
     list-style-type: none;

@@ -4,17 +4,18 @@
 <main class="center">
     <style>
         .big {
-            display: block;
-            background-color: var(--softcomp);
-            box-shadow: 0 0 5px darkgray;
             padding: 1rem;
-            width: min-content;
-            white-space: nowrap;
             line-height: 2; 
-            border-bottom: none !important;  
             text-align: center !important;
-            border-radius: 4px;
-            font-size: larger;
+            border-radius: 5px;
+            border: thick solid var(--soft);
+            text-decoration: none;
+        }
+        .big a {
+            font-size: x-large;
+            white-space: nowrap;
+            display: block;
+            
         }
         main {
             gap: 4rem;
@@ -36,8 +37,44 @@
             is <a href="/participate">open to participation.</a>
         </p>
     </div>
-    <a class="big" href="/results" style="align-self: center;">View accessibility testing results</a>
-    
+    <div class="big">
+        <a href="/results" style="align-self: center;">View accessibility testing results</a>
+    </div>
+    <div class="sponsorship big">
+        <a href="https://daisy.org/epubtestSponsor">Support our work</a>
+        <p>If you find EPUBTest useful, please help us by donating to support its ongoing maintenance.</p>
+
+        <script>
+            let res = fetch('https://dl.daisy.org/tools/sponsorship.json')
+            .then(res => {
+                if (res.ok) {
+                    return res.json();
+                }
+                else {
+                    throw new Error('Something went wrong');
+                }
+            })
+            .then(json => {
+                let data = json['epubtest']['en'];
+                updateSponsorshipMessage(data)
+            })
+            .catch(err => {
+                document.querySelector('.sponsorship').style['display'] = 'none';
+            });
+            
+            function updateSponsorshipMessage(data) {
+                if (data.active) {
+                    document.querySelector('.sponsorship a').textContent = data.buttonText;
+                    document.querySelector('.sponsorship a').setAttribute("href", data.url);
+                    document.querySelector('.sponsorship p').textContent = data.messageText;
+                }
+                else {
+                    document.querySelector('.sponsorship').style['display'] = 'none';
+                }
+            }
+            
+        </script>
+    </div>    
 </main>
 
 {%- endblock -%}
