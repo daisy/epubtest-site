@@ -1,0 +1,20 @@
+{# 
+crumbs are [
+    {link, label}...
+]
+#}
+{%- macro Breadcrumbs(crumbs) -%}
+<nav aria-label="Breadcrumbs" class="breadcrumbs">
+    <ol>
+        {%- for crumb in crumbs -%}
+        <li>
+        {%- if loop.index == crumbs | length -%}
+        <a href="{{crumb.link}}" aria-current="page">{{crumb.label}}</a>
+        {%- else -%}
+        <a href="{{crumb.link}}">{{crumb.label}}</a>
+        {%- endif -%}
+        </li>
+        {%- endfor -%}
+    <ol>
+</nav>
+{%- endmacro -%}

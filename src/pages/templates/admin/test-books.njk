@@ -16,7 +16,7 @@
 </script>
 
 <main>
-    <h2 id="pagename">Test Books</h2>
+    <h2 id="pagename">Admin Test Books</h2>
     <div id="table-controls" class="table-controls"></div>
     <div aria-labelledby="pagename" role="region" tabindex="0">
         <table aria-labelledby="pagename">
@@ -25,7 +25,6 @@
                     <th>Topic</th>
                     <th>Title</th>
                     <th>Version</th>
-                    <th>Language</th>
                     <th>Description</th>
                     <th>Download</th>
                     <th>Actions</th>
@@ -36,8 +35,11 @@
                 <tr>
                     <td>{{ topicNames.TopicName(testBook.topicId) }} {{ testBook.topic.id }}</td>
                     <td>{{ testBook.title }}</td>
-                    <td>{{ testBook.version }}</td>
-                    <td>{{ testBook.langId }}</td>
+                    <td>{{ testBook.version }}
+                        {%- if testBook.isLatest -%}
+                        <span class="latest-testbook">Latest revision</span>
+                        {%- endif -%}
+                    </td>
                     <td>{{ testBook.description }}</td>
                     <td>
                         <a href="/books/{{ testBook.filename }}" title="{{ testBook.title }}">Download</a>

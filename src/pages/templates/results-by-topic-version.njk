@@ -1,0 +1,173 @@
+{%- extends 'base/base.njk' -%}
+{%- import "components/topic-names.njk" as topicNames -%}
+{%- import "components/testing-environment-labels.njk" as testingEnvironmentLabels -%}
+{%- import "components/format-score.njk" as formatScore -%}
+{%- import "components/breadcrumbs.njk" as breadcrumbs -%}
+{%- set title="Results for " + topicNames.TopicName(topicId) + "(" + answerSet.testBook.version + ")" -%}
+
+{%- block content -%}
+<main>
+    {{breadcrumbs.Breadcrumbs(crumbs)}}
+    
+    <h2>{{testBook.title}}, v{{testBook.version}}</h2>
+    {%- if testBook.isLatest -%}
+    <p class="latest-testbook">This is the latest test book version for {{topicNames.TopicName(topicId)}}.</p>
+    {%- else -%}
+    <p class="not-latest-testbook">This is an old version of this test book. <a href="/results/topic/{{topicId}}">Newer results may be available</a>.</p>
+    {%- endif -%}
+
+    {%- if testBook.testingEnvironments | length > 0 -%}
+    <h3>Results per test</h3>
+    <table class="tests-for-topic compact" id="summary-of-tests">
+        <caption class="visually-hidden" id="table-caption-1">Summary of tests for {{topicNames.TopicName(topicId)}}</caption>
+        <thead>
+            <tr>
+                <th>Test ID</th>
+                <th>Name</th>
+                <th>Pass rate</th>
+            </tr>
+        </thead>
+        <tbody>
+            {%- for test in testBook.tests -%}
+            <tr>
+                <td><a href="/results/topic/{{testBook.topic.id}}/{{testBook.version}}/{{ test.testId }}">{{test.testId}}</a></td>
+                <td>{{test.name}}</td>
+                <td>{{ (test.numPassing/testBook.testingEnvironments.length * 100).toFixed(2) }}%</td>
+            </tr>
+            {%- endfor -%}
+        </tbody>
+    </table>
+    
+    <h3>All results by Testing Environment</h3>
+    {%- if testBook.highestScoringRS | length > 0 -%}
+    <p>The Reading Systems with a score of 100% for this test book are:</p>
+    <ul>
+        {%- for osName, rsNames in testBook.highestScoringRS -%}
+        <li>
+            <i>{{ osName }}</i>:
+            {%- for rsName in rsNames -%}
+                {{ " and " if loop.last and not loop.first else "" }}
+                {{ rsName | safe }}{{ ", " if not loop.last else "" }}
+            {%- endfor -%}
+        </li> 
+        {%- endfor -%}
+    </ul>
+    {%- endif -%}
+
+    <div id="table-controls-2" class="table-controls"></div>
+    <div role="region" aria-labelledby="table-caption-2" tabindex="0">
+        <table class="tests-for-topic" id="results-for-tests">
+            <caption class="visually-hidden" id="table-caption-2">Results by reading system for each test in {{topicNames.TopicName(topicId)}}</caption>
+            <thead>
+                <tr>
+                    <th>Testing Environment</th>
+                    <th>Score</th>
+                    {%- for test in testBook.tests -%}
+                    <th>
+                        {{ test.name }} ({{ test.testId }})
+                    </th>
+                    {%- endfor -%}
+                </tr>
+            </thead>
+            <tbody>
+                {%- for testingEnvironment in testBook.testingEnvironments -%}
+                <tr>
+                    <td>
+                        {{ testingEnvironmentLabels.TestingEnvironmentLink(testingEnvironment) }}
+                    </td>
+                    <td>
+                        {{formatScore.FormatScore(testingEnvironment.answerSets[0])}}
+                    </td>
+                    {%- for answer in testingEnvironment.answerSets[0].answers -%}
+                    <td>
+                        {{ answer.value }}
+                    </td>
+                    {%- endfor -%}
+                </tr>
+                {%- endfor -%}
+            </tbody>
+        </table>
+    </div>
+    {%- else -%}
+    <p>No results have been published yet for this test book.</p>
+    {%- endif -%}
+</main>
+
+<script type="module" src="/js/table.js"></script>
+<script type="module">
+    import { EnhancedTable } from '/js/table.js';
+    
+    let tableElm = document.querySelector("#results-for-tests");
+    let tableControlsElm = document.querySelector("#table-controls-2");
+    let enhancedTable = new EnhancedTable(tableElm, tableControlsElm);
+    enhancedTable.enableSearch();
+    let sortingRules = [{
+            columnIndex: 0, 
+            type: "alpha",
+            firstSort: "ascending",
+            pathFn: r => r.querySelector(`#results-for-tests td:nth-child(1)`).textContent.replace(/[\n\r]+|[\s]{1,}/g, ' ').trim()
+        },
+        {
+            columnIndex: 1,
+            type: "numeric",
+            firstSort: "descending",
+            pathFn: r => {
+                let text = r.querySelector(`#results-for-tests td:nth-child(2) > span.score`).textContent.replace(/[\n\r]+|[\s]{1,}/g, ' ').trim();
+                text = text.replace("%", "");
+                return parseFloat(text);
+            }
+        },];
+
+    // each test col
+    let tableHeaderCols = Array.from(tableElm.querySelectorAll('table#results-for-tests thead th:not(:first-child):not(:nth-child(2n))'));
+    sortingRules = [...sortingRules, ...(tableHeaderCols.map((th, idx) => {
+        let colIdx = idx + 2;
+            return {
+                columnIndex: colIdx,
+                type: "alpha",
+                firstSort: "descending",
+                pathFn: r => r.querySelector(`#results-for-tests td:nth-child(${colIdx+1})`).textContent.replace(/[\n\r]+|[\s]{1,}/g, ' ').trim()
+            } 
+    }))];
+
+    enhancedTable.enableSort(sortingRules);
+    enhancedTable.enableFilters([
+        {
+            label: "Reading System",
+            pathFn: r => {
+                let elm = r.querySelector(`#results-for-tests td:nth-child(1) span.readingSystem span.name`);
+                if (elm) {
+                    return elm.textContent.trim();
+                }
+                else {
+                    return "";
+                }
+            }
+        },
+        {
+            label: "Assistive Technology",
+            pathFn: r => {
+                let elm = r.querySelector(`#results-for-tests td:nth-child(1) span.assistiveTechnology span.name`);
+                if (elm) {
+                    return elm.textContent.trim();
+                }
+                else {
+                    return "";
+                }
+            }
+        },
+        {
+            label: "OS",
+            pathFn: r => {
+                let elm = r.querySelector(`#results-for-tests td:nth-child(1) span.os span.name`);
+                if (elm) {
+                    return elm.textContent.trim();
+                }
+                else {
+                    return "";
+                }
+            }
+        }
+    ]);
+</script>
+{%- endblock -%}

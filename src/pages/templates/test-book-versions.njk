@@ -1,0 +1,25 @@
+{%- extends 'base/base.njk' -%}
+{%- import "components/topic-names.njk" as topicNames -%}
+{%- import "components/breadcrumbs.njk" as breadcrumbs -%}
+{%- set title="Test book versions for " + topicNames.TopicName(topicId) -%}
+
+{%- block content -%}
+<main>
+    {{breadcrumbs.Breadcrumbs(crumbs)}}
+
+    <h2>{{topicNames.TopicName(topicId)}}</h2>
+    <p>The following test book versions are available:</p>
+    <ul>
+        {%- for testBook in testBooks -%}
+        {%- if testBook.isLatest -%}
+        <li class="latest-testbook">
+        {%- else -%}
+        <li>
+        {%- endif -%}
+        
+        <a href="/test-books/{{topicId}}/{{testBook.version}}">{{testBook.version}}</a>
+        </li>
+        {%- endfor -%}
+</main>
+    
+{%- endblock -%}

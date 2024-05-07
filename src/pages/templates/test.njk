@@ -1,19 +1,24 @@
 {%- extends 'base/base.njk' -%}
 {%- import "components/topic-names.njk" as topicNames -%}
 {%- import "components/testing-environment-labels.njk" as testingEnvironmentLabels -%}
-{%- set title="Explore the test books: " + topicNames.TopicName(topicId) + " " + testId -%}
+{%- import "components/breadcrumbs.njk" as breadcrumbs -%}
+{%- set title="Test " + test.testId + " in " + topicNames.TopicName(testBook.topic.id) + "(" + testBook.version + ")" -%}
 
 {%- block content -%}
 <main>
+    {{breadcrumbs.Breadcrumbs(crumbs)}}
+
     <p class="message" style="text-align: inherit;">Do not use this page for testing. 
         The test is shown below only for reference; additionally, EPUB resources such as styling and images may be absent.</p>
-    
     <div class="test-excerpt">
     {{test.xhtml | safe}}
     </div>
 
-    <p>This test is in the <a href="/test-books/{{topicId}}">{{topicNames.TopicName(topicId)}}</a> book.</p>
-    <p>See <a href="/results/topic/{{topicId}}/{{test.testId}}">how well Reading Systems performed</a> on this test.</p>
+    <p>This test is in the book <a href="/test-books/{{testBook.topic.id}}/{{testBook.version}}">{{testBook.title}} {{testBook.version}}</a>.</p>
+    {%- if test.flag -%}
+    <p class="latest-testbook">This test is new or changed from the previous revision.</p>
+    {%- endif -%}
+    <p>See <a href="/results/topic/{{testBook.topic.id}}/{{testBook.version}}/{{test.testId}}">how well Reading Systems performed</a> on this test.</p>
     
 </main>
 

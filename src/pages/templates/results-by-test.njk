@@ -1,18 +1,25 @@
 {%- extends 'base/base.njk' -%}
 {%- import "components/topic-names.njk" as topicNames -%}
 {%- import "components/testing-environment-labels.njk" as testingEnvironmentLabels -%}
-{%- set title="Results for test \"" + test.testId + "\""-%}
+{%- import "components/breadcrumbs.njk" as breadcrumbs -%}
+{%- set title="Results for test " + testId -%}
 
 {%- block content -%}
 <main>
-    
-    <h2>Single test results: {{ test.name }} ({{ test.testId }})</h2>
-    <p>The following represents how well each Testing Environment (Reading System or Reading System + Assistive Technology 
-        combination) performed on a single test, <a href="/test-books/{{topicId}}/{{ test.testId }}">{{ test.testId }}</a>, 
-        which appears in the <a href="/test-books/{{topicId}}">{{ topicNames.TopicName(topicId) }} test book</a>.</p>
+    {{breadcrumbs.Breadcrumbs(crumbs)}}
+
+    {%- if testingEnvironments | length == 0 -%}
+    <p>No results are available for this test.</p>
+    {%- else -%}
+    <h2>{{ test.name }} ({{ test.testId }})</h2>
+    <p>Below are all the published results for the test <a href="/test-books/{{topicId}}/{{test.testBook.version}}/{{ test.testId }}">{{ test.testId }}</a>, 
+        which appears in <a href="/test-books/{{topicId}}/{{test.testBook.version}}">{{ topicNames.TopicName(topicId) }} ({{test.testBook.version}})</a>.</p>
 
     <p>This test currently has a {{ (numPassing/testingEnvironments.length * 100).toFixed(2) }}% pass rate.</p>
 
+    {%- if test.flag -%}
+    <p class="latest-testbook">This test is new or changed from the previous revision.</p>
+    {%- endif -%}
     <div id="table-controls" class="table-controls"></div>
     <div role="region" aria-labelledby="table-caption" tabindex="0">
         <table class="results-for-test">
@@ -48,8 +55,10 @@
             </tbody>
         </table>
     </div>
+    {%- endif -%}
 </main>
 
+{%- if testingEnvironments | length > 0 -%}
 <script type="module" src="/js/table.js"></script>
 <script type="module">
     import { EnhancedTable } from '/js/table.js';
@@ -117,4 +126,5 @@
         }
     ]);
 </script>
+{%- endif -%}
 {%- endblock -%}

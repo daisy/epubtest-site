@@ -2,153 +2,32 @@
 {%- import "components/topic-names.njk" as topicNames -%}
 {%- import "components/testing-environment-labels.njk" as testingEnvironmentLabels -%}
 {%- import "components/format-score.njk" as formatScore -%}
+{%- import "components/breadcrumbs.njk" as breadcrumbs -%}
 {%- set title="Results for " + topicNames.TopicName(topicId) -%}
 
 {%- block content -%}
 <main>
-    
-    <h2>{{ topicNames.TopicName(topicId) }} </h2>
-    <p>{{ latestTestBook.description }} Learn more about the <a href="/test-books/{{topicId}}">{{ topicNames.TopicName(topicId)}} test book</a></p>
+    {{breadcrumbs.Breadcrumbs(crumbs)}}
 
-
-    <p>{%- if highestScoringRS | length > 0 -%}The Reading Systems with a score of 100% for this test book are:</p>
+    <h2>{{topicNames.TopicName(topicId)}}</h2>
+    <p>Available versions:</p>
     <ul>
-        {%- for osName, rsNames in highestScoringRS -%}
+        {%- for testBook in testBooks -%}
+        {%- if testBook.isLatest -%}
+        <li class="latest-test-book">
+        {%- else -%}
         <li>
-            <i>{{ osName }}</i>:
-            {%- for rsName in rsNames -%}
-                {{ " and " if loop.last and not loop.first else "" }}
-                {{ rsName | safe }}{{ ", " if not loop.last else "" }}
-            {%- endfor -%}
-        </li> 
+        {%- endif -%}
+        
+        {%- if testBook.testingEnvironments | length > 0 -%}
+        <a href="/results/topic/{{topicId}}/{{testBook.version}}">{{testBook.version}} results</a>
+        {%- else -%}
+        <span>{{testBook.version}}: no results published yet.</span>
+        {%- endif -%}
+        </li>
         {%- endfor -%}
     </ul>
-{%- endif -%}
-
-<p>See the table below for all results for this test book, or you may explore the results per-test:</p>
-<ul class="cols">
-{%- for test in latestTestBook.tests -%}
-    <li>
-        <a href="/results/topic/{{topicId}}/{{ test.testId }}">{{test.name}} ({{test.testId}})</a>
-    </li>
-{%- endfor -%}
-</ul>
-
-<h3>Results</h3>
-
-    <div id="table-controls" class="table-controls"></div>
-    <div role="region" aria-labelledby="table-caption" tabindex="0">
-        <table class="tests-for-topic">
-            <caption class="visually-hidden" id="table-caption">Reading system testing results</caption>
-            <thead>
-                <tr>
-                    <th>Testing Environment</th>
-                    <th>Score</th>
-                    {%- for test in latestTestBook.tests -%}
-                    <th>
-                        {{ test.name }} ({{ test.testId }})
-                    </th>
-                    {%- endfor -%}
-                </tr>
-            </thead>
-            <tbody>
-                {%- for testingEnvironment in testingEnvironments -%}
-                <tr>
-                    <td>
-                        {{ testingEnvironmentLabels.TestingEnvironmentLink(testingEnvironment) }}
-                    </td>
-                    <td>
-                        {{formatScore.FormatScore(testingEnvironment.answerSets[0])}}
-                    </td>
-                    {%- for answer in testingEnvironment.answerSets[0].answers -%}
-                    <td>
-                        {{ answer.value }}
-                    </td>
-                    {%- endfor -%}
-                </tr>
-                {%- endfor -%}
-            </tbody>
-        </table>
-    </div>
 </main>
 
-<script type="module" src="/js/table.js"></script>
-<script type="module">
-    import { EnhancedTable } from '/js/table.js';
-    
-    let tableElm = document.querySelector("table");
-    let tableControlsElm = document.querySelector("#table-controls");
-    let enhancedTable = new EnhancedTable(tableElm, tableControlsElm);
-    enhancedTable.enableSearch();
-    let sortingRules = [{
-            columnIndex: 0, 
-            type: "alpha",
-            firstSort: "ascending",
-            pathFn: r => r.querySelector(`td:nth-child(1)`).textContent.replace(/[\n\r]+|[\s]{1,}/g, ' ').trim()
-        },
-        {
-            columnIndex: 1,
-            type: "numeric",
-            firstSort: "descending",
-            pathFn: r => {
-                let text = r.querySelector(`td:nth-child(2) > span.score`).textContent.replace(/[\n\r]+|[\s]{1,}/g, ' ').trim();
-                text = text.replace("%", "");
-                return parseFloat(text);
-            }
-        },];
 
-    // each test col
-    let tableHeaderCols = Array.from(tableElm.querySelectorAll('table thead th:not(:first-child):not(:nth-child(2n))'));
-    sortingRules = [...sortingRules, ...(tableHeaderCols.map((th, idx) => {
-        let colIdx = idx + 2;
-            return {
-                columnIndex: colIdx,
-                type: "alpha",
-                firstSort: "descending",
-                pathFn: r => r.querySelector(`td:nth-child(${colIdx+1})`).textContent.replace(/[\n\r]+|[\s]{1,}/g, ' ').trim()
-            } 
-    }))];
-
-    console.log(sortingRules);
-
-    enhancedTable.enableSort(sortingRules);
-    enhancedTable.enableFilters([
-        {
-            label: "Reading System",
-            pathFn: r => {
-                let elm = r.querySelector(`td:nth-child(1) span.readingSystem span.name`);
-                if (elm) {
-                    return elm.textContent.trim();
-                }
-                else {
-                    return "";
-                }
-            }
-        },
-        {
-            label: "Assistive Technology",
-            pathFn: r => {
-                let elm = r.querySelector(`td:nth-child(1) span.assistiveTechnology span.name`);
-                if (elm) {
-                    return elm.textContent.trim();
-                }
-                else {
-                    return "";
-                }
-            }
-        },
-        {
-            label: "OS",
-            pathFn: r => {
-                let elm = r.querySelector(`td:nth-child(1) span.os span.name`);
-                if (elm) {
-                    return elm.textContent.trim();
-                }
-                else {
-                    return "";
-                }
-            }
-        }
-    ]);
-</script>
 {%- endblock -%}

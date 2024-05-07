@@ -1,22 +1,42 @@
 {%- extends 'base/base.njk' -%}
 {%- import "components/topic-names.njk" as topicNames -%}
 {%- import "components/testing-environment-labels.njk" as testingEnvironmentLabels -%}
-{%- set title="Test book details: " + topicNames.TopicName(topicId) -%}
+{%- import "components/breadcrumbs.njk" as breadcrumbs -%}
+{%- set title="Test book details: " + topicNames.TopicName(topicId) + "(" + testBook.version + ")" -%}
 
 {%- block content -%}
 <main>
-    <h2>{{ testBook.title }}, {{ testBook.version }} ({{ testBook.lang.id }})</h2>
+    {{breadcrumbs.Breadcrumbs(crumbs)}}
+
+    <h2>{{ testBook.title }} (v{{ testBook.version }})</h2>
     <p>{{ testBook.description }}</p>
+    
+    {%- if testBook.isLatest -%}
+    <p class="latest-testbook">This is the latest test book version for {{topicNames.TopicName(topicId)}}.</p>
+    {%- else -%}
+    <p class="not-latest-testbook">This is an old version of this test book. <a href="/test-books/{{topicId}}">See the latest version</a>.</p>
+    {%- endif -%}
+    
     <a href="/books/{{testBook.filename}}" title="{{testBook.title}}">Download this book ⬇️</a>
 
-    <p>See <a href="/results/topic/{{topicId}}">how well Reading Systems performed</a> on this test book.</p>
+    <p>See <a href="/results/topic/{{topicId}}#{{testBook.id}}">how well Reading Systems performed</a> on this test book.</p>
     
     <p>View the details of each test:</p>
     <ul>
     {%- for test in testBook.tests -%}
-    <li><a href="/test-books/{{topicId}}/{{test.testId}}">{{test.testId}}</a>: {{ test.name }}</li>
+    <li>
+        <a href="/test-books/{{topicId}}/{{testBook.version}}/{{test.testId}}">
+        {{test.testId}}
+        </a>: 
+        {{ test.name }}
+        {%- if test.flag -%}
+        &nbsp;
+        <span class="latest-testbook">This test is new or changed from the previous revision.</span>
+        {%- endif -%}
+    </li>
     {%- endfor -%}
     </ul>
+    
 </main>
 
 <script type="module">

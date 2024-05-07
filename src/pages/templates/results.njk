@@ -16,16 +16,18 @@
     <p>The following Testing Environments have been archived.</p>
     {%- else -%}
     <h2>Results</h2>
-    <p>The following represents how well each Testing Environment (Reading System or Reading System + Assistive Technology 
-        combination) performed in a series of tests, organized by topic. Learn more about the tests on 
-        the <a href="/test-books">test books page</a>.</p>
+    <div>
+        <p>See all results on this page or explore further by topic:</p>
+        <ul class="cols">
+            {%- for topic in topics -%}
+                <li><a href="/results/topic/{{topic.id}}">{{topicNames.TopicName(topic.id)}}</a></li>
+            {%- endfor -%}
+        </ul>
+    </div>
     
-    <p>You may also explore results per-topic:</p>
-    <ul class="cols">
-        {%- for topic in topics -%}
-            <li><a href="/results/topic/{{topic.id}}">{{topicNames.TopicName(topic.id)}}</a></li>
-        {%- endfor -%}
-    </ul>
+    <p>Below are accessibility testing results for Testing Environments (Reading System or Reading System + Assistive Technology 
+        combination), organized by topic. Learn more about the <a href="/test-books">tests</a>.</p>
+    
     
     
     {%- endif -%}
@@ -50,7 +52,11 @@
                     </td>
                     {%- for topic in topics -%}
                     {%- set answerSet = displayUtils.getAnswerSetForTopic(testingEnvironment, topic.id) -%}
+                    {%- if answerSet.testBook.isLatest == false and answerSet.isTested -%}
+                    <td class="not-latest-testbook">
+                    {%- else -%}
                     <td>
+                    {%- endif -%}
                         {%- if answerSet and answerSet.isTested -%}
                         <a href="/results/{{testingEnvironment.id}}/#{{answerSet.testBook.topic.id}}">
                         {{ formatScore.FormatScore(answerSet) }}

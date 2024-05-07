@@ -98,10 +98,19 @@
 {%- endif -%}
 
 <p>Test book used: 
-    <a href="/test-books/{{answerSet.testBook.topic.id}}">
+    <a href="/test-books/{{answerSet.testBook.topic.id}}/{{answerSet.testBook.version}}">
         <em class="title">{{answerSet.testBook.title}}, version {{answerSet.testBook.version}}</em>
-    </a>
+    </a>.
+    {%- if answerSet.testBook.isLatest == false -%}
+    <span class="not-latest-testbook">
+        These results are based on an old test book version. 
+        A newer version of <a href="/test-books/{{answerSet.testBook.topic.id}}">
+            {{topicNames.TopicName(answerSet.testBook.topic.id)}}</a> is available.
+    </span>
+    {%- endif -%}
 </p>
+
+
 
 {%- if answerSet.user and answerSet.user.includeCredit -%}
 <p>These tests were done by {{userCredit.UserCredit(answerSet.user)}}.</p>

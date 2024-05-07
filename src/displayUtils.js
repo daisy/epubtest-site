@@ -70,11 +70,17 @@ function getAnswerSetForTopic(testingEnvironment, topicId) {
 function isTested(testingEnvironment) {
     return testingEnvironment.answerSets.find(as => as.isTested) != undefined;
 }
+function flaggedAnswers(answerSet) {
+    console.log(answerSet);
+    return answerSet.answers.filter(a => a.flag);
+}
 export {
     // getTopicName,
     // testingEnvironmentLink,
     // resultNames,
     // makeScoreSpan,
     getAnswerSetForTopic,
-    isTested
+    isTested,
+    flaggedAnswers,
+    topicNames
 }

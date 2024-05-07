@@ -36,27 +36,25 @@ router.get('/forgot-password', (req, res) => res.render('auth/forgot-password.nj
 
 // per-test public results
 // the test ID is the ID in the markup, e.g. basic-010, not the database ID
-router.get('/results/topic/:topicId/:testId', async (req, res, next) => {
+router.get('/results/topic/:topicId/:version/:testId', async (req, res, next) => {
     let dbres = await db.query(
-        Q.TEST_BOOKS.GET_FOR_TOPIC(),
-        { id: req.params.topicId });
+        Q.TEST_BOOKS.GET_BY_TOPIC_VERSION(),
+        { 
+            topicId: req.params.topicId, 
+            version: req.params.version 
+        });
     
     if (!dbres.success || dbres.data.testBooks.length == 0) {
-        let err = new Error(`Could not get test book(s) for topic (${req.params.topicId})`);
+        let err = new Error(`Could not get test book (${req.params.topicId} ${req.params.version})`);
         return next(err);
     }
+    let testBook = dbres.data.testBooks[0];
 
-    let testBookIds = dbres.data.testBooks.map(tb => tb.id);
-
-    // also find the latest test book for this topic
-    let latestTestBook = dbres.data.testBooks.reduce((prev, current) => (prev.version > current.version) ? prev : current)
-    
-    // get each testing environment and its latest public answer set for the testbook(s) in the topic
     dbres = await db.query(
         Q.TESTING_ENVIRONMENTS_WITH_ANSWERS.GET_ALL_BY_TESTBOOKS(), 
-        { testBookIds }); 
+        { testBookIds: [testBook.id] }); 
     if (!dbres.success) {
-        let err = new Error(`Could not get results for topic (${req.params.topicId})`);
+        let err = new Error(`Could not get results for book (${req.params.topicId} ${req.params.version})`);
         return next(err);
     }
 
@@ -80,24 +78,108 @@ router.get('/results/topic/:topicId/:testId', async (req, res, next) => {
 
     let numPassing = testingEnvironments.filter(tenv => tenv.answerSets[0].answers[0].value == "PASS").length;
 
+    let crumbs = [
+        {
+            link: "/results",
+            label: "Results"
+        },
+        {
+            link: `/results/topic/${req.params.topicId}`,
+            label: displayUtils.topicNames[req.params.topicId]
+        },
+        {
+            link: `/results/topic/${req.params.topicId}/${testBook.version}`,
+            label: `v${testBook.version}`
+        },
+        {
+            link: `/results/topic/${req.params.topicId}/${testBook.version}/${req.params.testId}`,
+            label: req.params.testId
+        }
+    ];
     return res.render('results-by-test.njk', {
         testingEnvironments,
-        latestTestBook,
+        testBook,
         test,
         topicId: req.params.topicId,
-        numPassing
+        numPassing,
+        crumbs,
+        testId: req.params.testId
     });
-
 });
 
-// per-topic public results
-router.get('/results/topic/:topicId', async (req, res, next) => {
+// per-topic, per-version public results
+router.get('/results/topic/:topicId/:version', async (req, res, next) => {
 
     // get all the test books for a given topic
     // there may be many versions
-    // only one book per topic is considered the "latest"
-    // but some testing environments may not be up to speed, so we still need to show their most recent score
-    // (with a note that it was for an older book version)
+    
+    let dbres = await db.query(
+        Q.TEST_BOOKS.GET_BY_TOPIC_VERSION(),
+        { topicId: req.params.topicId, version: req.params.version });
+    
+    if (!dbres.success || dbres.data.testBooks.length == 0) {
+        let err = new Error(`Could not get test book(s) for topic (${req.params.topicId})`);
+        return next(err);
+    }
+
+    let book = dbres.data.testBooks[0];
+    dbres = await db.query(
+        Q.TESTING_ENVIRONMENTS_WITH_ANSWERS.GET_ALL_BY_TESTBOOKS(), 
+        { testBookIds: [book.id] }); 
+    if (!dbres.success) {
+        // TODO handle the error
+    }
+
+    // filter out any testing environments with no answer sets for this book
+    // as well as any answer sets that have only NOANSWER values
+    book.testingEnvironments = dbres.data.testingEnvironments
+        .filter(testenv => testenv.answerSets.length > 0)
+        .filter(testenv => testenv.answerSets[0]?.answers.find(a => a.value != 'NOANSWER') != undefined)
+        .sort(utils.sortAlphaTestEnv); 
+
+    let allScores = book.testingEnvironments.map(tenv => parseFloat(tenv.answerSets[0]?.score));
+    let sumOfScores = allScores.reduce((acc, curr) => acc + curr,0.00);
+    book.avgScore = Math.trunc(sumOfScores / (book.testingEnvironments.length * 100) * 100);
+    
+    // or sort by 100% on a. windows b. mac c. mobile
+    let topTestEnvs = book.testingEnvironments.filter(tenv => tenv.answerSets[0]?.score == 100);
+    
+    let uniqueOsNames = [...new Set(topTestEnvs.map(tenv => tenv.os.name))];
+
+    book.highestScoringRS = {};
+    uniqueOsNames.map(osName => 
+        book.highestScoringRS[osName] = [...new Set(
+            topTestEnvs.filter(tenv => tenv.os.name == osName)
+            .map(tenv => tenv.readingSystem.name))
+    ]);
+    book.tests.map(t => {
+        t.numPassing = book.testingEnvironments.filter(te => te.answerSets[0].answers.find(a => a.test.id == t.id && a.value == 'PASS')).length;
+    });
+
+    let crumbs = [
+        {
+            link: "/results",
+            label: "Results"
+        },
+        {
+            link: `/results/topic/${req.params.topicId}`,
+            label: displayUtils.topicNames[req.params.topicId]
+        },
+        {
+            link: `/results/topic/${req.params.topicId}/${book.version}`,
+            label: `v${book.version}`
+        }
+    ];
+
+    return res.render('results-by-topic-version.njk', {
+        topicId: req.params.topicId,
+        testBook: book,
+        crumbs
+    });
+});
+// per-topic version list
+router.get('/results/topic/:topicId', async (req, res, next) => {
+
     let dbres = await db.query(
         Q.TEST_BOOKS.GET_FOR_TOPIC(),
         { id: req.params.topicId });
@@ -107,52 +189,39 @@ router.get('/results/topic/:topicId', async (req, res, next) => {
         return next(err);
     }
 
-    let testBookIds = dbres.data.testBooks.map(tb => tb.id);
-
-    // also find the latest test book for this topic
-    let latestTestBook = dbres.data.testBooks.reduce((prev, current) => (prev.version > current.version) ? prev : current)
+    // sort the test books by version
+    let testBooks = dbres.data.testBooks
+        .sort((a, b) => semver.gt(a.version, b.version) ? -1 : 1);
     
-    // get each testing environment and its latest public answer set for the testbook(s) in the topic
-    dbres = await db.query(
-        Q.TESTING_ENVIRONMENTS_WITH_ANSWERS.GET_ALL_BY_TESTBOOKS(), 
-        { testBookIds }); 
-    if (!dbres.success) {
-        let err = new Error(`Could not get results for topic (${req.params.topicId})`);
-        return next(err);
+    for (let testBook of testBooks) {
+        dbres = await db.query(
+            Q.TESTING_ENVIRONMENTS_WITH_ANSWERS.GET_ALL_BY_TESTBOOKS(), 
+            { testBookIds: [testBook.id]}); 
+        // filter out any testing environments with no answer sets for this book
+        // as well as any answer sets that have only NOANSWER values
+        testBook.testingEnvironments = dbres.success ? 
+            testBook.testingEnvironments = dbres.data.testingEnvironments
+                .filter(testenv => testenv.answerSets.length > 0)
+                .filter(testenv => testenv.answerSets[0]?.answers.find(a => a.value != 'NOANSWER') != undefined)
+            : [];
     }
 
-    // filter out any testing environments with no answer sets for this topic
-    // as well as any answer sets that have only NOANSWER values
-    let testingEnvironments = dbres.data.testingEnvironments
-        .filter(testenv => testenv.answerSets.length > 0)
-        .filter(testenv => testenv.answerSets[0]?.answers.find(a => a.value != 'NOANSWER') != undefined)
-        .sort(utils.sortAlphaTestEnv); 
-
-
-    let allScores = testingEnvironments.map(tenv => parseFloat(tenv.answerSets[0]?.score));
-    let sumOfScores = allScores.reduce((acc, curr) => acc + curr,0.00);
-    let avgScore = Math.trunc(sumOfScores / (testingEnvironments.length * 100) * 100);
-    
-    // or sort by 100% on a. windows b. mac c. mobile
-    let topTestEnvs = testingEnvironments.filter(tenv => tenv.answerSets[0]?.score == 100);
-    
-    let uniqueOsNames = [...new Set(topTestEnvs.map(tenv => tenv.os.name))];
-
-    let highestScoringRS = {};
-    uniqueOsNames.map(osName => 
-        highestScoringRS[osName] = [...new Set(
-            topTestEnvs.filter(tenv => tenv.os.name == osName)
-            .map(tenv => tenv.readingSystem.name))
-    ]);
+    let crumbs = [
+        {
+            link: "/results",
+            label: "Results"
+        },
+        {
+            link: `/results/topic/${req.params.topicId}`,
+            label: displayUtils.topicNames[req.params.topicId]
+        }
+    ];
 
     return res.render('results-by-topic.njk', {
-        testingEnvironments,
-        latestTestBook,
         topicId: req.params.topicId,
-        avgScore,
-        highestScoringRS
+        testBooks,
+        crumbs
     });
-    
 });
 
 // testing environment results
@@ -164,7 +233,7 @@ router.get('/results/:testingEnvironmentId', async (req, res, next) => {
         let err = new Error(`Could not get testing environment (${req.params.testingEnvironmentId})`);
         return next(err);
     }
-
+    
     return res.render('testing-environment.njk', {
         testingEnvironment: dbres.data.testingEnvironment,
         isAnswerSetPreview: false
@@ -219,21 +288,81 @@ router.get('/archive', async (req, res, next) => {
 });
 
 // test page
-router.get('/test-books/:topicId/:testId', async (req, res, next) => {
+router.get('/test-books/:topicId/:version/:testId', async (req, res, next) => {
     let dbres = await db.query(
-        Q.TEST_BOOKS.GET_FOR_TOPIC(),
-        { id: req.params.topicId });
+        Q.TEST_BOOKS.GET_BY_TOPIC_VERSION(),
+        { 
+            topicId: req.params.topicId, 
+            version: req.params.version 
+        });
     
     if (!dbres.success || dbres.data.testBooks.length == 0) {
-        let err = new Error(`Could not get test books for ${req.params.topicId}`);
+        let err = new Error(`Could not get test book (${req.params.topicId} ${req.params.version})`);
         return next(err);
     }
-
+    let testBook = dbres.data.testBooks[0];
+    let test = testBook.tests.find(t => t.testId == req.params.testId);
+    let crumbs = [
+        {
+            link: "/test-books",
+            label: "Test books"
+        },
+        {
+            link: `/test-books/${testBook.topic.id}`,
+            label: displayUtils.topicNames[testBook.topic.id] 
+        },
+        {
+            link: `/test-books/${testBook.topic.id}/${testBook.version}`,
+            label: `v${testBook.version}`
+        },
+        {
+            link: `/test-books/${testBook.topic.id}/${testBook.version}/${test.testId}`,
+            label: test.testId 
+        }
+    ];
     return res.render('test.njk', 
         {
-            test: dbres.data.testBooks[0].tests.find(t => t.testId == req.params.testId),
-            testId: req.params.testId,
-            topicId: req.params.topicId
+            test,
+            testBook,
+            crumbs
+        }
+    );
+});
+
+// test book page but with versioning
+router.get('/test-books/:topicId/:version', async (req, res, next) => {
+    let dbres = await db.query(
+        Q.TEST_BOOKS.GET_BY_TOPIC_VERSION(),
+        { 
+            topicId: req.params.topicId, 
+            version: req.params.version 
+        });
+    
+    if (!dbres.success || dbres.data.testBooks.length == 0) {
+        let err = new Error(`Could not get test book (${req.params.topicId} ${req.params.version})`);
+        return next(err);
+    }
+    let testBook = dbres.data.testBooks[0];
+
+    let crumbs = [
+        {
+            link: "/test-books",
+            label: "Test books"
+        },
+        {
+            link: `/test-books/${req.params.topicId}`,
+            label: displayUtils.topicNames[req.params.topicId] 
+        },
+        {
+            link: `/test-books/${req.params.topicId}/${testBook.version}`,
+            label: `v${testBook.version}`
+        }
+    ];
+    return res.render('test-book.njk', 
+        {
+            testBook: testBook,
+            topicId: req.params.topicId,
+            crumbs
         }
     );
 });
@@ -249,17 +378,31 @@ router.get('/test-books/:topicId', async (req, res, next) => {
         return next(err);
     }
 
-    return res.render('test-book.njk', 
+    let sortedBooks = dbres.data.testBooks.sort((a, b) => semver.gt(a.version, b.version) ? -1 : 1)
+
+    let crumbs = [
         {
-            testBook: dbres.data.testBooks[0], // TODO get the latest one in the set
-            topicId: req.params.topicId
+            link: "/test-books",
+            label: "Test books"
+        },
+        {
+            link: `/test-books/${req.params.topicId}`,
+            label: displayUtils.topicNames[req.params.topicId] 
+        }
+    ];
+    return res.render('test-book-versions.njk', 
+        {
+            testBooks: sortedBooks,
+            topicId: req.params.topicId,
+            crumbs
         }
     );
 });
 
 // test books page
 router.get('/test-books', async (req, res, next) => {
-    let dbres = await db.query(Q.TEST_BOOKS.GET_LATEST());
+    let q = Q.TEST_BOOKS.GET_LATEST();
+    let dbres = await db.query(q);
     
     if (!dbres.success) {
         let err = new Error("Could not get test books.");
@@ -268,7 +411,7 @@ router.get('/test-books', async (req, res, next) => {
 
     return res.render('test-books.njk', 
         {
-            testBooks: dbres.data.getLatestTestBooks
+            testBooks: dbres.data.testBooks.sort((a, b) => a.topic.order < b.topic.order ? -1 : 1)
         }
     );
 });
