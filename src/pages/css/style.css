@@ -143,7 +143,7 @@ p.message {
     text-align: center;
     line-height: 2em;
     margin-bottom: 1vh;
-    background-color: rgba(251, 255, 0, 0.2);
+    background-color: var(--message);
     grid-column-start: 1;
     grid-column-end: 4;
 }
@@ -229,6 +229,48 @@ div.testing-environment-title > *:first-child {
     width: 200px;
     height: 200px;
 }
+.test-excerpt .eval {
+    display: none;
+}
+
+.breadcrumbs ol {
+    list-style-type: none;
+    padding: 0;
+    display: flex;
+}
+.breadcrumbs a {
+    padding: 0;
+    margin: 0;
+    box-sizing: border-box;
+    clip-path: polygon(95% 0, 100% 50%, 95% 100%, 0% 100%, 5% 50%, 0% 0%);
+    letter-spacing: 0.01em;
+    padding-left: 1rem;
+    padding-right: 1rem;
+    padding-top: 0.25rem;
+    padding-bottom: 0.25rem;
+    position: relative;
+    text-decoration: none;  
+    width: min-content;
+    white-space: nowrap;
+}
+.breadcrumbs a::not(:last-child) {    
+    width: 105%;
+}
+  
+.breadcrumbs a {
+    background-color: var(--softcomp);
+}
+.breadcrumbs a:hover,
+.breadcrumbs a :active {
+    color: inherit;
+    text-decoration: underline;
+}
+  
+.breadcrumbs a:focus {
+    box-shadow: 0 -3px 0 0 var(--softcomp) inset;
+    outline: none;
+}
+
 /*****************************/
 /* MOBILE                    */
 /*****************************/
@@ -260,3 +302,47 @@ div.testing-environment-title > *:first-child {
     }
 }
 
+.needs-attention {
+    background-color: var(--message);
+}
+li.latest-testbook:after {
+    content: "latest version";
+    font-size: smaller;
+    background-color: var(--message);
+    width: min-content;
+    font-variant: small-caps;
+}
+td.not-latest-testbook:after {
+    content: "Update required";
+    font-size: smaller;
+    border: thin solid var(--primary);
+    border-radius: 5px;
+    padding: 3px;
+    width: min-content;
+    font-variant: small-caps;
+    background-color: white;
+}
+p.not-latest-testbook, span.not-latest-testbook {
+    background-color: var(--message);
+    display: block;
+    font-size: smaller;
+    padding: 5px;
+    margin: 5px;
+}
+span.latest-testbook, p.latest-testbook {
+    background-color: var(--message);
+    display: block;
+    font-size: smaller;
+    width: min-content;
+    white-space: nowrap;
+}
+td span.not-latest-testbook {
+    padding: 0;
+    margin: 0;
+}
+li span.latest-testbook {
+    display: inline;
+}
+p.latest-testbook {
+    font-size: medium;
+}
