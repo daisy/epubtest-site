@@ -3,6 +3,7 @@ import * as db from '../database/index.js';
 import * as Q from '../queries/index.js';
 import * as displayUtils from '../displayUtils.js';
 import * as utils from '../utils.js';
+import semver from 'semver';
 
 const router = express.Router()
 
@@ -98,15 +99,16 @@ router.get('/add-test-book', async (req, res, next) => {
 });
 
 router.get('/test-books', async (req, res, next) => {
-    let dbres = await db.query(Q.TEST_BOOKS.GET_LATEST(), {});
+    let dbres = await db.query(Q.TEST_BOOKS.GET_ALL(), {});
     if (!dbres.success) {
         let err = new Error(`Could not get test books.`);
         return next(err);
     }
+    let testBooks = dbres.data.testBooks.sort((a, b) => a.topic.order > b.topic.order ? 1 : -1)
     
     return res.render('admin/test-books.njk', 
         {
-            testBooks: dbres.data.getLatestTestBooks,
+            testBooks,
             displayUtils
         }
     );

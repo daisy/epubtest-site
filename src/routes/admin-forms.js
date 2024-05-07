@@ -247,32 +247,47 @@ router.post("/add-test-book", async (req, res, next) => {
 });
 
 router.post("/ingest-test-book", async (req, res, next) => {
-    let testBook = JSON.parse(req.body.testBook);
-    let replacesBookId = testBook.bookToUpgradeId;
-    testBook.tests.map(test => {
-        let testInBook = testBook.tests.find(t=>t.testId == test.testId);
-        testInBook.flagChanged = test.flagChanged === "true"; // TODO test this
-    });
-
-    let result = await testBooks.add(testBook, req.cookies.jwt);
-    
-    if (!result.success) {
-        let err = new Error(`ERRORS importing book: \n ${result.errors.map(e=>e.message).join(', ')}`);
-        return next(err);
-    }
-
-    if (replacesBookId != null && replacesBookId != undefined) {
-        result = await answerSets.upgrade(result.newBookId, replacesBookId, req.cookies.jwt);
+    let message = '';
+    if (req.body.hasOwnProperty("cancel")) {
+        // await invite.cancelInvitation(inviteId, req.cookies.jwt);
+        message = "Cancel add new book";
     }
     else {
-        result = await answerSets.createAnswerSetsForNewTestBook(result.newBookId, req.cookies.jwt);
+        let testBook = JSON.parse(req.body.testBook);
+        let replacesBookId = testBook.bookToUpgradeId;
+        testBook.tests.map(test => {
+            let testInBook = testBook.tests.find(t=>t.testId == test.testId);
+            testInBook.flagChanged = test.flagChanged === "true"; // TODO test this
+        });
+
+        let result = await testBooks.add(testBook, req.cookies.jwt);
+        
+        if (!result.success) {
+            let err = new Error(`ERRORS importing book: \n ${result.errors.map(e=>e.message).join(', ')}`);
+            return next(err);
+        }
+
+        if (replacesBookId != null && replacesBookId != undefined) {
+            result = await answerSets.upgrade(result.newBookId, replacesBookId, req.cookies.jwt);
+        }
+        else {
+            result = await answerSets.createAnswerSetsForNewTestBook(result.newBookId, req.cookies.jwt);
+        }
+
+        let messageExtra = '';
+        let updateIsLatestRes = await db.query(
+            Q.TEST_BOOKS.UPDATE_SET_IS_LATEST_FOR_ALL(), 
+            {}, 
+            req.cookies.jwt
+        );
+        if (!updateIsLatestRes.success) {
+            messageExtra = 'Could not update test book flag "is_latest"; please run manual update in database.';
+        }
+
+        message = encodeURIComponent(
+            `Added test book "${testBook.title}" version ${testBook.version} (topic: ${testBook.topicId}, language: ${testBook.langId})\n${messageExtra}`);
     }
-
-    let message = encodeURIComponent(
-        `Added test book "${testBook.title}" version ${testBook.version} (topic: ${testBook.topicId}, language: ${testBook.langId})`);
-    
     return res.redirect(`/admin/test-books?message=${message}`);
-
 });
 
 router.post("/confirm-delete-test-book/:id", async (req, res, next) => {
@@ -645,5 +660,15 @@ router.post('/set-user', async (req, res, next) => {
     message = "Could not assign user";
     return res.redirect(`${req.body.next}?message=${encodeURIComponent(message)}`);
 });
-
+router.post('/update-test-books-is-latest', async (req, res, next) => {
+    let updateIsLatestRes = await db.query(
+        Q.TEST_BOOKS.UPDATE_SET_IS_LATEST_FOR_ALL(), 
+        {}, 
+        req.cookies.jwt
+    );
+    if (!updateIsLatestRes.success) {
+        console.log('Could not update test book flag "is_latest"; please run manual update in database.');
+    }
+    return res.redirect('/admin/etc');
+});
 export { router };
