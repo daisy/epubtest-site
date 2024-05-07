@@ -8,7 +8,6 @@ import * as privateAccessTokens from './privateAccessTokens.js';
 const BASIC_FIELDS = () => `
 id
 summary
-flag
 score
 isPublic
 isLatest

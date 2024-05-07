@@ -44,7 +44,7 @@ async function parse(epubFilepath, epubOrigFilename) {
         }
 
         if (!semver.valid(bookdata.metadata['schema:version'])) {
-            throw new Error(`Incorrect EPUB version metadata; cannot ingest.`);
+            throw new Error(`Incorrect EPUB version metadata ${bookdata.metadata['schema:version']}; cannot ingest.`);
         }
         
         testBook = {
@@ -52,7 +52,7 @@ async function parse(epubFilepath, epubOrigFilename) {
             topicId: bookdata.metadata['dc:subject'],
             description: bookdata.metadata['dc:description'],
             langId: bookdata.metadata['dc:language'],
-            epubId: bookdata.metadata['dc:identifier'],
+            epubId: bookdata.uid,
             version: bookdata.metadata['schema:version'],
             filename: epubOrigFilename,
             path: epubFilepath,
@@ -94,7 +94,7 @@ async function canAdd(parsedTestBook, jwt) {
             errors = dbres.errors;
             throw new Error();
         }
-        currentBookForTopicAndLang = dbres.data.getLatestTestBooks
+        currentBookForTopicAndLang = dbres.data.testBooks
             .find(book => book.topicId === parsedTestBook.topicId && book.langId === parsedTestBook.langId);
         
         // are we upgrading an existing book? if so, does the new book have a newer version number?
@@ -150,22 +150,29 @@ async function add(testBook, jwt) {
     let errors = [];
     let transactions = [];
     let addBookResult = null;
+    let newTestBookInput = {
+        input: {
+            topicId: testBook.topicId,
+            langId: testBook.langId,
+            version: testBook.version,
+            title: testBook.title,
+            description: testBook.description,
+            filename: testBook.filename,
+            epubId: testBook.epubId,
+            // translation: testBook.translation,
+            // experimental: testBook.experimental,
+            versionMajor: semver.major(testBook.version),
+            versionMinor: semver.minor(testBook.version),
+            versionPatch: semver.patch(testBook.version)
+        }
+    };
+    // console.log("translation", testBook.translation);
+    // console.log("exp", testBook.experimental);
+    console.log(JSON.stringify(newTestBookInput, null, '  '));
     try {
         let dbres = await db.query(
             Q.TEST_BOOKS.CREATE(),  
-            {
-                input: {
-                    topicId: testBook.topicId,
-                    langId: testBook.langId,
-                    version: testBook.version,
-                    title: testBook.title,
-                    description: testBook.description,
-                    filename: testBook.filename,
-                    epubId: testBook.epubId,
-                    translation: testBook.translation,
-                    experimental: testBook.experimental
-                }
-            }, 
+            newTestBookInput, 
             jwt);
 
         if (!dbres.success) {
@@ -324,7 +331,7 @@ async function getLatestForTopic(topicId, langId='en') {
             errors = dbres.errors;
             throw new Error();
         }
-        let testBooks = dbres.data.getLatestTestBooks;
+        let testBooks = dbres.data.testBooks;
         //let topicId = topic;
         book = testBooks.find(tb => tb.topicId === topicId && tb.langId === langId);
 
@@ -348,7 +355,7 @@ async function getLatestForTopicWithTests(topicId, langId='en') {
             errors = dbres.errors;
             throw new Error();
         }
-        let testBooks = dbres.data.getLatestTestBooks;
+        let testBooks = dbres.data.testBooks;
         //let topicId = topic;
         book = testBooks.find(tb => tb.topicId === topicId && tb.langId === langId);
 
@@ -368,19 +375,6 @@ async function getLatestForTopicWithTests(topicId, langId='en') {
     return {success: true, errors: [], testBook: book};
 }
 
-
-// order of calling: parse, canAdd, setFlags, getUsage... then "add"
-// module.exports = {
-//     add,
-//     canAdd,
-//     setFlags,
-//     parse,
-//     remove,
-//     canRemove,
-//     getUsage,
-//     getLatestForTopic,
-//     getLatestForTopicWithTests
-// };
 
 export {
     add,

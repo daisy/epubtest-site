@@ -140,11 +140,14 @@ async function migrate(newAnswerSetId, oldAnswerSetId, jwt) {
         }
         // if there were flagged answers in the new answer set
         // mark it as needing updating
+        // update may 2024: the answerSet.flag field is deprecated
+        // not sure if the lastModified field is worth keeping this logic around for
+        // but not removing it yet, just in case ... 
         if (flaggedAnswer) {
             dbres = await db.query(Q.ANSWER_SETS.UPDATE(),  {
                 id: newAnswerSetId,
                 patch: {
-                    flag: true,
+                    //flag: true,
                     lastModified: oldAnswerSet.lastModified
                 }
             }, jwt);

@@ -36,7 +36,7 @@ async function add(testingEnvironmentInput, jwt) {
             errors = dbres.errors;
             throw new Error();
         }
-        let testBooks = dbres.data.getLatestTestBooks;
+        let testBooks = dbres.data.testBooks;
         for (let testBook of testBooks) {
             let result = await answerSets.add(testBook.id, testingEnvironmentId, jwt);
             if (!result.success) {

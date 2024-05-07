@@ -100,7 +100,7 @@ query {
 const GET_ALL_BY_USER = () => `
 query($userId: Int!) {
     getUserTestingEnvironments(userId: $userId) {
-        ${FIELDS()}
+        ${FIELDS_WITH_ANSWERS()}
     }
 }`;
 

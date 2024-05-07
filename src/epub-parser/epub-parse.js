@@ -157,6 +157,8 @@ EpubParser.prototype.parseData = function(packageDocPath, epubDir) {
       dc: 'http://purl.org/dc/elements/1.1/'});
   this.metadata = parseMetadata(doc, select);
   this.links = parseLinks(doc, select);
+  const uidString = select('//opf:package/@unique-identifier', doc)[0].nodeValue;
+  this.uid = select(`//dc:identifier[@id='${uidString}']/text()`, doc)[0].nodeValue;
 
   const spineItemIdrefs = select('//opf:itemref/@idref', doc);
   spineItemIdrefs.forEach((idref) => {
@@ -188,6 +190,7 @@ EpubParser.prototype.parseData = function(packageDocPath, epubDir) {
 
   this.hasBindings = select('//opf:bindings', doc).length > 0;
   this.hasManifestFallbacks = select('//opf:item[@fallback]', doc).length > 0;
+  
 };
 
 EpubParser.prototype.parseContentDocTitle = function(filepath) {
