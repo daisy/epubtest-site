@@ -32,6 +32,14 @@
             padding-right: 2vh;
             font-size: larger;
         }
+        form, h2~p, h2~div.testing-environment-title {
+            margin: 2rem;
+        }
+        @media (max-width: 768px) {
+            form, h2~p, h2~div.testing-environment-title {
+                margin: 0.25rem;
+            }   
+        }
     </style>
     <h2>Edit Results for {{topicNames.TopicName(answerSet.testBook.topic.id)}} ({{answerSet.testBook.version}})</h2>
     {%- if displayUtils.flaggedAnswers(answerSet) | length > 0 -%}
