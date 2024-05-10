@@ -2,6 +2,9 @@ import express from 'express';
 import * as db from '../database/index.js';
 import * as Q from '../queries/index.js';
 import * as utils from '../utils.js';
+import * as emails from '../emails.js';
+import * as mail from '../actions/mail.js';
+
 import expressValidator from 'express-validator';
 const { validator, validationResult, body } = expressValidator;
 
@@ -23,7 +26,23 @@ router.post('/request-to-publish', async (req, res, next) => {
         let err = new Error("Could not create request to publish");
         return next(err);
     }
-
+    
+    dbres = await db.query(
+        Q.ANSWER_SETS.GET(),
+        {
+            id: parseInt(req.body.answerSetId)
+        },
+        req.cookies.jwt
+    );
+    if (!dbres.success) {
+        let err = new Error("Could not generate email notification");
+        return next(err);
+    }
+    // send email notification of new request to publish
+    await mail.sendEmail("epubtest@daisy.org", 
+        emails.newRequest.subject, 
+        emails.newRequest.text(dbres.data.answerSet), 
+        emails.newRequest.html(dbres.data.answerSet));   
     res.redirect('/user/dashboard');
 });
 
