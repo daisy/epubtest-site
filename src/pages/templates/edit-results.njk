@@ -35,7 +35,7 @@
     </style>
     <h2>Edit Results for {{topicNames.TopicName(answerSet.testBook.topic.id)}} ({{answerSet.testBook.version}})</h2>
     {%- if displayUtils.flaggedAnswers(answerSet) | length > 0 -%}
-    <p class="needs-attention">One or more answers require updating because the corresponding test has changed.</p>
+    <p class="needs-attention">One or more answers need updating.</p>
     {%- endif -%}
 
     {{ testingEnvironmentLabels.TestingEnvironmentTitle(answerSet.testingEnvironment, 'h3', 'p') }}
@@ -48,7 +48,7 @@
         {%- endif -%}
          href="{{answerSet.testBook.downloadUrl}}">
         {{answerSet.testBook.title}} ({{answerSet.testBook.version}})</a></p>
-    <form method="POST" action="/user/forms/results">
+    <form method="POST" action="/user/forms/results" class="edit-results">
         <h2>Summary</h2>
         <label for="summary">Give a summary of your testing experience:</label>
         <textarea class="summary" id="summary" rows="10" cols="50" name="summary">{{answerSet.summary}}</textarea>
@@ -100,7 +100,7 @@
                             </select>
                         </td>
                         <td>
-                            <textarea rows="5" cols="20" name="answers[{{answer.id}}][notes]">{%- if answer.notes != "null" -%}
+                            <textarea rows="5" cols="40" name="answers[{{answer.id}}][notes]">{%- if answer.notes != "null" -%}
                             {{answer.notes}}{%- endif -%}</textarea>
                             <input type="checkbox" name="answers[{{answer.id}}][publishNotes]" 
                                 {%- if answer.notesArePublic -%}checked{%- endif -%}>

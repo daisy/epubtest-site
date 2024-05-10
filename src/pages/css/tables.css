@@ -266,6 +266,13 @@ table.compact tbody tr:nth-child(odd) td:first-child {
     background-color: white;
 }
 
+form.edit-results table td:nth-child(2) {
+    max-width: 5rem;
+}
+form.edit-results table td:nth-child(3) {
+    max-width: 15rem;
+}
+
 @media (max-width: 768px) {
     .table-controls .table-filters {
         gap: .5rem;
