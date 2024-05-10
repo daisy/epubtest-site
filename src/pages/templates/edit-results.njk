@@ -33,11 +33,21 @@
             font-size: larger;
         }
     </style>
-    <h2>Edit Results: {{topicNames.TopicName(answerSet.testBook.topic.id)}}</h2>
+    <h2>Edit Results for {{topicNames.TopicName(answerSet.testBook.topic.id)}} ({{answerSet.testBook.version}})</h2>
+    {%- if displayUtils.flaggedAnswers(answerSet) | length > 0 -%}
+    <p class="needs-attention">One or more answers require updating because the corresponding test has changed.</p>
+    {%- endif -%}
 
     {{ testingEnvironmentLabels.TestingEnvironmentTitle(answerSet.testingEnvironment, 'h3', 'p') }}
 
-    <p><b>Test Book:</b> <a href="/books/{{answerSet.testBook.filename}}">{{answerSet.testBook.title}} (v {{answerSet.testBook.version}})</a></p>
+    <p><b>Test Book:</b> 
+    <a 
+        {%- if answerSet.testBook.isLatest%} class="latest-testbook-tag"
+        {%- else -%}
+         class="notlatest-testbook-tag"
+        {%- endif -%}
+         href="{{answerSet.testBook.downloadUrl}}">
+        {{answerSet.testBook.title}} ({{answerSet.testBook.version}})</a></p>
     <form method="POST" action="/user/forms/results">
         <h2>Summary</h2>
         <label for="summary">Give a summary of your testing experience:</label>
@@ -45,6 +55,17 @@
 
         <h2>Results</h2>
         <p>Using the form below, enter answers for each test in the test book linked above.</p>
+        
+        {%- if displayUtils.flaggedAnswers(answerSet) | length > 0 -%}
+        <div class="needs-attention">
+            <p>The following items are new or have changed, and require attention. Please download the test book linked above and re-test these items.</p>
+            <ul>
+                {%- for answer in displayUtils.flaggedAnswers(answerSet) -%}
+                <li><a href="#a{{answer.id}}">{{answer.test.testId}}</a></li>
+                {%- endfor -%}
+            </ul>
+        </div>
+        {%- endif -%}
 
         <div id="table-controls" class="table-controls"></div>
         <div role="region" aria-labelledby="table-caption" tabindex="0">
@@ -57,13 +78,17 @@
                         <th>Description</th>
                         <th>Result</th>
                         <th>Notes</th>
-                        {#<th>Status</th>#}
                     </tr>
                 </thead>
                 <tbody>
                     {%- for answer in answerSet.answers -%}
-                    <tr>
-                        <td>{{answer.test.testId}}<input type="hidden" value="{{answer.id}}" name="answers[{{answer.id}}][id]"></input></td>
+                    <tr class="{%-if answer.test.flag and answer.flag-%}flagged-test{%- endif -%}" id="a{{answer.id}}">
+                        <td>{{answer.test.testId}}
+                            {%-if answer.test.flag and answer.flag-%}
+                            <span class="update-required">Update required</span>
+                            {%- endif -%}
+                            <input type="hidden" value="{{answer.id}}" name="answers[{{answer.id}}][id]"></input>
+                        </td>
                         <td><label for="answer-{{answer.id}}">{{answer.test.name}}</label></td>
                         <td>{{answer.test.description}}</td>
                         <td>
@@ -82,7 +107,6 @@
                                 Publish Notes
                             </input>
                         </td>
-                        {#<td>{%- if answer.flag -%} Needs update {%- endif -%}</td>#}
                     </tr>
                     {%- endfor -%}
                 </tbody>

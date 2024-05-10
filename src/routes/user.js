@@ -24,11 +24,15 @@ router.get('/dashboard', async (req, res, next) => {
             testingEnvironment.answerSets = testingEnvironment.answerSets.filter(aset => aset.user && aset.user.id == req.userId);
         }
     }
+    for (let testingEnvironment of userTestingEnvironments) {
+        testingEnvironment.answerSets.sort((a, b) => a.testBook.topic.order > b.testBook.topic.order ? 1 : -1)
+    }
 
     let answerSetIds = userTestingEnvironments.map(tenv => 
         tenv.answerSets.map(ans => ans.id))
         .reduce((acc, curr) => acc.concat(curr), []);
     
+
     dbres = await db.query(Q.REQUESTS.GET_FOR_ANSWERSETS(), {ids: answerSetIds}, req.cookies.jwt);
     
     if (!dbres.success) {
@@ -37,6 +41,7 @@ router.get('/dashboard', async (req, res, next) => {
     }
 
     let requests = dbres.data.requests;
+
     return res.render('dashboard.njk', 
         {
             testingEnvironments: userTestingEnvironments.sort(utils.sortAlphaTestEnv),

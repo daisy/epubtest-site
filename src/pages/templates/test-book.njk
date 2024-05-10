@@ -17,9 +17,9 @@
     <p class="not-latest-testbook">This is an old version of this test book. <a href="/test-books/{{topicId}}">See the latest version</a>.</p>
     {%- endif -%}
     
-    <a href="/books/{{testBook.filename}}" title="{{testBook.title}}">Download this book ⬇️</a>
+    <a href="{{testBook.downloadUrl}}" title="{{testBook.title}}">Download this book ⬇️</a>
 
-    <p>See <a href="/results/topic/{{topicId}}#{{testBook.id}}">how well Reading Systems performed</a> on this test book.</p>
+    <p>See <a href="/results/topic/{{topicId}}/{{testBook.version}}">how well Reading Systems performed</a> on this test book.</p>
     
     <p>View the details of each test:</p>
     <ul>

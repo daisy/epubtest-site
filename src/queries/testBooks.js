@@ -12,6 +12,7 @@ description
 translation
 experimental
 isLatest
+downloadUrl
 `;
 
 const FIELDS = () => `

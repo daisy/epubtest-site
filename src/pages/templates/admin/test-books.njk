@@ -27,6 +27,7 @@
                     <th>Version</th>
                     <th>Description</th>
                     <th>Download</th>
+                    <th>Edit URL</th>
                     <th>Actions</th>
                 </tr>
             </thead>
@@ -42,7 +43,13 @@
                     </td>
                     <td>{{ testBook.description }}</td>
                     <td>
-                        <a href="/books/{{ testBook.filename }}" title="{{ testBook.title }}">Download</a>
+                        <a href="{{testBook.downloadUrl}}" title="{{ testBook.title }}">Download</a>
+                    </td>
+                    <td class="edit-url">
+                        <form action="/admin/forms/edit-test-book/{{testBook.id}}" method="post">
+                            <input type="text" name="downloadUrl" aria-label="Download URL" value="{{testBook.downloadUrl}}" required>
+                            <input type="submit" value="Save"></input>
+                        </form>
                     </td>
                     <td>
                         <form action="/admin/forms/confirm-delete-test-book/{{ testBook.id }}" method="post">

@@ -15,11 +15,12 @@
         New tests have been noted as such. 
         Please mark any changed tests by checking the box in the righthand column.</p>
 
-    <p>When tests are new or have changed, users will be given the option to upgrade their answer set to the latest test book. 
+    <p>When tests are new or have changed, new unpublished answer sets will be generated with values ported over
+        from the previous version.  
         The answer set now requires partial re-testing. Upon completion of re-testing, 
         the user may request to publish the new results. 
         Until then, the previous version of the results appears in the public-facing table, with an indication that 
-        it was done with an older test book.
+        it was done with an older revision of the test book.
     </p>
 
     <h3>Test book information</h3>
@@ -49,6 +50,10 @@
             <tr>
                 <th>Filename</th>
                 <td>{{testBook.filename}}</td>
+            </tr>
+            <tr>
+                <th>Download Url</th>
+                <td><a href="{{testBook.downloadUrl}}">{{testBook.downloadUrl}}</a></td>
             </tr>
             <tr>
                 <th>Experimental?</th>

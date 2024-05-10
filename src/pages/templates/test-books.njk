@@ -42,7 +42,7 @@
                     <td>{{testBook.version}}</td>
                     <td>{{testBook.langId}}</td>
                     <td>
-                        <a href="/books/{{testBook.filename}}" title="{{testBook.title}}">Download</a>
+                        <a href="{{testBook.downloadUrl}}" title="{{testBook.title}}">Download</a>
                     </td>
                 </tr>
                 {%- endfor -%}

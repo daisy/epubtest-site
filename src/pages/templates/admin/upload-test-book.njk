@@ -1,7 +1,11 @@
 {%- extends 'base/admin-base.njk' -%}
 {%- set title = "Admin: Import Test Book" -%}
 {%- block content -%}
-
+<style>
+    form input[name="downloadUrl"] {
+        min-width: 90%; 
+    }
+</style>
 <main class="center">
     <h2>Upload New Test Book</h2>
 
@@ -10,6 +14,10 @@
 
     <form method="POST" action="/admin/forms/add-test-book" enctype="multipart/form-data">
         <input type="file" name="epub" required>
+        <div>
+            <label for="downloadUrl">Download URL</label>
+            <input type="text" name="downloadUrl" id="downloadUrl" required>
+        </div>
         <div>
             <label for="experimental">This book is experimental</label>
             <input type="checkbox" name="experimental" id="experimental">

@@ -11,5 +11,6 @@
     --hardcomp: #ecf1e6; /* no alpha */
     --grayed-out: rgba(0, 0, 0, .6);
     --darkgray: rgb(87, 87, 87);
+    --message:  rgba(251, 255, 0, 0.2);
   }
   

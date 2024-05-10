@@ -74,6 +74,9 @@ function flaggedAnswers(answerSet) {
     console.log(answerSet);
     return answerSet.answers.filter(a => a.flag);
 }
+function flaggedAnswersForNewTests(answerSet) {
+    return answerSet.answers.filter(a => a.flag && a.test.flag);
+}
 export {
     // getTopicName,
     // testingEnvironmentLink,
@@ -82,5 +85,6 @@ export {
     getAnswerSetForTopic,
     isTested,
     flaggedAnswers,
+    flaggedAnswersForNewTests,
     topicNames
 }

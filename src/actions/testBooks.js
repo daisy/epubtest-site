@@ -163,7 +163,8 @@ async function add(testBook, jwt) {
             // experimental: testBook.experimental,
             versionMajor: semver.major(testBook.version),
             versionMinor: semver.minor(testBook.version),
-            versionPatch: semver.patch(testBook.version)
+            versionPatch: semver.patch(testBook.version),
+            downloadUrl: testBook.downloadUrl
         }
     };
     // console.log("translation", testBook.translation);
@@ -209,15 +210,16 @@ async function add(testBook, jwt) {
                     transactions.push({objectType: 'TESTS', actionWas: 'CREATE', id: dbres.data.createTest.test.id});
                 }
             }
+            // the downloads now live on github so this isn't required
             // copy EPUB file to downloads dir
-            let destDir = path.join(__dirname, '../pages/books/');
-            try {
-                fs.statSync(destDir);
-            }
-            catch(err) {
-                winston.error(`Could not copy ${testBook.filename} to ${destDir}`);
-            }
-            await fs.copyFile(testBook.path, path.join(destDir, testBook.filename));
+            // let destDir = path.join(__dirname, '../pages/books/');
+            // try {
+            //     fs.statSync(destDir);
+            // }
+            // catch(err) {
+            //     winston.error(`Could not copy ${testBook.filename} to ${destDir}`);
+            // }
+            // await fs.copyFile(testBook.path, path.join(destDir, testBook.filename));
         }
     }
     catch(err) {

@@ -235,6 +235,7 @@ router.post("/add-test-book", async (req, res, next) => {
         // attach these properties
         flaggedTestBook.experimental = fields.experimental == "on";
         flaggedTestBook.translation = fields.translation == "on";
+        flaggedTestBook.downloadUrl = fields.downloadUrl;
         
         // show page where admin can set own flags
         return res.render('./admin/ingest-test-book.njk', 
@@ -378,6 +379,23 @@ router.post('/delete-test-book-and-answer-sets/:id', async (req, res, next) => {
         redirect = req.body.nextIfNo;
     }
     // redirect
+    return res.redirect(redirect);
+});
+router.post('/edit-test-book/:id', async (req, res, next) => {
+    let dbres = await(db.query(
+        Q.TEST_BOOKS.UPDATE(),
+        {
+            id: parseInt(req.params.id),
+            patch: {
+                downloadUrl: req.body.downloadUrl
+            }
+        },
+        req.cookies.jwt
+    ));
+    let redirect = "/admin/test-books";
+    if (!dbres.success) {
+        redirect += `?message=${encodeURIComponent("Could not update book")}`;
+    }
     return res.redirect(redirect);
 });
 

@@ -115,6 +115,7 @@ async function initExpressApp() {
                 }
             )
         );
+        console.log("Database available on /graphql");
     }
 
     // catch-all for unrecognized routes

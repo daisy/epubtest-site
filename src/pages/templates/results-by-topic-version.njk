@@ -11,13 +11,13 @@
     
     <h2>{{testBook.title}}, v{{testBook.version}}</h2>
     {%- if testBook.isLatest -%}
-    <p class="latest-testbook">This is the latest test book version for {{topicNames.TopicName(topicId)}}.</p>
+    <p class="latest-testbook">This is the latest test book revision for {{topicNames.TopicName(topicId)}}.</p>
     {%- else -%}
     <p class="not-latest-testbook">This is an old version of this test book. <a href="/results/topic/{{topicId}}">Newer results may be available</a>.</p>
     {%- endif -%}
 
     {%- if testBook.testingEnvironments | length > 0 -%}
-    <h3>Results per test</h3>
+    <h3>Summary of tests</h3>
     <table class="tests-for-topic compact" id="summary-of-tests">
         <caption class="visually-hidden" id="table-caption-1">Summary of tests for {{topicNames.TopicName(topicId)}}</caption>
         <thead>

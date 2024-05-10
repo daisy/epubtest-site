@@ -24,7 +24,6 @@ form div.inline-control {
 form {
     display: flex;
     flex-direction: column;
-    gap: 2rem;
 }
 form section {
     display: flex;
@@ -40,5 +39,8 @@ textarea.summary {
 button:hover, input[type=submit]:hover {
     outline: thin solid var(--darkgray);
 }
-
+.edit-url form {
+    flex-direction: row;
+    gap: 0.5rem;
+}
 

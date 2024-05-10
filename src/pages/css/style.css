@@ -305,13 +305,21 @@ div.testing-environment-title > *:first-child {
 .needs-attention {
     background-color: var(--message);
 }
-li.latest-testbook:after {
-    content: "latest version";
+.latest-testbook-tag:after {
+    content: " latest version";
     font-size: smaller;
     background-color: var(--message);
     width: min-content;
     font-variant: small-caps;
 }
+.notlatest-testbook-tag:after {
+    content: " outdated version";
+    font-size: smaller;
+    background-color: var(--message);
+    width: min-content;
+    font-variant: small-caps;
+}
+
 td.not-latest-testbook:after {
     content: "Update required";
     font-size: smaller;

@@ -105,6 +105,7 @@ async function migrate(newAnswerSetId, oldAnswerSetId, jwt) {
         for (let test of tests) {
             // match the answers based on the test's string ID, e.g. "file-010"
             let answer = newAnswers.find(a => a.test.testId === test.testId);
+            
             if (test.flag) {
                 
                 // flag the answer
@@ -238,6 +239,7 @@ async function upgrade(newTestBookId, oldTestBookId, jwt) {
             }
         }
     }
+    
     // reenable the triggers
     await db.query(Q.ETC.ENABLE_TRIGGERS(), {}, jwt);
     // call the function that does what the triggers would have done had they been active
