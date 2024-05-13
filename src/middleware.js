@@ -85,7 +85,9 @@ function error (err, req, res, next) {
     if (!err.statusCode) {
         err.statusCode = 500;
     }
-    res.status(err.statusCode).redirect(`/error?code=${err.statusCode}&error=${err.message}`);
+    res.status(err.statusCode).render('error.njk', {
+        error: err
+    });
 }
 
 export {
