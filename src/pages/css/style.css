@@ -253,7 +253,7 @@ div.testing-environment-title > *:first-child {
     width: min-content;
     white-space: nowrap;
 }
-.breadcrumbs a::not(:last-child) {    
+.breadcrumbs a:not(:last-child) {    
     width: 105%;
 }
   
@@ -261,7 +261,7 @@ div.testing-environment-title > *:first-child {
     background-color: var(--softcomp);
 }
 .breadcrumbs a:hover,
-.breadcrumbs a :active {
+.breadcrumbs a:active {
     color: inherit;
     text-decoration: underline;
 }
