@@ -3,6 +3,7 @@ Turns an HTML table into one with sorting, filtering, and searching
 
 Depends on dayjs if you want to sort by date
 */
+import * as TableState from './tableState.js';
 
 // sorting utility functions
 let sortHelpers = {
@@ -36,6 +37,11 @@ let sortHelpers = {
     }
 };
 
+let docurl = () => {
+    let url = new URL(document.URL);
+    return `${url.protocol}//${url.host}${url.pathname}`;
+}
+
 class EnhancedTable  {
     
     // tableElement must have a thead and tbody
@@ -44,13 +50,33 @@ class EnhancedTable  {
         this.tableElm = tableElement;
         this.controlsElm = controlsElement;
         this.originalTBodyInnerHTML = tableElement.querySelector("tbody").innerHTML;
-        this.filters = [];
         this.sortRules = [];
-        this.searchText = '';
-        this.sortByIndex = 0;
         this.idString = idString ? `-${idString}` : ''; // identifier for when there are multiple tables on a page
         this.initFilters();
     }
+
+    // get values from localStorage
+    getSearchText = () => TableState.getSearchText(docurl(), this.tableElm.id);
+    getSort = () => TableState.getSort(docurl(), this.tableElm.id);
+    getFilters = () => TableState.getFilters(docurl(), this.tableElm.id);
+    clearSort = () => TableState.clearSort(docurl(), this.tableElm.id);
+    setSortIndex = idx => TableState.storeSortIndex(docurl(), this.tableElm.id, idx);
+    setSortDir = dir => TableState.storeSortDir(docurl(), this.tableElm.id, dir);
+    setFilter = (filterId, value) => TableState.storeFilterValue(docurl(), this.tableElm.id, filterId, value);
+    setInitFilterValue = (filterId, value) => {
+        let filters = TableState.getFilters(docurl(), this.tableElm.id);
+        // only set the value if the filter doesn't already have an entry
+        if (filters.length > 0) {
+            if (!filters.find(f => f.id == filterId)) {
+                this.setFilter(filterId, value);
+            }
+        }
+    };
+    setSearchText = str => TableState.storeSearchText(docurl(), this.tableElm.id, str);
+    clearFilters = () => {
+        let filters = this.getFilters();
+        filters.map(f => this.setFilter(f.id, "All"));
+    };
 
     initFilters() {
         this.controlsElm.innerHTML = `
@@ -64,13 +90,10 @@ class EnhancedTable  {
         </fieldset>`;
         this.controlsElm.querySelector(`#table-search-input${this.idString}`).addEventListener("keyup", e => {
             if (e.keyCode == 27) { // escape
-                this.searchText = '';
                 e.target.value = '';
-                this.refreshRows();
             }
-
-            this.searchText = e.target.value;
-            this.refreshRows();
+            this.setSearchText(e.target.value);
+            this.refreshTable();
         });
         this.controlsElm.querySelector(`#reset${this.idString}`).addEventListener("click", e => this.reset());
     }
@@ -100,21 +123,23 @@ class EnhancedTable  {
                 columnHeader.innerHTML = `<span tabindex="0" role="button">${innerHTML}</span>`;
                 // attach a listener
                 columnHeader.addEventListener('click', e => {
-                    let ariaSort = columnHeader.getAttribute("aria-sort");
-                    // remove aria-sort from the other headers
-                    columnHeaders.map(ch => ch.removeAttribute("aria-sort"));
-                    
-                    // change the sort direction
-                    if ((ariaSort && ariaSort == "ascending") || 
-                        (!ariaSort && sortRule.firstSort == "descending")) {
-                        columnHeader.setAttribute("aria-sort", "descending");
+                    let newSortDirValue = "ascending";
+                    // this column was sorted
+                    if (columnHeader.hasAttribute("aria-sort")) {
+                        if (columnHeader.getAttribute("aria-sort") == "ascending") {
+                            newSortDirValue = "descending";
+                        }
                     }
+                    // this column was not sorted already
                     else {
-                        columnHeader.setAttribute("aria-sort", "ascending");
+                        // this column's default should be descending
+                        if (sortRule.firstSort == "descending") {
+                            newSortDirValue = "descending";
+                        }
                     }
-        
-                    this.sortByIndex = idx;
-                    this.refreshRows();
+                    this.setSortIndex(idx);
+                    this.setSortDir(newSortDirValue);
+                    this.refreshTable();
                 });
             }
         });
@@ -155,19 +180,22 @@ class EnhancedTable  {
                 options.push("None");
             }
             let newFilter = document.createElement("div");
+            let filterId = `filter-${idx}-${this.idString}`;
             newFilter.innerHTML = `
-            <label for="filter-${idx}-${this.idString}">${filterRule.label}</label>
-            <select id="filter-${idx}-${this.idString}">
+            <label for="${filterId}">${filterRule.label}</label>
+            <select id="${filterId}">
                 ${options.map(option => `<option value="${option}">${option}</option>`).join('')}
             </select>
             `;
+            this.setInitFilterValue(filterId, "All"); 
             this.controlsElm.querySelector("fieldset").insertBefore(newFilter, 
                 this.controlsElm.querySelector(`#table-search${this.idString}`));
             
         }).join('');
         
         Array.from(this.controlsElm.querySelectorAll("select")).map(selectElm => selectElm.addEventListener("change", e => {
-            this.refreshRows();
+            this.setFilter(selectElm.id, e.target.value);
+            this.refreshTable();
         }));
     }
     
@@ -195,18 +223,16 @@ class EnhancedTable  {
         if (this.sortRules.length == 0) {
             return rows;
         }
-        let sortRule = this.sortRules.find(sr => sr.columnIndex == this.sortByIndex);
+        let sortRule = this.sortRules.find(sr => sr.columnIndex == this.getSort().index);
         if (!sortRule) {
             return rows;
         }
-        let columnHeaders = Array.from(this.tableElm.querySelectorAll(`thead th`));
-        let columnHeader = columnHeaders[this.sortByIndex];
         
         // sort the rows
         let sortFn = sortHelpers[sortRule.type];
         tableRows.sort((a, b) => sortFn(a, b, sortRule.pathFn));
         
-        if (columnHeader.getAttribute("aria-sort") == "descending") {
+        if (this.getSort().dir == "descending") {
             tableRows = tableRows.reverse();
         }
         return tableRows;
@@ -220,14 +246,24 @@ class EnhancedTable  {
                     .replace(/[\s]{2}/g, " ")
                     .trim().toLowerCase()
                 ).join(' ');
-            return trStr.indexOf(this.searchText.toLowerCase().trim()) != -1;
+            return trStr.indexOf(this.getSearchText().toLowerCase().trim()) != -1;
         });
         return rowsContainingSearchText;
     }
-    refreshRows() {
+    refreshTable() {
+        let columnHeaders = Array.from(this.tableElm.querySelectorAll("thead th"));
+        // remove aria-sort from all headers
+        columnHeaders.map(ch => ch.removeAttribute("aria-sort"));
+        let sortIndex = this.getSort().index;
+        if (sortIndex > 0 && sortIndex < columnHeaders.length) {
+            let columnHeader = columnHeaders[sortIndex];
+            columnHeader.setAttribute("aria-sort", this.getSort().dir);
+        }
+
         let tbody = this.tableElm.querySelector("tbody");
         tbody.innerHTML = this.originalTBodyInnerHTML; // start with the full set of rows
         let tableRows = Array.from(this.tableElm.querySelectorAll("tbody tr"));
+        let initialCount = tableRows.length;
         tableRows = this.filterRows(tableRows); // apply the filters
         tableRows = this.searchRows(tableRows); // apply the text search
         tableRows = this.sortRows(tableRows); // sort the rows
@@ -238,19 +274,65 @@ class EnhancedTable  {
         let size = this.getSize();
         this.tableElm.setAttribute("aria-colcount", size.columns);
         this.tableElm.setAttribute("aria-rowcount", size.rows);
+
+        let filteredDescription = ": filtered view";
+        let baseTitle = document.title.replaceAll(filteredDescription, '');
+        if (initialCount > tableRows.length) {
+            document.title = `${baseTitle}${filteredDescription}`;
+        }
+        else {
+            document.title = baseTitle;
+        }
     }
     reset() {
         this.tableElm.querySelector("tbody").innerHTML = this.originalTBodyInnerHTML;
         this.controlsElm.querySelector(`#table-search-input${this.idString}`).value = '';
-        this.searchText = '';
-        Array.from(this.controlsElm.querySelectorAll("select")).map(selectElm => selectElm.value = "All");
-        this.refreshRows();
+        this.setSearchText('');
+        Array.from(this.controlsElm.querySelectorAll("select")).map(selectElm => {
+            selectElm.value = "All";
+            this.setFilter(selectElm.id, "All");
+        });
+        this.refreshTable();
     }
     // number of cols/rows for current state (filtered etc)
     getSize() {
         let columns = this.tableElm.querySelectorAll("thead th").length;
         let rows = this.tableElm.querySelectorAll("tbody > tr").length;
         return {columns, rows};
+    }
+    loadFromStore() {
+        const entries = performance.getEntriesByType("navigation");
+        if (!entries.find(e => e.type === "back_forward")) {
+            // don't load from store if it's not a back/forward navigation event
+            this.clearSort();
+            this.setSearchText('');
+            this.clearFilters();
+            return;
+        }
+        
+        // use the stored values as input to the UI controls
+        if (this.getSearchText()) {
+            this.searchText = this.getSearchText();
+            this.controlsElm.querySelector(`#table-search-input${this.idString}`).value = this.searchText;
+        }
+        if (this.getSort()) {
+            this.sortByIndex = this.getSort().index;
+            this.sortByDir = this.getSort().dir;
+        }
+        if (this.getFilters()) {
+            let filters = this.getFilters();
+            filters.map(filter => {
+                let select = this.controlsElm.querySelector("#" + filter.id);
+                if (select) {
+                    let options = Array.from(select.querySelectorAll('option'));
+                    let option = options?.find(opt => opt.value == filter.value);
+                    if (option) {
+                        option.selected = true;
+                    }
+                }
+            });
+        }
+        this.refreshTable();
     }
     
 }
