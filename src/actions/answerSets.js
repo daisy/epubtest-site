@@ -298,6 +298,19 @@ async function remove(answerSetId, jwt) {
         if (errors.length > 0) {
             throw new Error();
         }
+        // delete private access tokens too
+        for (let token of answerSet.privateAccessTokens) {
+            dbres = await db.query(
+                Q.PRIVATE_ACCESS_TOKENS.DELETE(),
+                {id: token.id},
+                jwt
+            );
+            errors = errors.concat(dbres.errors);
+        }
+        if (errors.length > 0) {
+            throw new Error();
+        }
+        
         dbres = await db.query(
             Q.ANSWER_SETS.DELETE(), 
             {id: answerSetId},
