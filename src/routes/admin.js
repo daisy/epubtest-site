@@ -43,7 +43,7 @@ router.get('/testing-environments', async (req, res, next) => {
 });
 
 router.get('/testing-environment/:id', async (req, res, next) => {
-    let dbres = await db.query(Q.TESTING_ENVIRONMENTS.GET(), 
+    let dbres = await db.query(Q.TESTING_ENVIRONMENTS_WITH_ANSWERS.GET(), 
         { id: parseInt(req.params.id) }, 
         req.cookies.jwt);
     if (!dbres.success) {
@@ -88,7 +88,8 @@ router.get('/testing-environment/:id', async (req, res, next) => {
             getRequestToPublish: answerSetId => {
                 let retval = requests.find(r => r.answerSet.id === answerSetId);
                 return retval;
-            }
+            },
+            displayUtils
         }
     );
 });
