@@ -13,6 +13,7 @@ translation
 experimental
 isLatest
 downloadUrl
+ingested
 `;
 
 const FIELDS = () => `
