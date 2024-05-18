@@ -216,13 +216,15 @@ async function upgrade(newTestBookId, oldTestBookId, jwt) {
     if (usage.answerSets.hasOwnProperty("all")) {
         for (let answerSet of usage.answerSets.all) {
             let testEnvId = answerSet.testingEnvironment.id;
-            let userId = answerSet.user.id;
+            let userId = answerSet?.user?.id || null;
             let result = await add(newTestBookId, testEnvId, jwt);
             if (!result.success) {
                 errors = errors.concat(result.errors);
             }
             else {
-                await assign(result.answerSetId, userId, jwt);
+                if (userId) {
+                    await assign(result.answerSetId, userId, jwt);
+                }
                 created[answerSet.id] = result.answerSetId;
             }
         }
@@ -301,6 +303,7 @@ async function remove(answerSetId, jwt) {
             {id: answerSetId},
             jwt
         );
+        
         if (!dbres.success) {
             throw new Error();
         }
