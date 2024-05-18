@@ -1,0 +1,170 @@
+{%- extends 'base/base.njk' -%}
+{%- import "components/testing-environment-labels.njk" as testingEnvironmentLabels -%}
+{%- import "components/testing-environment-details.njk" as testingEnvironmentDetails -%}
+{%- import "components/software-name.njk" as softwareName -%}
+{%- import "components/format-score.njk" as formatScore -%}
+{%- import "components/topic-names.njk" as topicNames -%}
+{%- set title = "Edit Results for Testing Environment" -%}
+
+{%- block content -%}
+<style>
+    button.copyLink {
+        display: none;
+    }
+</style>
+<main>
+
+<div>
+    {{ testingEnvironmentLabels.TestingEnvironmentTitle (testingEnvironment, 'h2', 'p') }}
+    {%- if testingEnvironment.isArchived -%}
+    <p class="archived">This testing environment has been archived.</p>
+    {%- endif -%}
+
+
+{%- if accessLevel == 'admin' -%}
+<p>You may directly publish or unpublish your own answer sets from this page because you are an administrator (regular users have "request to publish" buttons instead).</p>
+{%- endif -%}
+    
+{{ testingEnvironmentDetails.TestingEnvironmentDetails(testingEnvironment) }}
+<div id="table-controls" class="table-controls"></div>
+<div role="region" aria-labelledby="table-caption-{{testingEnvironment.id}}" tabindex="0">
+    <table aria-live="polite" aria-colcount="4" aria-rowcount="{{testingEnvironment.answerSets.length}}" id="answer-sets-{{testingEnvironment.id}}">
+        <caption id="table-caption-{{testingEnvironment.id}}">
+        Topics tested for {{testingEnvironmentLabels.TestingEnvironmentOneLinerPlainText(testingEnvironment)}}
+        </caption>
+        <thead>
+            <th>Status</th>
+            <th>Test book</th>
+            <th>Book added</th>
+            <th>Score</th>
+            <th>Edit</th>
+            <th>Publish</th>
+            <th>Share</th>
+        </thead>
+        <tbody>
+            {%- for answerSet in testingEnvironment.answerSets -%}
+                {%- set answerSetStatus = displayUtils.answerSetCompletedStatus(answerSet) -%}
+            <tr>
+                <td>
+                    <span class="{{answerSetStatus.class}}">{{answerSetStatus.message}}</span>
+                </td>
+                <td>{{topicNames.TopicName(answerSet.testBook.topic.id)}}
+                    <br/>(v{{answerSet.testBook.version}})
+                     {%- if answerSet.testBook.isLatest -%}
+                    <span class="latest-testbook">Latest revision</span>
+                    {%- endif -%}
+                </td>
+                <td>
+                    {{displayUtils.dayjs(answerSet.testBook.ingested).format('MMM D, YYYY')}}
+                </td>
+                <td>{{formatScore.FormatScore(answerSet)}}</td>
+                <td>{%- if answerSet.testBook.isLatest -%}
+                    <a href="/user/edit-results/{{answerSet.id}}">Edit</a>
+                    {%- else -%}
+                    <a href="/user/edit-results/{{answerSet.id}}">Editing is discouraged</a>
+                    <span class="not-latest-testbook">this is based on an older test book revision.</span>
+                    {%- endif -%}
+                </td>
+                <td>
+                {%- if accessLevel == 'admin' -%}
+                    {%- if answerSet.isPublic -%}
+                    <div>
+                        <a href="/results/{{testingEnvironment.id}}#{{answerSet.testBook.topic.id}}">Published</a>
+                        <form method="POST" action="/admin/forms/unpublish">
+                            <input type="hidden" name="next" value="/user/dashboard">
+                            <input type="hidden" name="testingEnvironmentId" value="{{testingEnvironment.id}}">
+                            <input type="hidden" name="answerSetId" value="{{answerSet.id}}">
+                            <input type="submit" name="submit" value="Unpublish">
+                        </form>
+                    </div>
+                    {%- else -%}
+                    <div>
+                        <span>Unpublished</span>
+                        <form method="POST" action="/admin/forms/publish">
+                            <input type="hidden" name="next" value="/user/dashboard">
+                            <input type="hidden" name="testingEnvironmentId" value="{{testingEnvironment.id}}">
+                            <input type="hidden" name="answerSetId" value="{{answerSet.id}}">
+                            <input type="submit" name="submit" value="Publish">
+                        </form>
+                    </div>
+                    {%- endif -%}
+                {%- else -%}
+                    {%- if answerSet.isPublic -%}
+                    <a href="/results/{{testingEnvironment.id}}#{{answerSet.testBook.topic.id}}">Published</a>
+                    {%- else -%}
+                        {%- if getRequestToPublish(answerSet.id) -%}
+                        <span>Request pending</span>
+                        {%- else -%}
+                        <form method="POST" action="/user/forms/request-to-publish">
+                            <input type="hidden" name="answerSetId" value="{{answerSet.id}}"/>
+                            <input type="submit" name="submit" value="Request to publish"/>
+                        </form>
+                        {%- endif -%}
+                    {%- endif -%}
+                {%- endif -%}
+                <td>
+                    {% if answerSet.isPublic %}
+                    <button class="copyLink" data-href="/results/{{answerSet.testingEnvironment.id}}#{{answerSet.testBook.topic.id}}">
+                    Copy public link
+                    </button>
+                    {% else %}
+                    <a href="/user/share-link/{{answerSet.id}}">Generate private link</a>
+                    {% endif %}
+                </td>
+            </tr>
+            {%- endfor -%}
+        </tbody>
+    </table>
+</div>
+<script type="module" src="/js/table.js"></script>
+<script type="module">
+    import { EnhancedTable } from '/js/table.js';
+        
+    let tableElm = document.querySelector("table");
+    let tableControlsElm = document.querySelector("#table-controls");
+    let enhancedTable = new EnhancedTable(tableElm, tableControlsElm);
+    enhancedTable.enableSearch();
+    enhancedTable.enableFilters([
+        {
+            label: "Status",
+            pathFn: r => {
+                let cell = r.querySelector(`td:nth-child(1)`);
+                return cell.textContent;
+            }
+        },
+        {
+            label: "Test book",
+            pathFn: r => {
+                let cell = r.querySelector(`td:nth-child(2)`);
+                return cell.textContent.indexOf('Latest revision') == -1 ? 'Older' : 'Latest';
+            }
+        }
+    ]);
+    enhancedTable.enableSort([{
+        columnIndex: 2,
+        type: "date",
+        firstSort: "descending",
+        pathFn: r => r.querySelector(`td:nth-child(3)`).textContent
+    }]);
+    enhancedTable.loadFromStore();
+
+    let copyPublicLinkButtons = Array.from(document.querySelectorAll(".copyLink"));
+    if (document.location.hostname == "localhost" || document.location.href.indexOf("https") != -1) {
+        copyPublicLinkButtons.map(button => button.style["display"] = "block");
+    }
+    copyPublicLinkButtons.map(button => button.addEventListener("click", async e => {
+        let relLink = button.getAttribute("data-href");
+        let fullLink = new URL(relLink, window.location.href).href;
+        await navigator.clipboard.writeText(fullLink);
+    }));
+
+
+    
+</script>
+
+
+</div>
+</main>
+
+{%- endblock -%}
+

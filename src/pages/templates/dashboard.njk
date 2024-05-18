@@ -6,135 +6,62 @@
 {%- import "components/topic-names.njk" as topicNames -%}
 {%- set title = "Dashboard" -%}
 {%- block content -%}
-<style>
-    button.copyLink {
-        display: none;
-    }
-</style>
-<main class="with-sidebar">
-{%- if testingEnvironments.length != 0 -%}
-<nav aria-labelledby="navlabel" class="secondary-nav">
-    <h2 id="navlabel">Testing environments</h2>
-    <ul>    
-        {%- for testingEnvironment in testingEnvironments -%}
-        {%- set rs = testingEnvironment.readingSystem -%}
-        <li>
-            <a href="#{{testingEnvironment.id}}">{{ softwareName.SoftwareName (rs)}}</a>
-            {{ testingEnvironmentDetails.TestingEnvironmentDetails (testingEnvironment, true) }}
-        </li>
-        {%- endfor -%}
-    </ul>
-</nav>
-{%- endif -%}
+<script src="/js/dayjs.min.js"></script>
+<main>
+    <h2>Dashboard</h2>
+    {%- if testingEnvironments.length == 0 -%}
+    <p>Looks like you don't have any tasks assigned yet - check back soon!</p>
+    {%- else -%}
+    <p>Here's what you've been assigned to work on.</p>
 
-<div>
-<h2>Dashboard</h2>
-{%- if testingEnvironments.length == 0 -%}
-<p>Looks like you don't have any tasks assigned yet - check back soon!</p>
-{%- else -%}
-<p>Your dashboard shows what you've been assigned to work on.</p>
-
-{%- if accessLevel == 'admin' -%}
-<p>You may directly publish or unpublish your own answer sets from this page because you are an administrator (regular users have "request to publish" buttons instead).</p>
-{%- endif -%}
-    
-{%- for testingEnvironment in testingEnvironments -%}
-    {{ testingEnvironmentLabels.TestingEnvironmentTitle (testingEnvironment, 'h3', 'p') }}
-    {%- if testingEnvironment.isArchived -%}
-    <p class="archived">This testing environment has been archived.</p>
-    {%- endif -%}
-    {{ testingEnvironmentDetails.TestingEnvironmentDetails(testingEnvironment) }}
-    {{ TestingEnvironmentTable(testingEnvironment)}}
-{%- endfor -%}
-{%- endif -%}
-</div>
-</main>
-
-{%- endblock -%}
-
-{%- macro TestingEnvironmentTable(testingEnvironment) -%}
-<div role="region" aria-labelledby="table-caption-{{testingEnvironment.id}}" tabindex="0">
-    <table aria-live="polite" aria-colcount="4" aria-rowcount="{{testingEnvironment.answerSets.length}}">
-        <caption id="table-caption-{{testingEnvironment.id}}">
-        Topics tested for {{testingEnvironmentLabels.TestingEnvironmentOneLinerPlainText(testingEnvironment)}}
+    <div id="table-controls" class="table-controls"></div>
+    <div role="region" aria-labelledby="table-caption" tabindex="0">
+    <table aria-live="polite" aria-colcount="4" aria-rowcount="{{testingEnvironment.answerSets.length}}" id="assignments">
+        <caption id="table-caption">
+        Assigned testing environments
         </caption>
         <thead>
-            <th>Topic</th>
-            <th>Score</th>
-            <th>Edit</th>
-            <th>Publish</th>
-            <th>Share</th>
+            <th>Status</th>
+            <th>Reading system</th>
+            <th>Assistive technology</th>
+            <th>OS</th>
+            <th>Topics</th>
         </thead>
         <tbody>
-            {%- for answerSet in testingEnvironment.answerSets -%}
+            {%- for testingEnvironment in testingEnvironments -%}
+            {# TODO better word than status #}
             <tr>
-                <td>{{topicNames.TopicName(answerSet.testBook.topic.id)}}</td>
-                <td>{{formatScore.FormatScore(answerSet)}}</td>
-                <td><a href="/user/edit-results/{{answerSet.id}}">Edit</a></td>
-                <td>
-                {%- if accessLevel == 'admin' -%}
-                    {%- if answerSet.isPublic -%}
-                    <div>
-                        <a href="/results/{{testingEnvironment.id}}#{{answerSet.testBook.topic.id}}">Published</a>
-                        <form method="POST" action="/admin/forms/unpublish">
-                            <input type="hidden" name="next" value="/user/dashboard">
-                            <input type="hidden" name="testingEnvironmentId" value="{{testingEnvironment.id}}">
-                            <input type="hidden" name="answerSetId" value="{{answerSet.id}}">
-                            <input type="submit" name="submit" value="Unpublish">
-                        </form>
-                    </div>
-                    {%- else -%}
-                    <div>
-                        <span>Unpublished</span>
-                        <form method="POST" action="/admin/forms/publish">
-                            <input type="hidden" name="next" value="/user/dashboard">
-                            <input type="hidden" name="testingEnvironmentId" value="{{testingEnvironment.id}}">
-                            <input type="hidden" name="answerSetId" value="{{answerSet.id}}">
-                            <input type="submit" name="submit" value="Publish">
-                        </form>
-                    </div>
-                    {%- endif -%}
-                {%- else -%}
-                    {%- if answerSet.isPublic -%}
-                    <a href="/results/{{testingEnvironment.id}}#{{answerSet.testBook.topic.id}}">Published</a>
-                    {%- else -%}
-                        {%- if getRequestToPublish(answerSet.id) -%}
-                        <span>Request pending</span>
-                        {%- else -%}
-                        <form method="POST" action="/user/forms/request-to-publish">
-                            <input type="hidden" name="answerSetId" value="{{answerSet.id}}"/>
-                            <input type="submit" name="submit" value="Request to publish"/>
-                        </form>
-                        {%- endif -%}
-                    {%- endif -%}
-                {%- endif -%}
-                <td>
-                    {% if answerSet.isPublic %}
-                    <button class="copyLink" data-href="/results/{{answerSet.testingEnvironment.id}}#{{answerSet.testBook.topic.id}}">
-                    Copy public link
-                    </button>
-                    {% else %}
-                    <a href="/user/share-link/{{answerSet.id}}">Generate private link</a>
-                    {% endif %}
-                </td>
+                <td>{%- if testingEnvironment.outdated -%}Test book(s) changed since last edit{%- endif -%}</td>
+                <td><a href="/user/dashboard/testing/{{testingEnvironment.id}}">{{testingEnvironment.readingSystem.name}}</a></td>
+                <td>{{testingEnvironment.assistiveTechnology.name}}</td>
+                <td>{{testingEnvironment.os.name}}</td>
+                <td>{{displayUtils.listTopics(testingEnvironment.answerSets)}}</td>
             </tr>
             {%- endfor -%}
         </tbody>
     </table>
-</div>
-<script>
-    document.addEventListener("DOMContentLoaded", e => {
-        let copyPublicLinkButtons = Array.from(document.querySelectorAll(".copyLink"));
-        if (document.location.hostname == "localhost" || document.location.href.indexOf("https") != -1) {
-            copyPublicLinkButtons.map(button => button.style["display"] = "block");
+    </div>
+    {%- endif -%}
+</main>
+<script type="module" src="/js/table.js"></script>
+<script type="module">
+    import { EnhancedTable } from '/js/table.js';
+        
+    let tableElm = document.querySelector("table");
+    let tableControlsElm = document.querySelector("#table-controls");
+    let enhancedTable = new EnhancedTable(tableElm, tableControlsElm);
+    enhancedTable.enableSearch();
+    enhancedTable.enableFilters([
+        {
+            label: "Status",
+            pathFn: r => r.querySelector(`td:nth-child(1)`).textContent
+        },
+        {
+            label: "Reading system",
+            pathFn: r => r.querySelector(`td:nth-child(2)`).textContent
         }
-        copyPublicLinkButtons.map(button => button.addEventListener("click", async e => {
-            let relLink = button.getAttribute("data-href");
-            let fullLink = new URL(relLink, window.location.href).href;
-            await navigator.clipboard.writeText(fullLink);
-        }));
-    });
-    
+    ]);
+    // load any sort/filter/search values from local storage
+    enhancedTable.loadFromStore();
 </script>
-
-{%- endmacro -%}
+{%- endblock -%}
