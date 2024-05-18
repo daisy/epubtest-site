@@ -3,7 +3,7 @@
 {%- macro TestingEnvironmentsTable(testingEnvironments, displayUtils) -%}
 <div id="table-controls" class="table-controls"></div>
 <div aria-labelledby="table-caption" role="region" tabindex="0">
-    <table>
+    <table id="admin-testing-environments">
         <caption id="table-caption" class="visually-hidden">These are the relevant testing environments. Select "manage" to view details and edit results per topic.</caption>    
         <thead>
             <tr>
@@ -181,5 +181,6 @@
             pathFn: r => r.querySelector(`td:nth-child(9)`).textContent.trim()
         }
     ]); 
+    enhancedTable.loadFromStore();
 </script>  
 {%- endmacro -%}

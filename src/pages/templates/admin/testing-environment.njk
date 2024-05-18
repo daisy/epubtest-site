@@ -3,7 +3,7 @@
 {%- import "components/testing-environment-details.njk" as testingEnvironmentDetails -%}
 {%- import "components/software-name.njk" as softwareName -%}
 {%- import "components/format-score.njk" as formatScore -%}
-
+{%- import "components/topic-names.njk" as topicNames -%}
 {%- set title = "Admin: Testing Environment" -%}
 {%- block content -%}
 <script type="module" src="/js/table.js"></script>
@@ -15,6 +15,29 @@
         let tableControlsElm = document.querySelector("#table-controls");
         let enhancedTable = new EnhancedTable(tableElm, tableControlsElm);
         enhancedTable.enableSearch();
+        enhancedTable.enableFilters([
+            {
+                label: "Status",
+                pathFn: r => {
+                    let cell = r.querySelector(`td:nth-child(1)`);
+                    return cell.textContent;
+                }
+            },
+            {
+                label: "Test book",
+                pathFn: r => {
+                    let cell = r.querySelector(`td:nth-child(2)`);
+                    return cell.textContent.indexOf('Latest revision') == -1 ? 'Older' : 'Latest';
+                }
+            }
+        ]);
+        enhancedTable.enableSort([{
+            columnIndex: 2,
+            type: "date",
+            firstSort: "descending",
+            pathFn: r => r.querySelector(`td:nth-child(3)`).textContent
+        }]);
+        enhancedTable.loadFromStore();
     });
 </script>
 <main>
@@ -67,12 +90,13 @@
     
     <div id="table-controls" class="table-controls"></div>
     <div aria-labelledby="table-caption" role="region" tabindex="0">
-        <table>
+        <table id="testing-environment-details">
             <caption id="table-caption">Details about answer sets for this testing environment</caption>
             <thead>
                 <tr>
-                    <th>Topic</th>
-                    <th>Test book version</th>
+                    <th>Status</th>
+                    <th>Test Book</th>
+                    <th>Book added</th>
                     <th>Assigned to</th>
                     <th>Score</th>
                     <th>Edit</th>
@@ -84,12 +108,17 @@
             <tbody>
             {%- for answerSet in testingEnvironment.answerSets -%}
             {%- set requestToPublish=getRequestToPublish(answerSet.id) -%}
-                    
+            {%- set answerSetStatus = displayUtils.answerSetCompletedStatus(answerSet) -%}
             <tr>
-                <td>{{answerSet.testBook.topic.id}}</td>
-                <td><a href="{{answerSet.testBook.downloadUrl}}">
-                    v{{ answerSet.testBook.version }} ({{ answerSet.testBook.lang.id }})
-                    </a>
+                <td><span class="{{answerSetStatus.class}}">{{answerSetStatus.message}}</span></td>
+                <td>{{topicNames.TopicName(answerSet.testBook.topic.id)}}
+                    <br/>(v{{answerSet.testBook.version}})
+                     {%- if answerSet.testBook.isLatest -%}
+                    <span class="latest-testbook">Latest revision</span>
+                    {%- endif -%}
+                </td>
+                <td>
+                    {{displayUtils.dayjs(answerSet.testBook.ingested).format('MMM D, YYYY')}}
                 </td>
                 <td>
                     <form method="POST" action="/admin/forms/set-user">

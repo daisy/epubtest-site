@@ -22,7 +22,7 @@
     {%- endif -%}
     <div id="table-controls" class="table-controls"></div>
     <div role="region" aria-labelledby="table-caption" tabindex="0">
-        <table class="results-for-test">
+        <table class="results-for-test" id="results-for-test">
             <caption class="visually-hidden" id="table-caption">Reading system testing results</caption>
             <thead>
                 <tr>
@@ -125,6 +125,8 @@
             }
         }
     ]);
+    // load any sort/filter/search values from local storage
+    enhancedTable.loadFromStore();
 </script>
 {%- endif -%}
 {%- endblock -%}

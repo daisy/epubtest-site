@@ -36,7 +36,7 @@
 
     <div id="table-controls" class="table-controls"></div>
     <div role="region" aria-labelledby="table-caption" tabindex="0">
-        <table>
+        <table id="results-table">
             <caption class="visually-hidden" id="table-caption">Reading system testing results {%- if isArchivesPage %} (archives){%- endif -%}</caption>
             <thead>
                 <th>Testing Environment</th>
@@ -76,6 +76,7 @@
     {%- endif -%}
 </main>
 <script type="module" src="/js/table.js"></script>
+<script type="module" src="/js/tableState.js"></script>
 <script type="module">
     import { EnhancedTable } from '/js/table.js';
     
@@ -220,5 +221,7 @@
             }
         }
     ]);
+    // load any sort/filter/search values from local storage
+    enhancedTable.loadFromStore();
 </script>
 {%- endblock -%}

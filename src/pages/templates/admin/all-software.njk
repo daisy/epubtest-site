@@ -1,53 +1,11 @@
 {%- extends 'base/admin-software.njk' -%}
 {%- set title = "All " + title -%}
 {%- block content -%}
-
-
-<script type="module" src="/js/table.js"></script>
-<script type="module">
-    import { EnhancedTable } from '/js/table.js';
-        
-    window.addEventListener("load", () => {
-        let tableElm = document.querySelector("table");
-        let tableControlsElm = document.querySelector("#table-controls");
-        let enhancedTable = new EnhancedTable(tableElm, tableControlsElm);
-        enhancedTable.enableSearch();
-        enhancedTable.enableFilters([
-            {
-                label: "Vendor",
-                pathFn: r => r.querySelector(`td:nth-child(2)`).textContent
-            },
-            {
-                label: "Name",
-                pathFn: r => r.querySelector(`td:nth-child(3)`).textContent
-            },
-            {
-                label: "Shown in dropdown",
-                pathFn: r => r.querySelector(`td:nth-child(5)`).textContent
-            }
-        ]);
-        enhancedTable.enableSort([
-            {
-                columnIndex: 2, 
-                type: "alpha",
-                firstSort: "ascending",
-                pathFn: r => r.querySelector(`td:nth-child(3)`).textContent.replace(/[\n\r]+|[\s]{1,}/g, ' ').trim()
-            },
-            {
-                columnIndex: 5,
-                type: "numeric",
-                firstSort: "descending",
-                pathFn: r => parseInt(r.querySelector(`td:nth-child(6)`).childNodes[0].textContent.trim())
-            }
-        ]);
-    });
-</script>
-
 <main>
     <h2 id="pagename">{{title}}</h2>
     <div id="table-controls" class="table-controls"></div>
     <div role="region" tabindex="0" aria-labelledby="pagename">
-        <table aria-labelledby="pagename">
+        <table aria-labelledby="pagename" id="software-table">
             <thead>
                 <tr>
                     <th>ID</th>
@@ -104,5 +62,44 @@
         </table>    
     </div>
 </main>
+<script type="module" src="/js/table.js"></script>
+<script type="module">
+    import { EnhancedTable } from '/js/table.js';
+        
+    
+    let tableElm = document.querySelector("table");
+    let tableControlsElm = document.querySelector("#table-controls");
+    let enhancedTable = new EnhancedTable(tableElm, tableControlsElm);
+    enhancedTable.enableSearch();
+    enhancedTable.enableFilters([
+        {
+            label: "Vendor",
+            pathFn: r => r.querySelector(`td:nth-child(2)`).textContent
+        },
+        {
+            label: "Name",
+            pathFn: r => r.querySelector(`td:nth-child(3)`).textContent
+        },
+        {
+            label: "Shown in dropdown",
+            pathFn: r => r.querySelector(`td:nth-child(5)`).textContent
+        }
+    ]);
+    enhancedTable.enableSort([
+        {
+            columnIndex: 2, 
+            type: "alpha",
+            firstSort: "ascending",
+            pathFn: r => r.querySelector(`td:nth-child(3)`).textContent.replace(/[\n\r]+|[\s]{1,}/g, ' ').trim()
+        },
+        {
+            columnIndex: 5,
+            type: "numeric",
+            firstSort: "descending",
+            pathFn: r => parseInt(r.querySelector(`td:nth-child(6)`).childNodes[0].textContent.trim())
+        }
+    ]);
+    enhancedTable.loadFromStore();
+</script>
 
 {% endblock %}  

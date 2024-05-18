@@ -19,12 +19,13 @@
     <h2 id="pagename">Admin Test Books</h2>
     <div id="table-controls" class="table-controls"></div>
     <div aria-labelledby="pagename" role="region" tabindex="0">
-        <table aria-labelledby="pagename">
+        <table aria-labelledby="pagename" id="test-books-table">
             <thead>
                 <tr>
                     <th>Topic</th>
                     <th>Title</th>
                     <th>Version</th>
+                    <th>Ingested</th>
                     <th>Description</th>
                     <th>Download</th>
                     <th>Edit URL</th>
@@ -41,6 +42,7 @@
                         <span class="latest-testbook">Latest revision</span>
                         {%- endif -%}
                     </td>
+                    <td>{{displayUtils.dayjs(testBook.ingested).format('MMM D, YYYY')}}</td>
                     <td>{{ testBook.description }}</td>
                     <td>
                         <a href="{{testBook.downloadUrl}}" title="{{ testBook.title }}">Download</a>

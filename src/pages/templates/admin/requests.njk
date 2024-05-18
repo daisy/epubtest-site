@@ -10,7 +10,7 @@
     {%- else -%}
     <div id="table-controls" class="table-controls"></div>
     <div aria-labelledby="table-caption" role="region" tabindex="0">
-        <table>
+        <table id="pending-requests">
             <caption id="table-caption" class="visually-hidden">Pending requests</caption>
             <thead>
                 <tr>
@@ -81,6 +81,7 @@
                 pathFn: r => r.querySelector(`td:nth-child(3)`).textContent.replace(/[\n\r]+|[\s]{1,}/g, ' ').trim()
             }
         ]);
+        enhancedTable.loadFromStore();
     }
 </script>
 
