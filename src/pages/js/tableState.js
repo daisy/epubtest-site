@@ -90,7 +90,6 @@ let initNewTableState = tableId => ({
     searchText: ''
 });
 function getTableStateForPage(URL, tableId) {
-    console.log("GET", tableId);
     if (!localStorage.hasOwnProperty(URL)) {
         let newState = initNewTableState(tableId);
         localStorage.setItem(URL, JSON.stringify([newState]));    
@@ -106,7 +105,6 @@ function getTableStateForPage(URL, tableId) {
     return targetTable;
 }
 function storeTableStateForPage(URL, tableId, tableState) {
-    console.log("STORE", tableId);
     let tablesForPage = JSON.parse(localStorage.getItem(URL));
     let i = tablesForPage.findIndex(t => t.tableId == tableId);
     tablesForPage[i] = {...tableState};
