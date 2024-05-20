@@ -21,10 +21,9 @@
         Assigned testing environments
         </caption>
         <thead>
-            <th>Status</th>
+            <th>Changes?</th>
             <th>Reading system</th>
-            <th>Assistive technology</th>
-            <th>OS</th>
+            <th>Other details</th>
             <th>Topics</th>
         </thead>
         <tbody>
@@ -32,8 +31,20 @@
             <tr>
                 <td>{%- if testingEnvironment.outdated -%}Test book(s) changed since last edit{%- endif -%}</td>
                 <td><a href="/user/dashboard/testing/{{testingEnvironment.id}}">{{testingEnvironment.readingSystem.name}}</a></td>
-                <td>{{testingEnvironment.assistiveTechnology.name}}</td>
-                <td>{{testingEnvironment.os.name}}</td>
+                <td class="testenv-details">
+                    {%- if testingEnvironment.assistiveTechnology -%}
+                    <span>{{testingEnvironment.assistiveTechnology.name}} {{testingEnvironment.assistiveTechnology.version}}</span>
+                    {%- endif -%}
+                    {%- if testingEnvironment.os -%}
+                    <span>{{testingEnvironment.os.name}} {{testingEnvironment.os.version}} </span>
+                    {%- endif -%}
+                    {%- if testingEnvironment.device -%}
+                    <span>{{testingEnvironment.device.name}} {{testingEnvironment.device.version}}</span>
+                    {%- endif -%}
+                    {%- if testingEnvironment.browser -%}
+                    {{testingEnvironment.browser.name}} {{testingEnvironment.browser.version}}
+                    {%- endif -%}
+                </td>
                 <td>{{displayUtils.listTopics(testingEnvironment.answerSets)}}</td>
             </tr>
             {%- endfor -%}
