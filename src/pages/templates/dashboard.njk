@@ -29,7 +29,6 @@
         </thead>
         <tbody>
             {%- for testingEnvironment in testingEnvironments -%}
-            {# TODO better word than status #}
             <tr>
                 <td>{%- if testingEnvironment.outdated -%}Test book(s) changed since last edit{%- endif -%}</td>
                 <td><a href="/user/dashboard/testing/{{testingEnvironment.id}}">{{testingEnvironment.readingSystem.name}}</a></td>
