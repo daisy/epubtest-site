@@ -19,23 +19,23 @@
             {
                 label: "Status",
                 pathFn: r => {
-                    let cell = r.querySelector(`td:nth-child(1)`);
+                    let cell = r.querySelector(`td:nth-child(2)`);
                     return cell.textContent;
                 }
             },
             {
                 label: "Test book",
                 pathFn: r => {
-                    let cell = r.querySelector(`td:nth-child(2)`);
+                    let cell = r.querySelector(`td:nth-child(3)`);
                     return cell.textContent.indexOf('Latest revision') == -1 ? 'Older' : 'Latest';
                 }
             }
         ]);
         enhancedTable.enableSort([{
-            columnIndex: 2,
+            columnIndex: 3,
             type: "date",
             firstSort: "descending",
-            pathFn: r => r.querySelector(`td:nth-child(3)`).textContent
+            pathFn: r => r.querySelector(`td:nth-child(4)`).textContent
         }]);
         enhancedTable.loadFromStore();
     });
@@ -94,6 +94,7 @@
             <caption id="table-caption">Details about answer sets for this testing environment</caption>
             <thead>
                 <tr>
+                    <th>ID</th>
                     <th>Status</th>
                     <th>Test Book</th>
                     <th>Book added</th>
@@ -110,6 +111,7 @@
             {%- set requestToPublish=getRequestToPublish(answerSet.id) -%}
             {%- set answerSetStatus = displayUtils.answerSetCompletedStatus(answerSet) -%}
             <tr id="{{answerSet.testBook.topic.id}}-{{answerSet.testBook.version}}">
+                <td>{{answerSet.id}}</td>
                 <td><span class="{{answerSetStatus.class}}">{{answerSetStatus.message}}</span></td>
                 <td>{{topicNames.TopicName(answerSet.testBook.topic.id)}}
                     <br/>(v{{answerSet.testBook.version}})
