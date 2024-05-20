@@ -213,6 +213,9 @@ thead th.sortable[aria-sort='descending']::after {
 }
 .table-controls .rowcount {
     font-style: italic;
+    font-size: smaller;
+    align-self: end;
+    margin-bottom: 3px;
 }
 .flagged-test td:nth-child(1) span.update-required {
     display: block;
