@@ -316,7 +316,7 @@ router.get('/test-books/:topicId/:version/:testId', async (req, res, next) => {
             label: `v${testBook.version}`
         },
         {
-            link: `/test-books/${testBook.topic.id}/${testBook.version}/${test.testId}`,
+            link: `/test-books/${testBook.topic.id}/${testBook.version}/${test?.testId ?? ''}`,
             label: test.testId 
         }
     ];

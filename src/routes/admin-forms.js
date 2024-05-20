@@ -255,7 +255,7 @@ router.post("/ingest-test-book", async (req, res, next) => {
         message = "Cancel add new book";
     }
     else {
-        console.log("Ingesting new new test book");
+        winston.info("Ingesting new new test book");
     
         let testBook = JSON.parse(req.body.testBook);
         let replacesBookId = testBook.bookToUpgradeId;
@@ -273,14 +273,14 @@ router.post("/ingest-test-book", async (req, res, next) => {
 
         if (replacesBookId != null && replacesBookId != undefined) {
             result = await answerSets.upgrade(result.newBookId, replacesBookId, req.cookies.jwt);
-            console.log("Upgraded answer sets for new test book");
-            console.log(JSON.stringify(result, null, ''));
+            winston.info("Upgraded answer sets for new test book");
+            winston.info(JSON.stringify(result, null, ''));
 
         }
         else {
             result = await answerSets.createAnswerSetsForNewTestBook(result.newBookId, req.cookies.jwt);
-            console.log("Created new answer sets for new test book");
-            console.log(JSON.stringify(result, null, ''));
+            winston.info("Created new answer sets for new test book");
+            winston.info(JSON.stringify(result, null, ''));
         }
         
         let messageExtra = '';
@@ -289,7 +289,7 @@ router.post("/ingest-test-book", async (req, res, next) => {
             {}, 
             req.cookies.jwt
         );
-        console.log("Set test books' flag isLatest");
+        winston.info("Set test books' flag isLatest");
 
         if (!updateIsLatestRes.success) {
             messageExtra = 'Could not update test book flag "is_latest"; please run manual update in database.';
@@ -297,7 +297,8 @@ router.post("/ingest-test-book", async (req, res, next) => {
 
         message = encodeURIComponent(
             `Added test book "${testBook.title}" version ${testBook.version} (topic: ${testBook.topicId}, language: ${testBook.langId})\n${messageExtra}`);
-        console.log("Done ingesting test book");
+        winston.info("Done ingesting test book");
+        
     }
     return res.redirect(`/admin/test-books?message=${message}`);
 });
