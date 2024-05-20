@@ -14,7 +14,11 @@
     {{test.xhtml | safe}}
     </div>
 
-    <p>This test is in the book <a href="/test-books/{{testBook.topic.id}}/{{testBook.version}}">{{testBook.title}} {{testBook.version}}</a>.</p>
+    <p>This test is in the book <a href="/test-books/{{testBook.topic.id}}/{{testBook.version}}">{{testBook.title}} {{testBook.version}}</a>.
+    {%- if testBook.isLatest == false -%}
+    <span class="not-latest-testbook">This is not from the <a href="/test-books/{{testBook.topic.id}}">latest version</a> of this test book; the test may have changed.</span>
+    {%- endif -%}
+    </p>
     {%- if test.flag -%}
     <p class="latest-testbook">This test is new or changed from the previous revision.</p>
     {%- endif -%}
