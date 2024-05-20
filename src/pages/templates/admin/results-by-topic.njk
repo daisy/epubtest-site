@@ -1,0 +1,183 @@
+{%- extends 'base/admin-base.njk' -%}
+{%- import "components/testing-environment-labels.njk" as testingEnvironmentLabels -%}
+{%- import "components/admin-testing-environments-table.njk" as testingEnvironmentsTable -%}
+{%- import "components/format-score.njk" as formatScore -%}
+{%- set title = "Admin: Results by topic {{topicId}}" -%}
+
+{%- block content -%}
+<main>
+    <h2>Results for {{topicId}}</h2>
+    
+    <div id="table-controls" class="table-controls"></div>
+    <div role="region" aria-labelledby="table-caption" tabindex="0">
+        <table id="answer-sets-table">
+            <caption class="visually-hidden" id="table-caption">All answer sets for {{topicId}}</caption>
+            <thead>
+                <th>ID</th>
+                <th>Test book</th>
+                <th>Reading system</th>
+                <th>Other details</th>
+                <th>Public link</th>
+                <th>Score</th>
+                <th>Last edit date</th>
+                <th>Status</th>
+                <th>Migrated answers</th>
+                <th>Tester</th>
+            </thead>
+            <tbody>
+                {%- for aset in allAnswerSets -%}
+                <tr id="a{{aset.id}}">
+                    <td>
+                        <a href="/admin/testing-environment/{{aset.testingEnvironment.id}}#{{topicId}}-{{aset.testBook.version}}" 
+                        title="Manage answer set (id={{aset.id}})">{{aset.id}}</a></td>
+                    <td>
+                        <a href="/test-books/{{topicId}}/{{aset.testBook.version}}">
+                        {{topicId}} <span>{{aset.testBook.version}}</span>
+                        </a>
+                    </td>
+                    <td><span>{{aset.testingEnvironment.readingSystem.name}}</span> {{aset.testingEnvironment.readingSystem.version}}</td>
+                    <td class="testenv-details">
+                        {%- if aset.testingEnvironment.assistiveTechnology -%}
+                        <span>{{aset.testingEnvironment.assistiveTechnology.name}} {{aset.testingEnvironment.assistiveTechnology.version}}</span>
+                        {%- endif -%}
+                        {%- if aset.testingEnvironment.os -%}
+                        <span>{{aset.testingEnvironment.os.name}} {{aset.testingEnvironment.os.version}} </span>
+                        {%- endif -%}
+                        {%- if aset.testingEnvironment.device -%}
+                        <span>{{aset.testingEnvironment.device.name}} {{aset.testingEnvironment.device.version}}</span>
+                        {%- endif -%}
+                        {%- if aset.testingEnvironment.browser -%}
+                        {{aset.testingEnvironment.browser.name}} {{aset.testingEnvironment.browser.version}}
+                        {%- endif -%}
+                    </td>
+                    <td>{%- if aset.isPublic and aset.isTested -%}
+                        <a href="/results/{{aset.testingEnvironment.id}}/#{{topicId}}">Yes</a>
+                        {%- else -%} 
+                        No 
+                        {%-endif -%}
+                    </td>
+                    <td>
+                        {{ formatScore.FormatScore(aset) }}
+                    </td>
+                    <td>{%- if aset.lastModified -%}
+                        {{displayUtils.dayjs(aset.lastModified).format('MMM D, YYYY')}}
+                        {%- endif -%}
+                    </td>
+                    <td>{{displayUtils.answerSetCompletedStatus(aset).message}}</td>
+                    <td>
+                        {%- if aset.createdFrom -%}
+                        Migrated from 
+                        <a href="/admin/testing-environment/{{aset.testingEnvironment.id}}#{{topicId}}-{{aset.createdFrom.testBook.version}}">{{aset.createdFrom.id}}</a>
+                        {%- else -%}
+                        {%- if aset.isTested == false -%}
+                        N/A
+                        {%- else -%}
+                        No
+                        {%- endif -%}
+                        {%- endif -%}
+                    </td>
+                    <td>
+                        {%- if aset.user -%}
+                        {{aset.user.name}}
+                        {%- else -%}
+                        None
+                        {%- endif -%}
+                    </td>
+                </tr>
+                {%- endfor -%}
+            </tbody>
+
+        </table>
+    </div>
+</main>
+<script type="module" src="/js/table.js"></script>
+<script type="module">
+    import { EnhancedTable } from '/js/table.js';
+    
+    let tableElm = document.querySelector("#answer-sets-table");
+    let tableControlsElm = document.querySelector("#table-controls");
+    let enhancedTable = new EnhancedTable(tableElm, tableControlsElm);
+    enhancedTable.enableSearch();
+    enhancedTable.enableSort([
+        {
+            columnIndex: 0, 
+            type: "numeric",
+            firstSort: "ascending",
+            pathFn: r => r.querySelector(`td:nth-child(1)`).textContent.replace(/[\n\r]+|[\s]{1,}/g, ' ').trim()
+        },
+        {
+            columnIndex: 1,
+            type: "numeric",
+            firstSort: "descending",
+            pathFn: r => r.querySelector(`td:nth-child(2) span`).textContent
+        },
+        {
+            columnIndex: 2,
+            type: "alpha",
+            firstSort: "descending",
+            pathFn: r => r.querySelector(`td:nth-child(3)`).textContent
+        },
+        {
+            columnIndex: 5,
+            type: "numeric",
+            firstSort: "descending",
+            pathFn: r => {
+                if (r.querySelector(`td:nth-child(6) > span.not-tested`) != null) {
+                    return -1;
+                }
+                let text = r.querySelector(`td:nth-child(6)`).textContent.replace(/[\n\r]+|[\s]{1,}/g, ' ').trim();
+                text = text.replace("%", "");
+                return parseFloat(text);
+            },
+        },
+        {
+            columnIndex: 6,
+            type: "date",
+            firstSort: "descending",
+            pathFn: r => r.querySelector(`td:nth-child(7)`).textContent
+        },
+        {
+            columnIndex: 7,
+            type: "alpha",
+            firstSort: "descending",
+            pathFn: r => r.querySelector(`td:nth-child(8)`).textContent
+        }
+    ]);
+    enhancedTable.enableFilters([
+        {
+            label: "Book version",
+            pathFn: r => r.querySelector(`td:nth-child(2) span`).textContent
+        },
+        {
+            label: "Reading System",
+            pathFn: r => r.querySelector(`td:nth-child(3) span`).textContent
+        },
+        {
+            label: "Has public link",
+            pathFn: r => r.querySelector(`td:nth-child(5)`).textContent
+        },
+        {
+            label: "Status",
+            pathFn: r => r.querySelector(`td:nth-child(8)`).textContent
+        },
+        {
+            label: "Migrated answers",
+            pathFn: r => {
+                let elm = r.querySelector(`td:nth-child(9)`);
+                if (["no", "n/a"].includes(elm.textContent.trim().toLowerCase())) {
+                    return elm.textContent.trim();
+                }
+                else {
+                    return "Yes";
+                }
+            }
+        },
+        {
+            label: "Tester",
+            pathFn: r => r.querySelector('td:nth-child(10)').textContent
+        }
+    ]);
+    // load any sort/filter/search values from local storage
+    enhancedTable.loadFromStore();
+</script>
+{%- endblock -%}

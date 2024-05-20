@@ -139,31 +139,16 @@ async function migrate(newAnswerSetId, oldAnswerSetId, jwt) {
                 }
             }
         }
-        // if there were flagged answers in the new answer set
-        // mark it as needing updating
-        // update may 2024: the answerSet.flag field is deprecated
-        // not sure if the lastModified field is worth keeping this logic around for
-        // but not removing it yet, just in case ... 
-        if (flaggedAnswer) {
-            dbres = await db.query(Q.ANSWER_SETS.UPDATE(),  {
-                id: newAnswerSetId,
-                patch: {
-                    //flag: true,
-                    lastModified: oldAnswerSet.lastModified
-                }
-            }, jwt);
-        }
-        // else if no flagging was required, we can assume all the values migrated over because the upgrade was trivial
-        // in this case, the visibility of the new answer set can be the same as the old one was
-        else {
-            dbres = await db.query(Q.ANSWER_SETS.UPDATE(),  {
-                id: newAnswerSetId,
-                patch: {
-                    isPublic: oldAnswerSet.isPublic,
-                    lastModified: oldAnswerSet.lastModified
-                }
-            }, jwt);
-        }
+        // if no answers are flagged and the old answer set was public then it's ok to publish this one
+        let shouldPublish = !flaggedAnswer && oldAnswerSet.isPublic;
+        dbres = await db.query(Q.ANSWER_SETS.UPDATE(),  {
+            id: newAnswerSetId,
+            patch: {
+                isPublic: shouldPublish,
+                lastModified: oldAnswerSet.lastModified,
+                createdFromId: oldAnswerSet.id
+            }
+        }, jwt);
     }
     catch (err) {
         await undo(transactions);

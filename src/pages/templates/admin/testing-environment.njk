@@ -109,7 +109,7 @@
             {%- for answerSet in testingEnvironment.answerSets -%}
             {%- set requestToPublish=getRequestToPublish(answerSet.id) -%}
             {%- set answerSetStatus = displayUtils.answerSetCompletedStatus(answerSet) -%}
-            <tr>
+            <tr id="{{answerSet.testBook.topic.id}}-{{answerSet.testBook.version}}">
                 <td><span class="{{answerSetStatus.class}}">{{answerSetStatus.message}}</span></td>
                 <td>{{topicNames.TopicName(answerSet.testBook.topic.id)}}
                     <br/>(v{{answerSet.testBook.version}})

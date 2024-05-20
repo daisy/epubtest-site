@@ -7,7 +7,19 @@ import semver from 'semver';
 
 const router = express.Router()
 
-router.get('/', async(req, res) => res.render('admin/index.njk'));
+router.get('/', async(req, res, next) => {
+    let dbres = await db.query(Q.TOPICS.GET_ALL(),  {});
+    if (!dbres.success) {
+        let err = new Error("Could not get topics.");
+        return next(err);
+    }
+
+    return res.render('admin/index.njk', 
+    {
+        topics: dbres.data.topics,
+        displayUtils
+    });
+});
 
 // admin requests
 router.get('/requests', async (req, res, next) => {
@@ -398,7 +410,39 @@ router.get("/assignments", async(req, res, next) => {
     }
     let answerSets = dbres.data.answerSets.filter(aset => aset.user?.login?.type != 'ADMIN' && aset.user != null);
     return res.render('./admin/assignments.njk', {answerSets});
-})
+});
+
+router.get("/results/:topicId", async(req, res, next) => {
+    let dbres = await db.query(Q.TEST_BOOKS.GET_FOR_TOPIC(), {
+        id: req.params.topicId
+    });
+    if (!dbres.success) {
+        let err = new Error('Could not get test book(s) for topic');
+        return next(err);
+    }
+    
+    let allAnswerSets = [];
+    for (let testBook of dbres.data.testBooks) {
+        dbres = await db.query(
+            Q.ANSWER_SETS.GET_FOR_BOOK(),
+            {testBookId: testBook.id},
+            req.cookies.jwt
+        );
+        if (!dbres.success) {
+            let err = new Error(`Could not get answer sets for test book (id=${testBook.id})`);
+            return next(err);
+        }
+        allAnswerSets.push(dbres.data.answerSets);
+    }
+    allAnswerSets = allAnswerSets.flat();
+
+    return res.render('./admin/results-by-topic.njk', 
+        {
+            topicId: req.params.topicId,
+            allAnswerSets: allAnswerSets,
+            displayUtils
+        });
+});
 
 async function getAllSoftware(type, jwt, filterActive = false) {
     try {

@@ -17,6 +17,12 @@
         <li><a href="/admin/add-testing-environment">Add testing environment</a>: Add new software and new testing environments</li>
     </ul>
 
+    <h3>Results by topic</h3>
+    <ul>
+        {%- for topic in topics -%}
+        <li><a href="/admin/results/{{topic.id}}">{{displayUtils.topicNames[topic.id]}}</a></li>
+        {%- endfor -%}
+    </ul>
     <h3>Software</h3>
     {%- include "components/software-categories.njk" -%}
     

@@ -14,6 +14,13 @@ isLatest
 isLatestPublic
 isTested
 lastModified
+created
+createdFrom {
+    id
+    testBook {
+        version
+    }
+}
 testBook {
     ${testBooks.FIELDS()}
 }

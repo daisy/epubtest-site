@@ -8,26 +8,26 @@ import * as TableState from './tableState.js';
 // sorting utility functions
 let sortHelpers = {
     "alpha": (row1, row2, path) => {
-        let val1 = path(row1);
-        let val2 = path(row2);
+        let val1 = path(row1).trim();
+        let val2 = path(row2).trim();
         if (!val1) return 1;
         if (!val2) return -1;
         return val1.toLowerCase() > val2.toLowerCase() ? 1 : -1;
     },
 
     "numeric": (row1, row2, path) => {
-        let val1 = path(row1);
-        let val2 = path(row2);
+        let val1 = path(row1).trim();
+        let val2 = path(row2).trim();
         if (val1 == null) return 1;
         if (val2 == null) return -1;
         return val1 > val2 ? 1 : -1;
     },
 
     "date": (row1, row2, path) => {
-        let val1 = path(row1);
-        let val2 = path(row2);
+        let val1 = path(row1).trim();
+        let val2 = path(row2).trim();
 
-        if (dayjs(val1).isBefore(dayjs(val2))) {
+        if (val1 == '' || dayjs(val1).isBefore(dayjs(val2))) {
             return -1;
         }
         else {
@@ -87,6 +87,7 @@ class EnhancedTable  {
                 <input type="text" id="table-search-input${this.idString}" name="table-search-input">
             </div>
             <button id="reset${this.idString}" class="hidden">Reset</button>
+            <span class="rowcount" id="rowcount${this.idString}"><span>${this.tableElm.querySelectorAll('tbody tr').length}</span> rows shown.</span>
         </fieldset>`;
         this.controlsElm.querySelector(`#table-search-input${this.idString}`).addEventListener("keyup", e => {
             if (e.keyCode == 27) { // escape
@@ -274,6 +275,7 @@ class EnhancedTable  {
         let size = this.getSize();
         this.tableElm.setAttribute("aria-colcount", size.columns);
         this.tableElm.setAttribute("aria-rowcount", size.rows);
+        this.controlsElm.querySelector(`#rowcount${this.idString} span`).textContent = size.rows;
 
         let filteredDescription = ": filtered view";
         let baseTitle = document.title.replaceAll(filteredDescription, '');
