@@ -37,7 +37,7 @@ const GET_ALL_BY_TESTBOOKS = () => `
 query($testBookIds: [Int!]) {
     testingEnvironments(condition: {isPublic: true, isArchived: false}) {
         ${testEnvs.BASIC_FIELDS()}
-        answerSets (condition: {isLatestPublic: true}, filter: { testBookId: {in: $testBookIds} } ) {
+        answerSets (filter: { testBookId: {in: $testBookIds} } ) {
             ${answerSets.FIELDS_WITH_ANSWERS()}
         }
     }
