@@ -12,13 +12,13 @@ header a:link, header a:visited {
     }
 }
 header > div.header {
-    border-bottom: 1vh solid var(--primary);
+    border-bottom: .5vh solid var(--primary);
 }
 
 header div.header h1 {
     padding: 0;
     margin: 0;
-    font-size: 1.5rem;
+    font-size: 1.3rem;
     grid-area: title;
     align-self: center;
 }

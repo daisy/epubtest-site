@@ -17,6 +17,8 @@ body {
     display: flex;
     flex-direction: column;
     height: 100%;
+    margin-left: 2rem;
+    margin-right: 2rem;
 }
 
 main {
@@ -56,6 +58,7 @@ em {
     padding-right: var(--gutters);
     display:flex;
     flex-direction: column;
+    justify-content: center;
 }
 
 .with-sidebar {
@@ -275,7 +278,10 @@ div.testing-environment-title > *:first-child {
 /* MOBILE                    */
 /*****************************/
 @media (max-width: 768px) {
-    
+    body {
+        margin-left: .5rem;
+        margin-right: .5rem;
+    }
     .center {
         --measure: 100vw;
         --gutters: 0;

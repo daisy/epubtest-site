@@ -64,9 +64,9 @@
                     {%- if accessLevel == 'public' and readOnly == false -%}
                     <li><a href='/login'>Login</a></li>
                     {%- endif -%}
-                </ul>
+                
                 {%- if accessLevel != 'public' and readOnly == false -%}
-                <ul>
+                
                     {%- if accessLevel == 'admin' -%}
                     <li>
                         <a href="/admin">Admin</a>
@@ -94,8 +94,9 @@
                             <input aria-label="Save language choice" type="submit" name="submit" value="Set"/>
                         </form>
                     </li>#}
-                </ul>
+                
                 {%- endif -%}
+                </ul>
             </nav>
         </div>
     </header>
