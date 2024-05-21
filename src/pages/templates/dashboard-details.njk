@@ -44,7 +44,7 @@
         <tbody>
             {%- for answerSet in testingEnvironment.answerSets -%}
                 {%- set answerSetStatus = displayUtils.answerSetCompletedStatus(answerSet) -%}
-            <tr>
+            <tr id="a{{answerSet.id}}">
                 <td>
                     <span class="{{answerSetStatus.class}}">{{answerSetStatus.message}}</span>
                 </td>

@@ -124,7 +124,11 @@ router.get('/edit-results/:answerSetId', async (req, res, next) => {
     
     answerSet.hasFlaggedAnswers = answerSet.answers.find(a => a.flag) != undefined;
 
-    let nextUrl = req.query.hasOwnProperty('next') ? req.query.next : '/user/dashboard';
+    let nextUrl = req.query.hasOwnProperty('next') ?
+     req.query.next 
+     : 
+     `/user/dashboard/testing/${answerSet.testingEnvironment.id}#a${answerSet.id}`;
+
     return res.render('edit-results.njk', {
         answerSet,
         next: nextUrl,
