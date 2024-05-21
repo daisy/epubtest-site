@@ -317,9 +317,13 @@ router.get('/test-books/:topicId/:version/:testId', async (req, res, next) => {
         },
         {
             link: `/test-books/${testBook.topic.id}/${testBook.version}/${test?.testId ?? ''}`,
-            label: test.testId 
+            label: test?.testId ?? ''
         }
     ];
+    if (!test || test == undefined) {
+        let err = new Error("Could not get test " + req.params.testId);
+        return next(err);
+    }
     return res.render('test.njk', 
         {
             test,
