@@ -27,7 +27,8 @@
     <p class="needs-attention">One or more answers need updating.</p>
     {%- endif -%}
     {%- if answerSet.testBook.isLatest == false -%}
-    <p class="needs-attention">This is an older test book revision and editing results is discouraged. Go back to your <a href="/user/dashboard">dashboard</a> and choose to edit a newer version of {{topicNames.TopicName(answerSet.testBook.topic.id)}}.</p>
+    <p class="needs-attention">This is an older test book revision (v{{answerSet.testBook.version}}) 
+        and therefore editing results for it is discouraged. Go back to your <a href="/user/dashboard">dashboard</a> and choose to edit a newer version of {{topicNames.TopicName(answerSet.testBook.topic.id)}}.</p>
     {%- endif -%}
 
     {{ testingEnvironmentLabels.TestingEnvironmentTitle(answerSet.testingEnvironment, 'h3', 'p') }}
