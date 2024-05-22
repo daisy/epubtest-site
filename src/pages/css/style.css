@@ -274,6 +274,61 @@ div.testing-environment-title > *:first-child {
     outline: none;
 }
 
+.needs-attention {
+    background-color: var(--message);
+}
+.latest-testbook-tag:after {
+    content: " latest version";
+    font-size: smaller;
+    background-color: var(--message);
+    width: min-content;
+    font-variant: small-caps;
+}
+.notlatest-testbook-tag:after {
+    content: " outdated version";
+    font-size: smaller;
+    background-color: var(--message);
+    width: min-content;
+    font-variant: small-caps;
+}
+
+td.not-latest-testbook:after {
+    content: "Update required";
+    font-size: smaller;
+    border: thin solid var(--primary);
+    border-radius: 5px;
+    padding: 3px;
+    width: min-content;
+    font-variant: small-caps;
+    background-color: white;
+    display: block;
+    white-space: nowrap;
+}
+p.not-latest-testbook, span.not-latest-testbook {
+    background-color: var(--message);
+    display: block;
+    font-size: smaller;
+    padding: 5px;
+    margin: 5px;
+}
+span.latest-testbook, p.latest-testbook {
+    background-color: var(--message);
+    display: block;
+    font-size: smaller;
+    width: min-content;
+    white-space: nowrap;
+}
+td span.not-latest-testbook {
+    padding: 0;
+    margin: 0;
+}
+li span.latest-testbook {
+    display: inline;
+}
+p.latest-testbook {
+    font-size: medium;
+}
+
 /*****************************/
 /* MOBILE                    */
 /*****************************/
@@ -306,57 +361,8 @@ div.testing-environment-title > *:first-child {
     .big {
         white-space: normal;
     }
+    td.not-latest-testbook:after {
+        white-space: wrap;
+    }
 }
 
-.needs-attention {
-    background-color: var(--message);
-}
-.latest-testbook-tag:after {
-    content: " latest version";
-    font-size: smaller;
-    background-color: var(--message);
-    width: min-content;
-    font-variant: small-caps;
-}
-.notlatest-testbook-tag:after {
-    content: " outdated version";
-    font-size: smaller;
-    background-color: var(--message);
-    width: min-content;
-    font-variant: small-caps;
-}
-
-td.not-latest-testbook:after {
-    content: "Update required";
-    font-size: smaller;
-    border: thin solid var(--primary);
-    border-radius: 5px;
-    padding: 3px;
-    width: min-content;
-    font-variant: small-caps;
-    background-color: white;
-}
-p.not-latest-testbook, span.not-latest-testbook {
-    background-color: var(--message);
-    display: block;
-    font-size: smaller;
-    padding: 5px;
-    margin: 5px;
-}
-span.latest-testbook, p.latest-testbook {
-    background-color: var(--message);
-    display: block;
-    font-size: smaller;
-    width: min-content;
-    white-space: nowrap;
-}
-td span.not-latest-testbook {
-    padding: 0;
-    margin: 0;
-}
-li span.latest-testbook {
-    display: inline;
-}
-p.latest-testbook {
-    font-size: medium;
-}
