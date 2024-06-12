@@ -92,14 +92,28 @@
                     {%- if answerSet.isPublic -%}
                     <a href="/results/{{testingEnvironment.id}}#{{answerSet.testBook.topic.id}}">Published</a>
                     {%- else -%}
-                        {%- if getRequestToPublish(answerSet.id) -%}
-                        <span>Request pending</span>
-                        {%- else -%}
-                        <form method="POST" action="/user/forms/request-to-publish">
+                    Unpublished
+                    {%- endif -%}
+                    {%- if getPublishRequest(answerSet.id) -%}
+                    <span>Request to {%- if getPublishRequest(answerSet.id).type == 'PUBLISH' %} publish {% else %} unpublish {%- endif %}
+                            submitted</span>
+                        <form method="POST" action="/user/forms/cancel-request">
                             <input type="hidden" name="answerSetId" value="{{answerSet.id}}"/>
-                            <input type="submit" name="submit" value="Request to publish"/>
+                            <input type="hidden" name="testEnvId" value="{{answerSet.testingEnvironment.id}}"/>
+                            <input type="submit" name="submit" value="Cancel request"/>
                         </form>
+                    {%- else -%}
+                    <form method="POST" action="/user/forms/request">
+                        <input type="hidden" name="answerSetId" value="{{answerSet.id}}"/>
+                        <input type="hidden" name="testEnvId" value="{{answerSet.testingEnvironment.id}}"/>
+                        {%- if answerSet.isPublic -%}
+                        <input type="submit" name="submit" value="Request to unpublish"/>
+                        <input type="hidden" name="requestType" value="UNPUBLISH"/>
+                        {%- else -%}
+                        <input type="submit" name="submit" value="Request to publish"/>
+                        <input type="hidden" name="requestType" value="PUBLISH"/>
                         {%- endif -%}
+                    </form>
                     {%- endif -%}
                 {%- endif -%}
                 <td>

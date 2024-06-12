@@ -18,6 +18,7 @@
                     <th>Testing environment</th>
                     <th>Date requested</th>
                     <th>User</th>
+                    <th>Request type</th>
                     <th>Actions</th>
                 </tr>
             </thead>
@@ -28,6 +29,7 @@
                     <td>{{ testingEnvironmentLabels.TestingEnvironmentLink(request.answerSet.testingEnvironment) }}</td>
                     <td>{{ dayjs(request.created).format("YYYY-MM-DD HH:mm:ss") }}</td>
                     <td>{{ request.answerSet.user.name }}</td>
+                    <td>{%- if request.reqType == 'PUBLISH' -%}Publish{%- else -%}Unpublish{%- endif -%}</td>
                     <td>
                         <form method="POST" action="/admin/forms/handle-request" style="gap: .5rem;">
                             <input type="hidden" name="requestId" value="{{request.id}}"></input>

@@ -11,7 +11,7 @@ async function updateAnswersAndPublish(data, jwt, publish, errors) {
     let dbres = await db.query(Q.TESTING_ENVIRONMENTS.GET_ALL(),  {}, jwt);
     let tenvs = dbres.data.testingEnvironments;
     dbres = await db.query(Q.TEST_BOOKS.GET_LATEST(), {}, jwt);
-    let testBooks = dbres.data.getLatestTestBooks;
+    let testBooks = dbres.data.testBooks;
 
     for (let answerSetJson of data) {
         // get the testing environment ID and test book ID

@@ -81,7 +81,7 @@ describe('test-user-pages', function () {
                         let text = await button.getAttribute("value");
                         expect(text).to.equal("Request to publish");
                         let action = await col.getAttribute("action");
-                        expect(action).to.contain("/user/forms/request-to-publish");
+                        expect(action).to.contain("/user/forms/request");
                     }
                     else if (tagName == "a") {
                         let text = await col.getText();

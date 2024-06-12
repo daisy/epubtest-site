@@ -44,3 +44,7 @@ button:hover, input[type=submit]:hover {
     gap: 0.5rem;
 }
 
+/* very specific and brittle selector but i don't want to inadvertently affect other forms */
+form[action='/forms/login'] {
+    gap: 1rem;
+}

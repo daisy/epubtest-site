@@ -84,11 +84,11 @@ router.get('/testing-environment/:id', async (req, res, next) => {
         return next(err);
     }
     let requests = dbres.data.requests;
-    let requestsToPublish = {};
+    let publishRequests = {};
     testingEnvironment.answerSets.map(aset => {
         let foundRequest = requests.find(r => r.answerSet.id == aset.id);
         if (foundRequest) {
-            requestsToPublish[aset.id] = foundRequest;
+            publishRequests[aset.id] = foundRequest;
         }
     });
 
@@ -96,11 +96,7 @@ router.get('/testing-environment/:id', async (req, res, next) => {
         {
             testingEnvironment,
             users,
-            requestsToPublish,
-            getRequestToPublish: answerSetId => {
-                let retval = requests.find(r => r.answerSet.id === answerSetId);
-                return retval;
-            },
+            publishRequests,
             displayUtils
         }
     );

@@ -12,6 +12,7 @@ import * as answerSets from './answerSets.js';
 const FIELDS = () => `
 id
 created
+reqType
 answerSet {
     ${answerSets.FIELDS()}
 }`;

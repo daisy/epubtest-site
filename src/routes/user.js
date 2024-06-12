@@ -48,7 +48,7 @@ router.get('/dashboard/testing/:testingEnvironmentId', async (req, res, next) =>
     return res.render('dashboard-details.njk', 
         {
             testingEnvironment,
-            getRequestToPublish: answerSetId => {
+            getPublishRequest: answerSetId => {
                 let retval = requests.find(r => r.answerSet.id === answerSetId);
                 return retval;
             },

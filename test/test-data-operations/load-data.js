@@ -20,6 +20,7 @@ async function initDb(dataProfile) {
         await db.initDatabaseConnection();
     }
     catch (err) {
+        console.log(err);
         throw err;
     }
 

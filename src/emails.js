@@ -91,11 +91,11 @@ If it was not you, then please disregard this message.</p>
 };
 
 let newRequest = {
-        subject: 'New request to publish results on epubtest.org',
+        subject: 'New request on epubtest.org',
         text: answerSet => `
 Hello,
 
-Someone has requested to publish results for ${answerSet.testingEnvironment.readingSystem.name} ${answerSet.testingEnvironment.readingSystem.version} 
+Someone has requested to publish or unpublish results for ${answerSet.testingEnvironment.readingSystem.name} ${answerSet.testingEnvironment.readingSystem.version} 
 on epubtest.org. Please login and go to https://epubtest.org/admin/requests to manage and approve pending requests.
 
 - epubtest.org

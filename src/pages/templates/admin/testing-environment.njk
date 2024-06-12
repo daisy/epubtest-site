@@ -102,13 +102,13 @@
                     <th>Score</th>
                     <th>Edit</th>
                     <th>Status</th>
-                    <th>Publishing requested</th>
+                    <th>Request</th>
                     <th>Share</th>
                 </tr>
             </thead>
             <tbody>
             {%- for answerSet in testingEnvironment.answerSets -%}
-            {%- set requestToPublish=getRequestToPublish(answerSet.id) -%}
+            
             {%- set answerSetStatus = displayUtils.answerSetCompletedStatus(answerSet) -%}
             <tr id="{{answerSet.testBook.topic.id}}-{{answerSet.testBook.version}}">
                 <td>{{answerSet.id}}</td>
@@ -170,10 +170,14 @@
                     {%- endif -%}
                 </td>
                 <td>
-                    {%- if requestsToPublish[answerSet.id] -%}
-                    Yes
+                    {%- if publishRequests[answerSet.id] -%}
+                    {%- if publishRequests[answerSet.id].type == 'PUBLISH' -%}
+                        Request to publish
                     {%- else -%}
-                    No
+                        Request to unpublish
+                    {%- endif -%})
+                    {%- else -%}
+                    No request
                     {%- endif -%}
                 </td>
                 <td>

@@ -11,19 +11,19 @@ const { validator, validationResult, body } = expressValidator;
 const router = express.Router()
 
 // submit request to publish
-router.post('/request-to-publish', async (req, res, next) => {
+router.post('/request', async (req, res, next) => {
     let dbres = await db.query(
         Q.REQUESTS.CREATE(),  
         { 
             input: {
                 answerSetId: parseInt(req.body.answerSetId),
-                type: 'PUBLISH'
+                reqType: req.body.requestType
             }
         }, 
         req.cookies.jwt);
     
     if (!dbres.success) {
-        let err = new Error("Could not create request to publish");
+        let err = new Error("Could not create request to publish/unpublish");
         return next(err);
     }
     
@@ -43,7 +43,30 @@ router.post('/request-to-publish', async (req, res, next) => {
         emails.newRequest.subject, 
         emails.newRequest.text(dbres.data.answerSet), 
         emails.newRequest.html(dbres.data.answerSet));   
-    res.redirect('/user/dashboard');
+    res.redirect(`/user/dashboard/testing/${dbres.data.answerSet.testingEnvironment.id}`);
+});
+router.post('/cancel-request', async (req, res, next) => {
+    let dbres = await db.query(
+        Q.REQUESTS.GET_FOR_ANSWERSETS(), 
+        { ids: [parseInt(req.body.answerSetId)]},
+        req.cookies.jwt
+    );
+
+    if (!dbres.success || dbres.data.requests.length < 1) {
+        let err = new Error("Could not get requests.");
+        return next(err);
+    }
+
+    dbres = await db.query(
+        Q.REQUESTS.DELETE(),  
+        { id: dbres.data.requests[0].id},
+        req.cookies.jwt);
+    
+    if (!dbres.success) {
+        let err = new Error("Could not cancel request");
+        return next(err);
+    }
+    res.redirect(`/user/dashboard/testing/${req.body.testEnvId}`);
 });
 
 // submit results

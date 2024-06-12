@@ -104,6 +104,30 @@ router.post('/unpublish', async (req, res, next) => {
         return next(err);
     }
 
+    // also clear any requests for unpublishing that this answer set might have had
+    dbres = await db.query(
+        Q.REQUESTS.GET_FOR_ANSWERSETS(), 
+        { ids: [parseInt(req.body.answerSetId)]},
+        req.cookies.jwt
+    );
+
+    if (!dbres.success) {
+        let err = new Error("Could not get requests.");
+        return next(err);
+    }
+
+    if (dbres.data && dbres.data.requests.length > 0) {
+        dbres = await db.query(Q.REQUESTS.DELETE(), 
+            { id: dbres.data.requests[0].id },
+            req.cookies.jwt);
+        
+        if (!dbres.success) {
+            let err = new Error("Could not delete request to unpublish.");
+            return next(err);
+        }
+    }
+
+
     let nextUrl = req.body.next ?? `/admin/testing-environment/${req.body.testingEnvironmentId}`
     return res.redirect(nextUrl);
 });
