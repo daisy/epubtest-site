@@ -130,7 +130,9 @@ async function migrate(newAnswerSetId, oldAnswerSetId, jwt) {
                         id: answer.id, 
                         patch: {
                             value: oldAnswer.value,
-                            lastModified: oldAnswer.lastModified
+                            lastModified: oldAnswer.lastModified,
+                            notes: oldAnswer.notes,
+                            notesArePublic: oldAnswer.notesArePublic
                         }}, 
                         jwt);
                     if (dbres.success) {
