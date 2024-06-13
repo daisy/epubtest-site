@@ -1,6 +1,27 @@
 {%- extends 'base/admin-base.njk'-%}
 {%- set title="Admin Etc" -%}
 {%- block content -%}
+<style>
+    input[type=submit] {
+        background: none;
+        border: thin solid var(--primary);
+    }
+    input[type=submit]:hover {
+        background: var(--softcomp);
+    }
+    main ul {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+    }
+    ul p {
+        font-style: italic;
+        margin: 0.25rem;
+        margin-left: 1rem;
+        font-size: smaller;
+    }
+
+</style>
 <main>
     <h2>Admin: Not ready for prime time features</h2>
 
@@ -10,12 +31,34 @@
         <li>
             <form method="POST" action="/admin/forms/update-test-books-is-latest">
                 <input type="submit" value="Update test books is_latest"></input>
+                <p>This generally does not need to be run as it happens automatically when a book is ingested</p>
+                <p>If for some reason a book is deleted, run this.</p>
+                <p>It does not hurt anything to run this, even if you aren't sure.</p>
             </form>
-            <p>This generally does not need to be run as it happens automatically when a book is ingested; but if for some reason a book is deleted, run this. It also does not hurt anything to run it if you aren't sure.</p>
         </li>
         <li>
             <form method="POST" action="/admin/forms/copy-notes-field">
                 <input type="submit" value="Copy notes field for migrated results"></input>
+                <p>This operation can be slow!</p>
+            </form>
+        </li>
+        <li>
+            <form method="POST" action="/admin/forms/disable-triggers">
+                <input type="submit" value="Disable database triggers"></input>
+                <p>Remember to re-enable them (below).</p>
+            </form>
+        </li>
+        <li>
+            <form method="POST" action="/admin/forms/enable-triggers">
+                <input type="submit" value="Enable database triggers"></input>
+                <p>It does not hurt anything to run this, even if you aren't sure.</p>
+            </form>
+        </li>
+        <li>
+            <form method="POST" action="/admin/forms/run-triggers">
+                <input type="submit" value="Run trigger operations"></input>
+                <p>It does not hurt anything to run this, even if you aren't sure.</p>
+                <p>This operation can be slow!</p>
             </form>
         </li>
     </ul>

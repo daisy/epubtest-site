@@ -738,4 +738,20 @@ router.post('/copy-notes-field', async (req, res, next) => {
     }
     return res.redirect(url);
 });
+
+router.post('/enable-triggers', async (req, res, next) => {
+    await db.query(Q.ETC.ENABLE_TRIGGERS(), {}, req.cookies.jwt);
+    return res.redirect(`/admin/etc?message=${encodeURIComponent("Triggers enabled")}`);
+});
+
+router.post('/disable-triggers', async (req, res, next) => {
+    await db.query(Q.ETC.DISABLE_TRIGGERS(), {}, req.cookies.jwt);
+    return res.redirect(`/admin/etc?message=${encodeURIComponent("Triggers disabled")}`);
+});
+
+router.post('/run-triggers', async (req, res, next) => {
+    await db.query(Q.ETC.RUN_ANSWERSET_TRIGGER_OPERATIONS(), {}, req.cookies.jwt);
+    return res.redirect(`/admin/etc?message=${encodeURIComponent("Ran answerset trigger operations")}`);
+});
+
 export { router };
