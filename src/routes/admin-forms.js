@@ -733,6 +733,9 @@ router.post('/copy-notes-field', async (req, res, next) => {
     if (retval instanceof Error) {
         url = `${url}?message=${encodeURIComponent(retval.message)}`;
     }
+    else if (retval == true) {
+        url = `${url}?message=${encodeURIComponent("Successfully copied notes")}`;
+    }
     return res.redirect(url);
 });
 export { router };

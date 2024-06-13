@@ -3,6 +3,7 @@ import * as Q from '../queries/index.js';
 
 // for migrated answer sets, copy the notes field too
 async function copyNotesField(jwt) {
+    await db.query(Q.ETC.DISABLE_TRIGGERS(), {}, jwt);
 
     // get all the answer sets that were copied from another answer set
     let dbres = await db.query(Q.ANSWER_SETS.GET_ALL(), {}, jwt);
@@ -44,6 +45,7 @@ async function copyNotesField(jwt) {
             }
         }
     }
+    await db.query(Q.ETC.ENABLE_TRIGGERS(), {}, jwt);
     return true;
 }
 
