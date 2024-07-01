@@ -4,7 +4,7 @@ import winston from 'winston';
 const port = process.env.PORT || 8000;
 (async () => {
     // init logger
-    let transports = [new winston.transports.File({ filename: 'epubtest-site-error.log', level: 'error' })];
+    let transports = [new winston.transports.File({ filename: 'epubtest-site-error.log', level: process.env.LOG_LEVEL })];
     if (process.env.NODE_ENV != 'production') {
         transports.push(new winston.transports.Console({format: winston.format.simple(),}));
     }

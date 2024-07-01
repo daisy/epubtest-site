@@ -2,6 +2,7 @@
 import * as utils from './utils.js';
 // import i18next from 'i18next';
 import dayjs from 'dayjs';
+import winston from 'winston';
 
 function isAuthenticated (req, res, next) {
     if (process.env.READONLY == 'true') {
