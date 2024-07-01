@@ -366,3 +366,7 @@ p.latest-testbook {
     }
 }
 
+.info-note {
+    font-style: italic;
+    font-size: smaller;
+}

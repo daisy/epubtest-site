@@ -21,16 +21,17 @@
         Assigned testing environments
         </caption>
         <thead>
-            <th>Changes</th>
+            <th>Testing Environment ID</th>
             <th>Reading system</th>
             <th>Other details</th>
-            <th>Topics</th>
+            <th>Test books have changed</th>
+            <th>Included topics</th>
         </thead>
         <tbody>
             {%- for testingEnvironment in testingEnvironments -%}
             <tr>
-                <td>{%- if testingEnvironment.outdated -%}Test book(s) changed since last edit{%- endif -%}</td>
-                <td><a href="/user/dashboard/testing/{{testingEnvironment.id}}">{{testingEnvironment.readingSystem.name}}</a></td>
+                <td><a href="/user/dashboard/testing/{{testingEnvironment.id}}">{{testingEnvironment.id}}</a></td>
+                <td>{{testingEnvironment.readingSystem.name}} {{testingEnvironment.readingSystem.version}}</td>                
                 <td class="testenv-details">
                     {%- if testingEnvironment.assistiveTechnology -%}
                     <span>{{testingEnvironment.assistiveTechnology.name}} {{testingEnvironment.assistiveTechnology.version}}</span>
@@ -45,12 +46,19 @@
                     {{testingEnvironment.browser.name}} {{testingEnvironment.browser.version}}
                     {%- endif -%}
                 </td>
+                <td>{%- if testingEnvironment.outdated -%}Yes
+                    {%- else -%} No{%- endif -%}
+                </td>
                 <td>{{displayUtils.listTopics(testingEnvironment.answerSets)}}</td>
             </tr>
             {%- endfor -%}
         </tbody>
     </table>
     </div>
+
+    <p class="info-note">Notes that the "Has changes" column indicates whether 
+        there were changes to the relevant test book(s) since your last edit. It does not mean
+        that the answers are all filled in or that you are done with testing.</p>
     {%- endif -%}
 </main>
 <script type="module" src="/js/table.js"></script>
@@ -63,8 +71,8 @@
     enhancedTable.enableSearch();
     enhancedTable.enableFilters([
         {
-            label: "Changes",
-            pathFn: r => r.querySelector(`td:nth-child(1)`).textContent
+            label: "Test books have changed",
+            pathFn: r => r.querySelector(`td:nth-child(4)`).textContent
         },
         {
             label: "Reading system",
