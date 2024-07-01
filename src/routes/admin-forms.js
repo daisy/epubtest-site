@@ -11,7 +11,6 @@ import winston from 'winston';
 import * as utils from '../utils.js';
 import * as path from 'path';
 import expressValidator from 'express-validator';
-import {copyNotesField} from '../actions/one-off.js';
 
 const { validator, validationResult, body } = expressValidator;
 
@@ -726,17 +725,6 @@ router.post('/update-test-books-is-latest', async (req, res, next) => {
         console.log('Could not update test book flag "is_latest"; please run manual update in database.');
     }
     return res.redirect('/admin/etc');
-});
-router.post('/copy-notes-field', async (req, res, next) => {
-    let retval = await copyNotesField(req.cookies.jwt);
-    let url = '/admin/etc';
-    if (retval instanceof Error) {
-        url = `${url}?message=${encodeURIComponent(retval.message)}`;
-    }
-    else if (retval == true) {
-        url = `${url}?message=${encodeURIComponent("Successfully copied notes")}`;
-    }
-    return res.redirect(url);
 });
 
 router.post('/enable-triggers', async (req, res, next) => {

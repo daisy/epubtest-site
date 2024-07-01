@@ -5,48 +5,48 @@ import * as Q from '../queries/index.js';
 async function copyNotesField(jwt) {
     await db.query(Q.ETC.DISABLE_TRIGGERS(), {}, jwt);
 
-    // get all the answer sets that were copied from another answer set
-    let dbres = await db.query(Q.ANSWER_SETS.GET_ALL(), {}, jwt);
+    // // get all the answer sets that were copied from another answer set
+    let dbres = await db.query(Q.ANSWER_SETS.GET_MIGRATED(), {}, jwt);
         
-    if (!dbres.success) {
-        let err = new Error("Could not get answer sets.");
-        return err;
-    }
+    // if (!dbres.success) {
+    //     let err = new Error("Could not get answer sets.");
+    //     return err;
+    // }
 
-    let answerSets = dbres.data.answerSets.filter(aset => aset.createdFrom != null);
+    // let answerSets = dbres.data.answerSets.filter(aset => aset.createdFrom != null);
 
-    for (let answerSet of answerSets) {
-        let dbres = await db.query(Q.ANSWER_SETS.GET(), {id: answerSet.createdFrom.id}, jwt);
+    // for (let answerSet of answerSets) {
+    //     let dbres = await db.query(Q.ANSWER_SETS.GET(), {id: answerSet.createdFrom.id}, jwt);
         
-        if (!dbres.success) {
-            let err = new Error("Could not get answer set.");
-            return err;
-        }
-        let sourceAnswerSet = dbres.data.answerSet;
+    //     if (!dbres.success) {
+    //         let err = new Error("Could not get answer set.");
+    //         return err;
+    //     }
+    //     let sourceAnswerSet = dbres.data.answerSet;
 
-        // copy the notes field over
-        for (let answer of answerSet.answers) {
-            let sourceAnswer = sourceAnswerSet.answers.find(a => a.test.testId == answer.test.testId);
-            if ((!answer.notes || answer.notes == '') && sourceAnswer) {
-                dbres = await db.query(
-                    Q.ANSWERS.UPDATE(), 
-                    {
-                        id: answer.id,
-                        patch: {
-                            notes: sourceAnswer.notes,
-                            notesArePublic: sourceAnswer.notesArePublic
-                        }
-                    },
-                    jwt
-                );
-                if (!dbres.success) {
-                    console.log("Error updating answer notes", dbres.errors);
-                }
-            }
-        }
-    }
-    await db.query(Q.ETC.ENABLE_TRIGGERS(), {}, jwt);
-    return true;
+    //     // copy the notes field over
+    //     for (let answer of answerSet.answers) {
+    //         let sourceAnswer = sourceAnswerSet.answers.find(a => a.test.testId == answer.test.testId);
+    //         if ((!answer.notes || answer.notes == '') && sourceAnswer) {
+    //             dbres = await db.query(
+    //                 Q.ANSWERS.UPDATE(), 
+    //                 {
+    //                     id: answer.id,
+    //                     patch: {
+    //                         notes: sourceAnswer.notes,
+    //                         notesArePublic: sourceAnswer.notesArePublic
+    //                     }
+    //                 },
+    //                 jwt
+    //             );
+    //             if (!dbres.success) {
+    //                 console.log("Error updating answer notes", dbres.errors);
+    //             }
+    //         }
+    //     }
+    // }
+    // await db.query(Q.ETC.ENABLE_TRIGGERS(), {}, jwt);
+    // return true;
 }
 
 export { copyNotesField };
