@@ -73,12 +73,13 @@
                         <th>Description</th>
                         <th>Result</th>
                         <th>Notes</th>
+                        <th>Migrated from</th>
                     </tr>
                 </thead>
                 <tbody>
                     {%- for answer in answerSet.answers -%}
                     <tr class="{%-if answer.test.flag and answer.flag-%}flagged-test{%- endif -%}" id="a{{answer.id}}">
-                        <td>{{answer.test.testId}}
+                        <td><a href="#a{{answer.id}}">#</a>{{answer.test.testId}}
                             {%-if answer.test.flag and answer.flag-%}
                             <span class="update-required">Update required</span>
                             {%- endif -%}
@@ -101,6 +102,11 @@
                                 {%- if answer.notesArePublic -%}checked{%- endif -%}>
                                 Publish Notes
                             </input>
+                        </td>
+                        <td>
+                            {%- if answer.createdFromId > 0 -%}
+                                <a href="/user/edit-results/{{answerSet.createdFrom.id}}#a{{answer.createdFromId}}">{{answerSet.createdFrom.id}}#a{{answer.createdFromId}}</a>
+                            {%- endif -%}
                         </td>
                     </tr>
                     {%- endfor -%}

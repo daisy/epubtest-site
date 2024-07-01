@@ -11,6 +11,7 @@ flag
 notes
 notesArePublic
 lastModified
+createdFromId
 `;
 
 export { FIELDS };
