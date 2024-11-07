@@ -190,7 +190,7 @@ p.message {
 }
 /* list with columns e.g. reinvite users page */
 ul.cols {
-    columns: 3;
+    columns: 2;
 }
 
 /* participage page */
@@ -369,4 +369,31 @@ p.latest-testbook {
 .info-note {
     font-style: italic;
     font-size: smaller;
+}
+
+/* TODO remove this when math is removed at the data level */
+/* this just disables the display of math entries */
+#results-table thead th:nth-of-type(7) {
+    display: none;
+}
+#results-table tbody tr td:nth-of-type(7) {
+    display: none;
+}
+.secondary-nav li:has(a[href='#math']) {
+    display: none;
+}
+section:has(h3[id='math']) {
+    display: none;
+}
+#test-books-table tr:has(a[href='/test-books/math']) {
+    display: none;
+}
+#testing-environment-details tr[id='math-1.1.1'] {
+    display: none;
+}
+.dashboard-topics tr[class='math'] {
+    display: none;
+}
+ul.topics li:has(a[href='/results/topic/math']) {
+    display: none;
 }

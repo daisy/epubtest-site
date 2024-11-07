@@ -18,7 +18,7 @@
     <h2>Results</h2>
     <div>
         <p>See all results on this page or explore further by topic:</p>
-        <ul class="cols">
+        <ul class="cols topics">
             {%- for topic in topics -%}
                 <li><a href="/results/topic/{{topic.id}}">{{topicNames.TopicName(topic.id)}}</a></li>
             {%- endfor -%}

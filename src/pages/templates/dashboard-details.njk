@@ -28,7 +28,7 @@
 {{ testingEnvironmentDetails.TestingEnvironmentDetails(testingEnvironment) }}
 <div id="table-controls" class="table-controls"></div>
 <div role="region" aria-labelledby="table-caption-{{testingEnvironment.id}}" tabindex="0">
-    <table aria-live="polite" aria-colcount="4" aria-rowcount="{{testingEnvironment.answerSets.length}}" id="answer-sets-{{testingEnvironment.id}}">
+    <table class="dashboard-topics" aria-live="polite" aria-colcount="4" aria-rowcount="{{testingEnvironment.answerSets.length}}" id="answer-sets-{{testingEnvironment.id}}">
         <caption id="table-caption-{{testingEnvironment.id}}">
         Topics tested for {{testingEnvironmentLabels.TestingEnvironmentOneLinerPlainText(testingEnvironment)}}
         </caption>
@@ -44,7 +44,7 @@
         <tbody>
             {%- for answerSet in testingEnvironment.answerSets -%}
                 {%- set answerSetStatus = displayUtils.answerSetCompletedStatus(answerSet) -%}
-            <tr id="a{{answerSet.id}}">
+            <tr id="a{{answerSet.id}}" class="{{answerSet.testBook.topic.id}}">
                 <td>
                     <span class="{{answerSetStatus.class}}">{{answerSetStatus.message}}</span>
                 </td>
