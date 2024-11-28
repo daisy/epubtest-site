@@ -49,6 +49,10 @@
                 <tr>
                     <td>
                         {{ testingEnvironmentLabels.TestingEnvironmentLink(testingEnvironment) }}
+                        {%- if accessLevel == 'admin' -%}
+                        <a href="/admin/testing-environment/{{testingEnvironment.id}}">Manage</a>
+                        {%- endif -%}
+                        
                     </td>
                     {%- for topic in topics -%}
                     {%- set answerSet = displayUtils.getAnswerSetForTopic(testingEnvironment, topic.id) -%}
