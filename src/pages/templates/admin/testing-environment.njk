@@ -95,7 +95,7 @@
             <thead>
                 <tr>
                     <th>ID</th>
-                    <th>Status</th>
+                    <th>Completion</th>
                     <th>Test Book</th>
                     <th>Book added</th>
                     <th>Assigned to</th>
@@ -151,22 +151,27 @@
                 <td>{{formatScore.FormatScore(answerSet)}}</td>
                 <td><a href="/user/edit-results/{{answerSet.id}}?next=/admin/testing-environment/{{testingEnvironment.id}}">Edit</td>
                 <td>
-                    {%- if answerSet.isPublic -%}
-                    <span>Published</span>
-                    <form method="POST" action="/admin/forms/unpublish">
-                        <input type="hidden" name="next" value="/admin/testing-environment/{{testingEnvironment.id}}"/>
-                        <input type="hidden" name="testingEnvironmentId" value="{{testingEnvironment.id}}"/>
-                        <input type="hidden" name="answerSetId" value="{{answerSet.id}}"/>
-                        <input type="submit" name="submit" value="Unpublish"/>
-                    </form>
+                    {# the math book has id 11 and has been disabled (and all its results were forcibly unpublished) #}
+                    {%- if answerSet.testBook.id != 11 -%}
+                        {%- if answerSet.isPublic -%}
+                        <span>Published</span>
+                        <form method="POST" action="/admin/forms/unpublish">
+                            <input type="hidden" name="next" value="/admin/testing-environment/{{testingEnvironment.id}}"/>
+                            <input type="hidden" name="testingEnvironmentId" value="{{testingEnvironment.id}}"/>
+                            <input type="hidden" name="answerSetId" value="{{answerSet.id}}"/>
+                            <input type="submit" name="submit" value="Unpublish"/>
+                        </form>
+                        {%- else -%}
+                        <span>Unpublished</span>
+                        <form method="POST" action="/admin/forms/publish">
+                            <input type="hidden" name="next" value="/admin/testing-environment/{{testingEnvironment.id}}"/>
+                            <input type="hidden" name="testingEnvironmentId" value="{{testingEnvironment.id}}"/>
+                            <input type="hidden" name="answerSetId" value="{{answerSet.id}}"/>
+                            <input type="submit" name="submit" value="Publish"/>
+                        </form>
+                        {%- endif -%}
                     {%- else -%}
-                    <span>Unpublished</span>
-                    <form method="POST" action="/admin/forms/publish">
-                        <input type="hidden" name="next" value="/admin/testing-environment/{{testingEnvironment.id}}"/>
-                        <input type="hidden" name="testingEnvironmentId" value="{{testingEnvironment.id}}"/>
-                        <input type="hidden" name="answerSetId" value="{{answerSet.id}}"/>
-                        <input type="submit" name="submit" value="Publish"/>
-                    </form>
+                    <span>Publishing disabled for this book</span>
                     {%- endif -%}
                 </td>
                 <td>

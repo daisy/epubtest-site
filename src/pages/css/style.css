@@ -388,8 +388,9 @@ section:has(h3[id='math']) {
 #test-books-table tr:has(a[href='/test-books/math']) {
     display: none;
 }
+/* the admin view of the testing environment */
 #testing-environment-details tr[id='math-1.1.1'] {
-    display: none;
+    /* display: none; */
 }
 .dashboard-topics tr[class='math'] {
     display: none;
