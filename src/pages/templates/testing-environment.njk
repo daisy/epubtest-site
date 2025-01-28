@@ -68,6 +68,16 @@
 
 {%- endblock -%}
 
+{%- block script -%}
+<script src="https://cdn.jsdelivr.net/npm/linkifyjs@4.2.0/dist/linkify.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/linkify-html@4.2.0/dist/linkify-html.min.js"></script>
+<script>
+    let summaries = document.querySelectorAll('.summary');
+    summaries.forEach((summary) => {
+        summary.innerHTML = linkifyHtml(summary.textContent);
+    });
+</script>
+{%- endblock -%}
 
 {%- import "components/user-credit.njk" as userCredit -%}
 {%- macro AnswerSet(answerSet, headingLevel) -%}
@@ -119,7 +129,7 @@
 
 {%- if answerSet.summary and answerSet.summary != "" and answerSet.summary != "null" -%}
 <h{{headingLevel+1}}>Summary</h{{headingLevel+1}}>
-<p class="limit">{{answerSet.summary}}</p>
+<p class="limit summary">{{answerSet.summary}}</p>
 {%-endif-%}
 
 <div id="table-controls-{{answerSet.id}}" class="table-controls"></div>
@@ -149,5 +159,6 @@
     </table>
 </div>
 </section>
+
 {%- endmacro -%}
 
