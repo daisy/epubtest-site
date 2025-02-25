@@ -500,14 +500,12 @@ router.post('/testing-environment/:id', async(req, res, next) => {
             testedWithScreenreader: req.body.testedWithScreenreader === "on",
             input: req.body.input
         };
-        if (req.body.browserId != 'none') {
-            input = {...input, browserId: parseInt(req.body.browserId)};
-        }
-        if (req.body.assistiveTechnologyId != 'none') {
-            input = {...input, assistiveTechnologyId: parseInt(req.body.assistiveTechnologyId)};
-        }
-        if (req.body.deviceId != 'none') {
-            input = {...input, deviceId: parseInt(req.body.deviceId)};
+        let {browserId, assistiveTechnologyId, deviceId} = req.body;
+
+        input = {...input, 
+            browserId: browserId != 'none' ? parseInt(browserId) : null,
+            assistiveTechnologyId: assistiveTechnologyId != 'none' ? parseInt(assistiveTechnologyId) : null,
+            deviceId: deviceId != 'none' ? parseInt(req.body.deviceId) : null
         }
         
         let dbres = await db.query(Q.TESTING_ENVIRONMENTS.UPDATE(),  {
