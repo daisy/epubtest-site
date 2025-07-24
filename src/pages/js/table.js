@@ -16,8 +16,8 @@ let sortHelpers = {
     },
 
     "numeric": (row1, row2, path) => {
-        let val1 = path(row1).trim();
-        let val2 = path(row2).trim();
+        let val1 = path(row1);
+        let val2 = path(row2);
         if (val1 == null) return 1;
         if (val2 == null) return -1;
         return val1 > val2 ? 1 : -1;

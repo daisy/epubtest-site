@@ -290,7 +290,7 @@ router.get('/add-software/:type', (req, res) => {
 });
 
 router.get('/etc', (req, res) => {
-    return res.status(200).render('./admin/etc.njk');
+    return res.status(200).render('./admin/etc/index.njk');
 });
 
 router.get('/server-info', async (req, res, next) => {
