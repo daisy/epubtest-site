@@ -308,8 +308,8 @@ p.not-latest-testbook, span.not-latest-testbook {
     background-color: var(--message);
     display: block;
     font-size: smaller;
-    padding: 5px;
-    margin: 5px;
+    /* padding: 5px;
+    margin: 5px; */
 }
 span.latest-testbook, p.latest-testbook {
     background-color: var(--message);
