@@ -79,7 +79,7 @@
             pathFn: r => r.querySelector(`td:nth-child(2)`).textContent
         }
     ]);
-    // load any sort/filter/search values from local storage
+    // load any sort/filter/search values from the url string
     enhancedTable.loadFromStore();
 </script>
 {%- endblock -%}

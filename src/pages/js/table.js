@@ -3,8 +3,8 @@ Turns an HTML table into one with sorting, filtering, and searching
 
 Depends on dayjs if you want to sort by date
 */
-import * as TableState from './tableState.js';
-
+// import * as TableState from './tableState.js';
+import * as TableState from './tableStateQP.js';
 // sorting utility functions
 let sortHelpers = {
     "alpha": (row1, row2, path) => {
@@ -40,7 +40,7 @@ let sortHelpers = {
 let docurl = () => {
     let url = new URL(document.URL);
     return `${url.protocol}//${url.host}${url.pathname}`;
-}
+};
 
 class EnhancedTable  {
     
@@ -53,9 +53,13 @@ class EnhancedTable  {
         this.sortRules = [];
         this.idString = idString ? `-${idString}` : ''; // identifier for when there are multiple tables on a page
         this.initFilters();
+        
+        // cleaning up after ourselves -- 
+        // clear local storage for this page since the site uses only query params for table sort/filter now
+        localStorage.removeItem(docurl());
     }
 
-    // get values from localStorage
+    // get values from the URL
     getSearchText = () => TableState.getSearchText(docurl(), this.tableElm.id);
     getSort = () => TableState.getSort(docurl(), this.tableElm.id);
     getFilters = () => TableState.getFilters(docurl(), this.tableElm.id);
@@ -304,13 +308,6 @@ class EnhancedTable  {
     }
     loadFromStore() {
         const entries = performance.getEntriesByType("navigation");
-        if (!entries.find(e => e.type === "back_forward")) {
-            // don't load from store if it's not a back/forward navigation event
-            this.clearSort();
-            this.setSearchText('');
-            this.clearFilters();
-            return;
-        }
         
         // use the stored values as input to the UI controls
         if (this.getSearchText()) {
