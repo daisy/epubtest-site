@@ -63,7 +63,6 @@ GraphQL queries. Of note is `queries/crudGenerator.js`, which generates basic CR
 
 ### Other files
 
-* `database.js`: sends a query to the database api server
 * `emails.js`: Text for emails that get sent to useres
 * `middleware.js`: Various custom middleware
 * `utils.js`: Various utility functions
