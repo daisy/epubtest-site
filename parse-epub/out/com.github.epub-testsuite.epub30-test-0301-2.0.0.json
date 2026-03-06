@@ -1,0 +1,147 @@
+{
+  "title": "Fundamental Accessibility Tests: Basic Functionality",
+  "topicId": "basic-functionality",
+  "description": "These tests include starting the reading system and opening the titles, navigating the content, searching, and using bookmarks and notes.",
+  "langId": "en",
+  "epubId": "com.github.epub-testsuite.epub30-test-0301-2.0.0",
+  "version": "2.0.0",
+  "filename": "epub30-test-0301.epub",
+  "path": "/Users/marisa/dev/epub-accessibility-tests/content/epub30-test-0301.epub",
+  "tests": [
+    {
+      "testId": "file-010",
+      "xhtml": "<section id=\"file-010\" class=\"test\" xmlns=\"http://www.w3.org/1999/xhtml\">\n\t\t<h2><span class=\"test-id\">file-010</span> <span class=\"test-title\">Operating system/Platform accessibility:</span></h2>\n\t\t<p class=\"desc\">If you are using a hardware device, it can be started independently and essential accessibility for starting and exiting applications is available.</p>\n\t\t<p class=\"eval\">Indicate Pass or Fail.</p>\n\t</section>",
+      "order": 0,
+      "flagChanged": false,
+      "flagNew": false,
+      "name": "Operating system/Platform accessibility:",
+      "description": "If you are using a hardware device, it can be started independently and essential accessibility for starting and exiting applications is available."
+    },
+    {
+      "testId": "file-110",
+      "xhtml": "<section id=\"file-110\" class=\"test\" xmlns=\"http://www.w3.org/1999/xhtml\">\n\t\t<h2><span class=\"test-id\">file-110</span> <span class=\"test-title\">The reading system can be activated independently</span></h2>\n\t\t<p class=\"desc\">If you are using a reading app that requires you to create an online account then the complete getting started process should be accessible.</p>\n\t\t<p class=\"eval\">Indicate Pass or Fail.</p>\n\t</section>",
+      "order": 1,
+      "flagChanged": false,
+      "flagNew": false,
+      "name": "The reading system can be activated independently",
+      "description": "If you are using a reading app that requires you to create an online account then the complete getting started process should be accessible."
+    },
+    {
+      "testId": "file-210",
+      "xhtml": "<section id=\"file-210\" class=\"test\" xmlns=\"http://www.w3.org/1999/xhtml\">\n\t\t<h2><span class=\"test-id\">file-210</span> <span class=\"test-title\">Open content</span></h2>\n\t\t<div class=\"desc\">\n\t\t\t<p>Open the Fundamental Accessibility Test book in the reading system.</p>\n\t\t</div>\n\t\t<p>If the test book is not available in the bookshelf, then open any other book that is available. </p>\n\t\t<p>If the reading system also supports side loading, then please provide notes about the accessibility of the side loading feature.</p>\n\t\t<p class=\"eval\">Indicate Pass or Fail.</p>\n\t</section>",
+      "order": 2,
+      "flagChanged": false,
+      "flagNew": false,
+      "name": "Open content",
+      "description": "Open the Fundamental Accessibility Test book in the reading system."
+    },
+    {
+      "testId": "file-310",
+      "xhtml": "<section id=\"file-310\" class=\"test\" xmlns=\"http://www.w3.org/1999/xhtml\">\n\t\t<h2><span class=\"test-id\">file-310</span> <span class=\"test-title\">Access list of available content in the reading system</span></h2>\n\t\t<div class=\"desc\">\n\t\t\t<p>Check if you can navigate inside the bookshelf.</p>\n\t\t</div>\n\t\t<ol>\n\t\t\t<li>Open the bookshelf or library in the Reading System</li>\n\t\t\t<li>Navigate the entries in the bookshelf or library view</li>\n\t\t</ol>\n\t\t<p class=\"eval\">Indicate Pass or Fail.</p>\n\t</section>",
+      "order": 3,
+      "flagChanged": false,
+      "flagNew": false,
+      "name": "Access list of available content in the reading system",
+      "description": "Check if you can navigate inside the bookshelf."
+    },
+    {
+      "testId": "nav-005",
+      "xhtml": "<section id=\"nav-005\" class=\"test\" xmlns=\"http://www.w3.org/1999/xhtml\">\n\t\t<h2><span class=\"test-id\">nav-005</span> <span class=\"test-title\">The table of contents in the app presents the content hierarchy</span></h2>\n\t\t<div class=\"desc\">\n\t\t\t<p>Check if the table of Contents is accessible and its hierarchy is presented correctly by the reading system</p>\n\t\t</div>\n\t\t<ol>\n\t\t\t<li>Access the table of contents (TOC)in the reading system. Note that in most reading systems the TOC can be accessed using the menu or icons in the toolbars.</li>\n\t\t\t<li>Check the top ten entries in the table of contents</li>\n\t\t\t<li>Check if the following structure of table of content is presented. It may be presented in tree view, nested list view or any other view, the main objective is to verify if all section names are accessible and the order and level of the\n\t\t\t\tsections is correct and accessible.</li>\n\t\t</ol>\n\t\t<ul>\n\t\t\t<li>Cover page - First entry in the TOC, this is at level 1</li>\n\t\t\t<li>Front page - Second entry in the TOC, this is at level 1</li>\n\t\t\t<li>Introduction - Third entry in the TOC, this is at level 1</li>\n\t\t\t<li>Basic Functionality Tests - Fourth entry in the TOC, this is also at level 1\n\t\t\t\t<ul>\n\t\t\t\t\t<li>Operating system accessibility - Fifth entry in the TOC, this is at level 2</li>\n\t\t\t\t\t<li>Reading system activation - Sixth entry in the TOC, this is at level 2</li>\n\t\t\t\t\t<li>Open content - Seventh entry in the TOC, this is at level 2</li>\n\t\t\t\t\t<li>Listing documents - Eighth entry in the TOC, this is also at level 2</li>\n\t\t\t\t</ul>\n\t\t\t</li>\n\t\t\t<li>Navigation Tests - Ninth entry in the TOC, this is at level 1</li>\n\t\t</ul>\n\t\t<p class=\"eval\">Indicate Pass or Fail.</p>\n\t</section>",
+      "order": 4,
+      "flagChanged": false,
+      "flagNew": false,
+      "name": "The table of contents in the app presents the content hierarchy",
+      "description": "Check if the table of Contents is accessible and its hierarchy is presented correctly by the reading system"
+    },
+    {
+      "testId": "nav-010",
+      "xhtml": "<section id=\"nav-010\" class=\"test\" xmlns=\"http://www.w3.org/1999/xhtml\">\n\t\t<h2><span class=\"test-id\">nav-010</span> <span class=\"test-title\">Navigate to chapters through the Table of Contents</span></h2>\n\t\t<div class=\"desc\">\n\t\t\t<p>Check if you can navigate to a section by using the table of contents.</p>\n\t\t</div>\n\t\t<ol>\n\t\t\t<li>Access the Table of content (TOC) of this book in the Reading System </li>\n\t\t\t<li>Select the section \"Navigation Test\" inside the Chapter \"Supplemental Content\" in the TOC</li>\n\t\t\t<li>Check if the focus has now moved to the desired section of the book (\"Navigation Test\").</li>\n\t\t\t<li id=\"link-target-1a\">Use the link available there to return to this point.</li>\n\t\t</ol>\n\t\t<p class=\"eval\">Indicate Pass or Fail.</p>\n\t</section>",
+      "order": 5,
+      "flagChanged": false,
+      "flagNew": false,
+      "name": "Navigate to chapters through the Table of Contents",
+      "description": "Check if you can navigate to a section by using the table of contents."
+    },
+    {
+      "testId": "nav-110",
+      "xhtml": "<section id=\"nav-110\" class=\"test\" xmlns=\"http://www.w3.org/1999/xhtml\">\n\t\t<h2><span class=\"test-id\">nav-110</span> <span class=\"test-title\">Navigate content by pages</span></h2>\n\t\t<div class=\"desc\">\n\t\t\t<p>Check if you can navigate the content by pages.</p>\n\t\t</div>\n\t\t<p>Use the \"Next/Previous Page\" or \"Go to Page\" or the \"Page List\" feature in the Reading system and check if you are able to navigate to different pages.</p>\n\t\t<p>This EPUB file contains 10 hard coded page breaks. Note that these page breaks are different from the reflowed page numbers. If the total number of pages of this book in the reading app is not exactly 10, then you are looking at the reflowed pages. The app may be having a feature to switch between print page and reflowed pages for navigation. Or the print page list may be appearing in the TOC. If print page navigation feature does not exist or does not work then this test should be marked 'Fail'.</p>\n\t\t<p class=\"eval\">Indicate Pass or Fail.</p>\n\t</section>",
+      "order": 6,
+      "flagChanged": false,
+      "flagNew": false,
+      "name": "Navigate content by pages",
+      "description": "Check if you can navigate the content by pages."
+    },
+    {
+      "testId": "nav-210",
+      "xhtml": "<section id=\"nav-210\" class=\"test\" xmlns=\"http://www.w3.org/1999/xhtml\">\n\t\t<h2><span class=\"test-id\">nav-210</span> <span class=\"test-title\">Navigate forward and backward through reflowed content</span></h2>\n\t\t<div class=\"desc\">\n\t\t\t<p>Use any control or command to navigate forward and backwards in the book content.</p>\n\t\t</div>\n\t\t<p>Note that some reading systems may be displaying text in a scrolling view and navigation by screen or page may not be available.</p>\n\t\t<p>If you can move forwards and backwards in the book content by any means Using the selected Assistive Technology and Input method then this test passes.</p>\n\t\t<p class=\"eval\">Indicate Pass or Fail.</p>\n\t</section>",
+      "order": 7,
+      "flagChanged": false,
+      "flagNew": false,
+      "name": "Navigate forward and backward through reflowed content",
+      "description": "Use any control or command to navigate forward and backwards in the book content."
+    },
+    {
+      "testId": "nav-310",
+      "xhtml": "<section id=\"nav-310\" class=\"test\" xmlns=\"http://www.w3.org/1999/xhtml\">\n\t\t<h2><span class=\"test-id\">nav-310</span> <span class=\"test-title\">Read navigation information</span></h2>\n\t\t<p class=\"desc\">Use the \"Where am I?\" or any other similar command available in the reading system and check if you can get information about your current position in the book.</p>\n\t\t<p>The minimum information expected is current section and current page number. Percentage read, book title, author etc. can be additional useful information. It should be possible to resume reading from the last read position after using this\n\t\t\tcommand. </p>\n\t\t<p class=\"eval\">Indicate Pass or Fail.</p>\n\t</section>",
+      "order": 8,
+      "flagChanged": false,
+      "flagNew": false,
+      "name": "Read navigation information",
+      "description": "Use the \"Where am I?\" or any other similar command available in the reading system and check if you can get information about your current position in the book."
+    },
+    {
+      "testId": "nav-410",
+      "xhtml": "<section id=\"nav-410\" class=\"test\" xmlns=\"http://www.w3.org/1999/xhtml\">\n\t\t<h2><span class=\"test-id\">nav-410</span> <span class=\"test-title\">Perform a search, review the search results</span></h2>\n\t\t<div class=\"desc\">\n\t\t\t<p id=\"link-target-2a\">Perform a search, review the search results and navigate to the selected search result in the content.</p>\n\t\t</div>\n\t\t<ol>\n\t\t\t<li>Search for the term \"Taj Mahal\" without the quotation marks in this book.</li>\n\t\t\t<li>Review the search results. This phrase appears only twice in this book.</li>\n\t\t\t<li>Navigate to the second search results. Use the link available there to return to this test.</li>\n\t\t</ol>\n\t\t<p class=\"eval\">Indicate Pass or Fail.</p>\n\t</section>",
+      "order": 9,
+      "flagChanged": false,
+      "flagNew": false,
+      "name": "Perform a search, review the search results",
+      "description": "Perform a search, review the search results and navigate to the selected search result in the content."
+    },
+    {
+      "testId": "nav-510",
+      "xhtml": "<section id=\"nav-510\" class=\"test\" xmlns=\"http://www.w3.org/1999/xhtml\">\n\t\t<h2><span class=\"test-id\">nav-510</span> <span class=\"test-title\">Move across chapters without using TOC</span></h2>\n\t\t<div class=\"desc\">\n\t\t\t<p>Check if you can move across chapters without having to use the Table of Contents.</p>\n\t\t</div>\n\t\t<ol>\n\t\t\t<li>Move to the last section in this chapter which is \"Review and navigate Notes\". </li>\n\t\t\t<li>Continue reading and check if you are able to read the last lines of the current chapter and then the beginning lines of the next chapter which are reproduced below for convenience.</li>\n\t\t</ol>\n\t\t<p>The last line of the current chapter is:</p>\n\t\t<p>This line indicates the end of current chapter</p>\n\t\t<p>If your reading system takes you to the next chapter, you will be able to read the following lines on the next HTML page:</p>\n\t\t<p>Supplemental Content</p>\n\t\t<p class=\"eval\">Indicate Pass or Fail.</p>\n\t</section>",
+      "order": 10,
+      "flagChanged": false,
+      "flagNew": false,
+      "name": "Move across chapters without using TOC",
+      "description": "Check if you can move across chapters without having to use the Table of Contents."
+    },
+    {
+      "testId": "anno-010",
+      "xhtml": "<section id=\"anno-010\" class=\"test\" xmlns=\"http://www.w3.org/1999/xhtml\">\n\t\t<h2><span class=\"test-id\">anno-010</span> <span class=\"test-title\">Add a Bookmark or Highlight</span></h2>\n\t\t<div class=\"desc\">\n\t\t\t<p>Some reading systems may have a Highlight feature in place of Bookmarks. The tests for Bookmarks may then be performed with Highlights.</p>\n\t\t</div>\n\t\t<ol>\n\t\t\t<li>Navigate to the beginning of this section i.e. Highlights, Notes and Bookmarks. </li>\n\t\t\t<li>Place a Bookmark or Highlight the section title.</li>\n\t\t</ol>\n\t\t<p class=\"eval\">Indicate Pass or Fail.</p>\n\t</section>",
+      "order": 11,
+      "flagChanged": false,
+      "flagNew": false,
+      "name": "Add a Bookmark or Highlight",
+      "description": "Some reading systems may have a Highlight feature in place of Bookmarks. The tests for Bookmarks may then be performed with Highlights."
+    },
+    {
+      "testId": "anno-110",
+      "xhtml": "<section id=\"anno-110\" class=\"test\" xmlns=\"http://www.w3.org/1999/xhtml\">\n\t\t<h2><span class=\"test-id\">anno-110</span> <span class=\"test-title\">Review and navigate Bookmarks or Highlights</span></h2>\n\t\t<div class=\"desc\">\n\t\t\t<p>Check if you can review and navigate Bookmarks or Highlights.</p>\n\t\t</div>\n\t\t<ol>\n\t\t\t<li>Access and navigate list of Bookmarks or Highlights.</li>\n\t\t\t<li>Close the list(s) and resume reading.</li>\n\t\t\t<li>Access the list of Bookmarks or Highlights again and select an entry and check if you can move to the position where the Bookmark/Highlight was placed. In Windows environment it is difficult to have precise synchronization of the reading position of screen reader, therefore this test will pass in Windows environment even if you are able to move to the approximate location, for example somewhere in the same paragraph.</li>\n\t\t</ol>\n\t\t<p class=\"eval\">Indicate Pass or Fail.</p>\n\t</section>",
+      "order": 12,
+      "flagChanged": false,
+      "flagNew": false,
+      "name": "Review and navigate Bookmarks or Highlights",
+      "description": "Check if you can review and navigate Bookmarks or Highlights."
+    },
+    {
+      "testId": "anno-210",
+      "xhtml": "<section id=\"anno-210\" class=\"test\" xmlns=\"http://www.w3.org/1999/xhtml\">\n\t\t<h2><span class=\"test-id\">anno-210</span> <span class=\"test-title\">Add a note</span></h2>\n\t\t<p class=\"desc\">Add a Note at this location in the book. Provide a few lines of text in the Note.</p>\n\t\t<p class=\"eval\">Indicate Pass or Fail.</p>\n\t</section>",
+      "order": 13,
+      "flagChanged": false,
+      "flagNew": false,
+      "name": "Add a note",
+      "description": "Add a Note at this location in the book. Provide a few lines of text in the Note."
+    },
+    {
+      "testId": "anno-310",
+      "xhtml": "<section id=\"anno-310\" class=\"test\" xmlns=\"http://www.w3.org/1999/xhtml\">\n\t\t<h2><span class=\"test-id\">anno-310</span> <span class=\"test-title\">Review and navigate Notes</span></h2>\n\t\t<div class=\"desc\">\n\t\t\t<p>Check if you can review and navigate Notes.</p>\n\t\t</div>\n\t\t<ol>\n\t\t\t<li>Access and navigate list of Notes.</li>\n\t\t\t<li>Close the list(s) and resume reading.</li>\n\t\t\t<li>Access the list of Notes again and select a Note and check if you can move to the position where the Note was placed. In Windows environment it is difficult to have precise synchronization of the reading position of screen reader, therefore this test will pass in Windows environment even if you are able to move to the approximate location, for example somewhere in the same paragraph.</li>\n\t\t</ol>\n\t\t<p class=\"eval\">Indicate Pass or Fail.</p>\n\t\t<p>This line indicates the end of current chapter</p>\n\t</section>",
+      "order": 14,
+      "flagChanged": false,
+      "flagNew": false,
+      "name": "Review and navigate Notes",
+      "description": "Check if you can review and navigate Notes."
+    }
+  ]
+}
