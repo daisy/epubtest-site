@@ -113,6 +113,17 @@ tbody tr:nth-child(even) td:first-child {
 tbody tr:nth-child(odd) td:first-child {
     background-color: white;
 }
+/* hack */
+#test-books-table tbody tr:last-of-type, #test-books-table tbody tr:last-of-type td:first-child {
+    background-color: var(--hardcomp);
+}
+#experimental-test-books-table {
+    tbody tr:last-child {
+        border-bottom: thin solid black;
+    }
+}
+/* end hack */
+
 th, td {
     text-align: left;
     font-size: smaller;
